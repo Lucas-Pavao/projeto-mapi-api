@@ -2,7 +2,9 @@ package com.projeto.mapi.controller;
 
 import com.projeto.mapi.dto.LoginRequest;
 import com.projeto.mapi.dto.LoginResponse;
-import com.projeto.mapi.security.JwtService;
+import com.projeto.mapi.dto.RegisterRequest;
+import com.projeto.mapi.dto.TokenRefreshRequest;
+import com.projeto.mapi.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,16 +17,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final JwtService jwtService;
+    private final AuthenticationService authenticationService;
+
+    @PostMapping("/register")
+    public ResponseEntity<Void> register(@RequestBody RegisterRequest request) {
+        authenticationService.register(request);
+        return ResponseEntity.ok().build();
+    }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-        // Para o protótipo de mestrado, vamos usar um usuário admin fixo
-        // Em produção, aqui você validaria contra o banco de dados
-        if ("admin".equals(request.getUsername()) && "mapi123".equals(request.getPassword())) {
-            String token = jwtService.generateToken(request.getUsername());
-            return ResponseEntity.ok(new LoginResponse(token));
-        }
-        return ResponseEntity.status(401).build();
+        return ResponseEntity.ok(authenticationService.login(request));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponse> refresh(@RequestBody TokenRefreshRequest request) {
+        return ResponseEntity.ok(authenticationService.refreshToken(request));
     }
 }
