@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: projeto-mapi-api
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/tide_db}
+    username: ${POSTGRES_USER:mapi_user}
+    password: ${POSTGRES_PASSWORD:mapi123}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+mqtt:
+  broker:
+    url: ${MQTT_BROKER_URL:tcp://localhost:1883}
+  client:
+    id: ${MQTT_CLIENT_ID:mapi-api-inbound}
+  topic: ${MQTT_TOPIC:sensors/tide/#}
+
+jwt:
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+
+logging:
+  level:
+    com.projeto.mapi: DEBUG
+    org.springframework.integration: INFO
