@@ -5,13 +5,16 @@ import com.projeto.mapi.service.TideService;
 import com.projeto.mapi.service.PdfConversionService;
 import com.projeto.mapi.service.TideIngestionService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/tide")
 @RequiredArgsConstructor
+@Slf4j
 public class TideController {
     private final TideService tideService;
     private final PdfConversionService pdfConversionService;
@@ -23,32 +26,38 @@ public class TideController {
             @RequestParam(required = false) Integer year) {
         
         int queryYear = (year != null) ? year : java.time.Year.now().getValue();
+        log.info("Buscando tábua de maré para o porto: {} e ano: {}", harbor, queryYear);
+
+        Optional<TideTable> tideTable = tideService.getTideTable(harbor, queryYear);
         
-        return tideService.getTideTable(harbor, queryYear)
-                .map(ResponseEntity::ok)
+        return tideTable.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/upload")
+    @PostMapping(value = "/upload", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<TideTable> uploadPdf(
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("state") String state,
-            @RequestParam("year") Integer year) {
+            @RequestPart("file") MultipartFile file,
+            @RequestParam(value = "state", required = false) String state,
+            @RequestParam(value = "year", required = false) Integer year) {
+        log.info("Upload manual de PDF recebido.");
         try {
             TideTable result = pdfConversionService.convertAndSave(file, state, year);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
+            log.error("Erro ao converter e salvar PDF: {}", e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }
 
-    @PostMapping("/ingest/recife")
-    public ResponseEntity<TideTable> ingestRecife(@RequestParam(required = false) Integer year) {
+    @PostMapping("/ingest/local")
+    public ResponseEntity<TideTable> ingestLocalRecife(@RequestParam(required = false) Integer year) {
+        log.info("Comando para ingestão de arquivo local acionado.");
         try {
             int queryYear = (year != null) ? year : java.time.Year.now().getValue();
             TideTable result = tideIngestionService.ingestRecifeTide(queryYear);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
+            log.error("Erro na ingestão local: {}", e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
     }

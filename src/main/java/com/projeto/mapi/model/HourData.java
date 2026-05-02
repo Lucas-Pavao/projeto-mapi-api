@@ -17,6 +17,7 @@ public class HourData {
 
     @ManyToOne
     @JoinColumn(name = "day_data_id")
+    @com.fasterxml.jackson.annotation.JsonBackReference("day-hour")
     private DayData dayData;
 
     @Column(name = "\"hour\"")

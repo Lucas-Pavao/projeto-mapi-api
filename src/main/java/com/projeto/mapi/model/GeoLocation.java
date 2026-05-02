@@ -17,6 +17,7 @@ public class GeoLocation {
 
     @ManyToOne
     @JoinColumn(name = "tide_table_id")
+    @com.fasterxml.jackson.annotation.JsonBackReference("tide-geo")
     private TideTable tideTable;
 
     private String lat;

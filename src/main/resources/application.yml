@@ -6,6 +6,10 @@ spring:
     username: ${POSTGRES_USER:mapi_user}
     password: ${POSTGRES_PASSWORD:mapi123}
     driver-class-name: org.postgresql.Driver
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   jpa:
     hibernate:
       ddl-auto: update

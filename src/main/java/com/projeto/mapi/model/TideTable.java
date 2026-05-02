@@ -35,8 +35,10 @@ public class TideTable {
     private Float meanLevel;
 
     @OneToMany(mappedBy = "tideTable", cascade = CascadeType.ALL, orphanRemoval = true)
+    @com.fasterxml.jackson.annotation.JsonManagedReference("tide-geo")
     private List<GeoLocation> geoLocations;
 
     @OneToMany(mappedBy = "tideTable", cascade = CascadeType.ALL, orphanRemoval = true)
+    @com.fasterxml.jackson.annotation.JsonManagedReference("tide-month")
     private List<MonthData> months;
 }

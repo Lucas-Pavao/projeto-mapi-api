@@ -6,6 +6,7 @@ import com.projeto.mapi.service.TideService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,7 +17,8 @@ public class TideServiceImpl implements TideService {
     @Override
     @Transactional(readOnly = true)
     public Optional<TideTable> getTideTable(String harborName, Integer year) {
-        return tideTableRepository.findByHarborNameAndYear(harborName, year);
+        List<TideTable> results = tideTableRepository.findAllByHarborNameIgnoreCaseAndYear(harborName, year);
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
     }
 
     @Override

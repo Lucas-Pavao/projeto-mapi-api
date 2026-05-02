@@ -4,6 +4,8 @@ import com.projeto.mapi.dto.LoginRequest;
 import com.projeto.mapi.dto.LoginResponse;
 import com.projeto.mapi.dto.RegisterRequest;
 import com.projeto.mapi.dto.TokenRefreshRequest;
+import com.projeto.mapi.exception.TokenException;
+import com.projeto.mapi.exception.UserAlreadyExistsException;
 import com.projeto.mapi.model.RefreshToken;
 import com.projeto.mapi.model.Role;
 import com.projeto.mapi.model.User;
@@ -30,7 +32,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public void register(RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            throw new RuntimeException("Username already exists");
+            throw new UserAlreadyExistsException("Username already exists: " + request.getUsername());
         }
 
         var user = User.builder()
@@ -75,6 +77,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                             .refreshToken(request.getRefreshToken())
                             .build();
                 })
-                .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
+                .orElseThrow(() -> new TokenException("Refresh token is not in database!"));
     }
 }
