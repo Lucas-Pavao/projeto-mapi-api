@@ -18,6 +18,7 @@ public class MonthData {
 
     @ManyToOne
     @JoinColumn(name = "tide_table_id")
+    @com.fasterxml.jackson.annotation.JsonBackReference("tide-month")
     private TideTable tideTable;
 
     @Column(name = "month_name")
@@ -27,5 +28,6 @@ public class MonthData {
     private Integer month;
 
     @OneToMany(mappedBy = "monthData", cascade = CascadeType.ALL, orphanRemoval = true)
+    @com.fasterxml.jackson.annotation.JsonManagedReference("month-day")
     private List<DayData> days;
 }

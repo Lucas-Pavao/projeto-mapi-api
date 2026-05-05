@@ -3,26 +3,15 @@ package com.projeto.mapi.service.impl;
 import com.projeto.mapi.model.TideTable;
 import com.projeto.mapi.service.PdfConversionService;
 import com.projeto.mapi.service.TideIngestionService;
+import com.projeto.mapi.service.TideService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import java.io.File;
+import java.nio.file.Files;
 
 @Service
 @RequiredArgsConstructor
@@ -30,76 +19,37 @@ import javax.net.ssl.X509TrustManager;
 public class TideIngestionServiceImpl implements TideIngestionService {
 
     private final PdfConversionService pdfConversionService;
+    private final TideService tideService;
 
-    private static final String NAVY_PORTAL_URL = "https://www.marinha.mil.br/chm/tabuas-de-mare-6";
-    private static final String BASE_DOMAIN = "https://www.marinha.mil.br";
+    private static final String LOCAL_PDF_DIR = "src/exemplos pdf";
 
     @Override
     public TideTable ingestRecifeTide(Integer year) throws Exception {
-        log.info("Iniciando ingestão automática da tábua de maré do Recife para o ano {}", year);
+        log.info("Iniciando ingestão manual (local) para Recife e ano {}", year);
 
-        String pdfUrl = findRecifePdfUrl();
-        if (pdfUrl == null) {
-            throw new RuntimeException("Link do PDF do Recife não encontrado no portal da Marinha.");
+        File dir = new File(LOCAL_PDF_DIR);
+        if (!dir.exists()) {
+            throw new RuntimeException("Diretório de exemplos locais não encontrado: " + LOCAL_PDF_DIR);
         }
 
-        log.info("PDF encontrado: {}", pdfUrl);
-        byte[] pdfContent = downloadPdf(pdfUrl);
+        File[] files = dir.listFiles((d, name) -> 
+            name.toUpperCase().contains("RECIFE") && name.endsWith(".pdf"));
 
-        MultipartFile multipartFile = new MockMultipartFile(
-                "file",
-                "tide_recife_" + year + ".pdf",
-                "application/pdf",
-                pdfContent
-        );
-
-        return pdfConversionService.convertAndSave(multipartFile, "PE", year);
-    }
-
-    private String findRecifePdfUrl() throws Exception {
-        byte[] htmlContent = downloadPdf(NAVY_PORTAL_URL);
-        String html = new String(htmlContent);
-        
-        Document doc = Jsoup.parse(html, BASE_DOMAIN);
-        Elements links = doc.select("a[href$=.pdf]");
-
-        for (Element link : links) {
-            String text = link.text().toUpperCase();
-            String href = link.attr("href");
-
-            if (text.contains("RECIFE")) {
-                if (href.startsWith("http")) {
-                    return href;
-                } else {
-                    return BASE_DOMAIN + (href.startsWith("/") ? "" : "/") + href;
-                }
-            }
+        if (files != null && files.length > 0) {
+            File file = files[0];
+            log.info("Processando arquivo local: {}", file.getName());
+            
+            byte[] content = Files.readAllBytes(file.toPath());
+            MultipartFile multipartFile = new MockMultipartFile(
+                    "file",
+                    file.getName(),
+                    "application/pdf",
+                    content
+            );
+            
+            return pdfConversionService.convertAndSave(multipartFile, "PE", year);
         }
-        return null;
-    }
 
-    private byte[] downloadPdf(String url) throws Exception {
-        TrustManager[] trustAllCerts = new TrustManager[]{
-            new X509TrustManager() {
-                public X509Certificate[] getAcceptedIssuers() { return null; }
-                public void checkClientTrusted(X509Certificate[] certs, String authType) {}
-                public void checkServerTrusted(X509Certificate[] certs, String authType) {}
-            }
-        };
-
-        SSLContext sslContext = SSLContext.getInstance("SSL");
-        sslContext.init(null, trustAllCerts, new SecureRandom());
-
-        HttpClient client = HttpClient.newBuilder()
-                .sslContext(sslContext)
-                .build();
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .GET()
-                .build();
-
-        HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
-        return response.body();
+        throw new RuntimeException("Nenhum PDF de Recife encontrado localmente em " + LOCAL_PDF_DIR);
     }
 }

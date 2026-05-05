@@ -2,6 +2,7 @@ package com.projeto.mapi.service.impl;
 
 import com.projeto.mapi.model.RefreshToken;
 import com.projeto.mapi.model.User;
+import com.projeto.mapi.exception.TokenException;
 import com.projeto.mapi.repository.RefreshTokenRepository;
 import com.projeto.mapi.repository.UserRepository;
 import com.projeto.mapi.service.RefreshTokenService;
@@ -30,17 +31,18 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     }
 
     @Override
+    @Transactional
     public RefreshToken createRefreshToken(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
 
-        refreshTokenRepository.deleteByUser(user);
+        // Busca token existente para o usuário ou cria um novo
+        RefreshToken refreshToken = refreshTokenRepository.findByUser(user)
+                .orElse(new RefreshToken());
 
-        RefreshToken refreshToken = RefreshToken.builder()
-                .user(user)
-                .token(UUID.randomUUID().toString())
-                .expiryDate(Instant.now().plusMillis(refreshTokenDurationMs))
-                .build();
+        refreshToken.setUser(user);
+        refreshToken.setToken(UUID.randomUUID().toString());
+        refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
 
         return refreshTokenRepository.save(refreshToken);
     }
@@ -49,7 +51,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     public RefreshToken verifyExpiration(RefreshToken token) {
         if (token.getExpiryDate().compareTo(Instant.now()) < 0) {
             refreshTokenRepository.delete(token);
-            throw new RuntimeException("Refresh token was expired. Please make a new signin request");
+            throw new TokenException("Refresh token was expired. Please make a new signin request");
         }
         return token;
     }
