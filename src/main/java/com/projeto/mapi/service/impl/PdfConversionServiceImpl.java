@@ -57,8 +57,14 @@ public class PdfConversionServiceImpl implements PdfConversionService {
     @Override
     @Transactional
     public TideTable convertAndSave(MultipartFile file, String state, Integer year) throws IOException {
+        return convertAndSave(file.getBytes(), file.getOriginalFilename(), state, year);
+    }
+
+    @Override
+    @Transactional
+    public TideTable convertAndSave(byte[] pdfBytes, String filename, String state, Integer year) throws IOException {
         String text;
-        try (PDDocument document = Loader.loadPDF(file.getBytes())) {
+        try (PDDocument document = Loader.loadPDF(pdfBytes)) {
             PDFTextStripper stripper = new PDFTextStripper();
             stripper.setSortByPosition(false); 
             text = stripper.getText(document);

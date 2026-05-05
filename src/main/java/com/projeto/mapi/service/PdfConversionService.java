@@ -6,4 +6,6 @@ import java.io.IOException;
 
 public interface PdfConversionService {
     TideTable convertAndSave(MultipartFile file, String state, Integer year) throws IOException;
+    TideTable convertAndSave(byte[] pdfBytes, String filename, String state, Integer year) throws IOException;
 }
+
