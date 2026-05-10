@@ -2,6 +2,7 @@ package com.projeto.mapi.config;
 
 import com.projeto.mapi.service.SensorService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -15,9 +16,11 @@ import org.springframework.integration.mqtt.inbound.MqttPahoMessageDrivenChannel
 import org.springframework.integration.mqtt.support.DefaultPahoMessageConverter;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
+import java.util.UUID;
 
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class MqttConfig {
 
     @Value("${mqtt.broker.url}")
@@ -37,6 +40,9 @@ public class MqttConfig {
         MqttConnectOptions options = new MqttConnectOptions();
         options.setServerURIs(new String[] { brokerUrl });
         options.setCleanSession(true);
+        options.setAutomaticReconnect(true);
+        options.setConnectionTimeout(30);
+        options.setKeepAliveInterval(60);
         factory.setConnectionOptions(options);
         return factory;
     }
@@ -48,8 +54,12 @@ public class MqttConfig {
 
     @Bean
     public MessageProducer inbound() {
+        // Gerar um ID único para evitar conflitos no broker público
+        String uniqueClientId = clientId + "-" + UUID.randomUUID().toString().substring(0, 8);
+        log.info("Iniciando adaptador MQTT no tópico '{}' com Client ID: {}", topic, uniqueClientId);
+        
         MqttPahoMessageDrivenChannelAdapter adapter =
-                new MqttPahoMessageDrivenChannelAdapter(clientId, mqttClientFactory(), topic);
+                new MqttPahoMessageDrivenChannelAdapter(uniqueClientId, mqttClientFactory(), topic);
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setQos(1);
@@ -62,6 +72,7 @@ public class MqttConfig {
     public MessageHandler handler() {
         return message -> {
             String payload = message.getPayload().toString();
+            log.debug("Mensagem bruta recebida do MQTT: {}", payload);
             sensorService.processSensorMessage(payload);
         };
     }
