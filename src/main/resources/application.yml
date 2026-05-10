@@ -20,7 +20,7 @@ spring:
 
 mqtt:
   broker:
-    url: ${MQTT_BROKER_URL:tcp://localhost:1883}
+    url: ${MQTT_BROKER_URL:tcp://broker.hivemq.com:1883}
   client:
     id: ${MQTT_CLIENT_ID:mapi-api-inbound}
   topic: ${MQTT_TOPIC:projeto-mapi/sensores/#}
