@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -58,6 +59,16 @@ public class SensorServiceImpl implements SensorService {
             log.error("Error processing JSON MQTT message: {}", payload, e);
             // Fallback para o formato antigo se necessário, ou apenas logar erro
         }
+    }
+
+    @Override
+    public List<SensorData> getAllLatestData() {
+        return sensorDataRepository.findAll(); // Simplificado para este exemplo, ideal seria um SELECT DISTINCT ou Query customizada
+    }
+
+    @Override
+    public List<SensorData> getSensorHistory(String sensorId) {
+        return sensorDataRepository.findBySensorIdOrderByTimestampDesc(sensorId);
     }
 
     private void inferUnit(SensorData data, JsonNode originalData) {
