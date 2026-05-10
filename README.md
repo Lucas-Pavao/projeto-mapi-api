@@ -100,8 +100,29 @@ O sistema de segurança foi aprimorado para suportar autenticação completa bas
 
 ---
 
-## 📊 Integração IoT (MQTT)
-A API escuta dados de sensores no tópico configurado. Para simular um envio:
+## 📊 Integração IoT e Sensores Virtuais (MQTT)
+A API está integrada ao projeto [**projeto-mapi**](https://github.com/lucas-mapi/projeto-mapi) (Python), que atua como uma camada de **Fog Computing**. 
+
+Os sensores virtuais (ANA/APAC) coletam dados, aplicam lógica de detecção de anomalias e enviam payloads JSON para o broker MQTT.
+
+### Tópico de Escuta:
+`projeto-mapi/sensores/#`
+
+### Exemplo de Payload JSON:
+```json
+{
+    "id_sensor": "ANA_RECIFE_01",
+    "timestamp_coleta": "2026-05-10T10:00:00",
+    "status_bateria": "98.5%",
+    "fog_valor_referencia": 2.45,
+    "dados_originais": {
+        "Nivel_Adotado": 2.45,
+        "Vazao_Adotada": 150.2
+    }
+}
+```
+
+### Simulação Manual:
 ```bash
-mosquitto_pub -h localhost -t sensors/tide/data -m "sensor_recife,2.5,m"
+mosquitto_pub -h localhost -t projeto-mapi/sensores/ANA_RECIFE_01 -m '{"id_sensor": "ANA_RECIFE_01", "timestamp_coleta": "2026-05-10T11:00:00", "status_bateria": "100%", "fog_valor_referencia": 1.2, "dados_originais": {"chuva_acumulada": 1.2}}'
 ```

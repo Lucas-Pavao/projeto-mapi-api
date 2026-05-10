@@ -24,6 +24,12 @@ public class SensorData {
 
     private String unit;
 
+    @Column(name = "battery_status")
+    private String batteryStatus;
+
+    @Column(name = "raw_data", columnDefinition = "TEXT")
+    private String rawData;
+
     @Column(name = "\"timestamp\"")
     private LocalDateTime timestamp;
 }
