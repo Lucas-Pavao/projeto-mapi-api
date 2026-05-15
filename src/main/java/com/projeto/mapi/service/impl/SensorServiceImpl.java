@@ -78,7 +78,7 @@ public class SensorServiceImpl implements SensorService {
         saveIfNew(sensorId, value, batteryStatus, timestampStr, rawData, item);
     }
 
-    private void saveIfNew(String sensorId, double value, String batteryStatus, String timestampStr, String rawData, JsonNode unitInferenceSource) {
+    private void saveIfNew(String sensorId, double value, String batteryStatus, String timestampStr, String rawData, JsonNode sourceNode) {
         LocalDateTime timestamp = parseTimestamp(timestampStr);
         
         // Evitar duplicatas exatas (mesmo sensor e mesmo timestamp)
@@ -95,8 +95,9 @@ public class SensorServiceImpl implements SensorService {
                 .timestamp(timestamp)
                 .build();
         
-        if (unitInferenceSource != null) {
-            inferUnit(data, unitInferenceSource);
+        if (sourceNode != null) {
+            inferUnit(data, sourceNode);
+            extractMetadata(data, sourceNode);
         }
 
         try {
@@ -104,6 +105,21 @@ public class SensorServiceImpl implements SensorService {
             log.info("Dados do sensor {} salvos: valor={}, timestamp={}", sensorId, value, timestamp);
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
             log.warn("Tentativa de salvar registro duplicado interceptada pelo banco: {} em {}", sensorId, timestamp);
+        }
+    }
+
+    private void extractMetadata(SensorData data, JsonNode sourceNode) {
+        if (sourceNode.has("estacao_nome")) data.setStationName(sourceNode.get("estacao_nome").asText());
+        if (sourceNode.has("latitude") && !sourceNode.get("latitude").isNull()) data.setLatitude(sourceNode.get("latitude").asDouble());
+        if (sourceNode.has("longitude") && !sourceNode.get("longitude").isNull()) data.setLongitude(sourceNode.get("longitude").asDouble());
+        if (sourceNode.has("municipio")) data.setMunicipality(sourceNode.get("municipio").asText());
+        if (sourceNode.has("tipo")) data.setType(sourceNode.get("tipo").asText());
+        if (sourceNode.has("fonte")) data.setSource(sourceNode.get("fonte").asText());
+        
+        // Se for ANA, os metadados podem estar em outros campos
+        if (sourceNode.has("codigoestacao")) {
+            if (data.getStationName() == null) data.setStationName("Estação " + sourceNode.get("codigoestacao").asText());
+            if (data.getSource() == null) data.setSource("ANA");
         }
     }
 
@@ -145,6 +161,13 @@ public class SensorServiceImpl implements SensorService {
                 .unit(data.getUnit())
                 .batteryStatus(data.getBatteryStatus())
                 .timestamp(data.getTimestamp())
+                .stationName(data.getStationName())
+                .latitude(data.getLatitude())
+                .longitude(data.getLongitude())
+                .municipality(data.getMunicipality())
+                .type(data.getType())
+                .source(data.getSource())
+                .rawData(data.getRawData())
                 .build();
     }
 

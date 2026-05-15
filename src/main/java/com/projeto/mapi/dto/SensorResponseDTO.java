@@ -17,4 +17,11 @@ public class SensorResponseDTO {
     private String unit;
     private String batteryStatus;
     private LocalDateTime timestamp;
+    private String stationName;
+    private Double latitude;
+    private Double longitude;
+    private String municipality;
+    private String type;
+    private String source;
+    private String rawData;
 }

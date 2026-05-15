@@ -34,4 +34,13 @@ public class SensorData {
 
     @Column(name = "\"timestamp\"")
     private LocalDateTime timestamp;
+
+    @Column(name = "station_name")
+    private String stationName;
+
+    private Double latitude;
+    private Double longitude;
+    private String municipality;
+    private String type;
+    private String source;
 }
