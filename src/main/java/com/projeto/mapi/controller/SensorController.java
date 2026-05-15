@@ -1,6 +1,6 @@
 package com.projeto.mapi.controller;
 
-import com.projeto.mapi.model.SensorData;
+import com.projeto.mapi.dto.SensorResponseDTO;
 import com.projeto.mapi.service.SensorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,13 +20,13 @@ public class SensorController {
 
     @GetMapping("/latest")
     @Operation(summary = "Ver todas as leituras recentes de todos os sensores")
-    public ResponseEntity<List<SensorData>> getAllLatest() {
+    public ResponseEntity<List<SensorResponseDTO>> getAllLatest() {
         return ResponseEntity.ok(sensorService.getAllLatestData());
     }
 
     @GetMapping("/{sensorId}/history")
     @Operation(summary = "Ver o histórico de leituras de um sensor específico")
-    public ResponseEntity<List<SensorData>> getSensorHistory(@PathVariable String sensorId) {
+    public ResponseEntity<List<SensorResponseDTO>> getSensorHistory(@PathVariable String sensorId) {
         return ResponseEntity.ok(sensorService.getSensorHistory(sensorId));
     }
 }

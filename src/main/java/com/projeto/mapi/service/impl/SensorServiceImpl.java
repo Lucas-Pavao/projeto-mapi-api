@@ -2,6 +2,7 @@ package com.projeto.mapi.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.projeto.mapi.dto.SensorResponseDTO;
 import com.projeto.mapi.model.SensorData;
 import com.projeto.mapi.repository.SensorDataRepository;
 import com.projeto.mapi.service.SensorService;
@@ -23,61 +24,128 @@ public class SensorServiceImpl implements SensorService {
     @Override
     @Transactional
     public void processSensorMessage(String payload) {
-        log.info("Received MQTT message: {}", payload);
+        log.info("Processando mensagem MQTT: {}", payload);
         try {
             JsonNode root = objectMapper.readTree(payload);
             
+            if (!root.has("id_sensor")) {
+                log.warn("Mensagem ignorada: 'id_sensor' não encontrado. Payload: {}", payload);
+                return;
+            }
+
             String sensorId = root.get("id_sensor").asText();
-            
-            // Lidar com valor_referencia que pode ser null
-            double value = 0.0;
-            if (root.has("fog_valor_referencia") && !root.get("fog_valor_referencia").isNull()) {
-                value = root.get("fog_valor_referencia").asDouble();
-            } else {
-                // Se for null (comum na ANA), tentamos extrair do dados_originais
-                value = extractValueFromOriginal(root.get("dados_originais"));
-            }
-
             String batteryStatus = root.has("status_bateria") ? root.get("status_bateria").asText() : "N/A";
-            String timestampStr = root.has("timestamp_coleta") ? root.get("timestamp_coleta").asText() : LocalDateTime.now().toString();
-            String rawData = root.get("dados_originais").toString();
             
-            LocalDateTime timestamp;
-            try {
-                timestamp = LocalDateTime.parse(timestampStr, DateTimeFormatter.ISO_DATE_TIME);
-            } catch (Exception e) {
-                log.warn("Could not parse timestamp {}, using current time", timestampStr);
-                timestamp = LocalDateTime.now();
+            // Se tiver 'items', processar cada um individualmente (Padrão ANA)
+            if (root.has("dados_originais") && root.get("dados_originais").has("items") && root.get("dados_originais").get("items").isArray()) {
+                JsonNode items = root.get("dados_originais").get("items");
+                log.info("Processando {} itens para o sensor {}", items.size(), sensorId);
+                for (JsonNode item : items) {
+                    processSingleItem(sensorId, batteryStatus, item, item.toString());
+                }
+            } else {
+                // Processamento padrão (Padrão APAC ou Simples)
+                processSinglePayload(root, sensorId, batteryStatus, payload);
             }
-
-            SensorData data = SensorData.builder()
-                    .sensorId(sensorId)
-                    .value(value)
-                    .batteryStatus(batteryStatus)
-                    .rawData(rawData)
-                    .timestamp(timestamp)
-                    .build();
-            
-            // Tentar inferir unidade se possível (opcional)
-            inferUnit(data, root.get("dados_originais"));
-
-            sensorDataRepository.save(data);
-            log.debug("Saved sensor data for {}", sensorId);
             
         } catch (Exception e) {
-            log.error("Error processing JSON MQTT message: {}", payload, e);
-            // Fallback para o formato antigo se necessário, ou apenas logar erro
+            log.error("Erro ao processar mensagem JSON do MQTT: {}", payload, e);
+        }
+    }
+
+    private void processSinglePayload(JsonNode root, String sensorId, String batteryStatus, String payload) {
+        double value = 0.0;
+        if (root.has("fog_valor_referencia") && !root.get("fog_valor_referencia").isNull()) {
+            value = root.get("fog_valor_referencia").asDouble();
+        } else if (root.has("dados_originais")) {
+            value = extractValueFromOriginal(root.get("dados_originais"));
+        }
+
+        String timestampStr = root.has("timestamp_coleta") ? root.get("timestamp_coleta").asText() : LocalDateTime.now().toString();
+        String rawData = root.has("dados_originais") ? root.get("dados_originais").toString() : payload;
+        
+        saveIfNew(sensorId, value, batteryStatus, timestampStr, rawData, root.get("dados_originais"));
+    }
+
+    private void processSingleItem(String sensorId, String batteryStatus, JsonNode item, String rawData) {
+        double value = 0.0;
+        if (item.has("Chuva_Adotada") && !item.get("Chuva_Adotada").isNull()) value = item.get("Chuva_Adotada").asDouble();
+        else if (item.has("Cota_Adotada") && !item.get("Cota_Adotada").isNull()) value = item.get("Cota_Adotada").asDouble();
+        else if (item.has("Nivel_Adotado") && !item.get("Nivel_Adotado").isNull()) value = item.get("Nivel_Adotado").asDouble();
+
+        String timestampStr = item.has("Data_Hora_Medicao") ? item.get("Data_Hora_Medicao").asText() : LocalDateTime.now().toString();
+        
+        saveIfNew(sensorId, value, batteryStatus, timestampStr, rawData, item);
+    }
+
+    private void saveIfNew(String sensorId, double value, String batteryStatus, String timestampStr, String rawData, JsonNode unitInferenceSource) {
+        LocalDateTime timestamp = parseTimestamp(timestampStr);
+        
+        // Evitar duplicatas exatas (mesmo sensor e mesmo timestamp)
+        if (sensorDataRepository.findBySensorIdAndTimestamp(sensorId, timestamp).isPresent()) {
+            log.debug("Registro duplicado ignorado para {} em {}", sensorId, timestamp);
+            return;
+        }
+
+        SensorData data = SensorData.builder()
+                .sensorId(sensorId)
+                .value(value)
+                .batteryStatus(batteryStatus)
+                .rawData(rawData)
+                .timestamp(timestamp)
+                .build();
+        
+        if (unitInferenceSource != null) {
+            inferUnit(data, unitInferenceSource);
+        }
+
+        try {
+            sensorDataRepository.save(data);
+            log.info("Dados do sensor {} salvos: valor={}, timestamp={}", sensorId, value, timestamp);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            log.warn("Tentativa de salvar registro duplicado interceptada pelo banco: {} em {}", sensorId, timestamp);
+        }
+    }
+
+    private LocalDateTime parseTimestamp(String timestampStr) {
+        try {
+            // Tentar ISO
+            return LocalDateTime.parse(timestampStr, DateTimeFormatter.ISO_DATE_TIME);
+        } catch (Exception e1) {
+            try {
+                // Tentar formato comum da ANA: yyyy-MM-dd HH:mm:ss.S
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSS][.SS][.S]");
+                return LocalDateTime.parse(timestampStr, formatter);
+            } catch (Exception e2) {
+                log.warn("Não foi possível processar o timestamp {}, usando hora atual", timestampStr);
+                return LocalDateTime.now();
+            }
         }
     }
 
     @Override
-    public List<SensorData> getAllLatestData() {
-        return sensorDataRepository.findAll(); // Simplificado para este exemplo, ideal seria um SELECT DISTINCT ou Query customizada
+    public List<SensorResponseDTO> getAllLatestData() {
+        return sensorDataRepository.findAllLatest().stream()
+                .map(this::convertToDTO)
+                .toList();
     }
 
     @Override
-    public List<SensorData> getSensorHistory(String sensorId) {
-        return sensorDataRepository.findBySensorIdOrderByTimestampDesc(sensorId);
+    public List<SensorResponseDTO> getSensorHistory(String sensorId) {
+        return sensorDataRepository.findBySensorIdOrderByTimestampDesc(sensorId).stream()
+                .map(this::convertToDTO)
+                .toList();
+    }
+
+    private SensorResponseDTO convertToDTO(SensorData data) {
+        return SensorResponseDTO.builder()
+                .id(data.getId())
+                .sensorId(data.getSensorId())
+                .value(data.getValue())
+                .unit(data.getUnit())
+                .batteryStatus(data.getBatteryStatus())
+                .timestamp(data.getTimestamp())
+                .build();
     }
 
     private double extractValueFromOriginal(JsonNode originalData) {
@@ -105,18 +173,18 @@ public class SensorServiceImpl implements SensorService {
                 data.setUnit("mm");
                 return;
             }
-            if (firstItem.has("Nivel_Adotado")) {
+            if (firstItem.has("Nivel_Adotado") || firstItem.has("Cota_Adotada")) {
                 data.setUnit("m");
                 return;
             }
         }
         
-        // Lógica para APAC
+        // Lógica para APAC ou itens individuais
         if (originalData.has("chuva_acumulada") || originalData.has("precipitacao_acumulada") || originalData.has("Chuva_Adotada")) {
             data.setUnit("mm");
-        } else if (originalData.has("Nivel_Adotado")) {
+        } else if (originalData.has("Nivel_Adotado") || originalData.has("Cota_Adotada") || originalData.has("Cota")) {
             data.setUnit("m");
-        } else if (originalData.has("Vazao_Adotada")) {
+        } else if (originalData.has("Vazao_Adotada") || originalData.has("Vazao")) {
             data.setUnit("m³/s");
         }
     }

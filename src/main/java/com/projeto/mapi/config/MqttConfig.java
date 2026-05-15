@@ -56,10 +56,18 @@ public class MqttConfig {
     public MessageProducer inbound() {
         // Gerar um ID único para evitar conflitos no broker público
         String uniqueClientId = clientId + "-" + UUID.randomUUID().toString().substring(0, 8);
-        log.info("Iniciando adaptador MQTT no tópico '{}' com Client ID: {}", topic, uniqueClientId);
+        
+        // Garantir que o tópico tenha o wildcard se for destinado a múltiplos sensores
+        String effectiveTopic = topic;
+        if (!effectiveTopic.contains("#") && !effectiveTopic.contains("+") && !effectiveTopic.endsWith("/")) {
+            // Se for apenas um prefixo sem wildcard, talvez devesse ter um
+            log.warn("O tópico MQTT '{}' não contém wildcards (# ou +). Pode não receber mensagens de sub-tópicos.", effectiveTopic);
+        }
+        
+        log.info("Iniciando adaptador MQTT no broker '{}' tópico '{}' com Client ID: {}", brokerUrl, effectiveTopic, uniqueClientId);
         
         MqttPahoMessageDrivenChannelAdapter adapter =
-                new MqttPahoMessageDrivenChannelAdapter(uniqueClientId, mqttClientFactory(), topic);
+                new MqttPahoMessageDrivenChannelAdapter(uniqueClientId, mqttClientFactory(), effectiveTopic);
         adapter.setCompletionTimeout(5000);
         adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setQos(1);
@@ -72,8 +80,16 @@ public class MqttConfig {
     public MessageHandler handler() {
         return message -> {
             String payload = message.getPayload().toString();
-            log.debug("Mensagem bruta recebida do MQTT: {}", payload);
+            String topic = message.getHeaders().get("mqtt_receivedTopic", String.class);
+            log.info("Mensagem recebida do MQTT no tópico '{}': {}", topic, payload);
             sensorService.processSensorMessage(payload);
+        };
+    }
+
+    @Bean
+    public MessageHandler mqttErrorHandler() {
+        return message -> {
+            log.error("Erro no adaptador MQTT: {}", message.getPayload());
         };
     }
 }

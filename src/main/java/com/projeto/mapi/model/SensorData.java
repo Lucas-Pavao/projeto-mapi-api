@@ -5,7 +5,9 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "sensor_data")
+@Table(name = "sensor_data", 
+       uniqueConstraints = {@UniqueConstraint(columnNames = {"sensor_id", "timestamp"})},
+       indexes = {@Index(name = "idx_sensor_timestamp", columnList = "sensor_id, timestamp")})
 @Getter
 @Setter
 @NoArgsConstructor
