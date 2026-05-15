@@ -1,5 +1,7 @@
 package com.projeto.mapi.service.impl;
 
+import com.projeto.mapi.dto.TideTableResponseDTO;
+import com.projeto.mapi.mapper.TideMapper;
 import com.projeto.mapi.model.TideTable;
 import com.projeto.mapi.repository.TideTableRepository;
 import com.projeto.mapi.service.NavyScraperService;
@@ -9,9 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,15 +24,14 @@ public class TideServiceImpl implements TideService {
 
     @Override
     @Transactional
-    public Optional<TideTable> getTideTable(String harborName, Integer year) {
+    public Optional<TideTableResponseDTO> getTideTable(String harborName, Integer year) {
         List<TideTable> results = tideTableRepository.findAllByHarborNameIgnoreCaseAndYear(harborName, year);
         
         if (results.isEmpty()) {
             log.info("Dados não encontrados para {} em {}. Tentando buscar no site da Marinha...", harborName, year);
             try {
-                // Se for um dos portos de PE que monitoramos, podemos tentar a raspagem automática
                 if (isTargetPernambucoPort(harborName)) {
-                    List<TideTable> scraped = navyScraperService.scrapeAndIngestPernambuco(year);
+                    List<TideTableResponseDTO> scraped = navyScraperService.scrapeAndIngestPernambuco(year);
                     return scraped.stream()
                             .filter(t -> t.getHarborName().equalsIgnoreCase(harborName))
                             .findFirst();
@@ -41,12 +42,12 @@ public class TideServiceImpl implements TideService {
             return Optional.empty();
         }
         
-        return Optional.of(results.get(0));
+        return Optional.of(TideMapper.toDTO(results.get(0)));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<TideTable> getTideTablesByState(String state, Integer year) {
+    public List<TideTableResponseDTO> getTideTablesByState(String state, Integer year) {
         List<TideTable> results = tideTableRepository.findAllByStateIgnoreCaseAndYear(state, year);
         
         if (results.isEmpty() && state.equalsIgnoreCase("PE")) {
@@ -58,25 +59,22 @@ public class TideServiceImpl implements TideService {
             }
         }
         
-        return results;
+        return results.stream().map(TideMapper::toDTO).collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<TideTable> searchTideTablesByHarbor(String harborName, Integer year) {
-        return tideTableRepository.findAllByHarborNameContainingIgnoreCaseAndYear(harborName, year);
+    public List<TideTableResponseDTO> searchTideTablesByHarbor(String harborName, Integer year) {
+        return tideTableRepository.findAllByHarborNameContainingIgnoreCaseAndYear(harborName, year)
+                .stream()
+                .map(TideMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<String> getAllHarbors(Integer year) {
         return tideTableRepository.findDistinctHarborNamesByYear(year);
-    }
-
-    @Override
-    @Transactional
-    public TideTable saveTideTable(TideTable tideTable) {
-        return tideTableRepository.save(tideTable);
     }
 
     private boolean isTargetPernambucoPort(String name) {

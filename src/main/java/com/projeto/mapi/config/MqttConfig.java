@@ -23,22 +23,14 @@ import java.util.UUID;
 @Slf4j
 public class MqttConfig {
 
-    @Value("${mqtt.broker.url}")
-    private String brokerUrl;
-
-    @Value("${mqtt.client.id}")
-    private String clientId;
-
-    @Value("${mqtt.topic}")
-    private String topic;
-
+    private final MqttProperties mqttProperties;
     private final SensorService sensorService;
 
     @Bean
     public MqttPahoClientFactory mqttClientFactory() {
         DefaultMqttPahoClientFactory factory = new DefaultMqttPahoClientFactory();
         MqttConnectOptions options = new MqttConnectOptions();
-        options.setServerURIs(new String[] { brokerUrl });
+        options.setServerURIs(new String[] { mqttProperties.getBroker().getUrl() });
         options.setCleanSession(true);
         options.setAutomaticReconnect(true);
         options.setConnectionTimeout(30);
@@ -55,16 +47,16 @@ public class MqttConfig {
     @Bean
     public MessageProducer inbound() {
         // Gerar um ID único para evitar conflitos no broker público
-        String uniqueClientId = clientId + "-" + UUID.randomUUID().toString().substring(0, 8);
+        String uniqueClientId = mqttProperties.getClient().getId() + "-" + UUID.randomUUID().toString().substring(0, 8);
         
         // Garantir que o tópico tenha o wildcard se for destinado a múltiplos sensores
-        String effectiveTopic = topic;
+        String effectiveTopic = mqttProperties.getTopic();
         if (!effectiveTopic.contains("#") && !effectiveTopic.contains("+") && !effectiveTopic.endsWith("/")) {
             // Se for apenas um prefixo sem wildcard, talvez devesse ter um
             log.warn("O tópico MQTT '{}' não contém wildcards (# ou +). Pode não receber mensagens de sub-tópicos.", effectiveTopic);
         }
         
-        log.info("Iniciando adaptador MQTT no broker '{}' tópico '{}' com Client ID: {}", brokerUrl, effectiveTopic, uniqueClientId);
+        log.info("Iniciando adaptador MQTT no broker '{}' tópico '{}' com Client ID: {}", mqttProperties.getBroker().getUrl(), effectiveTopic, uniqueClientId);
         
         MqttPahoMessageDrivenChannelAdapter adapter =
                 new MqttPahoMessageDrivenChannelAdapter(uniqueClientId, mqttClientFactory(), effectiveTopic);
