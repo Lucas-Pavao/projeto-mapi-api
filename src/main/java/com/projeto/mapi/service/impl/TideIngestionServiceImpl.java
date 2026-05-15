@@ -1,6 +1,6 @@
 package com.projeto.mapi.service.impl;
 
-import com.projeto.mapi.model.TideTable;
+import com.projeto.mapi.dto.TideTableResponseDTO;
 import com.projeto.mapi.service.PdfConversionService;
 import com.projeto.mapi.service.TideIngestionService;
 import com.projeto.mapi.service.TideService;
@@ -19,12 +19,11 @@ import java.nio.file.Files;
 public class TideIngestionServiceImpl implements TideIngestionService {
 
     private final PdfConversionService pdfConversionService;
-    private final TideService tideService;
 
     private static final String LOCAL_PDF_DIR = "src/exemplos pdf";
 
     @Override
-    public TideTable ingestRecifeTide(Integer year) throws Exception {
+    public TideTableResponseDTO ingestRecifeTide(Integer year) throws Exception {
         log.info("Iniciando ingestão manual (local) para Recife e ano {}", year);
 
         File dir = new File(LOCAL_PDF_DIR);

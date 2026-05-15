@@ -1,7 +1,7 @@
 package com.projeto.mapi.service;
 
-import com.projeto.mapi.model.TideTable;
+import com.projeto.mapi.dto.TideTableResponseDTO;
 
 public interface TideIngestionService {
-    TideTable ingestRecifeTide(Integer year) throws Exception;
+    TideTableResponseDTO ingestRecifeTide(Integer year) throws Exception;
 }

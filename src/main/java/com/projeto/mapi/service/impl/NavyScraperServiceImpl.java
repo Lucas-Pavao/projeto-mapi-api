@@ -5,6 +5,8 @@ import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
+import com.projeto.mapi.dto.TideTableResponseDTO;
+import com.projeto.mapi.mapper.TideMapper;
 import com.projeto.mapi.model.TideTable;
 import com.projeto.mapi.service.NavyScraperService;
 import com.projeto.mapi.service.PdfConversionService;
@@ -23,6 +25,7 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,22 +33,24 @@ import java.util.Map;
 public class NavyScraperServiceImpl implements NavyScraperService {
 
     private final PdfConversionService pdfConversionService;
+    private final com.projeto.mapi.config.AppProperties appProperties;
 
-    private static final String BASE_URL = "https://www.marinha.mil.br";
-    private static final String TIDE_URL = BASE_URL + "/chm/tabuas-de-mare-6?page=0";
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36";
 
     static {
         disableSslVerification();
     }
 
+    private String getTideUrl() {
+        return appProperties.getNavy().getBaseUrl() + "/chm/tabuas-de-mare-6?page=0";
+    }
+
     @Override
-    public List<TideTable> scrapeAndIngestPernambuco(Integer year) throws IOException {
+    public List<TideTableResponseDTO> scrapeAndIngestPernambuco(Integer year) throws IOException {
         int targetYear = (year != null) ? year : java.time.Year.now().getValue();
         log.info("Iniciando raspagem automática para Pernambuco e ano {}", targetYear);
 
         try (Playwright playwright = Playwright.create()) {
-            // Lançar navegador com argumentos para evitar detecção
             Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
                     .setHeadless(true)
                     .setArgs(List.of(
@@ -63,14 +68,9 @@ public class NavyScraperServiceImpl implements NavyScraperService {
                     )));
 
             Page page = context.newPage();
+            log.info("Navegando para o site da Marinha: {}", getTideUrl());
+            page.navigate(getTideUrl());
             
-            log.info("Navegando para o site da Marinha...");
-            page.navigate(TIDE_URL);
-            
-            log.info("Aguardando carregamento e bypass do Cloudflare...");
-            
-            // Tentar esperar pelo elemento real por até 45 segundos
-            // Cloudflare Turnstile pode demorar um pouco
             try {
                 page.waitForSelector("caption:has-text('Pernambuco')", new Page.WaitForSelectorOptions().setTimeout(45000));
                 log.info("Site carregado com sucesso!");
@@ -86,7 +86,7 @@ public class NavyScraperServiceImpl implements NavyScraperService {
             String html = page.content();
             browser.close();
             
-            Document doc = Jsoup.parse(html, BASE_URL);
+            Document doc = Jsoup.parse(html, appProperties.getNavy().getBaseUrl());
             return parseAndProcess(doc, targetYear);
             
         } catch (Exception e) {
@@ -96,15 +96,15 @@ public class NavyScraperServiceImpl implements NavyScraperService {
     }
 
     @Override
-    public List<TideTable> ingestFromHtml(String html, Integer year) throws IOException {
+    public List<TideTableResponseDTO> ingestFromHtml(String html, Integer year) throws IOException {
         int targetYear = (year != null) ? year : java.time.Year.now().getValue();
         log.info("Ingestão via HTML manual para o ano {}", targetYear);
-        Document doc = Jsoup.parse(html, BASE_URL);
+        Document doc = Jsoup.parse(html, appProperties.getNavy().getBaseUrl());
         return parseAndProcess(doc, targetYear);
     }
 
-    private List<TideTable> parseAndProcess(Document doc, int targetYear) {
-        List<TideTable> results = new ArrayList<>();
+    private List<TideTableResponseDTO> parseAndProcess(Document doc, int targetYear) {
+        List<TideTableResponseDTO> results = new ArrayList<>();
         Element captionPe = doc.selectFirst("caption:contains(Pernambuco)");
 
         if (captionPe == null) {
@@ -133,7 +133,7 @@ public class NavyScraperServiceImpl implements NavyScraperService {
                     
                     try {
                         byte[] pdfBytes = downloadPdf(fullPdfUrl);
-                        TideTable savedTable = pdfConversionService.convertAndSave(pdfBytes, rawPortoName + ".pdf", "PE", targetYear);
+                        TideTableResponseDTO savedTable = pdfConversionService.convertAndSave(pdfBytes, rawPortoName + ".pdf", "PE", targetYear);
                         results.add(savedTable);
                     } catch (Exception e) {
                         log.error("Erro ao baixar/salvar PDF do porto {}: {}", rawPortoName, e.getMessage());
@@ -150,7 +150,6 @@ public class NavyScraperServiceImpl implements NavyScraperService {
     }
 
     private byte[] downloadPdf(String url) throws IOException {
-        // Download direto via Jsoup costuma funcionar se o navegador já validou o IP
         return Jsoup.connect(url)
                 .userAgent(USER_AGENT)
                 .ignoreContentType(true)

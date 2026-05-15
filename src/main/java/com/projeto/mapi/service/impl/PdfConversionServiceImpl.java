@@ -1,5 +1,7 @@
 package com.projeto.mapi.service.impl;
 
+import com.projeto.mapi.dto.TideTableResponseDTO;
+import com.projeto.mapi.mapper.TideMapper;
 import com.projeto.mapi.model.*;
 import com.projeto.mapi.repository.TideTableRepository;
 import com.projeto.mapi.service.PdfConversionService;
@@ -17,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -56,13 +57,13 @@ public class PdfConversionServiceImpl implements PdfConversionService {
 
     @Override
     @Transactional
-    public TideTable convertAndSave(MultipartFile file, String state, Integer year) throws IOException {
+    public TideTableResponseDTO convertAndSave(MultipartFile file, String state, Integer year) throws IOException {
         return convertAndSave(file.getBytes(), file.getOriginalFilename(), state, year);
     }
 
     @Override
     @Transactional
-    public TideTable convertAndSave(byte[] pdfBytes, String filename, String state, Integer year) throws IOException {
+    public TideTableResponseDTO convertAndSave(byte[] pdfBytes, String filename, String state, Integer year) throws IOException {
         String text;
         try (PDDocument document = Loader.loadPDF(pdfBytes)) {
             PDFTextStripper stripper = new PDFTextStripper();
@@ -79,7 +80,6 @@ public class PdfConversionServiceImpl implements PdfConversionService {
         if (tideTable.getYear() == null) tideTable.setYear(year);
         if (tideTable.getState() == null) tideTable.setState(state);
 
-        // Prevenir duplicatas: se já existirem registros para esse porto e ano, removemos todos antes de salvar
         if (tideTable.getHarborName() != null && tideTable.getYear() != null) {
             List<TideTable> existingTables = tideTableRepository.findAllByHarborNameIgnoreCaseAndYear(tideTable.getHarborName(), tideTable.getYear());
             if (!existingTables.isEmpty()) {
@@ -89,7 +89,8 @@ public class PdfConversionServiceImpl implements PdfConversionService {
             }
         }
 
-        return tideTableRepository.save(tideTable);
+        TideTable savedEntity = tideTableRepository.save(tideTable);
+        return TideMapper.toDTO(savedEntity);
     }
 
     private TideTable parseText(String text, String providedState, Integer requestedYear) {
@@ -109,7 +110,6 @@ public class PdfConversionServiceImpl implements PdfConversionService {
             String line = lines[i].trim();
             if (line.isEmpty()) continue;
 
-            // 1. Identificação do Mês
             if (isMonthName(line)) {
                 String monthName = MONTHS.stream().filter(m -> line.equalsIgnoreCase(m)).findFirst().get();
                 currentMonth = tideTable.getMonths().stream()
@@ -130,7 +130,6 @@ public class PdfConversionServiceImpl implements PdfConversionService {
                 continue;
             }
 
-            // 2. Dia e Semana
             if (inMonthData && isPureNumeric(line) && line.length() <= 2) {
                 if (i + 1 < lines.length) {
                     String nextLine = lines[i + 1].trim().toUpperCase();
@@ -158,7 +157,6 @@ public class PdfConversionServiceImpl implements PdfConversionService {
                 }
             }
 
-            // 3. Horários e Alturas
             if (currentDay != null && line.matches("\\d{4}\\s+-?\\d+([,.]\\d+)?.*")) {
                 String[] parts = line.split("\\s+");
                 if (parts.length >= 2 && isPureNumeric(parts[0])) {
@@ -178,10 +176,8 @@ public class PdfConversionServiceImpl implements PdfConversionService {
                 }
             }
 
-            // 4. Cabeçalho, Estado e Porto
             if (line.contains("Latitude") && line.contains("Longitude")) {
                 GeoLocation geo = parseGeoLocation(line, tideTable);
-                // Adiciona apenas se for uma coordenada nova para este TideTable
                 if (tideTable.getGeoLocations().stream().noneMatch(g -> g.getDecimalLat().equals(geo.getDecimalLat()))) {
                     tideTable.getGeoLocations().add(geo);
                 }
@@ -206,7 +202,6 @@ public class PdfConversionServiceImpl implements PdfConversionService {
                     }
                     try {
                         String yearStr = parts[parts.length - 1].trim();
-                        // Só atualiza se o ano detectado for plausível
                         if (yearStr.matches("\\d{4}") && (tideTable.getYear() == null || tideTable.getYear() < 2000)) {
                             tideTable.setYear(Integer.parseInt(yearStr));
                         }
@@ -260,9 +255,7 @@ public class PdfConversionServiceImpl implements PdfConversionService {
     }
 
     private String convertToDecimal(String dms) {
-        // Exemplo: "08° 03'.4 S" ou "34° 52' W"
         try {
-            // Removemos ° e ' mas MANTEMOS o ponto decimal colado nos minutos
             String clean = dms.replace("°", " ").replace("'", "").replace("\"", "").trim();
             String[] parts = clean.split("\\s+");
             if (parts.length >= 2) {

@@ -1,6 +1,6 @@
 package com.projeto.mapi.controller;
 
-import com.projeto.mapi.model.TideTable;
+import com.projeto.mapi.dto.TideTableResponseDTO;
 import com.projeto.mapi.service.TideService;
 import com.projeto.mapi.service.PdfConversionService;
 import com.projeto.mapi.service.TideIngestionService;
@@ -24,37 +24,37 @@ public class TideController {
     private final NavyScraperService navyScraperService;
 
     @GetMapping("/{harbor}")
-    public ResponseEntity<TideTable> getTideTable(
+    public ResponseEntity<TideTableResponseDTO> getTideTable(
             @PathVariable String harbor,
             @RequestParam(required = false) Integer year) {
         
         int queryYear = (year != null) ? year : java.time.Year.now().getValue();
         log.info("Buscando tábua de maré para o porto: {} e ano: {}", harbor, queryYear);
 
-        Optional<TideTable> tideTable = tideService.getTideTable(harbor, queryYear);
+        Optional<TideTableResponseDTO> tideTable = tideService.getTideTable(harbor, queryYear);
         
         return tideTable.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/state/{state}")
-    public ResponseEntity<List<TideTable>> getTideByState(
+    public ResponseEntity<List<TideTableResponseDTO>> getTideByState(
             @PathVariable String state,
             @RequestParam(required = false) Integer year) {
         int queryYear = (year != null) ? year : java.time.Year.now().getValue();
         log.info("Buscando tábuas de maré para o estado: {} e ano: {}", state, queryYear);
-        List<TideTable> results = tideService.getTideTablesByState(state, queryYear);
+        List<TideTableResponseDTO> results = tideService.getTideTablesByState(state, queryYear);
         return ResponseEntity.ok(results);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<TideTable>> searchTide(
+    public ResponseEntity<List<TideTableResponseDTO>> searchTide(
             @RequestParam String harbor,
             @RequestParam(required = false) Integer year) {
         int queryYear = (year != null) ? year : java.time.Year.now().getValue();
         log.info("Pesquisando portos por nome: {} e ano: {}", harbor, queryYear);
-        List<TideTable> results = tideService.searchTideTablesByHarbor(harbor, queryYear);
-        return ResponseEntity.ok(results);
+        List<List<TideTableResponseDTO>> results = List.of(tideService.searchTideTablesByHarbor(harbor, queryYear));
+        return ResponseEntity.ok(results.get(0));
     }
 
     @GetMapping("/harbors")
@@ -66,11 +66,11 @@ public class TideController {
     }
 
     @PostMapping("/ingest/automatic")
-    public ResponseEntity<List<TideTable>> triggerAutomaticIngestion(@RequestParam(required = false) Integer year) {
+    public ResponseEntity<List<TideTableResponseDTO>> triggerAutomaticIngestion(@RequestParam(required = false) Integer year) {
         log.info("Disparando ingestão automática via site da Marinha.");
         try {
             int queryYear = (year != null) ? year : java.time.Year.now().getValue();
-            List<TideTable> results = navyScraperService.scrapeAndIngestPernambuco(queryYear);
+            List<TideTableResponseDTO> results = navyScraperService.scrapeAndIngestPernambuco(queryYear);
             return ResponseEntity.ok(results);
         } catch (Exception e) {
             log.error("Erro na ingestão automática: {}", e.getMessage());
@@ -79,13 +79,13 @@ public class TideController {
     }
 
     @PostMapping("/ingest/html")
-    public ResponseEntity<List<TideTable>> ingestFromHtml(
+    public ResponseEntity<List<TideTableResponseDTO>> ingestFromHtml(
             @RequestBody String html,
             @RequestParam(required = false) Integer year) {
         log.info("Recebido HTML manual para processamento.");
         try {
             int queryYear = (year != null) ? year : java.time.Year.now().getValue();
-            List<TideTable> results = navyScraperService.ingestFromHtml(html, queryYear);
+            List<TideTableResponseDTO> results = navyScraperService.ingestFromHtml(html, queryYear);
             return ResponseEntity.ok(results);
         } catch (Exception e) {
             log.error("Erro na ingestão via HTML: {}", e.getMessage());
@@ -94,13 +94,13 @@ public class TideController {
     }
 
     @PostMapping(value = "/upload", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<TideTable> uploadPdf(
+    public ResponseEntity<TideTableResponseDTO> uploadPdf(
             @RequestPart("file") MultipartFile file,
             @RequestParam(value = "state", required = false) String state,
             @RequestParam(value = "year", required = false) Integer year) {
         log.info("Upload manual de PDF recebido.");
         try {
-            TideTable result = pdfConversionService.convertAndSave(file, state, year);
+            TideTableResponseDTO result = pdfConversionService.convertAndSave(file, state, year);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             log.error("Erro ao converter e salvar PDF: {}", e.getMessage());
@@ -109,11 +109,11 @@ public class TideController {
     }
 
     @PostMapping("/ingest/local")
-    public ResponseEntity<TideTable> ingestLocalRecife(@RequestParam(required = false) Integer year) {
+    public ResponseEntity<TideTableResponseDTO> ingestLocalRecife(@RequestParam(required = false) Integer year) {
         log.info("Comando para ingestão de arquivo local acionado.");
         try {
             int queryYear = (year != null) ? year : java.time.Year.now().getValue();
-            TideTable result = tideIngestionService.ingestRecifeTide(queryYear);
+            TideTableResponseDTO result = tideIngestionService.ingestRecifeTide(queryYear);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             log.error("Erro na ingestão local: {}", e.getMessage());

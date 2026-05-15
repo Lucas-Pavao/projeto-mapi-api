@@ -19,9 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RefreshTokenServiceImpl implements RefreshTokenService {
 
-    @Value("${jwt.refreshExpiration}")
-    private Long refreshTokenDurationMs;
-
+    private final com.projeto.mapi.config.JwtProperties jwtProperties;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
 
@@ -42,7 +40,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         refreshToken.setUser(user);
         refreshToken.setToken(UUID.randomUUID().toString());
-        refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
+        refreshToken.setExpiryDate(Instant.now().plusMillis(jwtProperties.getRefreshExpiration()));
 
         return refreshTokenRepository.save(refreshToken);
     }
