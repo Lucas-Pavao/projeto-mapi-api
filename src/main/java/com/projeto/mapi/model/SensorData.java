@@ -5,7 +5,9 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "sensor_data")
+@Table(name = "sensor_data", 
+       uniqueConstraints = {@UniqueConstraint(columnNames = {"sensor_id", "timestamp"})},
+       indexes = {@Index(name = "idx_sensor_timestamp", columnList = "sensor_id, timestamp")})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,6 +26,21 @@ public class SensorData {
 
     private String unit;
 
+    @Column(name = "battery_status")
+    private String batteryStatus;
+
+    @Column(name = "raw_data", columnDefinition = "TEXT")
+    private String rawData;
+
     @Column(name = "\"timestamp\"")
     private LocalDateTime timestamp;
+
+    @Column(name = "station_name")
+    private String stationName;
+
+    private Double latitude;
+    private Double longitude;
+    private String municipality;
+    private String type;
+    private String source;
 }
