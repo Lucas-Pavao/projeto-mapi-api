@@ -72,6 +72,7 @@ public class SensorServiceImpl implements SensorService {
         if (item.has("Chuva_Adotada") && !item.get("Chuva_Adotada").isNull()) value = item.get("Chuva_Adotada").asDouble();
         else if (item.has("Cota_Adotada") && !item.get("Cota_Adotada").isNull()) value = item.get("Cota_Adotada").asDouble();
         else if (item.has("Nivel_Adotado") && !item.get("Nivel_Adotado").isNull()) value = item.get("Nivel_Adotado").asDouble();
+        else if (item.has("Vazao_Adotada") && !item.get("Vazao_Adotada").isNull()) value = item.get("Vazao_Adotada").asDouble();
 
         String timestampStr = item.has("Data_Hora_Medicao") ? item.get("Data_Hora_Medicao").asText() : LocalDateTime.now().toString();
         
@@ -109,10 +110,18 @@ public class SensorServiceImpl implements SensorService {
     }
 
     private void extractMetadata(SensorData data, JsonNode sourceNode) {
+        // Campos padrão (minúsculos)
         if (sourceNode.has("estacao_nome")) data.setStationName(sourceNode.get("estacao_nome").asText());
         if (sourceNode.has("latitude") && !sourceNode.get("latitude").isNull()) data.setLatitude(sourceNode.get("latitude").asDouble());
         if (sourceNode.has("longitude") && !sourceNode.get("longitude").isNull()) data.setLongitude(sourceNode.get("longitude").asDouble());
         if (sourceNode.has("municipio")) data.setMunicipality(sourceNode.get("municipio").asText());
+        
+        // Campos ANA (Capitalizados)
+        if (sourceNode.has("Estacao_Nome") && data.getStationName() == null) data.setStationName(sourceNode.get("Estacao_Nome").asText());
+        if (sourceNode.has("Latitude") && data.getLatitude() == null && !sourceNode.get("Latitude").isNull()) data.setLatitude(sourceNode.get("Latitude").asDouble());
+        if (sourceNode.has("Longitude") && data.getLongitude() == null && !sourceNode.get("Longitude").isNull()) data.setLongitude(sourceNode.get("Longitude").asDouble());
+        if (sourceNode.has("Municipio_Nome") && data.getMunicipality() == null) data.setMunicipality(sourceNode.get("Municipio_Nome").asText());
+
         if (sourceNode.has("tipo")) data.setType(sourceNode.get("tipo").asText());
         if (sourceNode.has("fonte")) data.setSource(sourceNode.get("fonte").asText());
         
@@ -177,7 +186,9 @@ public class SensorServiceImpl implements SensorService {
             if (originalData.has("items") && originalData.get("items").isArray() && originalData.get("items").size() > 0) {
                 JsonNode firstItem = originalData.get("items").get(0);
                 if (firstItem.has("Chuva_Adotada")) return firstItem.get("Chuva_Adotada").asDouble();
+                if (firstItem.has("Cota_Adotada")) return firstItem.get("Cota_Adotada").asDouble();
                 if (firstItem.has("Nivel_Adotado")) return firstItem.get("Nivel_Adotado").asDouble();
+                if (firstItem.has("Vazao_Adotada")) return firstItem.get("Vazao_Adotada").asDouble();
             }
             // Se for APAC Direto
             if (originalData.has("chuva_acumulada")) return originalData.get("chuva_acumulada").asDouble();
@@ -198,6 +209,10 @@ public class SensorServiceImpl implements SensorService {
             }
             if (firstItem.has("Nivel_Adotado") || firstItem.has("Cota_Adotada")) {
                 data.setUnit("m");
+                return;
+            }
+            if (firstItem.has("Vazao_Adotada")) {
+                data.setUnit("m³/s");
                 return;
             }
         }
