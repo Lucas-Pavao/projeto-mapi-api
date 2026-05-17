@@ -1,128 +1,53 @@
-# Projeto MAPI API 🌊🚀
+# Projeto MAPI - API 🌊🚀
 
-API Spring Boot desenvolvida para o **Projeto MAPI (Smart City)**, focada na **previsão de alagamentos e enchentes** na região metropolitana do Recife. O sistema integra dados hidrológicos (ANA/APAC), climáticos e marítimos (Marinha) para fornecer uma base sólida de inteligência urbana.
+A **MAPI API** é o núcleo de processamento e inteligência urbana do Projeto MAPI (Monitoramento de Águas e Pluviometria Inteligente). Desenvolvida com **Spring Boot 3**, esta API é responsável por centralizar dados hidrológicos, climáticos e marítimos para auxiliar na previsão de alagamentos e enchentes na Região Metropolitana do Recife.
 
----
+## 📋 O que é o projeto?
 
-## 🏗️ Estrutura do Projeto
+O projeto faz parte de uma solução de **Smart City** que integra dados de fontes governamentais (ANA, APAC e Marinha do Brasil) com dados de sensores IoT distribuídos pela cidade. A API atua como o backend central, fornecendo persistência de dados, lógica de análise e endpoints para o dashboard frontend.
+
+## 🏗️ Arquitetura
+
+A API segue uma arquitetura **Multicamadas (Layered Architecture)**, garantindo separação de responsabilidades e facilidade de manutenção:
+
+1.  **Camada de Controladores (REST API):** Endpoints para consumo do frontend e integração externa.
+2.  **Camada de Serviços (Negócio):** Onde reside a inteligência do sistema, incluindo scrapers de maré, ingestores de dados e lógica de autenticação.
+3.  **Camada de Repositórios (Persistência):** Interface com o banco de dados PostgreSQL via Spring Data JPA.
+4.  **Integração IoT (MQTT):** Um módulo especializado que escuta tópicos MQTT para processar dados vindos da camada de Fog Computing (projeto-mapi Python).
+5.  **Segurança:** Implementação de JWT (JSON Web Token) com Refresh Tokens para controle de acesso robusto.
+
+## 📂 Estrutura do Projeto
 
 ```text
-projeto-mapi-api/
-├── src/main/java/com/projeto/mapi/
-│   ├── config/                     # Configurações de infraestrutura (MQTT, Swagger, Security)
-│   ├── controller/                 # Camada de exposição REST (Endpoints de Maré e Auth)
-│   ├── dto/                        # Objetos de Transferência de Dados (Requests/Responses)
-│   ├── model/                      # Entidades JPA (TideTable, SensorData, User, RefreshToken)
-│   ├── repository/                 # Camada de persistência (Spring Data JPA)
-│   ├── security/                   # Segurança JWT, Filtros e Configurações
-│   └── service/                    # Regras de Negócio e Serviços (PDF, Ingestão, Auth)
-├── src/main/resources/
-│   └── application.yml             # Configurações do framework Spring e JWT
-├── .gitignore                      # Proteção contra envio de arquivos sensíveis (.env)
-├── pom.xml                         # Gerenciamento de dependências Maven
-└── README.md                       # Documentação técnica
+src/main/java/com/projeto/mapi/
+├── config/                     # Configurações globais (MQTT, Security, Swagger)
+├── controller/                 # Controladores REST (Auth, Sensores, Marés, Clima)
+├── dto/                        # Objetos de transferência (Requests e Responses)
+├── exception/                  # Tratamento global de erros e exceções customizadas
+├── mapper/                     # Conversores entre Entidades e DTOs
+├── model/                      # Entidades de domínio mapeadas para o banco
+├── repository/                 # Interfaces de acesso ao banco (JPA)
+├── security/                   # Filtros e lógica de autenticação JWT
+└── service/                    # Regras de negócio e integração com APIs/Scrapers
 ```
+
+## ⚙️ Como o projeto funciona?
+
+1.  **Coleta de Dados de Maré:** A API possui um serviço que realiza scraping do site da Marinha ou processa PDFs oficiais para extrair a tábua de marés do Porto do Recife e arredores.
+2.  **Processamento de Sensores:** Através do broker MQTT, a API recebe em tempo real dados de sensores virtuais (chuva e nível de rio) processados pela camada Python.
+3.  **Autenticação:** Usuários se registram e autenticam via JWT. O sistema suporta Refresh Tokens para manter sessões seguras e duradouras.
+4.  **Exposição de Dados:** O frontend consome os endpoints REST para exibir mapas, gráficos de sensores e alertas de maré alta.
+
+## 🚀 Tecnologias Utilizadas
+
+- **Java 21**
+- **Spring Boot 3.3.x**
+- **PostgreSQL** (Banco de Dados Relacional)
+- **Eclipse Paho** (Cliente MQTT)
+- **Spring Security + JWT**
+- **Playwright** (Para scraping dinâmico)
+- **Lombok** (Produtividade)
+- **SpringDoc OpenAPI** (Swagger/Documentação)
 
 ---
-
-## 🛠️ Guia de Instalação e Configuração
-
-### 1. Pré-requisitos (Linux - Ubuntu/Debian)
-```bash
-sudo apt update
-sudo apt install openjdk-21-jdk postgresql postgresql-contrib mosquitto mosquitto-clients
-```
-
-### 2. Banco de Dados (PostgreSQL)
-A API utiliza o banco `tide_db`. Configure o acesso:
-```bash
-sudo -u postgres psql -c "CREATE DATABASE tide_db;"
-sudo -u postgres psql -c "CREATE USER mapi_user WITH PASSWORD 'mapi123';"
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE tide_db TO mapi_user;"
-```
-
-### 3. Variáveis de Ambiente (.env)
-Crie um arquivo `.env` na raiz do projeto para carregar as configurações locais:
-```env
-# Banco de Dados
-POSTGRES_URL=jdbc:postgresql://localhost:5432/tide_db
-POSTGRES_USER=mapi_user
-POSTGRES_PASSWORD=mapi123
-
-# MQTT
-MQTT_BROKER_URL=tcp://localhost:1883
-MQTT_TOPIC=sensors/tide/#
-
-# Segurança (JWT)
-JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-JWT_REFRESH_EXPIRATION=2592000000  # 30 dias em ms
-```
-
----
-
-## 🔒 Sistema de Autenticação (JWT + Refresh Token)
-
-O sistema de segurança foi aprimorado para suportar autenticação completa baseada em banco de dados.
-
-### 1. Fluxo de Acesso
-1.  **Registro**: Crie um usuário no sistema.
-2.  **Login**: Obtenha seu `accessToken` (válido por 1 hora) e `refreshToken` (válido por 30 dias).
-3.  **Uso**: Envie o `accessToken` no header `Authorization: Bearer <TOKEN>`.
-4.  **Renovação**: Quando o access token expirar, use o refresh token para obter um novo par sem logar novamente.
-
-### 2. Endpoints de Autenticação
-
-| Método | Endpoint | Descrição |
-| :--- | :--- | :--- |
-| `POST` | `/api/auth/register` | Cadastro de novos usuários (Role padrão: USER). |
-| `POST` | `/api/auth/login` | Autenticação com username/password. |
-| `POST` | `/api/auth/refresh` | Gera novos tokens usando um Refresh Token válido. |
-
----
-
-## 📡 Endpoints da API (Protegidos)
-
-| Método | Endpoint | Descrição |
-| :--- | :--- | :--- |
-| `GET` | `/api/tide/{harbor}` | Consulta tábua de maré por porto (ex: `recife`). |
-| `POST` | `/api/tide/upload` | Upload e conversão de PDF da Marinha. |
-| `POST` | `/api/tide/ingest/recife` | Dispara ingestão automática via Crawler. |
-
----
-
-## 🚀 Como Executar
-
-```bash
-# Compilar e rodar
-./mvnw spring-boot:run
-```
-*Acesse o Swagger em: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)*
-
----
-
-## 📊 Integração IoT e Sensores Virtuais (MQTT)
-A API está integrada ao projeto [**projeto-mapi**](https://github.com/lucas-mapi/projeto-mapi) (Python), que atua como uma camada de **Fog Computing**. 
-
-Os sensores virtuais (ANA/APAC) coletam dados, aplicam lógica de detecção de anomalias e enviam payloads JSON para o broker MQTT.
-
-### Tópico de Escuta:
-`projeto-mapi/sensores/#`
-
-### Exemplo de Payload JSON:
-```json
-{
-    "id_sensor": "ANA_RECIFE_01",
-    "timestamp_coleta": "2026-05-10T10:00:00",
-    "status_bateria": "98.5%",
-    "fog_valor_referencia": 2.45,
-    "dados_originais": {
-        "Nivel_Adotado": 2.45,
-        "Vazao_Adotada": 150.2
-    }
-}
-```
-
-### Simulação Manual:
-```bash
-mosquitto_pub -h localhost -t projeto-mapi/sensores/ANA_RECIFE_01 -m '{"id_sensor": "ANA_RECIFE_01", "timestamp_coleta": "2026-05-10T11:00:00", "status_bateria": "100%", "fog_valor_referencia": 1.2, "dados_originais": {"chuva_acumulada": 1.2}}'
-```
+**Desenvolvido para resiliência urbana e segurança da população.**
