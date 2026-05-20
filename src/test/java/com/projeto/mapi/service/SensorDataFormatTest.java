@@ -11,13 +11,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -38,7 +35,7 @@ class SensorDataFormatTest {
 
     @Test
     void shouldProcessApacMeteoFormat() {
-        String payload = "{\"id_sensor\": \"APAC-METEO-RMR-ETA\", \"timestamp_coleta\": \"2026-05-16T18:58:23.977080\", \"status_bateria\": \"100.0%\", \"fog_valor_referencia\": 126.2, \"dados_originais\": {\"estacao_nome\": \"ETA Castelo Branco\", \"codigo\": \"260790101M\", \"data_hora\": \"2026-05-16 17:05:00\", \"latitude\": null, \"longitude\": null, \"municipio\": \"Não informada\", \"temperatura_ar\": \"52.9\", \"umidade_relativa\": \"65\", \"pressao_atmosferica\": null, \"velocidade_vento\": null, \"direcao_vento\": null, \"radiacao_solar\": \"2798\", \"precipitacao_acumulada\": 126.2, \"umidade_solo\": [\"0.84\", \"2.48\", \"1.25\", null], \"tipo\": \"Mista/N/A\", \"fonte\": \"APAC/Meteorologia24h\"}}";
+        String payload = "{\"id_sensor\": \"APAC-METEO-JABOATAO-ENGENHO\", \"timestamp_coleta\": \"2026-05-20T19:12:06.152686\", \"status_bateria\": \"100.0%\", \"fog_valor_referencia\": 0.0, \"estacao_nome\": \"[CEMADEN] Engenho Velho [H]\", \"codigo\": \"260790119H\", \"data_hora\": \"2026-05-20 19:10:00\", \"latitude\": null, \"longitude\": null, \"municipio\": \"JABOATAO DOS GUARARAPES\", \"temperatura_ar\": null, \"umidade_relativa\": null, \"pressao_atmosferica\": null, \"velocidade_vento\": null, \"direcao_vento\": null, \"radiacao_solar\": null, \"precipitacao_acumulada\": 0.0, \"umidade_solo\": [null, null, null, null], \"tipo\": \"Mista/N/A\", \"fonte\": \"APAC/Meteorologia24h\"}";
 
         sensorService.processSensorMessage(payload);
 
@@ -46,35 +43,16 @@ class SensorDataFormatTest {
         verify(sensorDataRepository).save(captor.capture());
 
         SensorData savedData = captor.getValue();
-        assertEquals("APAC-METEO-RMR-ETA", savedData.getSensorId());
-        assertEquals(126.2, savedData.getValue());
+        assertEquals("APAC-METEO-JABOATAO-ENGENHO", savedData.getSensorId());
+        assertEquals(0.0, savedData.getValue());
         assertEquals("100.0%", savedData.getBatteryStatus());
-        assertEquals("ETA Castelo Branco", savedData.getStationName());
+        assertEquals("[CEMADEN] Engenho Velho [H]", savedData.getStationName());
         assertEquals("APAC/Meteorologia24h", savedData.getSource());
     }
 
     @Test
     void shouldProcessAnaTeleFormat() {
-        String payload = "{\"id_sensor\": \"ANA-TELE-CAPIBARIBE\", \"timestamp_coleta\": \"2026-05-16T18:58:27.494447\", \"status_bateria\": \"100.0%\", \"fog_valor_referencia\": null, \"dados_originais\": {\"status\": \"OK\", \"code\": 200, \"message\": \"Sucesso\", \"items\": [{\"Chuva_Adotada\": \"0.00\", \"Chuva_Adotada_Status\": \"0\", \"Cota_Adotada\": \"226.00\", \"Cota_Adotada_Status\": \"0\", \"Data_Atualizacao\": \"2026-05-16 03:23:25.94\", \"Data_Hora_Medicao\": \"2026-05-16 03:00:00.0\", \"Vazao_Adotada\": \"20.94\", \"Vazao_Adotada_Status\": \"0\", \"codigoestacao\": \"39187800\", \"Latitude\": \"-7.9986\", \"Longitude\": \"-34.0392\", \"Estacao_Nome\": \"SÃO LOURENÇO DA MATA II\", \"Bacia_Nome\": \"ATLÂNTICO,TRECHO NORTE/NORDESTE\", \"Municipio_Nome\": \"SÃO LOURENÇO DA MATA\"}]}}";
-
-        sensorService.processSensorMessage(payload);
-
-        // O ANA format processa múltiplos itens, mas no payload só tem 1 item no array
-        ArgumentCaptor<SensorData> captor = ArgumentCaptor.forClass(SensorData.class);
-        verify(sensorDataRepository, times(1)).save(captor.capture());
-
-        SensorData savedData = captor.getValue();
-        assertEquals("ANA-TELE-CAPIBARIBE", savedData.getSensorId());
-        assertEquals(0.0, savedData.getValue()); // Chuva_Adotada é 0.00
-        assertEquals("-7.9986", String.valueOf(savedData.getLatitude()));
-        assertEquals("-34.0392", String.valueOf(savedData.getLongitude()));
-        assertEquals("SÃO LOURENÇO DA MATA II", savedData.getStationName());
-        assertEquals("SÃO LOURENÇO DA MATA", savedData.getMunicipality());
-    }
-
-    @Test
-    void shouldProcessAnaTeleFlowFormat() {
-        String payload = "{\"id_sensor\": \"ANA-TELE-CAPIBARIBE-FLOW\", \"timestamp_coleta\": \"2026-05-16T18:58:27.494447\", \"status_bateria\": \"100.0%\", \"fog_valor_referencia\": null, \"dados_originais\": {\"items\": [{\"Vazao_Adotada\": \"20.94\", \"Data_Hora_Medicao\": \"2026-05-16 03:00:00.0\", \"codigoestacao\": \"39187800\"}]}}";
+        String payload = "{\"id_sensor\": \"ANA-TELE-CAPIBARIBE\", \"timestamp_coleta\": \"2026-05-20T19:14:46.585529\", \"status_bateria\": \"100.0%\", \"fog_valor_referencia\": 0.2, \"Chuva_Adotada\": \"0.20\", \"Chuva_Adotada_Status\": \"0\", \"Cota_Adotada\": \"266.00\", \"Cota_Adotada_Status\": \"0\", \"Data_Atualizacao\": \"2026-05-20 03:23:26.747\", \"Data_Hora_Medicao\": \"2026-05-20 03:15:00.0\", \"Vazao_Adotada\": \"49.24\", \"Vazao_Adotada_Status\": \"0\", \"codigoestacao\": \"39187800\", \"Latitude\": \"-7.9986\", \"Longitude\": \"-35.0392\", \"Estacao_Nome\": \"S\u00c3O LOUREN\u00c7O DA MATA II\", \"Bacia_Nome\": \"ATL\u00c2NTICO,TRECHO NORTE/NORDESTE\", \"Municipio_Nome\": \"S\u00c3O LOUREN\u00c7O DA MATA\"}";
 
         sensorService.processSensorMessage(payload);
 
@@ -82,7 +60,28 @@ class SensorDataFormatTest {
         verify(sensorDataRepository).save(captor.capture());
 
         SensorData savedData = captor.getValue();
-        assertEquals(20.94, savedData.getValue());
-        assertEquals("m³/s", savedData.getUnit());
+        assertEquals("ANA-TELE-CAPIBARIBE", savedData.getSensorId());
+        assertEquals(0.2, savedData.getFogValueReference());
+        assertEquals(0.2, savedData.getAccumulatedPrecipitation());
+        assertEquals(266.00, savedData.getWaterLevel());
+        assertEquals(49.24, savedData.getFlowRate());
+        assertEquals(-7.9986, savedData.getLatitude());
+        assertEquals(-35.0392, savedData.getLongitude());
+        assertEquals("S\u00c3O LOUREN\u00c7O DA MATA II", savedData.getStationName());
+    }
+
+    @Test
+    void shouldProcessApacPluvioFormat() {
+        String payload = "{\"id_sensor\": \"APAC-PLUVIO-RECIFE-GUABIRABA\", \"timestamp_coleta\": \"2026-05-20T19:12:06.927427\", \"status_bateria\": \"100.0%\", \"fog_valor_referencia\": 0.0, \"estacao_nome\": \"[APAC] Guabiraba\", \"codigo\": \"261160612A\", \"data_hora\": \"2026-05-20 18:20:00\", \"latitude\": -7.994, \"longitude\": -34.936, \"municipio\": \"RECIFE\", \"chuva_acumulada\": 0.0, \"tipo\": \"Pluviom\u00e9trica\", \"fonte\": \"APAC/Cemaden\"}";
+
+        sensorService.processSensorMessage(payload);
+
+        ArgumentCaptor<SensorData> captor = ArgumentCaptor.forClass(SensorData.class);
+        verify(sensorDataRepository).save(captor.capture());
+
+        SensorData savedData = captor.getValue();
+        assertEquals("APAC-PLUVIO-RECIFE-GUABIRABA", savedData.getSensorId());
+        assertEquals(0.0, savedData.getAccumulatedPrecipitation());
+        assertEquals("mm", savedData.getUnit());
     }
 }

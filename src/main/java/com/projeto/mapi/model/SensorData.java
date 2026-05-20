@@ -43,4 +43,44 @@ public class SensorData {
     private String municipality;
     private String type;
     private String source;
+
+    // Novos campos adaptados
+    @Column(name = "fog_value_reference")
+    private Double fogValueReference;
+
+    @Column(name = "code")
+    private String code;
+
+    @Column(name = "temperature")
+    private Double temperature;
+
+    @Column(name = "humidity")
+    private Double humidity;
+
+    @Column(name = "pressure")
+    private Double pressure;
+
+    @Column(name = "wind_speed")
+    private Double windSpeed;
+
+    @Column(name = "wind_direction")
+    private String windDirection;
+
+    @Column(name = "solar_radiation")
+    private Double solarRadiation;
+
+    @Column(name = "accumulated_precipitation")
+    private Double accumulatedPrecipitation;
+
+    @Column(name = "soil_humidity")
+    private String soilHumidity;
+
+    @Column(name = "water_level")
+    private Double waterLevel;
+
+    @Column(name = "flow_rate")
+    private Double flowRate;
+
+    @Column(name = "basin_name")
+    private String basinName;
 }

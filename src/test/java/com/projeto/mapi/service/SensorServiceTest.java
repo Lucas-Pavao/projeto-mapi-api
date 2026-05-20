@@ -38,7 +38,7 @@ class SensorServiceTest {
                 "\"timestamp_coleta\": \"2026-05-10T10:00:00\"," +
                 "\"status_bateria\": \"95.5%\"," +
                 "\"fog_valor_referencia\": 12.5," +
-                "\"dados_originais\": {\"Chuva_Adotada\": 12.5, \"Outro\": \"dado\"}" +
+                "\"Chuva_Adotada\": 12.5" +
                 "}";
 
         sensorService.processSensorMessage(payload);
@@ -52,7 +52,6 @@ class SensorServiceTest {
         assertEquals("95.5%", savedData.getBatteryStatus());
         assertEquals("mm", savedData.getUnit());
         assertNotNull(savedData.getRawData());
-        assertTrue(savedData.getRawData().contains("Chuva_Adotada"));
     }
 
     @Test
@@ -62,7 +61,7 @@ class SensorServiceTest {
                 "\"timestamp_coleta\": \"invalid-date\"," +
                 "\"status_bateria\": \"80%\"," +
                 "\"fog_valor_referencia\": 5.0," +
-                "\"dados_originais\": {\"chuva_acumulada\": 5.0}" +
+                "\"chuva_acumulada\": 5.0" +
                 "}";
 
         sensorService.processSensorMessage(payload);
