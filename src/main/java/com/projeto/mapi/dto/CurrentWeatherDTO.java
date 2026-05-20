@@ -8,5 +8,6 @@ public record CurrentWeatherDTO(
     @JsonProperty("relative_humidity_2m") int humidity,
     @JsonProperty("apparent_temperature") double apparentTemperature,
     @JsonProperty("weather_code") int weatherCode,
-    @JsonProperty("is_day") int isDay
+    @JsonProperty("is_day") int isDay,
+    @JsonProperty("precipitation") double precipitation
 ) {}

@@ -23,5 +23,19 @@ public class SensorResponseDTO {
     private String municipality;
     private String type;
     private String source;
-    private String rawData;
+
+    // Novos campos adaptados
+    private Double fogValueReference;
+    private String code;
+    private Double temperature;
+    private Double humidity;
+    private Double pressure;
+    private Double windSpeed;
+    private String windDirection;
+    private Double solarRadiation;
+    private Double accumulatedPrecipitation;
+    private Object soilHumidity;
+    private Double waterLevel;
+    private Double flowRate;
+    private String basinName;
 }

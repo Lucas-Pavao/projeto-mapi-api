@@ -25,7 +25,7 @@ public class WeatherServiceImpl implements WeatherService {
                         .path("/forecast")
                         .queryParam("latitude", latitude)
                         .queryParam("longitude", longitude)
-                        .queryParam("current", "temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,is_day")
+                        .queryParam("current", "temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,is_day,precipitation")
                         .queryParam("timezone", "auto")
                         .build())
                 .retrieve()

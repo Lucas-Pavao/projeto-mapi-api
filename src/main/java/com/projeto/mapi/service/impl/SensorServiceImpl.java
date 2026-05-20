@@ -26,63 +26,33 @@ public class SensorServiceImpl implements SensorService {
     public void processSensorMessage(String payload) {
         log.info("Processando mensagem MQTT: {}", payload);
         try {
-            JsonNode root = objectMapper.readTree(payload);
+            // Tratar o caso de múltiplos objetos JSON concatenados no mesmo payload
+            com.fasterxml.jackson.core.JsonParser parser = objectMapper.getFactory().createParser(payload);
+            java.util.Iterator<JsonNode> it = objectMapper.readValues(parser, JsonNode.class);
             
-            if (!root.has("id_sensor")) {
-                log.warn("Mensagem ignorada: 'id_sensor' não encontrado. Payload: {}", payload);
-                return;
-            }
-
-            String sensorId = root.get("id_sensor").asText();
-            String batteryStatus = root.has("status_bateria") ? root.get("status_bateria").asText() : "N/A";
-            
-            // Se tiver 'items', processar cada um individualmente (Padrão ANA)
-            if (root.has("dados_originais") && root.get("dados_originais").has("items") && root.get("dados_originais").get("items").isArray()) {
-                JsonNode items = root.get("dados_originais").get("items");
-                log.info("Processando {} itens para o sensor {}", items.size(), sensorId);
-                for (JsonNode item : items) {
-                    processSingleItem(sensorId, batteryStatus, item, item.toString());
+            while (it.hasNext()) {
+                JsonNode root = it.next();
+                if (!root.has("id_sensor")) {
+                    log.warn("Objeto JSON ignorado: 'id_sensor' não encontrado.");
+                    continue;
                 }
-            } else {
-                // Processamento padrão (Padrão APAC ou Simples)
-                processSinglePayload(root, sensorId, batteryStatus, payload);
+                String sensorId = root.get("id_sensor").asText();
+                String batteryStatus = root.has("status_bateria") ? root.get("status_bateria").asText() : "N/A";
+                processSinglePayload(root, sensorId, batteryStatus, root.toString());
             }
-            
         } catch (Exception e) {
             log.error("Erro ao processar mensagem JSON do MQTT: {}", payload, e);
         }
     }
 
     private void processSinglePayload(JsonNode root, String sensorId, String batteryStatus, String payload) {
-        double value = 0.0;
-        if (root.has("fog_valor_referencia") && !root.get("fog_valor_referencia").isNull()) {
-            value = root.get("fog_valor_referencia").asDouble();
-        } else if (root.has("dados_originais")) {
-            value = extractValueFromOriginal(root.get("dados_originais"));
-        }
-
-        String timestampStr = root.has("timestamp_coleta") ? root.get("timestamp_coleta").asText() : LocalDateTime.now().toString();
-        String rawData = root.has("dados_originais") ? root.get("dados_originais").toString() : payload;
+        String timestampStr = root.has("timestamp_coleta") ? root.get("timestamp_coleta").asText() : 
+                           (root.has("data_hora") ? root.get("data_hora").asText() : 
+                           (root.has("Data_Hora_Medicao") ? root.get("Data_Hora_Medicao").asText() : LocalDateTime.now().toString()));
         
-        saveIfNew(sensorId, value, batteryStatus, timestampStr, rawData, root.get("dados_originais"));
-    }
-
-    private void processSingleItem(String sensorId, String batteryStatus, JsonNode item, String rawData) {
-        double value = 0.0;
-        if (item.has("Chuva_Adotada") && !item.get("Chuva_Adotada").isNull()) value = item.get("Chuva_Adotada").asDouble();
-        else if (item.has("Cota_Adotada") && !item.get("Cota_Adotada").isNull()) value = item.get("Cota_Adotada").asDouble();
-        else if (item.has("Nivel_Adotado") && !item.get("Nivel_Adotado").isNull()) value = item.get("Nivel_Adotado").asDouble();
-        else if (item.has("Vazao_Adotada") && !item.get("Vazao_Adotada").isNull()) value = item.get("Vazao_Adotada").asDouble();
-
-        String timestampStr = item.has("Data_Hora_Medicao") ? item.get("Data_Hora_Medicao").asText() : LocalDateTime.now().toString();
-        
-        saveIfNew(sensorId, value, batteryStatus, timestampStr, rawData, item);
-    }
-
-    private void saveIfNew(String sensorId, double value, String batteryStatus, String timestampStr, String rawData, JsonNode sourceNode) {
         LocalDateTime timestamp = parseTimestamp(timestampStr);
-        
-        // Evitar duplicatas exatas (mesmo sensor e mesmo timestamp)
+
+        // Evitar duplicatas exatas
         if (sensorDataRepository.findBySensorIdAndTimestamp(sensorId, timestamp).isPresent()) {
             log.debug("Registro duplicado ignorado para {} em {}", sensorId, timestamp);
             return;
@@ -90,33 +60,61 @@ public class SensorServiceImpl implements SensorService {
 
         SensorData data = SensorData.builder()
                 .sensorId(sensorId)
-                .value(value)
                 .batteryStatus(batteryStatus)
-                .rawData(rawData)
+                .rawData(payload)
                 .timestamp(timestamp)
+                .value(0.0) // Inicializar com 0.0 para evitar null
                 .build();
+
+        // Mapeamento de campos técnicos
+        if (root.has("fog_valor_referencia") && !root.get("fog_valor_referencia").isNull()) data.setFogValueReference(root.get("fog_valor_referencia").asDouble());
+        if (root.has("codigo")) data.setCode(root.get("codigo").asText());
+        if (root.has("codigoestacao")) data.setCode(root.get("codigoestacao").asText());
         
-        if (sourceNode != null) {
-            inferUnit(data, sourceNode);
-            extractMetadata(data, sourceNode);
-        }
+        // Clima e Solo
+        if (root.has("temperatura_ar") && !root.get("temperatura_ar").isNull()) data.setTemperature(root.get("temperatura_ar").asDouble());
+        if (root.has("umidade_relativa") && !root.get("umidade_relativa").isNull()) data.setHumidity(root.get("umidade_relativa").asDouble());
+        if (root.has("pressao_atmosferica") && !root.get("pressao_atmosferica").isNull()) data.setPressure(root.get("pressao_atmosferica").asDouble());
+        if (root.has("velocidade_vento") && !root.get("velocidade_vento").isNull()) data.setWindSpeed(root.get("velocidade_vento").asDouble());
+        if (root.has("direcao_vento") && !root.get("direcao_vento").isNull()) data.setWindDirection(root.get("direcao_vento").asText());
+        if (root.has("radiacao_solar") && !root.get("radiacao_solar").isNull()) data.setSolarRadiation(root.get("radiacao_solar").asDouble());
+        
+        // Precipitação (vários nomes possíveis)
+        if (root.has("precipitacao_acumulada") && !root.get("precipitacao_acumulada").isNull()) data.setAccumulatedPrecipitation(root.get("precipitacao_acumulada").asDouble());
+        else if (root.has("chuva_acumulada") && !root.get("chuva_acumulada").isNull()) data.setAccumulatedPrecipitation(root.get("chuva_acumulada").asDouble());
+        else if (root.has("Chuva_Adotada") && !root.get("Chuva_Adotada").isNull()) data.setAccumulatedPrecipitation(root.get("Chuva_Adotada").asDouble());
+
+        if (root.has("umidade_solo")) data.setSoilHumidity(root.get("umidade_solo").toString());
+
+        // ANA campos específicos
+        if (root.has("Cota_Adotada") && !root.get("Cota_Adotada").isNull()) data.setWaterLevel(root.get("Cota_Adotada").asDouble());
+        if (root.has("Vazao_Adotada") && !root.get("Vazao_Adotada").isNull()) data.setFlowRate(root.get("Vazao_Adotada").asDouble());
+        if (root.has("Bacia_Nome")) data.setBasinName(root.get("Bacia_Nome").asText());
+
+        // Atribuir valor principal para compatibilidade retroativa
+        if (data.getFogValueReference() != null) data.setValue(data.getFogValueReference());
+        else if (data.getAccumulatedPrecipitation() != null) data.setValue(data.getAccumulatedPrecipitation());
+        else if (data.getWaterLevel() != null) data.setValue(data.getWaterLevel());
+
+        extractMetadata(data, root);
+        inferUnit(data, root);
 
         try {
             sensorDataRepository.save(data);
-            log.info("Dados do sensor {} salvos: valor={}, timestamp={}", sensorId, value, timestamp);
+            log.info("Dados do sensor {} salvos: timestamp={}", sensorId, timestamp);
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
             log.warn("Tentativa de salvar registro duplicado interceptada pelo banco: {} em {}", sensorId, timestamp);
         }
     }
 
     private void extractMetadata(SensorData data, JsonNode sourceNode) {
-        // Campos padrão (minúsculos)
+        // Campos APAC (minúsculos)
         if (sourceNode.has("estacao_nome")) data.setStationName(sourceNode.get("estacao_nome").asText());
         if (sourceNode.has("latitude") && !sourceNode.get("latitude").isNull()) data.setLatitude(sourceNode.get("latitude").asDouble());
         if (sourceNode.has("longitude") && !sourceNode.get("longitude").isNull()) data.setLongitude(sourceNode.get("longitude").asDouble());
         if (sourceNode.has("municipio")) data.setMunicipality(sourceNode.get("municipio").asText());
         
-        // Campos ANA (Capitalizados)
+        // Campos ANA (PascalCase)
         if (sourceNode.has("Estacao_Nome") && data.getStationName() == null) data.setStationName(sourceNode.get("Estacao_Nome").asText());
         if (sourceNode.has("Latitude") && data.getLatitude() == null && !sourceNode.get("Latitude").isNull()) data.setLatitude(sourceNode.get("Latitude").asDouble());
         if (sourceNode.has("Longitude") && data.getLongitude() == null && !sourceNode.get("Longitude").isNull()) data.setLongitude(sourceNode.get("Longitude").asDouble());
@@ -125,26 +123,22 @@ public class SensorServiceImpl implements SensorService {
         if (sourceNode.has("tipo")) data.setType(sourceNode.get("tipo").asText());
         if (sourceNode.has("fonte")) data.setSource(sourceNode.get("fonte").asText());
         
-        // Se for ANA, os metadados podem estar em outros campos
-        if (sourceNode.has("codigoestacao")) {
-            if (data.getStationName() == null) data.setStationName("Estação " + sourceNode.get("codigoestacao").asText());
-            if (data.getSource() == null) data.setSource("ANA");
+        if (sourceNode.has("codigoestacao") && data.getSource() == null) {
+            data.setSource("ANA");
         }
     }
 
     private LocalDateTime parseTimestamp(String timestampStr) {
         try {
-            // Tentar ISO
-            return LocalDateTime.parse(timestampStr, DateTimeFormatter.ISO_DATE_TIME);
-        } catch (Exception e1) {
-            try {
-                // Tentar formato comum da ANA: yyyy-MM-dd HH:mm:ss.S
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSS][.SS][.S]");
-                return LocalDateTime.parse(timestampStr, formatter);
-            } catch (Exception e2) {
-                log.warn("Não foi possível processar o timestamp {}, usando hora atual", timestampStr);
-                return LocalDateTime.now();
+            if (timestampStr.contains("T")) {
+                return LocalDateTime.parse(timestampStr, DateTimeFormatter.ISO_DATE_TIME);
             }
+            // Tentar formatos comuns: yyyy-MM-dd HH:mm:ss
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSS][.SS][.S]");
+            return LocalDateTime.parse(timestampStr, formatter);
+        } catch (Exception e) {
+            log.warn("Não foi possível processar o timestamp {}, usando hora atual", timestampStr);
+            return LocalDateTime.now();
         }
     }
 
@@ -176,54 +170,42 @@ public class SensorServiceImpl implements SensorService {
                 .municipality(data.getMunicipality())
                 .type(data.getType())
                 .source(data.getSource())
-                .rawData(data.getRawData())
+                .fogValueReference(data.getFogValueReference())
+                .code(data.getCode())
+                .temperature(data.getTemperature())
+                .humidity(data.getHumidity())
+                .pressure(data.getPressure())
+                .windSpeed(data.getWindSpeed())
+                .windDirection(data.getWindDirection())
+                .solarRadiation(data.getSolarRadiation())
+                .accumulatedPrecipitation(data.getAccumulatedPrecipitation())
+                .soilHumidity(parseJsonSafe(data.getSoilHumidity()))
+                .waterLevel(data.getWaterLevel())
+                .flowRate(data.getFlowRate())
+                .basinName(data.getBasinName())
                 .build();
     }
 
-    private double extractValueFromOriginal(JsonNode originalData) {
+    private JsonNode parseJsonSafe(String json) {
+        if (json == null || json.isEmpty()) return null;
         try {
-            // Se for ANA, os dados estão dentro de "items" (lista)
-            if (originalData.has("items") && originalData.get("items").isArray() && originalData.get("items").size() > 0) {
-                JsonNode firstItem = originalData.get("items").get(0);
-                if (firstItem.has("Chuva_Adotada")) return firstItem.get("Chuva_Adotada").asDouble();
-                if (firstItem.has("Cota_Adotada")) return firstItem.get("Cota_Adotada").asDouble();
-                if (firstItem.has("Nivel_Adotado")) return firstItem.get("Nivel_Adotado").asDouble();
-                if (firstItem.has("Vazao_Adotada")) return firstItem.get("Vazao_Adotada").asDouble();
-            }
-            // Se for APAC Direto
-            if (originalData.has("chuva_acumulada")) return originalData.get("chuva_acumulada").asDouble();
-            if (originalData.has("precipitacao_acumulada")) return originalData.get("precipitacao_acumulada").asDouble();
+            return objectMapper.readTree(json);
         } catch (Exception e) {
-            log.warn("Could not extract value from original data");
+            return null;
         }
-        return 0.0;
     }
 
-    private void inferUnit(SensorData data, JsonNode originalData) {
-        // Lógica para ANA (dentro de items)
-        if (originalData.has("items") && originalData.get("items").isArray() && originalData.get("items").size() > 0) {
-            JsonNode firstItem = originalData.get("items").get(0);
-            if (firstItem.has("Chuva_Adotada")) {
-                data.setUnit("mm");
-                return;
-            }
-            if (firstItem.has("Nivel_Adotado") || firstItem.has("Cota_Adotada")) {
-                data.setUnit("m");
-                return;
-            }
-            if (firstItem.has("Vazao_Adotada")) {
-                data.setUnit("m³/s");
-                return;
-            }
-        }
-        
-        // Lógica para APAC ou itens individuais
-        if (originalData.has("chuva_acumulada") || originalData.has("precipitacao_acumulada") || originalData.has("Chuva_Adotada")) {
+    private void inferUnit(SensorData data, JsonNode node) {
+        if (node.has("chuva_acumulada") || node.has("precipitacao_acumulada") || node.has("Chuva_Adotada")) {
             data.setUnit("mm");
-        } else if (originalData.has("Nivel_Adotado") || originalData.has("Cota_Adotada") || originalData.has("Cota")) {
+        } else if (node.has("Cota_Adotada")) {
             data.setUnit("m");
-        } else if (originalData.has("Vazao_Adotada") || originalData.has("Vazao")) {
+        } else if (node.has("Vazao_Adotada")) {
             data.setUnit("m³/s");
+        } else if (node.has("temperatura_ar")) {
+            data.setUnit("°C");
+        } else if (node.has("umidade_relativa")) {
+            data.setUnit("%");
         }
     }
 }
