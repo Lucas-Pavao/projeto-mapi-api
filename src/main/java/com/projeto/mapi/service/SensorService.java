@@ -8,4 +8,5 @@ public interface SensorService {
     void processSensorMessage(String payload);
     List<SensorResponseDTO> getAllLatestData();
     List<SensorResponseDTO> getSensorHistory(String sensorId);
+    SensorResponseDTO getLatestBySensorId(String sensorId);
 }

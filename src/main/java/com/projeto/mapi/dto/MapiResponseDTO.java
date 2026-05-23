@@ -34,10 +34,18 @@ public class MapiResponseDTO {
         private Double windSpeed;
         private Double waterLevel;
         private Double flowRate;
+        private Double tideHeight;
+        private Double waveHeight;
+        private Double waveDirection;
+        private Double wavePeriod;
+        
+        private Double tideHeightTabuaMare;
         
         private String unitPrecipitation;
         private String unitTemperature;
         private String unitWaterLevel;
+        private String unitTide;
+        private String unitWave;
 
         @Builder.Default
         private String message = "Dados consolidados baseados na melhor fonte disponível.";

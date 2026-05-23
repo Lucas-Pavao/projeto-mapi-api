@@ -15,11 +15,27 @@ public class FloodPoint {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
+    private String slug;
+
+    @Column(nullable = false)
     private String name;
+    
+    private String municipality;
     private String description;
     
+    @Column(nullable = false)
     private Double latitude;
+    
+    @Column(nullable = false)
     private Double longitude;
+
+    private Double altitudeM;
+    private Double distanceToChannelM;
+
+    private String pluviometerStationId;
+    private String riverLevelStationId;
+    private String basinName;
 
     @Column(name = "alert_threshold_mm")
     private Double alertThresholdMm;

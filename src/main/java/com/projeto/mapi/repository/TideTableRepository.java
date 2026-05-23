@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TideTableRepository extends JpaRepository<TideTable, Long> {
-    Optional<TideTable> findByHarborNameIgnoreCaseAndYear(String harborName, Integer year);
+    List<TideTable> findAllByYear(Integer year);
     List<TideTable> findAllByHarborNameIgnoreCaseAndYear(String harborName, Integer year);
     List<TideTable> findAllByStateIgnoreCaseAndYear(String state, Integer year);
     List<TideTable> findAllByHarborNameContainingIgnoreCaseAndYear(String harborName, Integer year);

@@ -9,4 +9,5 @@ public interface MapiService {
     MapiResponseDTO getPreciseData(double latitude, double longitude);
     FloodPointResponseDTO createFloodPoint(FloodPointRequestDTO request);
     List<FloodPointResponseDTO> getAllFloodPoints();
+    FloodPointResponseDTO getFloodPointBySlug(String slug);
 }

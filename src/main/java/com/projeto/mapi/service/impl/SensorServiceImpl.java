@@ -20,6 +20,7 @@ import java.util.List;
 public class SensorServiceImpl implements SensorService {
     private final SensorDataRepository sensorDataRepository;
     private final ObjectMapper objectMapper;
+    private final com.projeto.mapi.service.TideService tideService;
 
     @Override
     @Transactional
@@ -99,6 +100,16 @@ public class SensorServiceImpl implements SensorService {
         extractMetadata(data, root);
         inferUnit(data, root);
 
+        // Calcular altura da maré "naquele momento" se tivermos localização
+        if (data.getLatitude() != null && data.getLongitude() != null) {
+            try {
+                Double tideHeight = tideService.getTideHeightAt(data.getLatitude(), data.getLongitude(), data.getTimestamp());
+                data.setTideHeight(tideHeight);
+            } catch (Exception e) {
+                log.warn("Erro ao calcular altura da maré para o sensor {}: {}", sensorId, e.getMessage());
+            }
+        }
+
         try {
             sensorDataRepository.save(data);
             log.info("Dados do sensor {} salvos: timestamp={}", sensorId, timestamp);
@@ -156,6 +167,13 @@ public class SensorServiceImpl implements SensorService {
                 .toList();
     }
 
+    @Override
+    public SensorResponseDTO getLatestBySensorId(String sensorId) {
+        return sensorDataRepository.findFirstBySensorIdOrderByTimestampDesc(sensorId)
+                .map(this::convertToDTO)
+                .orElse(null);
+    }
+
     private SensorResponseDTO convertToDTO(SensorData data) {
         return SensorResponseDTO.builder()
                 .id(data.getId())
@@ -183,6 +201,7 @@ public class SensorServiceImpl implements SensorService {
                 .waterLevel(data.getWaterLevel())
                 .flowRate(data.getFlowRate())
                 .basinName(data.getBasinName())
+                .tideHeight(data.getTideHeight())
                 .build();
     }
 

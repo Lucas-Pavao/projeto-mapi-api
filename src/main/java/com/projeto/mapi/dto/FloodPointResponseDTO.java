@@ -11,10 +11,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FloodPointResponseDTO {
     private Long id;
-    private String name;
-    private String description;
+    private String id_ponto;
+    private String nome;
+    private String municipio;
+    private String descricao;
     private Double latitude;
     private Double longitude;
-    private Double alertThresholdMm;
+    private Double altitude_m;
+    private Double dist_canal_m;
+    private String bacia_hidrografica;
+    private FloodPointRequestDTO.SensorConfigDTO config_sensores;
     private Boolean active;
+    private Double tideHeight;
+    private String tideUnit;
 }
