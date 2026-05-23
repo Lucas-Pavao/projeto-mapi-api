@@ -28,6 +28,12 @@ class MapiServiceTest {
     @Mock
     private WeatherService weatherService;
 
+    @Mock
+    private TideService tideService;
+
+    @Mock
+    private com.projeto.mapi.repository.FloodPointRepository floodPointRepository;
+
     @InjectMocks
     private MapiServiceImpl mapiService;
 
@@ -44,7 +50,7 @@ class MapiServiceTest {
         mockSensors = List.of(
                 SensorResponseDTO.builder()
                         .sensorId("SENSOR_01")
-                        .value(10.0)
+                        .accumulatedPrecipitation(10.0)
                         .unit("mm")
                         .latitude(-8.06)
                         .longitude(-34.89)
@@ -53,7 +59,7 @@ class MapiServiceTest {
                         .build(),
                 SensorResponseDTO.builder()
                         .sensorId("SENSOR_02")
-                        .value(20.0)
+                        .accumulatedPrecipitation(20.0)
                         .unit("mm")
                         .latitude(-9.0)
                         .longitude(-35.0)
@@ -71,9 +77,9 @@ class MapiServiceTest {
         MapiResponseDTO response = mapiService.getPreciseData(-8.055, -34.885);
 
         assertNotNull(response);
-        assertEquals("SENSOR", response.getPreciseData().getSource());
+        assertTrue(response.getPreciseData().getSource().contains("Local Sensor Priority"));
         assertEquals("SENSOR_01", response.getNearestSensor().getSensorId());
-        assertEquals(10.0, response.getPreciseData().getValue());
+        assertEquals(10.0, response.getPreciseData().getPrecipitation());
         assertTrue(response.getDistanceToNearestSensorKm() < 2.0);
     }
 
@@ -82,12 +88,32 @@ class MapiServiceTest {
         when(weatherService.getWeatherData(anyDouble(), anyDouble())).thenReturn(mockWeather);
         when(sensorService.getAllLatestData()).thenReturn(mockSensors);
 
-        // Location far from mock sensors
+        // Location far from mock sensors (more than 30km)
         MapiResponseDTO response = mapiService.getPreciseData(0.0, 0.0);
 
         assertNotNull(response);
         assertEquals("OPEN_METEO", response.getPreciseData().getSource());
-        assertEquals(5.0, response.getPreciseData().getValue());
+        assertEquals(5.0, response.getPreciseData().getPrecipitation());
         assertTrue(response.getDistanceToNearestSensorKm() > 1000.0);
+    }
+
+    @Test
+    void shouldNotMapSensorDuringRegistrationIfTooFar() {
+        when(sensorService.getAllLatestData()).thenReturn(mockSensors);
+        when(weatherService.getWeatherData(anyDouble(), anyDouble())).thenReturn(mockWeather);
+        
+        com.projeto.mapi.dto.FloodPointRequestDTO request = com.projeto.mapi.dto.FloodPointRequestDTO.builder()
+                .id_ponto("FAR_POINT")
+                .nome("Ponto Distante")
+                .latitude(0.0)
+                .longitude(0.0)
+                .build();
+
+        when(floodPointRepository.save(org.mockito.ArgumentMatchers.any())).thenAnswer(i -> i.getArguments()[0]);
+
+        com.projeto.mapi.dto.FloodPointResponseDTO response = mapiService.createFloodPoint(request);
+
+        assertNull(response.getConfig_sensores().getEstacao_pluviometrica_id());
+        assertNull(response.getConfig_sensores().getEstacao_nivel_rio_id());
     }
 }

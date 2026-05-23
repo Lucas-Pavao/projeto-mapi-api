@@ -24,6 +24,13 @@ public class SensorController {
         return ResponseEntity.ok(sensorService.getAllLatestData());
     }
 
+    @GetMapping("/{sensorId}/latest")
+    @Operation(summary = "Ver a leitura mais recente de um sensor específico")
+    public ResponseEntity<SensorResponseDTO> getLatestBySensorId(@PathVariable String sensorId) {
+        SensorResponseDTO sensor = sensorService.getLatestBySensorId(sensorId);
+        return sensor != null ? ResponseEntity.ok(sensor) : ResponseEntity.notFound().build();
+    }
+
     @GetMapping("/{sensorId}/history")
     @Operation(summary = "Ver o histórico de leituras de um sensor específico")
     public ResponseEntity<List<SensorResponseDTO>> getSensorHistory(@PathVariable String sensorId) {

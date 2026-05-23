@@ -38,4 +38,5 @@ public class SensorResponseDTO {
     private Double waterLevel;
     private Double flowRate;
     private String basinName;
+    private Double tideHeight;
 }

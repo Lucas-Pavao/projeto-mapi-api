@@ -83,4 +83,7 @@ public class SensorData {
 
     @Column(name = "basin_name")
     private String basinName;
+
+    @Column(name = "tide_height")
+    private Double tideHeight;
 }

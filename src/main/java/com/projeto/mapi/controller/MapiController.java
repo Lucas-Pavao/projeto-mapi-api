@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/mapi")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 @Tag(name = "MAPI", description = "Endpoints integrados do Projeto MAPI")
 public class MapiController {
@@ -30,16 +30,26 @@ public class MapiController {
         return ResponseEntity.ok(mapiService.getPreciseData(latitude, longitude));
     }
 
-    @PostMapping("/flood-points")
-    @Operation(summary = "Registra um novo ponto de alagamento recorrente para monitoramento")
+    @PostMapping("/pontos")
+    @Operation(summary = "Registra um novo ponto de monitoramento de alagamento")
     public ResponseEntity<FloodPointResponseDTO> createFloodPoint(
             @Valid @RequestBody FloodPointRequestDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(mapiService.createFloodPoint(request));
     }
 
-    @GetMapping("/flood-points")
-    @Operation(summary = "Lista todos os pontos de alagamento registrados")
+    @GetMapping("/pontos")
+    @Operation(summary = "Lista todos os pontos de monitoramento registrados")
     public ResponseEntity<List<FloodPointResponseDTO>> getAllFloodPoints() {
         return ResponseEntity.ok(mapiService.getAllFloodPoints());
+    }
+
+    @GetMapping("/pontos/{id_ponto}")
+    @Operation(summary = "Busca o status atual de um ponto específico")
+    public ResponseEntity<MapiResponseDTO> getPointStatus(@PathVariable String id_ponto) {
+        FloodPointResponseDTO point = mapiService.getFloodPointBySlug(id_ponto);
+        if (point == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(mapiService.getPreciseData(point.getLatitude(), point.getLongitude()));
     }
 }

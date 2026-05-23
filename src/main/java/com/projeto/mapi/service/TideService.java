@@ -9,4 +9,6 @@ public interface TideService {
     List<TideTableResponseDTO> getTideTablesByState(String state, Integer year);
     List<TideTableResponseDTO> searchTideTablesByHarbor(String harborName, Integer year);
     List<String> getAllHarbors(Integer year);
+    Double getCurrentTideHeight(double latitude, double longitude);
+    Double getTideHeightAt(double latitude, double longitude, java.time.LocalDateTime timestamp);
 }

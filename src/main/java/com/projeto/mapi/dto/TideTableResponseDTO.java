@@ -21,4 +21,5 @@ public class TideTableResponseDTO {
     private Float meanLevel;
     private List<GeoLocationDTO> geoLocations;
     private List<MonthDataDTO> months;
+    private Double currentTideHeight;
 }

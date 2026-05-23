@@ -9,6 +9,8 @@ import java.util.Optional;
 
 public interface SensorDataRepository extends JpaRepository<SensorData, Long> {
     List<SensorData> findBySensorIdOrderByTimestampDesc(String sensorId);
+    
+    Optional<SensorData> findFirstBySensorIdOrderByTimestampDesc(String sensorId);
 
     @Query("SELECT s FROM SensorData s WHERE s.id IN (SELECT MAX(s2.id) FROM SensorData s2 GROUP BY s2.sensorId)")
     List<SensorData> findAllLatest();
