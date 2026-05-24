@@ -3,9 +3,8 @@
 Para garantir a melhor performance e precisão nas tarefas deste projeto, utilize os seguintes subagentes especializados (através do `invoke_agent` com instruções específicas) ou siga as diretrizes abaixo ao atuar como o agente principal.
 
 ## 🌊 TideExpert (Especialista em Marés)
-**Escopo:** `NavyScraperService`, `PdfConversionService`, `TideIngestionService`, `TideController`.
+**Escopo:** `PdfConversionService`, `TideIngestionService`, `TideController`.
 **Responsabilidades:**
-- Manutenção da lógica de scraping da Marinha (Playwright/Jsoup).
 - Ajustes no parsing de PDFs (PDFBox) para extração de tabelas de maré.
 - Otimização de consultas ao `TideTableRepository`.
 - Garantir que a ingestão de dados trate corretamente fusos horários e formatos de data.

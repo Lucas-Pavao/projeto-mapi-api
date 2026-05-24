@@ -7,7 +7,6 @@ import com.projeto.mapi.model.GeoLocation;
 import com.projeto.mapi.model.HourData;
 import com.projeto.mapi.model.TideTable;
 import com.projeto.mapi.repository.TideTableRepository;
-import com.projeto.mapi.service.NavyScraperService;
 import com.projeto.mapi.service.TideService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TideServiceImpl implements TideService {
     private final TideTableRepository tideTableRepository;
-    private final NavyScraperService navyScraperService;
     private final com.projeto.mapi.service.TabuaMareService tabuaMareService;
 
     @Override
@@ -32,17 +30,7 @@ public class TideServiceImpl implements TideService {
         List<TideTable> results = tideTableRepository.findAllByHarborNameIgnoreCaseAndYear(harborName, year);
         
         if (results.isEmpty()) {
-            log.info("Dados não encontrados para {} em {}. Tentando buscar no site da Marinha...", harborName, year);
-            try {
-                if (isTargetPernambucoPort(harborName)) {
-                    List<TideTableResponseDTO> scraped = navyScraperService.scrapeAndIngestPernambuco(year);
-                    return scraped.stream()
-                            .filter(t -> t.getHarborName().equalsIgnoreCase(harborName))
-                            .findFirst();
-                }
-            } catch (Exception e) {
-                log.error("Falha na busca automática por dados faltantes: {}", e.getMessage());
-            }
+            log.info("Dados não encontrados para {} em {}.", harborName, year);
             return Optional.empty();
         }
         
@@ -68,18 +56,7 @@ public class TideServiceImpl implements TideService {
     public List<TideTableResponseDTO> getTideTablesByState(String state, Integer year) {
         List<TideTable> results = tideTableRepository.findAllByStateIgnoreCaseAndYear(state, year);
         
-        List<TideTableResponseDTO> dtos;
-        if (results.isEmpty() && state.equalsIgnoreCase("PE")) {
-            log.info("Nenhum dado encontrado para o estado PE em {}. Tentando raspagem...", year);
-            try {
-                dtos = navyScraperService.scrapeAndIngestPernambuco(year);
-            } catch (Exception e) {
-                log.error("Erro ao buscar dados do estado PE: {}", e.getMessage());
-                dtos = java.util.Collections.emptyList();
-            }
-        } else {
-            dtos = results.stream().map(TideMapper::toDTO).collect(Collectors.toList());
-        }
+        List<TideTableResponseDTO> dtos = results.stream().map(TideMapper::toDTO).collect(Collectors.toList());
 
         // Popular altura atual
         dtos.forEach(dto -> {
@@ -204,12 +181,5 @@ public class TideServiceImpl implements TideService {
                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
-    }
-
-    private boolean isTargetPernambucoPort(String name) {
-        String upper = name.toUpperCase();
-        return upper.contains("RECIFE") || 
-               upper.contains("SUAPE") || 
-               upper.contains("FERNANDO DE NORONHA");
     }
 }

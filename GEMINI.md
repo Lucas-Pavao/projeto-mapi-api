@@ -20,8 +20,8 @@ Este projeto utiliza uma estratégia de agentes especializados para lidar com di
 - **Testes:** Novos serviços devem vir acompanhados de testes unitários em `src/test/java`.
 
 ## 🚀 Fluxos Importantes
-1. **Scraping de Marés:** A lógica principal reside em `NavyScraperServiceImpl`.
-2. **Ingestão de Dados:** O processamento de dados brutos para o banco de dados é feito em `TideIngestionServiceImpl`.
+1. **Processamento de PDFs:** A lógica de extração de marés reside em `PdfConversionServiceImpl`.
+2. **Ingestão de Dados:** O processamento de dados estruturados para o banco de dados é feito em `TideIngestionServiceImpl`.
 3. **Sensores:** Dados via MQTT são processados assincronamente e salvos no `SensorDataRepository`.
 
 ---
