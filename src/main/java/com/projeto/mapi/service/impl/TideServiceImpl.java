@@ -121,8 +121,8 @@ public class TideServiceImpl implements TideService {
         // 1. Buscar todas as tabelas do ano
         List<TideTable> tables = tideTableRepository.findAllByYear(year);
         if (tables.isEmpty()) {
-            log.info("Nenhuma tabela local para o ano {}. Usando TabuaMare API.", year);
-            return tabuaMareService.getCurrentTideHeight(latitude, longitude);
+            log.info("Nenhuma tabela local para o ano {}. Buscando via TabuaMare API.", year);
+            return tabuaMareService.getTideHeightAt(latitude, longitude, timestamp);
         }
 
         // 2. Encontrar o porto mais próximo
@@ -167,8 +167,8 @@ public class TideServiceImpl implements TideService {
                 .map(h -> h.getLevel() != null ? (double) h.getLevel() : null)
                 .findFirst()
                 .orElseGet(() -> {
-                    log.info("Dado local não encontrado. Buscando maré via TabuaMare API para lat: {}, lon: {}", latitude, longitude);
-                    return tabuaMareService.getCurrentTideHeight(latitude, longitude);
+                    log.info("Dado local não encontrado. Buscando maré via TabuaMare API para lat: {}, lon: {} em {}", latitude, longitude, timestamp);
+                    return tabuaMareService.getTideHeightAt(latitude, longitude, timestamp);
                 });
     }
 

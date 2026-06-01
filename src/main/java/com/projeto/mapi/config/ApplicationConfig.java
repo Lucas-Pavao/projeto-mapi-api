@@ -57,4 +57,20 @@ public class ApplicationConfig {
     public RestClient.Builder restClientBuilder() {
         return RestClient.builder();
     }
+
+    @Bean
+    public org.springframework.web.client.RestTemplate restTemplate() {
+        return new org.springframework.web.client.RestTemplate();
+    }
+
+    @Bean(name = "taskExecutor")
+    public java.util.concurrent.Executor taskExecutor() {
+        org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor executor = new org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(5);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("Ingest-");
+        executor.initialize();
+        return executor;
+    }
 }

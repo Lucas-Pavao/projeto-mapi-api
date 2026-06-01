@@ -1,28 +1,23 @@
 # 🌊 Projeto MAPI - Instruções para Gemini
 
-Bem-vindo ao repositório da API do Projeto MAPI. Este projeto é fundamental para a inteligência urbana do Recife, focando na previsão de alagamentos.
+Bem-vindo ao repositório da API do Projeto MAPI. Este projeto é fundamental para a inteligência urbana da Região Metropolitana do Recife (RMR), focando na previsão de alagamentos.
 
 ## 📋 Visão Geral
-- **Objetivo:** Integração de dados de marés (Marinha), clima e sensores IoT para previsão de enchentes.
-- **Tecnologias:** Java 21, Spring Boot, PostgreSQL, MQTT, Playwright, PDFBox.
+- **Objetivo:** Integração 100% automatizada de dados de marés (APIs), clima, sensores (ANA/CEMADEN) e ocorrências urbanas (Dados Abertos) para treinamento de IA.
+- **Tecnologias:** Java 21, Spring Boot, PostgreSQL, MQTT, API CKAN, OpenStreetMap (Nominatim).
 
 ## 🤖 Uso de Agentes
-Este projeto utiliza uma estratégia de agentes especializados para lidar com diferentes domínios de conhecimento. Consulte o arquivo [agents.md](./agents.md) para detalhes sobre as responsabilidades de cada perfil.
-
-- **Para mudanças na lógica de maré:** Siga as diretrizes do `TideExpert`.
-- **Para integração com sensores:** Siga as diretrizes do `IoTMaster`.
-- **Para segurança e autenticação:** Siga as diretrizes do `SecurityGuard`.
+Este projeto utiliza uma estratégia de agentes especializados. Consulte [agents.md](./agents.md).
 
 ## 🛠️ Convenções de Código
-- **Lombok:** Utilize anotações do Lombok (`@Data`, `@Builder`, `@Slf4j`) para reduzir boilerplate.
-- **Exceções:** Use o `GlobalExceptionHandler` e crie exceções específicas em `com.projeto.mapi.exception`.
-- **DTOs:** Sempre use DTOs para entrada/saída nos controllers, nunca exponha entidades JPA diretamente.
-- **Testes:** Novos serviços devem vir acompanhados de testes unitários em `src/test/java`.
+- **Lombok:** Obrigatório (`@Data`, `@Builder`, `@Slf4j`).
+- **DTOs:** Obrigatórios para entrada/saída em Controllers.
+- **Sincronização:** Dados de sensores ANA/CEMADEN devem sempre ser convertidos de UTC para Local (UTC-3).
+- **Geoprocessamento:** Ocorrências sem coordenadas devem ser geocodificadas (Placeholder para futuro serviço de geocodificação) usando o fallback Nominatim.
 
-## 🚀 Fluxos Importantes
-1. **Processamento de PDFs:** A lógica de extração de marés reside em `PdfConversionServiceImpl`.
-2. **Ingestão de Dados:** O processamento de dados estruturados para o banco de dados é feito em `TideIngestionServiceImpl`.
-3. **Sensores:** Dados via MQTT são processados assincronamente e salvos no `SensorDataRepository`.
+## 🚀 Fluxos Automatizados
+1. **Ingestão Histórica:** O `HistoricalDataServiceImpl` realiza buscas profundas na ANA e Open-Meteo sincronizando séries temporais de 5 anos.
+2. **Dataset Unificado:** O `DataExportServiceImpl` consolida Sensores + Clima + Maré + Labels em um único CSV para treinamento de IA.
 
 ---
-*Nota: Estas instruções são fundamentais e devem ser seguidas rigorosamente por todos os agentes que operam neste repositório.*
+*Nota: A ingestão via PDF foi descontinuada em favor da integração multi-fonte via API (TabuaMare/Open-Meteo).*

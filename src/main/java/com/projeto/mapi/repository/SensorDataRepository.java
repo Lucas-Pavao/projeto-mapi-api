@@ -16,4 +16,10 @@ public interface SensorDataRepository extends JpaRepository<SensorData, Long> {
     List<SensorData> findAllLatest();
 
     Optional<SensorData> findBySensorIdAndTimestamp(String sensorId, LocalDateTime timestamp);
+
+    List<SensorData> findBySensorIdAndTimestampBetween(String sensorId, LocalDateTime start, LocalDateTime end);
+    long countBySensorId(String sensorId);
+
+    @org.springframework.data.jpa.repository.Query("SELECT YEAR(s.timestamp), COUNT(s) FROM SensorData s WHERE s.sensorId = :sensorId GROUP BY YEAR(s.timestamp)")
+    List<Object[]> countBySensorIdGroupedByYear(String sensorId);
 }
