@@ -59,16 +59,55 @@ A API estará disponível em `http://localhost:8080`.
 
 ---
 
-## 📌 Principais Endpoints
+## 📌 Documentação da API (Endpoints)
 
-Acesse o Swagger para detalhes: `http://localhost:8080/swagger-ui.html`
+A API do MAPI está organizada por módulos funcionais. Para detalhes técnicos completos (esquemas de JSON, parâmetros), utilize o **Swagger UI** em `http://localhost:8080/swagger-ui.html`.
+
+### 1. 🔍 Monitoramento e Inteligência (MAPI Core)
+Estes endpoints consolidam dados de múltiplas fontes (Sensores + Maré + Clima) para fornecer uma visão em tempo real.
 
 | Método | Endpoint | Descrição |
 |--------|----------|-----------|
-| `GET` | `/api/mapi/precisao` | Consulta consolidada em tempo real para lat/lon. |
-| `GET` | `/api/export/training-set` | Gera CSV mestre para treinamento de IA. |
-| `POST` | `/api/fp` | Cadastra ponto de alagamento com auto-mapeamento de sensores. |
-| `POST` | `/api/admin/ingestion/historical-full-sync` | Dispara sincronização histórica de 5 anos. |
+| `GET` | `/api/mapi/precisao` | Retorna dados consolidados para uma latitude/longitude específica (incluindo o sensor mais próximo). |
+| `GET` | `/api/mapi/pontos-piloto` | Lista os dados em tempo real para todos os pontos críticos cadastrados. |
+| `GET` | `/api/fp` | Lista todos os Pontos de Alagamento (Flood Points) configurados. |
+| `POST` | `/api/fp` | Cadastra um novo ponto com geocodificação automática e mapeamento de sensores. |
+
+### 2. 📊 Exportação para IA (Data Science)
+Focado na geração de massa de dados para treinamento e validação de modelos preditivos.
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/api/export/training-set` | Gera e baixa um arquivo **CSV Mestre** unificando todo o histórico de sensores, clima, marés e ocorrências. |
+| `GET` | `/api/export/health-report` | Retorna um relatório de "saúde" dos dados (identifica gaps de séries temporais). |
+
+### 3. 📡 Sensores e Marés
+Acesso direto aos dados brutos coletados via MQTT e APIs externas.
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/api/sensors/latest` | Obtém a leitura mais recente de todos os sensores (ANA, APAC, CEMADEN). |
+| `GET` | `/api/sensors/history/{id}` | Histórico completo de leituras de um sensor específico. |
+| `GET` | `/api/tide/{harbor}` | Consulta a tábua de maré prevista para um porto (Porto do Recife ou Suape). |
+
+### 4. ⚙️ Administração e Ingestão Histórica
+Endpoints de alta carga para sincronização de séries temporais.
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/api/admin/ingestion/historical-full-sync` | Dispara o processo global de sincronização profunda (5 anos atrás até hoje). |
+| `POST` | `/api/admin/ingestion/repair-stations` | Reavalia geograficamente qual estação sensor é a melhor para cada ponto. |
+| `POST` | `/api/admin/ingestion/align-events` | Alinha o horário de ocorrências da Defesa Civil ao pico de chuva medido no dia. |
+| `DELETE` | `/api/admin/ingestion/wipe-database` | **CUIDADO**: Reseta 100% o banco de dados (limpeza total). |
+
+### 5. 🔐 Autenticação
+Segurança baseada em JWT.
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `POST` | `/api/auth/register` | Cria um novo usuário no sistema. |
+| `POST` | `/api/auth/login` | Autentica e retorna o `AccessToken` e `RefreshToken`. |
+| `POST` | `/api/auth/refresh` | Renova um token expirado. |
 
 ---
 *Desenvolvido para fortalecer a resiliência urbana e a inteligência climática.* 🌊🏙️
