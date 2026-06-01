@@ -10,6 +10,5 @@ public interface HistoricalDataService {
     void alignFloodEventsToRainPeaks();
     java.util.List<com.projeto.mapi.dto.DataHealthReportDTO> checkDataIntegrity();
     void repairStationMappings();
-    void ingestLocalArchives();
     void wipeDatabase();
 }

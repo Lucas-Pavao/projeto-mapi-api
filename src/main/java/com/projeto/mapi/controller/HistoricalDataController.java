@@ -70,13 +70,6 @@ public class HistoricalDataController {
         return ResponseEntity.ok("Mapeamento de estações reparado com sucesso.");
     }
 
-    @PostMapping("/ingest-archives")
-    @Operation(summary = "Ingere os arquivos JSON locais presentes na raiz como dados de sensor")
-    public ResponseEntity<String> ingestArchives() {
-        historicalDataService.ingestLocalArchives();
-        return ResponseEntity.ok("Ingestão de arquivos locais concluída.");
-    }
-
     @DeleteMapping("/wipe-database")
     @Operation(summary = "LIMPA TODO O BANCO DE DADOS (Clima, Sensores e Eventos)")
     public ResponseEntity<String> wipeDatabase() {

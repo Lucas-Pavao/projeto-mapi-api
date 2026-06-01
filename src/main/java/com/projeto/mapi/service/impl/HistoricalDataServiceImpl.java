@@ -335,56 +335,6 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
     }
 
     @Override
-    @Transactional
-    public void ingestLocalArchives() {
-        log.info("Iniciando ingestão de arquivos JSON locais...");
-        String[] files = {"ibura_2022.json", "derby_2022.json", "derby_2023.json", "jaboatao_2022.json", "mascarenhas_2022.json", "mascarenhas_2023.json", "ibura_2023.json"};
-        
-        for (String fileName : files) {
-            java.io.File file = new java.io.File(fileName);
-            if (file.exists()) {
-                log.info("Processando arquivo local: {}", fileName);
-                try {
-                    String content = java.nio.file.Files.readString(file.toPath());
-                    com.fasterxml.jackson.databind.JsonNode root = new com.fasterxml.jackson.databind.ObjectMapper().readTree(content);
-                    String slug = fileName.split("_")[0].toUpperCase();
-                    if (slug.equals("IBURA")) slug = "AV_RECIFE_IBURA";
-                    if (slug.equals("DERBY")) slug = "AGAMENON_DERBY";
-                    if (slug.equals("JABOATAO")) slug = "JABOATAO_CENTRO";
-                    if (slug.equals("MASCARENHAS")) slug = "MASCARENHAS_IMBIRIBEIRA";
-                    
-                    final String finalSlug = slug;
-                    var hourly = root.get("hourly");
-                    var times = hourly.get("time");
-                    var precip = hourly.get("precipitation");
-                    
-                    List<com.projeto.mapi.model.SensorData> batch = new ArrayList<>();
-                    for (int i = 0; i < times.size(); i++) {
-                        LocalDateTime ts = LocalDateTime.parse(times.get(i).asText());
-                        if (sensorDataRepository.findBySensorIdAndTimestamp(finalSlug, ts).isEmpty()) {
-                            batch.add(com.projeto.mapi.model.SensorData.builder()
-                                    .sensorId(finalSlug)
-                                    .timestamp(ts)
-                                    .accumulatedPrecipitation(precip.get(i).asDouble())
-                                    .source("LOCAL_ARCHIVE")
-                                    .unit("mm")
-                                    .build());
-                        }
-                        if (batch.size() >= 500) {
-                            sensorDataRepository.saveAll(batch);
-                            batch.clear();
-                        }
-                    }
-                    if (!batch.isEmpty()) sensorDataRepository.saveAll(batch);
-                    log.info("Ingeridos {} registros de sensor a partir de {}", times.size(), fileName);
-                } catch (Exception e) {
-                    log.error("Erro ao processar arquivo local {}: {}", fileName, e.getMessage());
-                }
-            }
-        }
-    }
-
-    @Override
     @Async
     public void ingestCivilDefenseData(String resourceId) {
         civilDefenseService.ingestFloodEvents(resourceId);
