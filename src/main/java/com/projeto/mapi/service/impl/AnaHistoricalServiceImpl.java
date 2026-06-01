@@ -1,6 +1,8 @@
 package com.projeto.mapi.service.impl;
 
+import com.projeto.mapi.model.FloodPoint;
 import com.projeto.mapi.model.SensorData;
+import com.projeto.mapi.repository.FloodPointRepository;
 import com.projeto.mapi.repository.SensorDataRepository;
 import com.projeto.mapi.service.AnaHistoricalService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ import java.util.List;
 public class AnaHistoricalServiceImpl implements AnaHistoricalService {
 
     private final SensorDataRepository sensorDataRepository;
+    private final FloodPointRepository floodPointRepository;
     private final RestClient restClient = RestClient.builder()
             .baseUrl("http://telemetriaws1.ana.gov.br/ServiceANA.asmx")
             .build();
@@ -75,6 +79,16 @@ public class AnaHistoricalServiceImpl implements AnaHistoricalService {
         NodeList nodes = doc.getElementsByTagName("DadosHidrometereologicos");
         List<SensorData> batch = new ArrayList<>();
 
+        // Identifica se a estação pertence a um ponto monitorado
+        String finalSensorId = stationCode;
+        Optional<FloodPoint> fp = floodPointRepository.findByPluviometerStationId(stationCode);
+        if (fp.isEmpty()) fp = floodPointRepository.findByRiverLevelStationId(stationCode);
+        
+        if (fp.isPresent()) {
+            finalSensorId = fp.get().getSlug();
+            log.info("---- Mapeando estação ANA {} para o ponto monitorado {}", stationCode, finalSensorId);
+        }
+
         for (int i = 0; i < nodes.getLength(); i++) {
             Element element = (Element) nodes.item(i);
             
@@ -92,11 +106,12 @@ public class AnaHistoricalServiceImpl implements AnaHistoricalService {
             timestamp = timestamp.minusHours(3);
             
             // Evitar duplicatas
-            if (sensorDataRepository.findBySensorIdAndTimestamp(stationCode, timestamp).isPresent()) continue;
+            if (sensorDataRepository.findBySensorIdAndTimestamp(finalSensorId, timestamp).isPresent()) continue;
 
             SensorData data = SensorData.builder()
-                    .sensorId(stationCode)
+                    .sensorId(finalSensorId)
                     .timestamp(timestamp)
+                    .code(stationCode)
                     .source("ANA_HISTORICAL")
                     .build();
 

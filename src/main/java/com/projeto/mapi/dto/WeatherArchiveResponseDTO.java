@@ -20,7 +20,8 @@ public record WeatherArchiveResponseDTO(
         List<String> time,
         List<Double> precipitation,
         @JsonProperty("temperature_2m") List<Double> temperature,
-        @JsonProperty("relative_humidity_2m") List<Integer> humidity,
+        @JsonProperty("relative_humidity_2m") List<Double> humidity,
+        @JsonProperty("surface_pressure") List<Double> pressure,
         @JsonProperty("weather_code") List<Integer> weatherCode
     ) {}
 }

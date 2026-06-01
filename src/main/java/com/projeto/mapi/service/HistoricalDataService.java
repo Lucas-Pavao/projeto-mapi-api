@@ -7,6 +7,7 @@ public interface HistoricalDataService {
     void ingestApacHistoricalRainfall(String stationCode, int year);
     void ingestCivilDefenseData(String resourceId);
     void ingestCivilDefenseLastYears(int years);
+    void alignFloodEventsToRainPeaks();
     java.util.List<com.projeto.mapi.dto.DataHealthReportDTO> checkDataIntegrity();
     void repairStationMappings();
     void ingestLocalArchives();

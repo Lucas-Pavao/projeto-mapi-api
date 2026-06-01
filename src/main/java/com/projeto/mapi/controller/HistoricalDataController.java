@@ -50,6 +50,13 @@ public class HistoricalDataController {
         return ResponseEntity.ok("Sincronização TOTAL de " + years + " anos iniciada em segundo plano para todos os pontos.");
     }
 
+    @PostMapping("/align-events")
+    @Operation(summary = "Alinha eventos de alagamento (00:00) ao pico de chuva meteorológica do dia")
+    public ResponseEntity<String> alignEvents() {
+        historicalDataService.alignFloodEventsToRainPeaks();
+        return ResponseEntity.ok("Processo de alinhamento de eventos iniciado.");
+    }
+
     @GetMapping("/check-integrity")
     @Operation(summary = "Verifica a integridade dos dados no banco (Gaps e quantidades)")
     public ResponseEntity<java.util.List<com.projeto.mapi.dto.DataHealthReportDTO>> checkIntegrity() {

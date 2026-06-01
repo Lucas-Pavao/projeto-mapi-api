@@ -15,10 +15,10 @@ jwt:
   refreshExpiration: 2592000000
 
 mqtt:
-  url: tcp://localhost:1883
-  username: user
-  password: pass
-  clientId: test-client
+  broker:
+    url: tcp://localhost:1883
+  client:
+    id: test-client
   topic: test/topic
 
 weather:

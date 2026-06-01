@@ -176,6 +176,9 @@ public class TabuaMareServiceImpl implements TabuaMareService {
                                         double fraction = (double) (targetMinutes - t1) / (t2 - t1);
                                         double interpolated = (h1 + h2) / 2.0 + (h1 - h2) / 2.0 * Math.cos(Math.PI * fraction);
                                         
+                                        // Arredondar para 2 casas decimais para evitar valores "quebrados"
+                                        interpolated = Math.round(interpolated * 100.0) / 100.0;
+
                                         log.debug("TabuaMare: Interpolado entre {} ({}) e {} ({}) para {}: {}", 
                                             pStr, h1, nStr, h2, timestamp, interpolated);
                                         return interpolated;

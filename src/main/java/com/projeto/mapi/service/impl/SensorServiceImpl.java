@@ -3,9 +3,12 @@ package com.projeto.mapi.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.projeto.mapi.dto.SensorResponseDTO;
+import com.projeto.mapi.model.FloodPoint;
 import com.projeto.mapi.model.SensorData;
+import com.projeto.mapi.repository.FloodPointRepository;
 import com.projeto.mapi.repository.SensorDataRepository;
 import com.projeto.mapi.service.SensorService;
+import com.projeto.mapi.util.GeoUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,14 +16,18 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class SensorServiceImpl implements SensorService {
     private final SensorDataRepository sensorDataRepository;
+    private final FloodPointRepository floodPointRepository;
     private final ObjectMapper objectMapper;
     private final com.projeto.mapi.service.TideService tideService;
+
+    private List<FloodPoint> floodPointsCache;
 
     @Override
     @Transactional
@@ -53,24 +60,62 @@ public class SensorServiceImpl implements SensorService {
         
         LocalDateTime timestamp = parseTimestamp(timestampStr);
 
+        SensorData temp = new SensorData();
+        extractMetadata(temp, root); // Extrair lat/lon antes para validar proximidade
+
+        String finalSensorId = sensorId;
+        String code = temp.getCode();
+
+        // Proximidade com pontos de alagamento
+        if (temp.getLatitude() != null && temp.getLongitude() != null) {
+            if (floodPointsCache == null) {
+                floodPointsCache = floodPointRepository.findAll();
+            }
+
+            Optional<FloodPoint> nearPoint = floodPointsCache.stream()
+                    .filter(fp -> GeoUtils.calculateDistance(temp.getLatitude(), temp.getLongitude(), fp.getLatitude(), fp.getLongitude()) < 2.0)
+                    .findFirst();
+
+            if (nearPoint.isPresent()) {
+                FloodPoint fp = nearPoint.get();
+                finalSensorId = fp.getSlug();
+                
+                // Se o sensor tem um código, atualizamos o mapeamento no ponto se for novo
+                if (code != null && (fp.getPluviometerStationId() == null || !fp.getPluviometerStationId().equals(code))) {
+                    log.info("---- Atualizando mapeamento real-time: Ponto {} -> Estação {}", fp.getSlug(), code);
+                    fp.setPluviometerStationId(code);
+                    floodPointRepository.save(fp);
+                }
+            }
+        }
+
         // Evitar duplicatas exatas
-        if (sensorDataRepository.findBySensorIdAndTimestamp(sensorId, timestamp).isPresent()) {
-            log.debug("Registro duplicado ignorado para {} em {}", sensorId, timestamp);
+        if (sensorDataRepository.findBySensorIdAndTimestamp(finalSensorId, timestamp).isPresent()) {
+            log.debug("Registro duplicado ignorado para {} em {}", finalSensorId, timestamp);
             return;
         }
 
         SensorData data = SensorData.builder()
-                .sensorId(sensorId)
+                .sensorId(finalSensorId)
                 .batteryStatus(batteryStatus)
                 .rawData(payload)
                 .timestamp(timestamp)
                 .value(0.0) // Inicializar com 0.0 para evitar null
+                .latitude(temp.getLatitude())
+                .longitude(temp.getLongitude())
+                .stationName(temp.getStationName())
+                .municipality(temp.getMunicipality())
+                .code(code)
                 .build();
 
         // Mapeamento de campos técnicos
         if (root.has("fog_valor_referencia") && !root.get("fog_valor_referencia").isNull()) data.setFogValueReference(root.get("fog_valor_referencia").asDouble());
+        
+        // Identificadores Únicos (GMMC / Código da Estação)
         if (root.has("codigo")) data.setCode(root.get("codigo").asText());
-        if (root.has("codigoestacao")) data.setCode(root.get("codigoestacao").asText());
+        else if (root.has("codigoestacao")) data.setCode(root.get("codigoestacao").asText());
+        else if (root.has("cod_estacao")) data.setCode(root.get("cod_estacao").asText());
+        else if (root.has("cod_estação")) data.setCode(root.get("cod_estação").asText());
         
         // Clima e Solo
         if (root.has("temperatura_ar") && !root.get("temperatura_ar").isNull()) data.setTemperature(root.get("temperatura_ar").asDouble());
@@ -172,6 +217,25 @@ public class SensorServiceImpl implements SensorService {
         return sensorDataRepository.findFirstBySensorIdOrderByTimestampDesc(sensorId)
                 .map(this::convertToDTO)
                 .orElse(null);
+    }
+
+    @Override
+    public List<SensorResponseDTO> getSensorHistoryByCode(String code) {
+        return sensorDataRepository.findByCodeOrderByTimestampDesc(code).stream()
+                .map(this::convertToDTO)
+                .toList();
+    }
+
+    @Override
+    public SensorResponseDTO getLatestByCode(String code) {
+        return sensorDataRepository.findFirstByCodeOrderByTimestampDesc(code)
+                .map(this::convertToDTO)
+                .orElse(null);
+    }
+
+    @Override
+    public List<String> getDistinctSensorIds() {
+        return sensorDataRepository.findDistinctSensorIds();
     }
 
     private SensorResponseDTO convertToDTO(SensorData data) {

@@ -36,4 +36,10 @@ public class SensorController {
     public ResponseEntity<List<SensorResponseDTO>> getSensorHistory(@PathVariable String sensorId) {
         return ResponseEntity.ok(sensorService.getSensorHistory(sensorId));
     }
+
+    @GetMapping("/ids")
+    @Operation(summary = "Listar todos os IDs de sensores únicos cadastrados (MQTT/APAC/ANA)")
+    public ResponseEntity<List<String>> getDistinctSensorIds() {
+        return ResponseEntity.ok(sensorService.getDistinctSensorIds());
+    }
 }

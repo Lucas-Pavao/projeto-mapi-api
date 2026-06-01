@@ -187,15 +187,24 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
 
     private boolean saveRecord(CkanRecordDTO record) {
         String addr = record.getEndereco() != null ? record.getEndereco() : "Endereço N/A";
+        
+        // Se o endereço original já parece lixo (menos de 3 caracteres ou só símbolos), ignora silenciosamente
+        if (addr.length() < 3 || addr.matches("^[\\W\\d]+$")) {
+            return false;
+        }
+
         try {
             Optional<ScraperEventDTO> eventDTO = convertToScraperEvent(record);
             if (eventDTO.isPresent()) {
                 return floodEventService.ingestScraperEvent(eventDTO.get()) != null;
             } else {
-                log.warn("[-] Registro ignorado: {} (Geocodificação falhou ou data inválida)", addr);
+                // Log apenas se for um endereço que parece real mas falhou na geocodificação
+                if (addr.length() > 10) {
+                    log.warn("[-] Geocodificação falhou para endereço potencialmente válido: {}", addr);
+                }
             }
         } catch (Exception e) {
-            log.warn("[-] Registro ignorado: {} - Motivo: {}", addr, e.getMessage());
+            log.warn("[-] Erro ao processar registro: {} - Motivo: {}", addr, e.getMessage());
         }
         return false;
     }

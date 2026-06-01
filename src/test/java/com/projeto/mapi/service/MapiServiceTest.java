@@ -32,6 +32,12 @@ class MapiServiceTest {
     private TideService tideService;
 
     @Mock
+    private TabuaMareService tabuaMareService;
+
+    @Mock
+    private MarineService marineService;
+
+    @Mock
     private com.projeto.mapi.repository.FloodPointRepository floodPointRepository;
 
     @InjectMocks
@@ -44,7 +50,7 @@ class MapiServiceTest {
     void setUp() {
         mockWeather = new WeatherResponseDTO(
                 -8.05, -34.88, 1.0, 10.0,
-                new CurrentWeatherDTO("2026-05-18T20:00", 25.0, 80, 26.0, 1, 1, 5.0)
+                new CurrentWeatherDTO("2026-05-18T20:00", 25.0, 80.0, 26.0, 1013.0, 1, 1, 5.0)
         );
 
         mockSensors = List.of(

@@ -6,7 +6,9 @@ import com.projeto.mapi.repository.*;
 import com.projeto.mapi.service.DataExportService;
 import com.projeto.mapi.service.TideService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DataExportServiceImpl implements DataExportService {
 
     private final FloodPointRepository floodPointRepository;
@@ -24,6 +27,10 @@ public class DataExportServiceImpl implements DataExportService {
     private final WeatherDataRepository weatherDataRepository;
     private final FloodEventRepository floodEventRepository;
     private final TideService tideService;
+
+    public List<com.projeto.mapi.model.FloodPoint> getPoints() {
+        return floodPointRepository.findAll();
+    }
 
     @Override
     public List<UnifiedDataDTO> exportAllPointsData(int days) {
@@ -44,9 +51,30 @@ public class DataExportServiceImpl implements DataExportService {
         LocalDateTime end = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0);
         LocalDateTime start = (days > 0) ? end.minusDays(days) : LocalDateTime.of(2021, 1, 1, 0, 0);
 
-        // 1. Buscar todos os dados brutos
+        // 1. Buscar todos os dados brutos (Tenta ID, Fallback por Código e Fallback por Slug)
         List<SensorData> sensorData = sensorDataRepository.findBySensorIdAndTimestampBetween(
                 point.getPluviometerStationId(), start, end);
+        
+        // Se não encontrou por ID, tenta buscar pelo Código (GMMC)
+        if (sensorData.isEmpty() && point.getPluviometerStationId() != null) {
+            sensorData = sensorDataRepository.findByCodeAndTimestampBetween(point.getPluviometerStationId(), start, end);
+        }
+
+        // Fallback final: Tenta buscar pelo slug do ponto
+        if (sensorData.isEmpty()) {
+            sensorData = sensorDataRepository.findBySensorIdAndTimestampBetween(slug, start, end);
+        }
+
+        // Fallback por Proximidade (Geográfico): Busca sensores num raio de 500m
+        if (sensorData.isEmpty() && point.getLatitude() != null && point.getLongitude() != null) {
+            log.info("---- Buscando sensor por proximidade para o ponto {}", slug);
+            List<SensorData> nearbyData = sensorDataRepository.findNearbySensors(
+                    point.getLatitude(), point.getLongitude(), 0.005, start, end);
+            if (!nearbyData.isEmpty()) {
+                sensorData = nearbyData;
+                log.info("---- Encontrados {} registros via proximidade geográfica.", nearbyData.size());
+            }
+        }
         
         List<WeatherData> weatherData = weatherDataRepository.findByLatitudeAndLongitudeAndTimestampBetween(
                 point.getLatitude(), point.getLongitude(), start, end);
@@ -75,11 +103,33 @@ public class DataExportServiceImpl implements DataExportService {
                 timeline.get(hour)
                         .weatherPrecipitation(w.getPrecipitation())
                         .weatherTemperature(w.getTemperature())
+                        .weatherPressure(w.getPressure())
                         .weatherCode(w.getWeatherCode());
             }
         });
 
-        // 4. Processar e Refinar (Tide + Flood Labels)
+        // 4. Mapear dados de sensores para a timeline
+        sensorData.forEach(s -> {
+            LocalDateTime hour = s.getTimestamp().withMinute(0).withSecond(0).withNano(0);
+            if (timeline.containsKey(hour)) {
+                if (s.getAccumulatedPrecipitation() != null) timeline.get(hour).sensorPrecipitation(s.getAccumulatedPrecipitation());
+                if (s.getWaterLevel() != null) timeline.get(hour).sensorWaterLevel(s.getWaterLevel());
+                
+                // Tratar umidade do solo (extrair primeiro valor se for array JSON)
+                if (s.getSoilHumidity() != null) {
+                    try {
+                        com.fasterxml.jackson.databind.JsonNode soilNode = new com.fasterxml.jackson.databind.ObjectMapper().readTree(s.getSoilHumidity());
+                        if (soilNode.isArray() && soilNode.size() > 0) {
+                            timeline.get(hour).sensorSoilHumidity(soilNode.get(0).asDouble());
+                        } else if (soilNode.isNumber()) {
+                            timeline.get(hour).sensorSoilHumidity(soilNode.asDouble());
+                        }
+                    } catch (Exception ignored) {}
+                }
+            }
+        });
+
+        // 5. Processar e Refinar (Tide + Flood Labels)
         // Otimização: Cache de maré por hora para evitar chamadas repetidas à API externa se o porto for o mesmo
         java.util.concurrent.ConcurrentHashMap<LocalDateTime, Double> tideCache = new java.util.concurrent.ConcurrentHashMap<>();
 
@@ -91,6 +141,10 @@ public class DataExportServiceImpl implements DataExportService {
             try {
                 Double tide = tideCache.computeIfAbsent(ts, t -> 
                     tideService.getTideHeightAt(point.getLatitude(), point.getLongitude(), t));
+                
+                if (tide != null) {
+                    tide = Math.round(tide * 100.0) / 100.0;
+                }
                 builder.tideHeight(tide);
             } catch (Exception e) {
                 builder.tideHeight(null);
@@ -113,25 +167,60 @@ public class DataExportServiceImpl implements DataExportService {
         return fillMissingValues(result);
     }
 
+    @Override
+    public List<UnifiedDataDTO> exportUnifiedDataWithAccumulated(String slug, int days) {
+        List<UnifiedDataDTO> baseData = exportUnifiedData(slug, days);
+        
+        for (int i = 0; i < baseData.size(); i++) {
+            baseData.get(i).setAccumulated3h(calculateSum(baseData, i, 3));
+            baseData.get(i).setAccumulated6h(calculateSum(baseData, i, 6));
+            baseData.get(i).setAccumulated12h(calculateSum(baseData, i, 12));
+            baseData.get(i).setAccumulated24h(calculateSum(baseData, i, 24));
+            baseData.get(i).setAccumulated48h(calculateSum(baseData, i, 48));
+        }
+        
+        return baseData;
+    }
+
+    private Double calculateSum(List<UnifiedDataDTO> data, int index, int hours) {
+        double sum = 0.0;
+        int count = 0;
+        for (int i = index; i >= 0 && count < hours; i--) {
+            Double val = data.get(i).getWeatherPrecipitation();
+            sum += (val != null ? val : 0.0);
+            count++;
+        }
+        return Math.round(sum * 100.0) / 100.0;
+    }
+
     private List<UnifiedDataDTO> fillMissingValues(List<UnifiedDataDTO> data) {
         if (data.isEmpty()) return data;
 
-        Double lastSensorP = 0.0;
         Double lastWeatherP = 0.0;
         Double lastTemp = 25.0; // Média padrão Recife
+        Double lastPressure = 1013.0; // Padrão atm
         Integer lastCode = 0;
+        Double lastSoil = 30.0; // Padrão úmido
+        Double lastWater = 0.0;
 
         for (UnifiedDataDTO d : data) {
-            // Se sensor é null, assume 0 (ausência de chuva detectada) ou mantém último
+            // Se sensor é null, assume 0 (ausência de chuva detectada)
             if (d.getSensorPrecipitation() == null) d.setSensorPrecipitation(0.0);
-            else lastSensorP = d.getSensorPrecipitation();
 
-            // Se clima é null, preenche com a última leitura conhecida (Forward Fill)
-            if (d.getWeatherPrecipitation() == null) d.setWeatherPrecipitation(lastWeatherP);
-            else lastWeatherP = d.getWeatherPrecipitation();
+            if (d.getSensorWaterLevel() == null) d.setSensorWaterLevel(lastWater);
+            else lastWater = d.getSensorWaterLevel();
+
+            if (d.getSensorSoilHumidity() == null) d.setSensorSoilHumidity(lastSoil);
+            else lastSoil = d.getSensorSoilHumidity();
+
+            // Se clima é null, assume 0 para chuva e preenche temperatura/pressão com a última leitura conhecida
+            if (d.getWeatherPrecipitation() == null) d.setWeatherPrecipitation(0.0);
 
             if (d.getWeatherTemperature() == null) d.setWeatherTemperature(lastTemp);
             else lastTemp = d.getWeatherTemperature();
+
+            if (d.getWeatherPressure() == null) d.setWeatherPressure(lastPressure);
+            else lastPressure = d.getWeatherPressure();
 
             if (d.getWeatherCode() == null) d.setWeatherCode(lastCode);
             else lastCode = d.getWeatherCode();
@@ -161,17 +250,25 @@ public class DataExportServiceImpl implements DataExportService {
     @Override
     public String generateCsv(List<UnifiedDataDTO> data) {
         StringBuilder csv = new StringBuilder();
-        csv.append("floodPointSlug,timestamp,sensorPrecipitation,weatherPrecipitation,weatherTemperature,weatherCode,tideHeight,isFlooded,severity\n");
+        csv.append("floodPointSlug,timestamp,sensorPrecipitation,sensorWaterLevel,sensorSoilHumidity,weatherPrecipitation,weatherTemperature,weatherPressure,weatherCode,tideHeight,accumulated3h,accumulated6h,accumulated12h,accumulated24h,accumulated48h,isFlooded,severity\n");
         
         for (UnifiedDataDTO d : data) {
-            csv.append(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+            csv.append(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
                     d.getFloodPointSlug(),
                     d.getTimestamp(),
                     d.getSensorPrecipitation(),
+                    d.getSensorWaterLevel(),
+                    d.getSensorSoilHumidity(),
                     d.getWeatherPrecipitation(),
                     d.getWeatherTemperature(),
+                    d.getWeatherPressure(),
                     d.getWeatherCode(),
                     d.getTideHeight(),
+                    d.getAccumulated3h(),
+                    d.getAccumulated6h(),
+                    d.getAccumulated12h(),
+                    d.getAccumulated24h(),
+                    d.getAccumulated48h(),
                     d.getIsFlooded(),
                     d.getSeverity()
             ));

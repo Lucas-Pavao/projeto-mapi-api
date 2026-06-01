@@ -16,8 +16,10 @@ Este projeto utiliza uma estratégia de agentes especializados. Consulte [agents
 - **Geoprocessamento:** Ocorrências sem coordenadas devem ser geocodificadas (Placeholder para futuro serviço de geocodificação) usando o fallback Nominatim.
 
 ## 🚀 Fluxos Automatizados
-1. **Ingestão Histórica:** O `HistoricalDataServiceImpl` realiza buscas profundas na ANA e Open-Meteo sincronizando séries temporais de 5 anos.
-2. **Dataset Unificado:** O `DataExportServiceImpl` consolida Sensores + Clima + Maré + Labels em um único CSV para treinamento de IA.
+1. **Ingestão Histórica:** O `HistoricalDataServiceImpl` realiza buscas profundas na ANA, APAC e Open-Meteo sincronizando séries temporais de 5 anos.
+2. **Coleta em Tempo Real:** Integração 100% via **MQTT (ANA/CEMADEN/APAC)** garantindo baixa latência.
+3. **Mapeamento Geográfico:** O mapeamento de estações pluviométricas para pontos de monitoramento é **dinâmico e baseado em proximidade (Haversine)**, gerenciado pelo `repairStationMappings`.
+4. **Dataset Unificado:** O `DataExportServiceImpl` consolida Sensores + Clima + Maré + Labels em um único CSV para treinamento de IA.
 
 ---
 *Nota: A ingestão via PDF foi descontinuada em favor da integração multi-fonte via API (TabuaMare/Open-Meteo).*

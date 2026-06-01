@@ -11,6 +11,7 @@ import com.projeto.mapi.service.MapiService;
 import com.projeto.mapi.service.SensorService;
 import com.projeto.mapi.service.TideService;
 import com.projeto.mapi.service.WeatherService;
+import com.projeto.mapi.util.GeoUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,7 @@ public class MapiServiceImpl implements MapiService {
         SensorResponseDTO nearestSensor = findNearestSensor(latitude, longitude, sensors);
         Double distance = null;
         if (nearestSensor != null) {
-            distance = calculateDistance(latitude, longitude, nearestSensor.getLatitude(), nearestSensor.getLongitude());
+            distance = GeoUtils.calculateDistance(latitude, longitude, nearestSensor.getLatitude(), nearestSensor.getLongitude());
             log.info("Sensor mais próximo encontrado: {} a {} km", nearestSensor.getSensorId(), String.format("%.2f", distance));
         } else {
             log.warn("Nenhum sensor com localização encontrado no sistema.");
@@ -149,7 +150,7 @@ public class MapiServiceImpl implements MapiService {
         return sensors.stream()
                 .filter(s -> s.getLatitude() != null && s.getLongitude() != null)
                 .filter(s -> {
-                    double dist = calculateDistance(lat, lon, s.getLatitude(), s.getLongitude());
+                    double dist = GeoUtils.calculateDistance(lat, lon, s.getLatitude(), s.getLongitude());
                     if (dist > MAX_SENSOR_RADIUS_KM) return false;
 
                     if ("PRECIPITATION".equals(type)) {
@@ -159,7 +160,7 @@ public class MapiServiceImpl implements MapiService {
                     }
                     return false;
                 })
-                .min(Comparator.comparingDouble(s -> calculateDistance(lat, lon, s.getLatitude(), s.getLongitude())))
+                .min(Comparator.comparingDouble(s -> GeoUtils.calculateDistance(lat, lon, s.getLatitude(), s.getLongitude())))
                 .orElse(null);
     }
 
@@ -209,7 +210,7 @@ public class MapiServiceImpl implements MapiService {
     private SensorResponseDTO findNearestSensor(double lat, double lon, List<SensorResponseDTO> sensors) {
         return sensors.stream()
                 .filter(s -> s.getLatitude() != null && s.getLongitude() != null)
-                .min(Comparator.comparingDouble(s -> calculateDistance(lat, lon, s.getLatitude(), s.getLongitude())))
+                .min(Comparator.comparingDouble(s -> GeoUtils.calculateDistance(lat, lon, s.getLatitude(), s.getLongitude())))
                 .orElse(null);
     }
 
@@ -254,8 +255,8 @@ public class MapiServiceImpl implements MapiService {
         builder.waveDirection(waveDirection);
         builder.wavePeriod(wavePeriod);
 
-        // Prioridade: Sensor Local (se estiver a menos de 30km)
-        if (sensor != null && (distance == null || distance < 30.0)) {
+        // Prioridade: Sensor Local (se estiver a menos de 10km)
+        if (sensor != null && (distance == null || distance < 10.0)) {
             builder.source("MIXED (Local Sensor Priority)");
             builder.message("Dados otimizados: Sensores locais encontrados a " + String.format("%.2f", distance) + " km.");
             
@@ -285,14 +286,61 @@ public class MapiServiceImpl implements MapiService {
         return builder.build();
     }
 
-    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        double R = 6371; // Raio da Terra em km
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                   Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                   Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
+    @Override
+    @Transactional
+    public void seedPilotData() {
+        if (floodPointRepository.count() > 0) return;
+        
+        log.info("Semeando pontos piloto de monitoramento...");
+        List<FloodPointRequestDTO> pilots = List.of(
+            FloodPointRequestDTO.builder()
+                .id_ponto("AV_RECIFE_IBURA")
+                .nome("Av. Recife - Entrada do Ibura")
+                .latitude(-8.107910)
+                .longitude(-34.927138)
+                .config_sensores(FloodPointRequestDTO.SensorConfigDTO.builder()
+                    .estacao_pluviometrica_id("APAC-PLUVIO-RECIFE-IBURA")
+                    .build())
+                .build(),
+            FloodPointRequestDTO.builder()
+                .id_ponto("CIN_UFPE")
+                .nome("CIn - UFPE")
+                .latitude(-8.055310)
+                .longitude(-34.951160)
+                .config_sensores(FloodPointRequestDTO.SensorConfigDTO.builder()
+                    .estacao_pluviometrica_id("APAC-PLUVIO-RECIFE-VARZEA")
+                    .build())
+                .build(),
+            FloodPointRequestDTO.builder()
+                .id_ponto("AGAMENON_DERBY")
+                .nome("Av. Agamenon Magalhães (Derby)")
+                .latitude(-8.052554)
+                .longitude(-34.894371)
+                .config_sensores(FloodPointRequestDTO.SensorConfigDTO.builder()
+                    .estacao_pluviometrica_id("APAC-PLUVIO-RECIFE-AREIAS")
+                    .build())
+                .build(),
+            FloodPointRequestDTO.builder()
+                .id_ponto("JABOATAO_CENTRO")
+                .nome("Jaboatão Centro (Rio Duas Unas)")
+                .latitude(-8.106520)
+                .longitude(-35.013210)
+                .config_sensores(FloodPointRequestDTO.SensorConfigDTO.builder()
+                    .estacao_pluviometrica_id("APAC-METEO-JABOATAO-ENGENHO")
+                    .build())
+                .build(),
+            FloodPointRequestDTO.builder()
+                .id_ponto("MASCARENHAS_IMBIRIBEIRA")
+                .nome("Av. Mascarenhas de Morais")
+                .latitude(-8.118123)
+                .longitude(-34.904945)
+                .config_sensores(FloodPointRequestDTO.SensorConfigDTO.builder()
+                    .estacao_pluviometrica_id("APAC-PLUVIO-RECIFE-IMBIRIBEIRA")
+                    .build())
+                .build()
+        );
+
+        pilots.forEach(this::createFloodPoint);
+        log.info("5 pontos piloto cadastrados com sucesso.");
     }
 }

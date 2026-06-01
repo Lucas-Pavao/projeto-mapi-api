@@ -9,4 +9,7 @@ public interface SensorService {
     List<SensorResponseDTO> getAllLatestData();
     List<SensorResponseDTO> getSensorHistory(String sensorId);
     SensorResponseDTO getLatestBySensorId(String sensorId);
+    List<SensorResponseDTO> getSensorHistoryByCode(String code);
+    SensorResponseDTO getLatestByCode(String code);
+    List<String> getDistinctSensorIds();
 }

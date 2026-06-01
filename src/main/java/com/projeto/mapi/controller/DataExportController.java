@@ -34,7 +34,7 @@ public class DataExportController {
             @PathVariable String slug,
             @RequestParam(defaultValue = "30") int days) {
         
-        List<UnifiedDataDTO> data = dataExportService.exportUnifiedData(slug, days);
+        List<UnifiedDataDTO> data = dataExportService.exportUnifiedDataWithAccumulated(slug, days);
         String csv = dataExportService.generateCsv(data);
 
         return ResponseEntity.ok()
@@ -48,8 +48,14 @@ public class DataExportController {
     public ResponseEntity<String> getAllPointsDataCsv(
             @RequestParam(defaultValue = "0") int days) {
         
-        List<UnifiedDataDTO> data = dataExportService.exportAllPointsData(days);
-        String csv = dataExportService.generateCsv(data);
+        // Otimização: Aplicar acumulados para todos os pontos
+        List<com.projeto.mapi.model.FloodPoint> points = ((com.projeto.mapi.service.impl.DataExportServiceImpl)dataExportService).getPoints();
+        List<UnifiedDataDTO> allData = new java.util.ArrayList<>();
+        for (com.projeto.mapi.model.FloodPoint p : points) {
+            allData.addAll(dataExportService.exportUnifiedDataWithAccumulated(p.getSlug(), days));
+        }
+        
+        String csv = dataExportService.generateCsv(allData);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=dataset_full_history.csv")

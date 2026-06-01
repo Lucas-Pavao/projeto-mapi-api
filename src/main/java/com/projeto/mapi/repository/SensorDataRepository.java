@@ -18,7 +18,20 @@ public interface SensorDataRepository extends JpaRepository<SensorData, Long> {
     Optional<SensorData> findBySensorIdAndTimestamp(String sensorId, LocalDateTime timestamp);
 
     List<SensorData> findBySensorIdAndTimestampBetween(String sensorId, LocalDateTime start, LocalDateTime end);
+    List<SensorData> findByCodeAndTimestampBetween(String code, LocalDateTime start, LocalDateTime end);
     long countBySensorId(String sensorId);
+
+    @Query("SELECT s FROM SensorData s WHERE " +
+           "s.latitude BETWEEN :lat - :radius AND :lat + :radius AND " +
+           "s.longitude BETWEEN :lon - :radius AND :lon + :radius AND " +
+           "s.timestamp BETWEEN :start AND :end ORDER BY s.timestamp ASC")
+    List<SensorData> findNearbySensors(Double lat, Double lon, Double radius, LocalDateTime start, LocalDateTime end);
+
+    List<SensorData> findByCodeOrderByTimestampDesc(String code);
+    Optional<SensorData> findFirstByCodeOrderByTimestampDesc(String code);
+
+    @Query("SELECT DISTINCT s.sensorId FROM SensorData s")
+    List<String> findDistinctSensorIds();
 
     @org.springframework.data.jpa.repository.Query("SELECT YEAR(s.timestamp), COUNT(s) FROM SensorData s WHERE s.sensorId = :sensorId GROUP BY YEAR(s.timestamp)")
     List<Object[]> countBySensorIdGroupedByYear(String sensorId);

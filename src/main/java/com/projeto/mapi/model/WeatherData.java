@@ -28,7 +28,9 @@ public class WeatherData {
     @Column(name = "apparent_temperature")
     private Double apparentTemperature;
 
-    private Integer humidity;
+    private Double humidity;
+
+    private Double pressure;
 
     @Column(name = "weather_code")
     private Integer weatherCode;
