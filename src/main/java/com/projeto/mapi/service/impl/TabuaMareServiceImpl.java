@@ -65,12 +65,17 @@ public class TabuaMareServiceImpl implements TabuaMareService {
 
     @Override
     public Double getCurrentTideHeight(double latitude, double longitude) {
-        log.info("TabuaMare: Buscando maré para Lat: {}, Lon: {}", latitude, longitude);
+        return getTideHeightAt(latitude, longitude, java.time.LocalDateTime.now());
+    }
+
+    @Override
+    public Double getTideHeightAt(double latitude, double longitude, java.time.LocalDateTime timestamp) {
+        log.info("TabuaMare: Buscando maré para Lat: {}, Lon: {} para a data: {}", latitude, longitude, timestamp);
         try {
             String latLng = "[" + latitude + "," + longitude + "]";
             TabuaMareResponse<Object> nearestResponse = getNearestHarbor(latLng);
             
-            log.info("TabuaMare: Resposta do porto mais próximo: {}", nearestResponse);
+            log.debug("TabuaMare: Resposta do porto mais próximo: {}", nearestResponse);
 
             if (nearestResponse != null && nearestResponse.getData() != null) {
                 Map<String, Object> harborData = null;
@@ -104,10 +109,9 @@ public class TabuaMareServiceImpl implements TabuaMareService {
                 
                 log.info("TabuaMare: Porto identificado: {}", harborId);
                 
-                java.time.LocalDateTime now = java.time.LocalDateTime.now();
-                int month = now.getMonthValue();
-                int day = now.getDayOfMonth();
-                int hour = now.getHour();
+                int month = timestamp.getMonthValue();
+                int day = timestamp.getDayOfMonth();
+                int hour = timestamp.getHour();
                 
                 String days = "[" + day + "]";
                 TabuaMareResponse<List<Object>> tideTable = getTideTable(harborId, month, days);
@@ -132,24 +136,63 @@ public class TabuaMareServiceImpl implements TabuaMareService {
 
                                 List<Map<String, Object>> hours = (List<Map<String, Object>>) dayData.get("hours");
                                 if (hours != null && !hours.isEmpty()) {
-                                    // Como a API só retorna picos (high/low), buscamos o evento mais próximo do horário atual
-                                    return hours.stream()
-                                        .min(Comparator.comparingInt(h -> {
-                                            try {
-                                                String hStr = h.get("hour").toString();
-                                                int hVal = Integer.parseInt(hStr.split(":")[0]);
-                                                return Math.abs(hVal - hour);
-                                            } catch (Exception e) {
-                                                return 24;
-                                            }
+                                    // Ordenar os eventos por horário
+                                    List<Map<String, Object>> sortedHours = hours.stream()
+                                        .sorted(Comparator.comparingInt(h -> {
+                                            String hStr = h.get("hour").toString();
+                                            return Integer.parseInt(hStr.split(":")[0]) * 60 + 
+                                                   Integer.parseInt(hStr.split(":")[1]);
                                         }))
-                                        .map(h -> {
-                                            Object levelObj = h.get("level");
-                                            Double level = levelObj != null ? Double.parseDouble(levelObj.toString()) : null;
-                                            log.info("TabuaMare: Maré encontrada (Evento mais próximo): {} - Nível: {}", h.get("hour"), level);
-                                            return level;
-                                        })
-                                        .orElse(null);
+                                        .toList();
+
+                                    int targetMinutes = hour * 60 + timestamp.getMinute();
+                                    Map<String, Object> prev = null;
+                                    Map<String, Object> next = null;
+
+                                    for (Map<String, Object> h : sortedHours) {
+                                        String hStr = h.get("hour").toString();
+                                        int hMinutes = Integer.parseInt(hStr.split(":")[0]) * 60 + 
+                                                       Integer.parseInt(hStr.split(":")[1]);
+                                        
+                                        if (hMinutes <= targetMinutes) {
+                                            prev = h;
+                                        } else {
+                                            next = h;
+                                            break;
+                                        }
+                                    }
+
+                                    if (prev != null && next != null) {
+                                        // Interpolação senoidal entre dois picos
+                                        double h1 = Double.parseDouble(prev.get("level").toString());
+                                        double h2 = Double.parseDouble(next.get("level").toString());
+                                        
+                                        String pStr = prev.get("hour").toString();
+                                        int t1 = Integer.parseInt(pStr.split(":")[0]) * 60 + Integer.parseInt(pStr.split(":")[1]);
+                                        
+                                        String nStr = next.get("hour").toString();
+                                        int t2 = Integer.parseInt(nStr.split(":")[0]) * 60 + Integer.parseInt(nStr.split(":")[1]);
+                                        
+                                        double fraction = (double) (targetMinutes - t1) / (t2 - t1);
+                                        double interpolated = (h1 + h2) / 2.0 + (h1 - h2) / 2.0 * Math.cos(Math.PI * fraction);
+                                        
+                                        // Arredondar para 2 casas decimais para evitar valores "quebrados"
+                                        interpolated = Math.round(interpolated * 100.0) / 100.0;
+
+                                        log.debug("TabuaMare: Interpolado entre {} ({}) e {} ({}) para {}: {}", 
+                                            pStr, h1, nStr, h2, timestamp, interpolated);
+                                        return interpolated;
+                                    } else {
+                                        // Se só temos um lado (início ou fim do dia), retorna o pico mais próximo
+                                        Map<String, Object> nearest = sortedHours.stream()
+                                            .min(Comparator.comparingInt(h -> {
+                                                String hStr = h.get("hour").toString();
+                                                int hMinutes = Integer.parseInt(hStr.split(":")[0]) * 60 + 
+                                                               Integer.parseInt(hStr.split(":")[1]);
+                                                return Math.abs(hMinutes - targetMinutes);
+                                            })).get();
+                                        return Double.parseDouble(nearest.get("level").toString());
+                                    }
                                 }
                             }
                         }
@@ -157,7 +200,7 @@ public class TabuaMareServiceImpl implements TabuaMareService {
                 }
             }
         } catch (Exception e) {
-            log.error("TabuaMare: Erro crítico ao processar maré para lat={}, lon={}: {}", latitude, longitude, e.getMessage(), e);
+            log.error("TabuaMare: Erro crítico ao processar maré para lat={}, lon={} em {}: {}", latitude, longitude, timestamp, e.getMessage());
         }
         return null;
     }

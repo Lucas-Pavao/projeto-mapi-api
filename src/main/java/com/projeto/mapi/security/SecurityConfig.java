@@ -31,7 +31,7 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/admin/ingestion/**", "/api/mapi/**", "/api/export/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/sensors/**", "/api/weather/**").permitAll()
                 .anyRequest().authenticated()
             )

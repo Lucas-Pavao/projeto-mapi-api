@@ -35,6 +35,13 @@ public class FloodPoint {
 
     private String pluviometerStationId;
     private String riverLevelStationId;
+    
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "flood_point_weather_stations", joinColumns = @JoinColumn(name = "flood_point_id"))
+    @Column(name = "station_id")
+    @Builder.Default
+    private java.util.Set<String> weatherStationIds = new java.util.HashSet<>();
+
     private String basinName;
 
     @Column(name = "alert_threshold_mm")

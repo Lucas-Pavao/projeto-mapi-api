@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: timescale/timescaledb:latest-pg16
+    container_name: mapi-db
+    environment:
+      - POSTGRES_DB=tide_db
+      - POSTGRES_USER=mapi_user
+      - POSTGRES_PASSWORD=mapi123
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./TimescaleSetup.sql:/docker-entrypoint-initdb.d/01_setup.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mapi_user -d tide_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mapi-ai:
+    build: 
+      context: /home/lucas/PycharmProjects/projeto-mapi-ai
+    container_name: mapi-ai
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=tide_db
+      - DB_USER=mapi_user
+      - DB_PASS=mapi123
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  mapi-api:
+    build: .
+    container_name: mapi-api
+    environment:
+      - POSTGRES_URL=jdbc:postgresql://postgres:5432/tide_db
+      - POSTGRES_USER=mapi_user
+      - POSTGRES_PASSWORD=mapi123
+      - AI_API_URL=http://mapi-ai:8000
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mapi-ai:
+        condition: service_started
+
+volumes:
+  postgres_data:

@@ -3,19 +3,18 @@
 Para garantir a melhor performance e precisão nas tarefas deste projeto, utilize os seguintes subagentes especializados (através do `invoke_agent` com instruções específicas) ou siga as diretrizes abaixo ao atuar como o agente principal.
 
 ## 🌊 TideExpert (Especialista em Marés)
-**Escopo:** `PdfConversionService`, `TideIngestionService`, `TideController`.
+**Escopo:** `TideService`, `TabuaMareService`, `MarineService`.
 **Responsabilidades:**
-- Ajustes no parsing de PDFs (PDFBox) para extração de tabelas de maré.
+- Manutenção da lógica multi-fonte (TabuaMare API + Open-Meteo).
 - Otimização de consultas ao `TideTableRepository`.
-- Garantir que a ingestão de dados trate corretamente fusos horários e formatos de data.
+- Garantir a precisão da maré astronômica para o Porto do Recife.
 
-## 📡 IoTMaster (Especialista em IoT/MQTT)
-**Escopo:** `MqttConfig`, `SensorService`, `SensorDataRepository`.
+## 📡 IoTMaster (Especialista em IoT/Sensores)
+**Escopo:** `MqttConfig`, `SensorService`, `AnaHistoricalService`.
 **Responsabilidades:**
-- Configuração de conectores MQTT (Spring Integration).
-- Tratamento de mensagens de sensores e persistência de `SensorData`.
-- Implementação de validações para dados recebidos via telemetria.
-- Simulação de dispositivos IoT para testes de integração.
+- Gestão da ingestão telemétrica (MQTT + ANA/CEMADEN).
+- Garantir a sincronização temporal UTC-3 em todas as fontes de sensores.
+- Implementação de validações e filtros para dados ruidosos.
 
 ## 🔒 SecurityGuard (Guardião da Segurança)
 **Escopo:** `SecurityConfig`, `JwtService`, `AuthController`, `AuthenticationService`.

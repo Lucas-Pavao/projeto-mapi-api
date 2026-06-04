@@ -11,6 +11,7 @@ import com.projeto.mapi.service.MapiService;
 import com.projeto.mapi.service.SensorService;
 import com.projeto.mapi.service.TideService;
 import com.projeto.mapi.service.WeatherService;
+import com.projeto.mapi.util.GeoUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,8 @@ public class MapiServiceImpl implements MapiService {
     private final com.projeto.mapi.service.TabuaMareService tabuaMareService;
     private final com.projeto.mapi.service.MarineService marineService;
     private final FloodPointRepository floodPointRepository;
+    private final com.projeto.mapi.service.FloodPredictionService floodPredictionService;
+    private final com.projeto.mapi.service.DataExportService dataExportService;
 
     private static final double MAX_SENSOR_RADIUS_KM = 20.0;
 
@@ -40,23 +43,71 @@ public class MapiServiceImpl implements MapiService {
         log.info("Buscando dados precisos para lat: {}, lon: {}", latitude, longitude);
         
         WeatherResponseDTO weatherData = weatherService.getWeatherData(latitude, longitude);
-        List<SensorResponseDTO> sensors = sensorService.getAllLatestData();
+        List<SensorResponseDTO> allSensors = sensorService.getAllLatestData();
+        
+        // --- NOVA LÓGICA: Filtrar sensores num raio de 5km ---
+        List<SensorResponseDTO> nearbySensors = allSensors.stream()
+                .filter(s -> s.getLatitude() != null && s.getLongitude() != null)
+                .filter(s -> GeoUtils.calculateDistance(latitude, longitude, s.getLatitude(), s.getLongitude()) <= 5.0)
+                .toList();
+
         Double tideHeight = tideService.getCurrentTideHeight(latitude, longitude);
         Double tideTabuaMare = tabuaMareService.getCurrentTideHeight(latitude, longitude);
         Double waveHeight = marineService.getCurrentWaveHeight(latitude, longitude);
         Double waveDirection = marineService.getCurrentWaveDirection(latitude, longitude);
         Double wavePeriod = marineService.getCurrentWavePeriod(latitude, longitude);
 
-        SensorResponseDTO nearestSensor = findNearestSensor(latitude, longitude, sensors);
+        SensorResponseDTO nearestSensor = findNearestSensor(latitude, longitude, allSensors);
         Double distance = null;
         if (nearestSensor != null) {
-            distance = calculateDistance(latitude, longitude, nearestSensor.getLatitude(), nearestSensor.getLongitude());
+            distance = GeoUtils.calculateDistance(latitude, longitude, nearestSensor.getLatitude(), nearestSensor.getLongitude());
             log.info("Sensor mais próximo encontrado: {} a {} km", nearestSensor.getSensorId(), String.format("%.2f", distance));
-        } else {
-            log.warn("Nenhum sensor com localização encontrado no sistema.");
         }
 
-        MapiResponseDTO.PreciseData preciseData = determinePreciseData(weatherData, nearestSensor, distance, tideHeight, tideTabuaMare, waveHeight, waveDirection, wavePeriod);
+        MapiResponseDTO.PreciseData preciseData = determinePreciseData(weatherData, nearbySensors, latitude, longitude, tideHeight, tideTabuaMare, waveHeight, waveDirection, wavePeriod);
+
+        // --- Integração com IA em Tempo Real ---
+        com.projeto.mapi.dto.FloodPredictionResponseDTO prediction = null;
+        try {
+            // Obter acumulados reais para o ponto (Regional - Raio 5km)
+            Double acc3h = 0.0, acc6h = 0.0, acc12h = 0.0, acc24h = 0.0;
+            
+            // Busca o ponto mais próximo cadastrado para obter o slug e histórico
+            FloodPoint nearestPoint = floodPointRepository.findAll().stream()
+                .min(Comparator.comparingDouble(p -> GeoUtils.calculateDistance(latitude, longitude, p.getLatitude(), p.getLongitude())))
+                .orElse(null);
+
+            if (nearestPoint != null) {
+                // Tenta buscar dados unificados recentes (últimas 24h) para calcular acumulados regionais
+                List<com.projeto.mapi.dto.UnifiedDataDTO> history = dataExportService.exportUnifiedDataWithAccumulated(nearestPoint.getSlug(), 1);
+                
+                if (!history.isEmpty()) {
+                    com.projeto.mapi.dto.UnifiedDataDTO latest = history.get(history.size() - 1);
+                    acc3h = latest.getAccumulated3h() != null ? latest.getAccumulated3h() : 0.0;
+                    acc6h = latest.getAccumulated6h() != null ? latest.getAccumulated6h() : 0.0;
+                    acc12h = latest.getAccumulated12h() != null ? latest.getAccumulated12h() : 0.0;
+                    acc24h = latest.getAccumulated24h() != null ? latest.getAccumulated24h() : 0.0;
+                }
+            }
+
+            com.projeto.mapi.dto.FloodPredictionRequestDTO predictionRequest = com.projeto.mapi.dto.FloodPredictionRequestDTO.builder()
+                    .stationId(nearestSensor != null ? nearestSensor.getSensorId() : "VIRTUAL_STATION")
+                    .latitude(latitude)
+                    .longitude(longitude)
+                    .currentRainfall(preciseData.getPrecipitation())
+                    .rainfall3hAccumulated(acc3h)
+                    .rainfall6hAccumulated(acc6h)
+                    .rainfall12hAccumulated(acc12h)
+                    .rainfall24hAccumulated(acc24h)
+                    .tideLevel(preciseData.getTideHeight())
+                    .riverLevel(preciseData.getWaterLevel())
+                    .timestamp(LocalDateTime.now())
+                    .build();
+            
+            prediction = floodPredictionService.getPrediction(predictionRequest);
+        } catch (Exception e) {
+            log.error("Falha ao obter predição da IA: {}", e.getMessage());
+        }
 
         return MapiResponseDTO.builder()
                 .requestedLatitude(latitude)
@@ -65,6 +116,7 @@ public class MapiServiceImpl implements MapiService {
                 .nearestSensor(nearestSensor)
                 .openMeteoData(weatherData)
                 .distanceToNearestSensorKm(distance)
+                .floodPrediction(prediction)
                 .build();
     }
 
@@ -149,7 +201,7 @@ public class MapiServiceImpl implements MapiService {
         return sensors.stream()
                 .filter(s -> s.getLatitude() != null && s.getLongitude() != null)
                 .filter(s -> {
-                    double dist = calculateDistance(lat, lon, s.getLatitude(), s.getLongitude());
+                    double dist = GeoUtils.calculateDistance(lat, lon, s.getLatitude(), s.getLongitude());
                     if (dist > MAX_SENSOR_RADIUS_KM) return false;
 
                     if ("PRECIPITATION".equals(type)) {
@@ -159,7 +211,7 @@ public class MapiServiceImpl implements MapiService {
                     }
                     return false;
                 })
-                .min(Comparator.comparingDouble(s -> calculateDistance(lat, lon, s.getLatitude(), s.getLongitude())))
+                .min(Comparator.comparingDouble(s -> GeoUtils.calculateDistance(lat, lon, s.getLatitude(), s.getLongitude())))
                 .orElse(null);
     }
 
@@ -209,11 +261,11 @@ public class MapiServiceImpl implements MapiService {
     private SensorResponseDTO findNearestSensor(double lat, double lon, List<SensorResponseDTO> sensors) {
         return sensors.stream()
                 .filter(s -> s.getLatitude() != null && s.getLongitude() != null)
-                .min(Comparator.comparingDouble(s -> calculateDistance(lat, lon, s.getLatitude(), s.getLongitude())))
+                .min(Comparator.comparingDouble(s -> GeoUtils.calculateDistance(lat, lon, s.getLatitude(), s.getLongitude())))
                 .orElse(null);
     }
 
-    private MapiResponseDTO.PreciseData determinePreciseData(WeatherResponseDTO weather, SensorResponseDTO sensor, Double distance, Double tideHeight, Double tideTabuaMare, Double waveHeight, Double waveDirection, Double wavePeriod) {
+    private MapiResponseDTO.PreciseData determinePreciseData(WeatherResponseDTO weather, List<SensorResponseDTO> nearbySensors, Double latitude, Double longitude, Double tideHeight, Double tideTabuaMare, Double waveHeight, Double waveDirection, Double wavePeriod) {
         MapiResponseDTO.PreciseData.PreciseDataBuilder builder = MapiResponseDTO.PreciseData.builder();
         
         // Padrão: Dados do Open-Meteo
@@ -254,45 +306,102 @@ public class MapiServiceImpl implements MapiService {
         builder.waveDirection(waveDirection);
         builder.wavePeriod(wavePeriod);
 
-        // Prioridade: Sensor Local (se estiver a menos de 30km)
-        if (sensor != null && (distance == null || distance < 30.0)) {
-            builder.source("MIXED (Local Sensor Priority)");
-            builder.message("Dados otimizados: Sensores locais encontrados a " + String.format("%.2f", distance) + " km.");
+        // --- LÓGICA REGIONAL: Agregar dados de sensores num raio de 5km ---
+        if (nearbySensors != null && !nearbySensors.isEmpty()) {
+            builder.source("MIXED (Regional Aggregation)");
+            builder.message("Dados otimizados: Agregando " + nearbySensors.size() + " sensores num raio de 5km.");
             
-            // Sobrescrever com dados reais do sensor se disponíveis
-            if (sensor.getAccumulatedPrecipitation() != null) builder.precipitation(sensor.getAccumulatedPrecipitation());
-            else if (sensor.getValue() != null && "mm".equals(sensor.getUnit())) builder.precipitation(sensor.getValue());
+            // Pega o MÁXIMO de precipitação da região por segurança
+            double maxRain = nearbySensors.stream()
+                .mapToDouble(s -> s.getAccumulatedPrecipitation() != null ? s.getAccumulatedPrecipitation() : 0.0)
+                .max().orElse(0.0);
+            
+            // Pega o MÁXIMO de nível de rio da região
+            double maxRiver = nearbySensors.stream()
+                .mapToDouble(s -> s.getWaterLevel() != null ? s.getWaterLevel() : 0.0)
+                .max().orElse(0.0);
 
-            if (sensor.getTemperature() != null) builder.temperature(sensor.getTemperature());
-            if (sensor.getHumidity() != null) builder.humidity(sensor.getHumidity());
-            if (sensor.getPressure() != null) builder.pressure(sensor.getPressure());
-            if (sensor.getWindSpeed() != null) builder.windSpeed(sensor.getWindSpeed());
+            builder.precipitation(maxRain);
+            builder.waterLevel(maxRiver);
+
+            // Outras métricas (Média)
+            nearbySensors.stream()
+                .filter(s -> s.getTemperature() != null)
+                .mapToDouble(SensorResponseDTO::getTemperature)
+                .average().ifPresent(builder::temperature);
+
+            nearbySensors.stream()
+                .filter(s -> s.getHumidity() != null)
+                .mapToDouble(SensorResponseDTO::getHumidity)
+                .average().ifPresent(builder::humidity);
             
-            // Adicionar dados que o Open-Meteo não tem (Nível e Vazão)
-            if (sensor.getWaterLevel() != null) builder.waterLevel(sensor.getWaterLevel());
-            if (sensor.getFlowRate() != null) builder.flowRate(sensor.getFlowRate());
-            
-            // Usar o timestamp do sensor se for mais recente ou relevante
-            if (sensor.getTimestamp() != null) {
-                builder.timestamp(sensor.getTimestamp());
-            }
-        } else if (sensor != null) {
-            builder.message("Dados baseados em Open-Meteo. Sensor mais próximo (" + sensor.getSensorId() + ") está muito distante (" + String.format("%.2f", distance) + " km).");
+            // Usar o timestamp do sensor mais recente
+            nearbySensors.stream()
+                .map(SensorResponseDTO::getTimestamp)
+                .filter(java.util.Objects::nonNull)
+                .max(LocalDateTime::compareTo)
+                .ifPresent(builder::timestamp);
         } else {
-            builder.message("Dados baseados em Open-Meteo. Nenhum sensor local encontrado.");
+            builder.message("Dados baseados em Open-Meteo. Nenhum sensor regional encontrado num raio de 5km.");
         }
 
         return builder.build();
     }
 
-    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        double R = 6371; // Raio da Terra em km
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                   Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                   Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
+    @Override
+    public void seedPilotData() {
+        if (floodPointRepository.count() > 0) return;
+        
+        log.info("Semeando pontos piloto de monitoramento...");
+        List<FloodPointRequestDTO> pilots = List.of(
+            FloodPointRequestDTO.builder()
+                .id_ponto("AV_RECIFE_IBURA")
+                .nome("Av. Recife - Entrada do Ibura")
+                .latitude(-8.107910)
+                .longitude(-34.927138)
+                .config_sensores(FloodPointRequestDTO.SensorConfigDTO.builder()
+                    .estacao_pluviometrica_id("APAC-PLUVIO-261160615A")
+                    .build())
+                .build(),
+            FloodPointRequestDTO.builder()
+                .id_ponto("CIN_UFPE")
+                .nome("CIn - UFPE")
+                .latitude(-8.055310)
+                .longitude(-34.951160)
+                .config_sensores(FloodPointRequestDTO.SensorConfigDTO.builder()
+                    .estacao_pluviometrica_id("APAC-PLUVIO-261160601A")
+                    .build())
+                .build(),
+            FloodPointRequestDTO.builder()
+                .id_ponto("AGAMENON_DERBY")
+                .nome("Av. Agamenon Magalhães (Derby)")
+                .latitude(-8.052554)
+                .longitude(-34.894371)
+                .config_sensores(FloodPointRequestDTO.SensorConfigDTO.builder()
+                    .estacao_pluviometrica_id("APAC-PLUVIO-261160621A")
+                    .build())
+                .build(),
+            FloodPointRequestDTO.builder()
+                .id_ponto("JABOATAO_CENTRO")
+                .nome("Jaboatão Centro (Rio Duas Unas)")
+                .latitude(-8.106520)
+                .longitude(-35.013210)
+                .config_sensores(FloodPointRequestDTO.SensorConfigDTO.builder()
+                    .estacao_pluviometrica_id("APAC-METEO-260790119H")
+                    .build())
+                .build(),
+            FloodPointRequestDTO.builder()
+                .id_ponto("MASCARENHAS_IMBIRIBEIRA")
+                .nome("Av. Mascarenhas de Morais")
+                .latitude(-8.118123)
+                .longitude(-34.904945)
+                .config_sensores(FloodPointRequestDTO.SensorConfigDTO.builder()
+                    .estacao_pluviometrica_id("APAC-PLUVIO-261160609A")
+                    .build())
+                .build()
+        );
+
+        pilots.forEach(this::createFloodPoint);
+        log.info("5 pontos piloto cadastrados com sucesso.");
     }
 }

@@ -10,4 +10,5 @@ public interface MapiService {
     FloodPointResponseDTO createFloodPoint(FloodPointRequestDTO request);
     List<FloodPointResponseDTO> getAllFloodPoints();
     FloodPointResponseDTO getFloodPointBySlug(String slug);
+    void seedPilotData();
 }

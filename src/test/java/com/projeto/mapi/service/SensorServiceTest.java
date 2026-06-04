@@ -22,13 +22,19 @@ class SensorServiceTest {
     @Mock
     private SensorDataRepository sensorDataRepository;
 
+    @Mock
+    private com.projeto.mapi.repository.FloodPointRepository floodPointRepository;
+
+    @Mock
+    private TideService tideService;
+
     private SensorServiceImpl sensorService;
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper();
-        sensorService = new SensorServiceImpl(sensorDataRepository, objectMapper);
+        sensorService = new SensorServiceImpl(sensorDataRepository, floodPointRepository, objectMapper, tideService);
     }
 
     @Test

@@ -7,4 +7,6 @@ import java.util.List;
 public interface FloodPointRepository extends JpaRepository<FloodPoint, Long> {
     List<FloodPoint> findByActiveTrue();
     java.util.Optional<FloodPoint> findBySlug(String slug);
+    java.util.Optional<FloodPoint> findByPluviometerStationId(String stationId);
+    java.util.Optional<FloodPoint> findByRiverLevelStationId(String stationId);
 }
