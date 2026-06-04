@@ -62,11 +62,22 @@ public class SensorServiceImpl implements SensorService {
 
         SensorData temp = new SensorData();
         extractMetadata(temp, root); // Extrair lat/lon antes para validar proximidade
+        
+        // Identificadores Únicos (GMMC / Código da Estação)
+        if (root.has("codigo")) temp.setCode(root.get("codigo").asText());
+        else if (root.has("codigoestacao")) temp.setCode(root.get("codigoestacao").asText());
+        else if (root.has("cod_estacao")) temp.setCode(root.get("cod_estacao").asText());
+        else if (root.has("cod_estação")) temp.setCode(root.get("cod_estação").asText());
 
         String finalSensorId = sensorId;
         String code = temp.getCode();
+        
+        // PADRONIZAÇÃO: Se for um sensor da APAC (identificado pelo código ou ID atual), força o formato APAC-PLUVIO-CODE
+        if (code != null && !code.isBlank() && (sensorId.contains("APAC") || sensorId.startsWith("26"))) {
+            finalSensorId = "APAC-PLUVIO-" + code;
+        }
 
-        // Proximidade com pontos de alagamento
+        // Proximidade com pontos de alagamento para atualizar metadados (OPCIONAL)
         if (temp.getLatitude() != null && temp.getLongitude() != null) {
             if (floodPointsCache == null) {
                 floodPointsCache = floodPointRepository.findAll();
@@ -78,25 +89,42 @@ public class SensorServiceImpl implements SensorService {
 
             if (nearPoint.isPresent()) {
                 FloodPoint fp = nearPoint.get();
-                finalSensorId = fp.getSlug();
-                
                 // Se o sensor tem um código, atualizamos o mapeamento no ponto se for novo
-                if (code != null && (fp.getPluviometerStationId() == null || !fp.getPluviometerStationId().equals(code))) {
-                    log.info("---- Atualizando mapeamento real-time: Ponto {} -> Estação {}", fp.getSlug(), code);
-                    fp.setPluviometerStationId(code);
+                if (code != null && (fp.getPluviometerStationId() == null || !fp.getPluviometerStationId().equals(finalSensorId))) {
+                    log.info("---- Atualizando mapeamento real-time: Ponto {} -> Estação {}", fp.getSlug(), finalSensorId);
+                    fp.setPluviometerStationId(finalSensorId);
                     floodPointRepository.save(fp);
                 }
             }
+        } else {
+            // Estação meteorológica (sem coordenadas), vincular a todos os pontos
+            if (floodPointsCache == null) {
+                floodPointsCache = floodPointRepository.findAll();
+            }
+            boolean updatedAny = false;
+            for (FloodPoint fp : floodPointsCache) {
+                if (fp.getWeatherStationIds() == null) {
+                    fp.setWeatherStationIds(new java.util.HashSet<>());
+                }
+                if (!fp.getWeatherStationIds().contains(finalSensorId)) {
+                    fp.getWeatherStationIds().add(finalSensorId);
+                    floodPointRepository.save(fp);
+                    updatedAny = true;
+                }
+            }
+            if (updatedAny) {
+                log.info("---- Estação meteorológica {} vinculada a todos os pontos de monitoramento.", finalSensorId);
+            }
         }
 
-        // Evitar duplicatas exatas
+        // Evitar duplicatas exatas usando o sensorId PADRONIZADO
         if (sensorDataRepository.findBySensorIdAndTimestamp(finalSensorId, timestamp).isPresent()) {
             log.debug("Registro duplicado ignorado para {} em {}", finalSensorId, timestamp);
             return;
         }
 
         SensorData data = SensorData.builder()
-                .sensorId(finalSensorId)
+                .sensorId(finalSensorId) // SEMPRE o sensorId padronizado
                 .batteryStatus(batteryStatus)
                 .rawData(payload)
                 .timestamp(timestamp)
@@ -110,12 +138,6 @@ public class SensorServiceImpl implements SensorService {
 
         // Mapeamento de campos técnicos
         if (root.has("fog_valor_referencia") && !root.get("fog_valor_referencia").isNull()) data.setFogValueReference(root.get("fog_valor_referencia").asDouble());
-        
-        // Identificadores Únicos (GMMC / Código da Estação)
-        if (root.has("codigo")) data.setCode(root.get("codigo").asText());
-        else if (root.has("codigoestacao")) data.setCode(root.get("codigoestacao").asText());
-        else if (root.has("cod_estacao")) data.setCode(root.get("cod_estacao").asText());
-        else if (root.has("cod_estação")) data.setCode(root.get("cod_estação").asText());
         
         // Clima e Solo
         if (root.has("temperatura_ar") && !root.get("temperatura_ar").isNull()) data.setTemperature(root.get("temperatura_ar").asDouble());
@@ -236,6 +258,13 @@ public class SensorServiceImpl implements SensorService {
     @Override
     public List<String> getDistinctSensorIds() {
         return sensorDataRepository.findDistinctSensorIds();
+    }
+
+    @Override
+    public List<SensorResponseDTO> getFullSensorInventory() {
+        return sensorDataRepository.findDistinctSensorsWithMetadata().stream()
+                .map(this::convertToDTO)
+                .toList();
     }
 
     private SensorResponseDTO convertToDTO(SensorData data) {

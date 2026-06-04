@@ -51,30 +51,20 @@ public class DataExportServiceImpl implements DataExportService {
         LocalDateTime end = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0);
         LocalDateTime start = (days > 0) ? end.minusDays(days) : LocalDateTime.of(2021, 1, 1, 0, 0);
 
-        // 1. Buscar todos os dados brutos (Tenta ID, Fallback por Código e Fallback por Slug)
-        List<SensorData> sensorData = sensorDataRepository.findBySensorIdAndTimestampBetween(
-                point.getPluviometerStationId(), start, end);
+        // --- NOVA LÓGICA ESPACIAL: Busca regional em raio de 5km ---
+        log.info("---- Exportando dados regionais (Raio 5km) para o ponto {}", slug);
+        List<SensorData> sensorData = new ArrayList<>(sensorDataRepository.findSensorsByRadius(
+                point.getLatitude(), point.getLongitude(), 5.0, start, end));
         
-        // Se não encontrou por ID, tenta buscar pelo Código (GMMC)
-        if (sensorData.isEmpty() && point.getPluviometerStationId() != null) {
-            sensorData = sensorDataRepository.findByCodeAndTimestampBetween(point.getPluviometerStationId(), start, end);
+        // Incluir os dados das estações meteorológicas vinculadas globalmente ao ponto
+        if (point.getWeatherStationIds() != null && !point.getWeatherStationIds().isEmpty()) {
+            List<SensorData> weatherStationsData = sensorDataRepository.findBySensorIdInAndTimestampBetween(
+                point.getWeatherStationIds(), start, end);
+            sensorData.addAll(weatherStationsData);
+            log.info("---- Adicionados {} registros de estações meteorológicas vinculadas globalmente.", weatherStationsData.size());
         }
 
-        // Fallback final: Tenta buscar pelo slug do ponto
-        if (sensorData.isEmpty()) {
-            sensorData = sensorDataRepository.findBySensorIdAndTimestampBetween(slug, start, end);
-        }
-
-        // Fallback por Proximidade (Geográfico): Busca sensores num raio de 500m
-        if (sensorData.isEmpty() && point.getLatitude() != null && point.getLongitude() != null) {
-            log.info("---- Buscando sensor por proximidade para o ponto {}", slug);
-            List<SensorData> nearbyData = sensorDataRepository.findNearbySensors(
-                    point.getLatitude(), point.getLongitude(), 0.005, start, end);
-            if (!nearbyData.isEmpty()) {
-                sensorData = nearbyData;
-                log.info("---- Encontrados {} registros via proximidade geográfica.", nearbyData.size());
-            }
-        }
+        log.info("---- Encontrados {} registros de sensores (total) na região do ponto {}.", sensorData.size(), slug);
         
         List<WeatherData> weatherData = weatherDataRepository.findByLatitudeAndLongitudeAndTimestampBetween(
                 point.getLatitude(), point.getLongitude(), start, end);
@@ -89,11 +79,39 @@ public class DataExportServiceImpl implements DataExportService {
             current = current.plusHours(1);
         }
 
-        // 3. Mapear dados para a timeline (Agrupamento por hora mais próxima)
+        // 3. Mapear dados para a timeline com AGREGAÇÃO REGIONAL (Max Rainfall para segurança)
         sensorData.forEach(s -> {
             LocalDateTime hour = s.getTimestamp().withMinute(0).withSecond(0).withNano(0);
             if (timeline.containsKey(hour)) {
-                timeline.get(hour).sensorPrecipitation(s.getAccumulatedPrecipitation());
+                UnifiedDataDTO.UnifiedDataDTOBuilder builder = timeline.get(hour);
+                
+                // Agregação de Precipitação: Pega o valor MÁXIMO detectado na região naquela hora
+                if (s.getAccumulatedPrecipitation() != null) {
+                    builder.sensorPrecipitation(Math.max(
+                        builder.build().getSensorPrecipitation() != null ? builder.build().getSensorPrecipitation() : 0.0,
+                        s.getAccumulatedPrecipitation()
+                    ));
+                }
+
+                // Agregação de Nível: Pega o máximo da região
+                if (s.getWaterLevel() != null) {
+                    builder.sensorWaterLevel(Math.max(
+                        builder.build().getSensorWaterLevel() != null ? builder.build().getSensorWaterLevel() : 0.0,
+                        s.getWaterLevel()
+                    ));
+                }
+                
+                // Tratar umidade do solo regional (Média)
+                if (s.getSoilHumidity() != null) {
+                    try {
+                        com.fasterxml.jackson.databind.JsonNode soilNode = new com.fasterxml.jackson.databind.ObjectMapper().readTree(s.getSoilHumidity());
+                        double currentSoil = 0.0;
+                        if (soilNode.isArray() && soilNode.size() > 0) currentSoil = soilNode.get(0).asDouble();
+                        else if (soilNode.isNumber()) currentSoil = soilNode.asDouble();
+                        
+                        builder.sensorSoilHumidity(currentSoil); // Simplificado: sobrescreve
+                    } catch (Exception ignored) {}
+                }
             }
         });
 
@@ -105,27 +123,6 @@ public class DataExportServiceImpl implements DataExportService {
                         .weatherTemperature(w.getTemperature())
                         .weatherPressure(w.getPressure())
                         .weatherCode(w.getWeatherCode());
-            }
-        });
-
-        // 4. Mapear dados de sensores para a timeline
-        sensorData.forEach(s -> {
-            LocalDateTime hour = s.getTimestamp().withMinute(0).withSecond(0).withNano(0);
-            if (timeline.containsKey(hour)) {
-                if (s.getAccumulatedPrecipitation() != null) timeline.get(hour).sensorPrecipitation(s.getAccumulatedPrecipitation());
-                if (s.getWaterLevel() != null) timeline.get(hour).sensorWaterLevel(s.getWaterLevel());
-                
-                // Tratar umidade do solo (extrair primeiro valor se for array JSON)
-                if (s.getSoilHumidity() != null) {
-                    try {
-                        com.fasterxml.jackson.databind.JsonNode soilNode = new com.fasterxml.jackson.databind.ObjectMapper().readTree(s.getSoilHumidity());
-                        if (soilNode.isArray() && soilNode.size() > 0) {
-                            timeline.get(hour).sensorSoilHumidity(soilNode.get(0).asDouble());
-                        } else if (soilNode.isNumber()) {
-                            timeline.get(hour).sensorSoilHumidity(soilNode.asDouble());
-                        }
-                    } catch (Exception ignored) {}
-                }
             }
         });
 
@@ -274,5 +271,29 @@ public class DataExportServiceImpl implements DataExportService {
             ));
         }
         return csv.toString();
+    }
+
+    @Override
+    public void streamUnifiedDataToOutputStream(java.io.OutputStream outputStream, int days) {
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        mapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+        
+        try (com.fasterxml.jackson.core.JsonGenerator jg = mapper.getFactory().createGenerator(outputStream)) {
+            jg.writeStartArray();
+            
+            List<FloodPoint> points = floodPointRepository.findAll();
+            for (FloodPoint point : points) {
+                List<UnifiedDataDTO> data = exportUnifiedDataWithAccumulated(point.getSlug(), days);
+                for (UnifiedDataDTO d : data) {
+                    jg.writeObject(d);
+                    jg.flush(); // Envia para o stream imediatamente
+                }
+            }
+            
+            jg.writeEndArray();
+        } catch (Exception e) {
+            log.error("Erro ao fazer streaming de dados para IA: {}", e.getMessage());
+            throw new RuntimeException("Erro na exportação de dados", e);
+        }
     }
 }

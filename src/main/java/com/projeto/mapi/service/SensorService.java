@@ -12,4 +12,5 @@ public interface SensorService {
     List<SensorResponseDTO> getSensorHistoryByCode(String code);
     SensorResponseDTO getLatestByCode(String code);
     List<String> getDistinctSensorIds();
+    List<SensorResponseDTO> getFullSensorInventory();
 }

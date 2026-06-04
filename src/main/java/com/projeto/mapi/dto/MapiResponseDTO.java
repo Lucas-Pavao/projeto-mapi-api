@@ -17,6 +17,7 @@ public class MapiResponseDTO {
     private SensorResponseDTO nearestSensor;
     private WeatherResponseDTO openMeteoData;
     private Double distanceToNearestSensorKm;
+    private FloodPredictionResponseDTO floodPrediction;
 
     @Data
     @Builder

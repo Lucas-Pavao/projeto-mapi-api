@@ -49,7 +49,7 @@ class SensorDataFormatTest {
         verify(sensorDataRepository).save(captor.capture());
 
         SensorData savedData = captor.getValue();
-        assertEquals("APAC-METEO-JABOATAO-ENGENHO", savedData.getSensorId());
+        assertEquals("APAC-PLUVIO-260790119H", savedData.getSensorId());
         assertEquals(0.0, savedData.getValue());
         assertEquals("100.0%", savedData.getBatteryStatus());
         assertEquals("[CEMADEN] Engenho Velho [H]", savedData.getStationName());
@@ -86,7 +86,7 @@ class SensorDataFormatTest {
         verify(sensorDataRepository).save(captor.capture());
 
         SensorData savedData = captor.getValue();
-        assertEquals("APAC-PLUVIO-RECIFE-GUABIRABA", savedData.getSensorId());
+        assertEquals("APAC-PLUVIO-261160612A", savedData.getSensorId());
         assertEquals(0.0, savedData.getAccumulatedPrecipitation());
         assertEquals("mm", savedData.getUnit());
     }

@@ -1,146 +1,148 @@
-# 🌊 Projeto MAPI - API de Monitoramento e Alerta de Previsão de Inundações
+# 🌊 Projeto MAPI - API de Inteligência Urbana
 
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![MQTT](https://img.shields.io/badge/MQTT-Enabled-blueviolet.svg)](https://mqtt.org/)
+[![TimescaleDB](https://img.shields.io/badge/TimescaleDB-PostgreSQL%2016-blue.svg)](https://www.timescale.com/)
+[![MQTT](https://img.shields.io/badge/MQTT-Paho-772277.svg)](https://mqtt.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## 📋 Descrição Geral
-
-O **Projeto MAPI** é uma solução de inteligência urbana voltada para o monitoramento, previsão e alerta de alagamentos na Região Metropolitana do Recife (RMR). Esta API integra dados críticos de múltiplas fontes para treinar modelos de IA e fornecer alertas em tempo real.
-
----
-
-## ✨ Funcionalidades Principais (Features)
-
-- **📡 Integração IoT (MQTT)**: Escuta ativa de sensores ANA, CEMADEN e APAC.
-- **🌦️ Inteligência Hidrometeorológica**: Integração com Open-Meteo API e mapeamento dinâmico de estações.
-- **🌊 Gestão de Marés**: Integração multi-fonte (TabuaMare / Open-Meteo Marine).
-- **🚨 Dados da Defesa Civil**: Ingestão automatizada de ocorrências históricas via API CKAN.
-- **📊 Dataset para IA**: Exportação consolidada de séries temporais para treinamento de modelos.
+O **MAPI (Monitoramento de Alagamentos e Predição Inteligente)** é uma API robusta projetada para servir como o "sistema nervoso" central de uma plataforma de resiliência urbana na Região Metropolitana do Recife (RMR). Ela integra dados meteorológicos, marés astronômicas e sensores IoT em tempo real para alimentar modelos de Machine Learning especializados na previsão de eventos de inundação.
 
 ---
 
-## 🚀 Como Executar o Projeto
+## ✨ Funcionalidades Principais
 
-### 1. Pré-requisitos
-- Java 21 JDK
-- Maven 3.9+
-- PostgreSQL 15+
+*   📡 **Ingestão Multi-fonte:** Coleta automatizada de dados da ANA, APAC, CEMADEN, Marinha do Brasil e Open-Meteo.
+*   🔄 **Processamento em Tempo Real:** Integração via **MQTT** para captura de dados de sensores com baixa latência.
+*   🧠 **Ground Truth Alignment:** Algoritmo exclusivo para sincronizar registros históricos de alagamentos (labels) com picos regionais de precipitação.
+*   📊 **Dataset Engineering:** Geração de fluxos contínuos (Streaming JSON) para treinamento e inferência de modelos de IA.
+*   🗺️ **Geoprocessamento Inteligente:** Agregação de dados por proximidade espacial (Raio de 5km) para redundância e precisão.
+*   🔐 **Segurança:** Autenticação e autorização robustas via **JWT (JSON Web Token)**.
 
-### 2. Configuração
-Configure as credenciais do banco e do broker MQTT no `src/main/resources/application.yml`.
+---
 
-### 3. Execução
-```bash
-mvn clean install
-mvn spring-boot:run
+## 🛠️ Tecnologias Escolhidas
+
+### **Backend Core**
+*   **Java 21 & Spring Boot 3.4.0:** Base de alto desempenho e escalabilidade.
+*   **Spring Data JPA:** Abstração de persistência eficiente.
+*   **Spring Security & JJWT:** Proteção de endpoints e gestão de identidade.
+*   **Spring Integration:** Orquestração de fluxos de dados e integração MQTT.
+
+### **Persistência e Dados**
+*   **TimescaleDB (PostgreSQL 16):** Banco de dados otimizado para séries temporais e geoprocessamento.
+*   **Paho MQTT:** Cliente para comunicação com brokers de sensores IoT.
+*   **Apache Commons CSV & POI:** Manipulação de grandes volumes de dados para exportação.
+
+### **Documentação e Utilitários**
+*   **SpringDoc OpenAPI (Swagger):** Documentação interativa da API.
+*   **Lombok:** Redução de boilerplate e código mais limpo.
+*   **Jsoup:** Web scraping para fontes de dados que não possuem API rest.
+
+---
+
+## 📂 Estrutura de Pastas
+
+```text
+projeto-mapi-api/
+├── 📁 src/
+│   ├── 📁 main/
+│   │   ├── 📁 java/com/projeto/mapi/
+│   │   │   ├── 📁 config/          # Configurações de Beans, Security, MQTT
+│   │   │   ├── 📁 controller/      # Endpoints REST (API)
+│   │   │   ├── 📁 dto/             # Objetos de Transferência de Dados
+│   │   │   ├── 📁 exception/       # Tratamento global de erros
+│   │   │   ├── 📁 mapper/          # Conversores entre Entidades e DTOs
+│   │   │   ├── 📁 model/           # Entidades do JPA e Tabelas Timescale
+│   │   │   ├── 📁 repository/      # Interfaces de acesso ao banco
+│   │   │   ├── 📁 security/        # Filtros e serviços de autenticação
+│   │   │   ├── 📁 service/         # Lógica de negócio e integrações
+│   │   │   └── 📁 util/            # Helpers e cálculos geográficos
+│   │   └── 📁 resources/
+│   │       ├── application.yml     # Configurações do Spring
+│   │       └── 📁 static/          # Arquivos estáticos (se houver)
+│   └── 📁 test/                    # Testes unitários e de integração
+├── 📄 Dockerfile                   # Definição do container da API
+├── 📄 docker-compose.yml           # Orquestração do ecossistema (DB, API, AI)
+├── 📄 pom.xml                      # Gestão de dependências Maven
+└── 📄 TimescaleSetup.sql           # Inicialização do banco de dados
 ```
 
 ---
 
-## 📌 Documentação Completa dos Endpoints
+## 🚀 Como Executar
 
-Abaixo estão todos os endpoints disponíveis na API, organizados por categoria. Para detalhes técnicos de payloads, utilize o **Swagger UI** em `http://localhost:8080/swagger-ui.html`.
+### **1. Via Docker (Recomendado)**
 
-### 1. ⚙️ Administração e Ingestão (Histórico)
-Endpoints de alta carga para carregar dados e sincronizar séries temporais.
+Certifique-se de ter o Docker e Docker Compose instalados.
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `POST` | `/api/admin/ingestion/repair-stations` | Reavalia e repara o mapeamento de estações pluviométricas dos pontos. |
-| `POST` | `/api/admin/ingestion/historical-weather` | Inicia ingestão de histórico de chuva (Open-Meteo) para todos os pontos. |
-| `POST` | `/api/admin/ingestion/historical-sensors` | Inicia ingestão de histórico de sensores (ANA) para todos os pontos. |
-| `POST` | `/api/admin/ingestion/historical-full-sync` | Executa sincronização TOTAL (Clima, ANA, APAC, Defesa Civil) de 5 anos. |
-| `POST` | `/api/admin/ingestion/historical-civil-defense` | Inicia ingestão de histórico da Defesa Civil via CKAN (ID específico). |
-| `POST` | `/api/admin/ingestion/historical-apac` | Inicia ingestão de histórico de chuva (APAC) para uma estação/ano. |
-| `POST` | `/api/admin/ingestion/align-events` | Alinha eventos da Defesa Civil (00:00) ao pico de chuva real do dia. |
-| `GET` | `/api/admin/ingestion/check-integrity` | Verifica a integridade dos dados (Gaps e quantidades no banco). |
-| `DELETE` | `/api/admin/ingestion/wipe-database` | **LIMPA TODO O BANCO DE DADOS** (Clima, Sensores e Eventos). |
+```bash
+# Clone o repositório
+git clone https://github.com/seu-usuario/projeto-mapi-api.git
+cd projeto-mapi-api
 
-### 2. 🌦️ Clima (Weather)
-Consulta direta ao serviço de meteorologia Open-Meteo.
+# Suba todos os serviços (Banco, API e Cérebro IA)
+docker compose up --build
+```
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `GET` | `/api/weather` | Obter dados climáticos atuais (lat/lon) via Open-Meteo. |
+A API estará disponível em `http://localhost:8080` e o Swagger em `http://localhost:8080/swagger-ui.html`.
 
-### 3. 📊 Exportação de Dados (IA)
-Geração de datasets unificados para treinamento de modelos de IA.
+### **2. Desenvolvimento Local (Maven)**
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `GET` | `/api/export/ia-dataset/{slug}` | Exporta dataset consolidado (Sensores + Clima + Maré + Labels) para um ponto. |
-| `GET` | `/api/export/ia-dataset/{slug}/csv` | Exporta o dataset de um ponto específico em formato CSV. |
-| `GET` | `/api/export/ia-dataset/all/csv` | Exporta dataset unificado de **TODOS** os pontos em formato CSV único. |
-| `GET` | `/api/export/health-report` | Relatório detalhado sobre a densidade e saúde dos dados históricos. |
+Se preferir rodar apenas a API localmente:
 
-### 4. 🔍 MAPI (Pontos e Monitoramento)
-Endpoints integrados do núcleo do Projeto MAPI.
+1.  Tenha um PostgreSQL/TimescaleDB rodando (pode usar o container do banco separadamente).
+2.  Configure as variáveis de ambiente no `application.yml` ou via export.
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `GET` | `/api/pontos` | Lista todos os pontos de monitoramento registrados. |
-| `POST` | `/api/pontos` | Registra um novo ponto de monitoramento de alagamento. |
-| `GET` | `/api/precise-data` | Busca dados ambientais precisos fundindo sensores locais e Open-Meteo. |
-| `GET` | `/api/pontos/{id_ponto}` | Busca o status consolidado em tempo real de um ponto específico (slug). |
+```bash
+# Compilar o projeto
+./mvnw clean install
 
-### 5. 📡 Sensores IoT
-Monitoramento direto das leituras recebidas via MQTT/Sensores físicos.
-
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `GET` | `/api/sensors/latest` | Ver todas as leituras recentes de todos os sensores cadastrados. |
-| `GET` | `/api/sensors/{sensorId}/latest` | Ver a leitura mais recente de um sensor específico. |
-| `GET` | `/api/sensors/{sensorId}/history` | Ver o histórico de leituras de um sensor específico. |
-| `GET` | `/api/sensors/ids` | Listar todos os IDs de sensores únicos detectados no sistema. |
-
-### 6. 🌊 Marine Data & Marés (Open-Meteo)
-Integração com dados oceânicos.
-
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `GET` | `/api/marine` | Obter dados marinhos (ondas, etc) por latitude e longitude. |
-| `GET` | `/api/marine/wave-height` | Obter a altura da onda atual. |
-
-### 7. 📅 Tábua de Maré (DevTu)
-Integração direta com o serviço TabuaMare API.
-
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `GET` | `/api/tabua-mare/tide/{harbor}/{month}/{days}` | Obter tábua de maré por porto e período. |
-| `GET` | `/api/tabua-mare/states` | Listar todos os estados costeiros brasileiros suportados. |
-| `GET` | `/api/tabua-mare/nearest` | Encontrar o porto mais próximo de uma coordenada. |
-| `GET` | `/api/tabua-mare/harbors/{ids}` | Obter informações de portos específicos por seus IDs. |
-| `GET` | `/api/tabua-mare/harbors/state/{state}` | Listar todos os portos de um estado específico. |
-
-### 8. 🚨 Eventos de Alagamento (Ground Truth)
-Gestão de ocorrências confirmadas de inundações (Labels).
-
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `POST` | `/api/eventos-alagamento` | Registra a ocorrência real de um alagamento em um ponto (via slug). |
-| `POST` | `/api/eventos-alagamento/ingest` | Ingere dados brutos via scraper manual (usando coordenadas). |
-| `GET` | `/api/eventos-alagamento/{slug}` | Retorna o histórico de alagamentos confirmados de um ponto específico. |
-
-### 9. ⚓ Tide (Multi-fonte)
-Fachada unificada para consulta de marés.
-
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `GET` | `/api/tide/{harbor}` | Obter tábua de maré para um porto específico (Porto do Recife/Suape). |
-| `GET` | `/api/tide/state/{state}` | Listar tábuas de maré de todos os portos de um estado. |
-| `GET` | `/api/tide/search` | Pesquisar portos disponíveis por nome. |
-| `GET` | `/api/tide/harbors` | Listar todos os nomes de portos cadastrados no sistema. |
-
-### 10. 🔐 Autenticação
-Segurança e gestão de usuários.
-
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `POST` | `/api/auth/register` | Cadastra um novo usuário no sistema. |
-| `POST` | `/api/auth/login` | Realiza login e gera tokens JWT (Access e Refresh). |
-| `POST` | `/api/auth/refresh` | Utiliza o Refresh Token para renovar o acesso sem novo login. |
+# Rodar a aplicação
+./mvnw spring-boot:run
+```
 
 ---
-*Desenvolvido para fortalecer a resiliência urbana e a inteligência climática.* 🌊🏙️
+
+## ⚙️ Configuração
+
+As seguintes variáveis de ambiente podem ser configuradas:
+
+| Variável | Descrição | Padrão |
+|----------|-----------|---------|
+| `POSTGRES_URL` | URL de conexão com o banco | `jdbc:postgresql://localhost:5433/tide_db` |
+| `POSTGRES_USER` | Usuário do banco | `mapi_user` |
+| `POSTGRES_PASSWORD`| Senha do banco | `mapi123` |
+| `AI_API_URL` | URL do serviço de IA (Python) | `http://localhost:8000` |
+| `JWT_SECRET` | Chave secreta para tokens JWT | (Gerada no boot se ausente) |
+
+---
+
+## 📖 Documentação da API
+
+Acesse o Swagger UI para explorar os endpoints disponíveis:
+👉 [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
+### Principais Endpoints:
+*   `POST /api/auth/login`: Autenticação e geração de token.
+*   `GET /api/precise-data`: Retorna dados consolidados e predição de risco.
+*   `POST /api/admin/ingestion/align-events`: Sincroniza labels históricos.
+
+---
+
+## 🤝 Contribuição
+
+1. Faça um **Fork** do projeto.
+2. Crie uma **Branch** para sua feature (`git checkout -b feature/nova-feature`).
+3. Dê um **Commit** nas suas alterações (`git commit -m 'Add: nova feature'`).
+4. Faça um **Push** para a Branch (`git push origin feature/nova-feature`).
+5. Abra um **Pull Request**.
+
+---
+
+## ⚖️ Licença
+
+Distribuído sob a licença MIT. Veja `LICENSE` para mais informações.
+
+---
+*MAPI: Inteligência de dados para uma Recife mais resiliente.* 🌊🏙️

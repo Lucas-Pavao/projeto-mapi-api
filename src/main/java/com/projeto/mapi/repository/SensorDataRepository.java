@@ -18,20 +18,28 @@ public interface SensorDataRepository extends JpaRepository<SensorData, Long> {
     Optional<SensorData> findBySensorIdAndTimestamp(String sensorId, LocalDateTime timestamp);
 
     List<SensorData> findBySensorIdAndTimestampBetween(String sensorId, LocalDateTime start, LocalDateTime end);
+    List<SensorData> findBySensorIdInAndTimestampBetween(java.util.Collection<String> sensorIds, LocalDateTime start, LocalDateTime end);
     List<SensorData> findByCodeAndTimestampBetween(String code, LocalDateTime start, LocalDateTime end);
     long countBySensorId(String sensorId);
 
     @Query("SELECT s FROM SensorData s WHERE " +
-           "s.latitude BETWEEN :lat - :radius AND :lat + :radius AND " +
-           "s.longitude BETWEEN :lon - :radius AND :lon + :radius AND " +
+           "(6371 * acos(cos(radians(:lat)) * cos(radians(s.latitude)) * cos(radians(s.longitude) - radians(:lon)) + sin(radians(:lat)) * sin(radians(s.latitude)))) <= :radiusKm AND " +
            "s.timestamp BETWEEN :start AND :end ORDER BY s.timestamp ASC")
-    List<SensorData> findNearbySensors(Double lat, Double lon, Double radius, LocalDateTime start, LocalDateTime end);
+    List<SensorData> findSensorsByRadius(Double lat, Double lon, Double radiusKm, LocalDateTime start, LocalDateTime end);
+
+    @Query("SELECT s FROM SensorData s WHERE " +
+           "(6371 * acos(cos(radians(:lat)) * cos(radians(s.latitude)) * cos(radians(s.longitude) - radians(:lon)) + sin(radians(:lat)) * sin(radians(s.latitude)))) <= :radiusKm AND " +
+           "s.timestamp >= :since ORDER BY s.timestamp DESC")
+    List<SensorData> findLatestSensorsByRadius(Double lat, Double lon, Double radiusKm, LocalDateTime since);
 
     List<SensorData> findByCodeOrderByTimestampDesc(String code);
     Optional<SensorData> findFirstByCodeOrderByTimestampDesc(String code);
 
     @Query("SELECT DISTINCT s.sensorId FROM SensorData s")
     List<String> findDistinctSensorIds();
+
+    @Query("SELECT s FROM SensorData s WHERE s.id IN (SELECT MAX(s2.id) FROM SensorData s2 GROUP BY s2.sensorId)")
+    List<SensorData> findDistinctSensorsWithMetadata();
 
     @org.springframework.data.jpa.repository.Query("SELECT YEAR(s.timestamp), COUNT(s) FROM SensorData s WHERE s.sensorId = :sensorId GROUP BY YEAR(s.timestamp)")
     List<Object[]> countBySensorIdGroupedByYear(String sensorId);

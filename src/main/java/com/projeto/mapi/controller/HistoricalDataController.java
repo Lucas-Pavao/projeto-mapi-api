@@ -43,6 +43,13 @@ public class HistoricalDataController {
         return ResponseEntity.ok("Ingestão de dados da APAC para estação " + stationCode + " e ano " + year + " iniciada.");
     }
 
+    @PostMapping("/historical-apac-full")
+    @Operation(summary = "Inicia ingestão de histórico de chuva (APAC) para TODO o estado no ano especificado")
+    public ResponseEntity<String> startFullApacIngestion(@RequestParam int year) {
+        historicalDataService.ingestApacFullStateRainfall(year);
+        return ResponseEntity.ok("Ingestão TOTAL da APAC (Estado de PE) para o ano " + year + " iniciada em segundo plano.");
+    }
+
     @PostMapping("/historical-full-sync")
     @Operation(summary = "Executa sincronização TOTAL (Clima, ANA, APAC, Defesa Civil) de todos os pontos")
     public ResponseEntity<String> startFullSync(@RequestParam(defaultValue = "5") int years) {

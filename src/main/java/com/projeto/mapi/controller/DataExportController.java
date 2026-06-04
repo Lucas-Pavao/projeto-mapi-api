@@ -10,6 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
 import java.util.List;
 
 @RestController
@@ -19,6 +21,21 @@ import java.util.List;
 public class DataExportController {
 
     private final DataExportService dataExportService;
+
+    @GetMapping("/ia-dataset/stream")
+    @Operation(summary = "Exporta dataset unificado via Streaming JSON (Alta Performance)")
+    public ResponseEntity<StreamingResponseBody> streamUnifiedData(
+            @RequestParam(defaultValue = "30") int days) {
+        
+        StreamingResponseBody responseBody = outputStream -> {
+            dataExportService.streamUnifiedDataToOutputStream(outputStream, days);
+        };
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=mapi_ia_dataset.json")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(responseBody);
+    }
 
     @GetMapping("/ia-dataset/{slug}")
     @Operation(summary = "Exporta dataset unificado (Sensores + Clima + Maré + Labels) para um ponto")

@@ -4,6 +4,7 @@ public interface HistoricalDataService {
     void ingestHistoricalData(int years);
     void ingestPointHistory(String slug, int startYear, int endYear);
     void ingestHistoricalSensors(int years);
+    void ingestApacFullStateRainfall(int year);
     void ingestApacHistoricalRainfall(String stationCode, int year);
     void ingestCivilDefenseData(String resourceId);
     void ingestCivilDefenseLastYears(int years);

@@ -42,4 +42,10 @@ public class SensorController {
     public ResponseEntity<List<String>> getDistinctSensorIds() {
         return ResponseEntity.ok(sensorService.getDistinctSensorIds());
     }
+
+    @GetMapping("/inventory")
+    @Operation(summary = "Listar todos os sensores históricos cadastrados com metadados")
+    public ResponseEntity<List<SensorResponseDTO>> getFullSensorInventory() {
+        return ResponseEntity.ok(sensorService.getFullSensorInventory());
+    }
 }

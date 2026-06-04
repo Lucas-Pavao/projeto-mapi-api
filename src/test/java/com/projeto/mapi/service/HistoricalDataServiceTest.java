@@ -83,6 +83,7 @@ class HistoricalDataServiceTest {
         historicalDataService.repairStationMappings();
 
         // Assert
-        verify(floodPointRepository, never()).save(point);
+        verify(floodPointRepository, atLeastOnce()).save(point);
+        org.junit.jupiter.api.Assertions.assertNull(point.getPluviometerStationId());
     }
 }
