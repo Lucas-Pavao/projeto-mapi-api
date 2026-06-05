@@ -6,7 +6,7 @@ public interface HistoricalDataService {
     void ingestHistoricalSensors(int years);
     void ingestApacFullStateRainfall(int year);
     void ingestApacHistoricalRainfall(String stationCode, int year);
-    void ingestCivilDefenseData(String resourceId);
+    void ingestCivilDefenseData(int years);
     void ingestCivilDefenseLastYears(int years);
     void alignFloodEventsToRainPeaks();
     java.util.List<com.projeto.mapi.dto.DataHealthReportDTO> checkDataIntegrity();

@@ -337,7 +337,7 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
         log.info("Reparando mapeamentos de estações pluviométricas para todos os pontos cadastrados via proximidade...");
         
         List<FloodPoint> points = floodPointRepository.findAll();
-        List<SensorData> latestSensors = sensorDataRepository.findAllLatest();
+        List<SensorData> latestSensors = sensorDataRepository.findAllLatest(LocalDateTime.now().minusDays(7));
         
         if (latestSensors.isEmpty()) {
             log.warn("Nenhum dado de sensor encontrado no banco para realizar o mapeamento por proximidade.");
@@ -429,8 +429,8 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
 
     @Override
     @Async
-    public void ingestCivilDefenseData(String resourceId) {
-        civilDefenseService.ingestFloodEvents(resourceId);
+    public void ingestCivilDefenseData(int years) {
+        civilDefenseService.ingestLastYears(years);
     }
 
     @Override

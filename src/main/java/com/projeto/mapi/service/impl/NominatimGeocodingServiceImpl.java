@@ -55,29 +55,39 @@ public class NominatimGeocodingServiceImpl implements GeocodingService {
     }
 
     private Optional<double[]> fetchFromNominatim(String query) {
-        try {
-            // Respeitar o rate limit do Nominatim (1 req/sec)
-            Thread.sleep(1000);
+        int retries = 3;
+        while (retries > 0) {
+            try {
+                // Respeitar o rate limit do Nominatim (1 req/sec)
+                Thread.sleep(1100);
 
-            List<NominatimResult> results = restClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("/search")
-                            .queryParam("q", query)
-                            .queryParam("format", "json")
-                            .queryParam("limit", 1)
-                            .build())
-                    .retrieve()
-                    .body(new ParameterizedTypeReference<List<NominatimResult>>() {});
+                List<NominatimResult> results = restClient.get()
+                        .uri(uriBuilder -> uriBuilder
+                                .path("/search")
+                                .queryParam("q", query)
+                                .queryParam("format", "json")
+                                .queryParam("limit", 1)
+                                .build())
+                        .retrieve()
+                        .body(new ParameterizedTypeReference<List<NominatimResult>>() {});
 
-            if (results != null && !results.isEmpty()) {
-                NominatimResult res = results.get(0);
-                return Optional.of(new double[]{
-                    Double.parseDouble(res.getLat()), 
-                    Double.parseDouble(res.getLon())
-                });
+                if (results != null && !results.isEmpty()) {
+                    NominatimResult res = results.get(0);
+                    return Optional.of(new double[]{
+                        Double.parseDouble(res.getLat()), 
+                        Double.parseDouble(res.getLon())
+                    });
+                }
+                return Optional.empty(); // Se retornou lista vazia, o endereço não existe mesmo
+            } catch (Exception e) {
+                retries--;
+                log.warn("[Geocode] Erro na consulta (Tentativas restantes: {}): {}. Mensagem: {}", 
+                    retries, query, e.getMessage());
+                if (retries == 0) {
+                    log.error("[Geocode] Falha definitiva para query: {}", query);
+                }
+                try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
             }
-        } catch (Exception e) {
-            log.error("Erro ao consultar Nominatim para query: {}", query, e);
         }
         return Optional.empty();
     }

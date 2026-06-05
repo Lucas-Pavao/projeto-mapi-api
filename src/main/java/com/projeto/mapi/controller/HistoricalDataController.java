@@ -30,10 +30,10 @@ public class HistoricalDataController {
     }
 
     @PostMapping("/historical-civil-defense")
-    @Operation(summary = "Inicia ingestão de histórico da Defesa Civil (Recife) via CKAN (ID específico)")
-    public ResponseEntity<String> startCivilDefenseIngestion(@RequestParam String resourceId) {
-        historicalDataService.ingestCivilDefenseData(resourceId);
-        return ResponseEntity.ok("Ingestão de dados da Defesa Civil (Recurso: " + resourceId + ") iniciada em segundo plano.");
+    @Operation(summary = "Inicia ingestão de histórico da Defesa Civil (Recife) para os últimos N anos")
+    public ResponseEntity<String> startCivilDefenseIngestion(@RequestParam(defaultValue = "5") int years) {
+        historicalDataService.ingestCivilDefenseData(years);
+        return ResponseEntity.ok("Ingestão de dados da Defesa Civil (últimos " + years + " anos) iniciada em segundo plano.");
     }
 
     @PostMapping("/historical-apac")

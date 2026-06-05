@@ -5,7 +5,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "weather_history", 
+@Table(name = "weather_data", 
        indexes = {@Index(name = "idx_weather_timestamp", columnList = "timestamp, latitude, longitude")})
 @Getter
 @Setter
@@ -46,8 +46,5 @@ public class WeatherData {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        if (timestamp == null) {
-            timestamp = LocalDateTime.now();
-        }
     }
 }

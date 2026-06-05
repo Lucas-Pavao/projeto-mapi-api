@@ -27,6 +27,7 @@ services:
       - DB_NAME=tide_db
       - DB_USER=mapi_user
       - DB_PASS=mapi123
+      - API_URL=http://mapi-api:8080
     ports:
       - "8000:8000"
     depends_on:

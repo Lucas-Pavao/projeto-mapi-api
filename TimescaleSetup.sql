@@ -39,8 +39,8 @@ CREATE TABLE IF NOT EXISTS sensor_data (
 -- Converter para Hypertable
 SELECT create_hypertable('sensor_data', 'timestamp', if_not_exists => TRUE);
 
--- 3. Criar tabela weather_history (Estrutura compatível com Hibernate + Timescale)
-CREATE TABLE IF NOT EXISTS weather_history (
+-- 3. Criar tabela weather_data (Estrutura compatível com Hibernate + Timescale)
+CREATE TABLE IF NOT EXISTS weather_data (
     id BIGSERIAL,
     timestamp TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     latitude DOUBLE PRECISION,
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS weather_history (
 );
 
 -- Converter para Hypertable
-SELECT create_hypertable('weather_history', 'timestamp', if_not_exists => TRUE);
+SELECT create_hypertable('weather_data', 'timestamp', if_not_exists => TRUE);
 
 -- 4. Criar View de Agregados Contínuos (Chuva por Hora)
 CREATE MATERIALIZED VIEW IF NOT EXISTS hourly_precipitation
@@ -72,4 +72,4 @@ WITH NO DATA;
 
 -- 5. Índices Adicionais
 CREATE INDEX IF NOT EXISTS idx_sensor_id_timestamp ON sensor_data (sensor_id, timestamp DESC);
-CREATE INDEX IF NOT EXISTS idx_weather_location_timestamp ON weather_history (latitude, longitude, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_weather_location_timestamp ON weather_data (latitude, longitude, timestamp DESC);

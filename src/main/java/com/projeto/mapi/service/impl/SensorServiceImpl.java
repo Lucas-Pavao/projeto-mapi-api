@@ -54,9 +54,12 @@ public class SensorServiceImpl implements SensorService {
     }
 
     private void processSinglePayload(JsonNode root, String sensorId, String batteryStatus, String payload) {
-        String timestampStr = root.has("timestamp_coleta") ? root.get("timestamp_coleta").asText() : 
-                           (root.has("data_hora") ? root.get("data_hora").asText() : 
-                           (root.has("Data_Hora_Medicao") ? root.get("Data_Hora_Medicao").asText() : LocalDateTime.now().toString()));
+        String timestampStr = null;
+        if (root.has("timestamp_coleta")) timestampStr = root.get("timestamp_coleta").asText();
+        else if (root.has("data_hora")) timestampStr = root.get("data_hora").asText();
+        else if (root.has("Data_Hora_Medicao")) timestampStr = root.get("Data_Hora_Medicao").asText();
+        else if (root.has("data_hora_medicao")) timestampStr = root.get("data_hora_medicao").asText();
+        else if (root.has("horario")) timestampStr = root.get("horario").asText();
         
         LocalDateTime timestamp = parseTimestamp(timestampStr);
 
@@ -207,9 +210,15 @@ public class SensorServiceImpl implements SensorService {
     }
 
     private LocalDateTime parseTimestamp(String timestampStr) {
+        if (timestampStr == null || timestampStr.isBlank()) {
+            return LocalDateTime.now();
+        }
         try {
             if (timestampStr.contains("T")) {
                 return LocalDateTime.parse(timestampStr, DateTimeFormatter.ISO_DATE_TIME);
+            }
+            if (timestampStr.contains("/")) {
+                return LocalDateTime.parse(timestampStr, DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
             }
             // Tentar formatos comuns: yyyy-MM-dd HH:mm:ss
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSS][.SS][.S]");
@@ -222,7 +231,13 @@ public class SensorServiceImpl implements SensorService {
 
     @Override
     public List<SensorResponseDTO> getAllLatestData() {
-        return sensorDataRepository.findAllLatest().stream()
+        // Por padrão, retorna apenas dados das últimas 24 horas para evitar lixo histórico
+        return getAllLatestData(LocalDateTime.now().minusHours(24));
+    }
+
+    @Override
+    public List<SensorResponseDTO> getAllLatestData(LocalDateTime since) {
+        return sensorDataRepository.findAllLatest(since).stream()
                 .map(this::convertToDTO)
                 .toList();
     }

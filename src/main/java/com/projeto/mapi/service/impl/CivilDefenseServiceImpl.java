@@ -30,6 +30,11 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
     private final GeocodingService geocodingService;
     private final RestClient restClient = RestClient.builder().baseUrl("https://dados.recife.pe.gov.br").build();
 
+    private static final List<String> PACKAGE_IDS = List.of(
+            "registro-de-atendimentos-da-defesa-civil",
+            "demandas-dos-cidadaos-e-servicos-dados-vivos-recife"
+    );
+
     @Override
     public void ingestFloodEvents(String resourceId) {
         log.info(">>> Iniciando ingestão via API: {}", resourceId);
@@ -60,12 +65,12 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
         while (hasMore) {
             try {
                 final int currentOffset = offset;
+                // Busca sem query 'q' específica para filtrar em Java com mais flexibilidade
                 CkanResponseDTO response = restClient.get()
                         .uri(uriBuilder -> uriBuilder
                                 .path("/api/3/action/datastore_search")
                                 .queryParam("resource_id", resourceId)
-                                .queryParam("q", "alagamento alagado")
-                                .queryParam("limit", 1000)
+                                .queryParam("limit", 500)
                                 .queryParam("offset", currentOffset)
                                 .build())
                         .retrieve()
@@ -73,18 +78,19 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
 
                 if (response == null || !response.getSuccess() || response.getResult() == null) break;
 
-                java.util.List<CkanRecordDTO> records = response.getResult().getRecords();
-                if (records.isEmpty()) break;
+                List<Map<String, Object>> rawRecords = response.getResult().getRawRecords();
+                if (rawRecords == null || rawRecords.isEmpty()) break;
 
-                for (CkanRecordDTO record : records) {
+                for (Map<String, Object> raw : rawRecords) {
+                    CkanRecordDTO record = mapRawToDto(raw);
                     if (isRelevant(record)) {
                         if (saveRecord(record)) totalSaved++;
                     }
                     totalProcessed++;
                 }
 
-                offset += 1000;
-                if (offset >= response.getResult().getTotal()) hasMore = false;
+                offset += rawRecords.size();
+                if (offset >= response.getResult().getTotal() || rawRecords.isEmpty()) hasMore = false;
             } catch (Exception e) {
                 log.error("Falha na API Datastore para {}: {}", resourceId, e.getMessage());
                 hasMore = false;
@@ -115,11 +121,11 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
                 List<CSVRecord> records = parser.getRecords();
                 if (records.isEmpty()) return new int[]{0, 0};
 
-                Map<String, Integer> colMap = detectColumns(records.get(0));
+                Map<String, Integer> colMap = detectColumnsFromCsv(records.get(0));
                 int start = isHeader(records.get(0)) ? 1 : 0;
 
                 for (int i = start; i < records.size(); i++) {
-                    CkanRecordDTO record = mapToDto(records.get(i), colMap);
+                    CkanRecordDTO record = mapCsvToDto(records.get(i), colMap);
                     if (isRelevant(record)) {
                         if (saveRecord(record)) totalSaved++;
                     }
@@ -132,25 +138,39 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
         return new int[]{totalProcessed, totalSaved};
     }
 
-    private Map<String, Integer> detectColumns(CSVRecord row) {
+    private Map<String, Integer> detectColumnsFromCsv(CSVRecord row) {
         Map<String, Integer> map = new java.util.HashMap<>();
         for (int i = 0; i < row.size(); i++) {
             String val = row.get(i).toLowerCase();
-            if (val.contains("data")) map.put("data", i);
-            if (val.contains("ocorrencia") || val.contains("ocorrência")) map.put("ocorrencia", i);
-            if (val.contains("solicitacao") || val.contains("solicitação")) map.put("solicitacao", i);
-            if (val.contains("endereco") || val.contains("logradouro")) map.put("endereco", i);
-            if (val.contains("bairro")) map.put("bairro", i);
+            updateColMap(map, val, i);
         }
         return map;
     }
 
-    private boolean isHeader(CSVRecord row) {
-        String first = row.get(0).toLowerCase();
-        return first.contains("ano") || first.contains("data") || first.contains("regional") || first.contains("planície");
+    private void updateColMap(Map<String, Integer> map, String val, Object key) {
+        if (val.contains("data") && !map.containsKey("data")) map.put("data", (Integer) key);
+        if ((val.contains("ocorrencia") || val.contains("ocorrência") || val.contains("descricao") || val.contains("descrição")) && !map.containsKey("ocorrencia")) map.put("ocorrencia", (Integer) key);
+        if ((val.contains("solicitacao") || val.contains("solicitação")) && !map.containsKey("solicitacao")) map.put("solicitacao", (Integer) key);
+        if ((val.contains("endereco") || val.contains("logradouro")) && !map.containsKey("endereco")) map.put("endereco", (Integer) key);
+        if (val.contains("bairro") && !map.containsKey("bairro")) map.put("bairro", (Integer) key);
     }
 
-    private CkanRecordDTO mapToDto(CSVRecord row, Map<String, Integer> colMap) {
+    private CkanRecordDTO mapRawToDto(Map<String, Object> raw) {
+        CkanRecordDTO dto = new CkanRecordDTO();
+        raw.forEach((k, v) -> {
+            if (v == null) return;
+            String val = String.valueOf(v);
+            String key = k.toLowerCase();
+            if (key.contains("data") && dto.getData() == null) dto.setData(val);
+            if ((key.contains("ocorrencia") || key.contains("ocorrência") || key.contains("descricao") || key.contains("descrição")) && dto.getOcorrencia() == null) dto.setOcorrencia(val);
+            if ((key.contains("solicitacao") || key.contains("solicitação")) && dto.getSolicitacao() == null) dto.setSolicitacao(val);
+            if ((key.contains("endereco") || key.contains("logradouro")) && dto.getEndereco() == null) dto.setEndereco(val);
+            if (key.contains("bairro") && dto.getBairro() == null) dto.setBairro(val);
+        });
+        return dto;
+    }
+
+    private CkanRecordDTO mapCsvToDto(CSVRecord row, Map<String, Integer> colMap) {
         CkanRecordDTO dto = new CkanRecordDTO();
         if (!colMap.isEmpty()) {
             if (colMap.containsKey("data")) dto.setData(row.get(colMap.get("data")));
@@ -158,23 +178,13 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
             if (colMap.containsKey("solicitacao")) dto.setSolicitacao(row.get(colMap.get("solicitacao")));
             if (colMap.containsKey("endereco")) dto.setEndereco(row.get(colMap.get("endereco")));
             if (colMap.containsKey("bairro")) dto.setBairro(row.get(colMap.get("bairro")));
-        } else {
-            dto.setData(safeGet(row, 2));
-            dto.setOcorrencia(safeGet(row, 4));
-            dto.setEndereco(safeGet(row, 5));
-            dto.setBairro(safeGet(row, 7));
         }
         return dto;
     }
 
-    private String safeGet(CSVRecord row, int... indices) {
-        for (int idx : indices) {
-            if (idx < row.size()) {
-                String v = row.get(idx);
-                if (v != null && !v.isBlank()) return v;
-            }
-        }
-        return null;
+    private boolean isHeader(CSVRecord row) {
+        String first = row.get(0).toLowerCase();
+        return first.contains("ano") || first.contains("data") || first.contains("regional") || first.contains("logradouro");
     }
 
     private boolean isRelevant(CkanRecordDTO record) {
@@ -182,26 +192,21 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
         String ocorrencia = record.getOcorrencia() != null ? record.getOcorrencia().toLowerCase() : "";
         String solicitacao = record.getSolicitacao() != null ? record.getSolicitacao().toLowerCase() : "";
         String text = ocorrencia + " " + solicitacao;
-        return text.contains("alagado") || text.contains("alagamento") || text.contains("inunda");
+        return text.contains("alagado") || text.contains("alagamento") || text.contains("inunda") 
+            || text.contains("transbord") || text.contains("enxurrada") || text.contains("canal")
+            || text.contains("drenagem") || text.contains("bueiro") || text.contains("galeria");
     }
 
     private boolean saveRecord(CkanRecordDTO record) {
         String addr = record.getEndereco() != null ? record.getEndereco() : "Endereço N/A";
-        
-        // Se o endereço original já parece lixo (menos de 3 caracteres ou só símbolos), ignora silenciosamente
-        if (addr.length() < 3 || addr.matches("^[\\W\\d]+$")) {
-            return false;
-        }
+        if (addr.length() < 3 || addr.matches("^[\\W\\d]+$")) return false;
 
         try {
             Optional<ScraperEventDTO> eventDTO = convertToScraperEvent(record);
             if (eventDTO.isPresent()) {
-                return floodEventService.ingestScraperEvent(eventDTO.get()) != null;
-            } else {
-                // Log apenas se for um endereço que parece real mas falhou na geocodificação
-                if (addr.length() > 10) {
-                    log.warn("[-] Geocodificação falhou para endereço potencialmente válido: {}", addr);
-                }
+                boolean saved = floodEventService.ingestScraperEvent(eventDTO.get()) != null;
+                if (saved) log.debug("[+] Evento salvo: {} - {}", record.getData(), addr);
+                return saved;
             }
         } catch (Exception e) {
             log.warn("[-] Erro ao processar registro: {} - Motivo: {}", addr, e.getMessage());
@@ -212,27 +217,37 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
     @Override
     public void ingestLastYears(int years) {
         log.info("Sincronizando Defesa Civil (últimos {} anos)...", years);
-        try {
-            CkanPackageResponseDTO pkg = restClient.get()
-                    .uri(uriBuilder -> uriBuilder.path("/api/3/action/package_show")
-                            .queryParam("id", "registro-de-atendimentos-da-defesa-civil").build())
-                    .retrieve().body(CkanPackageResponseDTO.class);
+        for (String packageId : PACKAGE_IDS) {
+            try {
+                CkanPackageResponseDTO pkg = restClient.get()
+                        .uri(uriBuilder -> uriBuilder.path("/api/3/action/package_show")
+                                .queryParam("id", packageId).build())
+                        .retrieve().body(CkanPackageResponseDTO.class);
 
-            if (pkg == null || pkg.getResult() == null) return;
+                if (pkg == null || pkg.getResult() == null) continue;
 
-            int startYear = LocalDate.now().getYear() - years + 1;
-            for (int y = LocalDate.now().getYear(); y >= startYear; y--) {
-                final String yearStr = String.valueOf(y);
-                pkg.getResult().getResources().stream()
-                        .filter(r -> "CSV".equalsIgnoreCase(r.getFormat()))
-                        .filter(r -> r.getName().contains("Atendimentos") && r.getName().contains(yearStr))
-                        .forEach(r -> {
-                            if (Boolean.TRUE.equals(r.getDatastoreActive())) ingestFloodEvents(r.getId());
-                            else ingestFloodEventsViaCsv(r.getUrl());
-                        });
+                int startYear = LocalDate.now().getYear() - years + 1;
+                for (int y = LocalDate.now().getYear(); y >= startYear; y--) {
+                    final String yearStr = String.valueOf(y);
+                    pkg.getResult().getResources().stream()
+                            .filter(r -> "CSV".equalsIgnoreCase(r.getFormat()))
+                            .filter(r -> {
+                                String name = r.getName().toLowerCase();
+                                // Se for o pacote de tempo real, pega os recursos de SEDEC independente do ano no nome
+                                if ("demandas-dos-cidadaos-e-servicos-dados-vivos-recife".equals(packageId)) {
+                                    return name.contains("sedec") && (name.contains("solicita") || name.contains("chamado"));
+                                }
+                                return (name.contains("atendimentos") || name.contains("solicita")) && name.contains(yearStr);
+                            })
+                            .forEach(r -> {
+                                log.info("Processando recurso: {} ({})", r.getName(), r.getId());
+                                if (Boolean.TRUE.equals(r.getDatastoreActive())) ingestFloodEvents(r.getId());
+                                else ingestFloodEventsViaCsv(r.getUrl());
+                            });
+                }
+            } catch (Exception e) {
+                log.error("Falha ao buscar catálogo {}: {}", packageId, e.getMessage());
             }
-        } catch (Exception e) {
-            log.error("Falha ao buscar catálogo: {}", e.getMessage());
         }
     }
 
@@ -249,7 +264,7 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
         return Optional.of(ScraperEventDTO.builder()
                 .latitude(coords.get()[0]).longitude(coords.get()[1])
                 .startTime(dt).severity(FloodEvent.Severity.MEDIUM)
-                .description(record.getSolicitacao() + " - " + record.getEndereco())
+                .description((record.getOcorrencia() != null ? record.getOcorrencia() : "") + " " + (record.getSolicitacao() != null ? record.getSolicitacao() : "") + " - " + record.getEndereco())
                 .source("DEFESA_CIVIL_RECIFE").build());
     }
 
@@ -257,19 +272,33 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
         if (s == null || s.isBlank()) return null;
         try {
             if (s.contains("T")) return LocalDateTime.parse(s, DateTimeFormatter.ISO_DATE_TIME);
+            if (s.contains("/")) {
+                if (s.contains(" ")) return LocalDateTime.parse(s, DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+                return LocalDate.parse(s, DateTimeFormatter.ofPattern("dd/MM/yyyy")).atStartOfDay();
+            }
             if (s.contains(" ")) return LocalDateTime.parse(s, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            return LocalDate.parse(s, DateTimeFormatter.ISO_LOCAL_DATE).atStartOfDay();
+            if (s.length() == 10 && s.contains("-")) return LocalDate.parse(s).atStartOfDay();
+            return null;
         } catch (Exception e) { return null; }
     }
 
     private String sanitizeAddress(String s) {
         if (s == null) return "";
+        // Remove lixo comum de símbolos que a API do Recife retorna às vezes
         String clean = s.toLowerCase()
                 .replace("nrte", "norte").replace("av.", "avenida").replace("r.", "rua")
                 .replaceAll("\\(.*?\\)", "")
                 .replaceAll("(\\D+)(\\d+)$", "$1, $2")
                 .replaceAll("[#\\^\\>\\$\\!\\=\\+\\?\\\"\\*\\_\\|\\/\\@\\&\\<\\%\\~\\{\\}\\[\\]\\`\\']+", " ")
-                .trim().replaceAll("^[,\\-\\s]+|[,\\-\\s]+$", "");
-        return clean.replaceAll("\\s{2,}", " ");
+                .trim().replaceAll("^[,\\.\\-\\s]+|[,\\.\\-\\s]+$", "");
+
+        clean = clean.replaceAll("\\s{2,}", " ");
+        
+        // Se após a limpeza sobrou apenas um ponto, vírgula ou string vazia, descarta
+        if (clean.length() < 3 || clean.matches("^[\\W\\d]+$")) {
+            return "";
+        }
+        
+        return clean;
     }
 }
