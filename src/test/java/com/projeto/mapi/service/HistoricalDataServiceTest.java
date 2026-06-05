@@ -51,7 +51,7 @@ class HistoricalDataServiceTest {
                 .build();
 
         when(floodPointRepository.findAll()).thenReturn(List.of(point));
-        when(sensorDataRepository.findAllLatest()).thenReturn(List.of(stationFar, stationNear));
+        when(sensorDataRepository.findAllLatest(any(java.time.LocalDateTime.class))).thenReturn(List.of(stationFar, stationNear));
 
         // Act
         historicalDataService.repairStationMappings();
@@ -77,7 +77,7 @@ class HistoricalDataServiceTest {
                 .build();
 
         when(floodPointRepository.findAll()).thenReturn(List.of(point));
-        when(sensorDataRepository.findAllLatest()).thenReturn(List.of(stationFar));
+        when(sensorDataRepository.findAllLatest(any(java.time.LocalDateTime.class))).thenReturn(List.of(stationFar));
 
         // Act
         historicalDataService.repairStationMappings();

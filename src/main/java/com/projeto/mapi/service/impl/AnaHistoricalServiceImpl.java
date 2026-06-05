@@ -97,9 +97,21 @@ public class AnaHistoricalServiceImpl implements AnaHistoricalService {
             String levelStr = getTagValue("Nivel", element);
             String flowStr = getTagValue("Vazao", element);
 
-            if (dateStr == null) continue;
+            if (dateStr == null || dateStr.isBlank()) continue;
 
-            LocalDateTime timestamp = LocalDateTime.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            LocalDateTime timestamp;
+            try {
+                if (dateStr.contains("T")) {
+                    timestamp = LocalDateTime.parse(dateStr, DateTimeFormatter.ISO_DATE_TIME);
+                } else if (dateStr.contains("/")) {
+                    timestamp = LocalDateTime.parse(dateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
+                } else {
+                    timestamp = LocalDateTime.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                }
+            } catch (Exception e) {
+                log.warn("Falha ao parsear data ANA: {}. Pulando registro.", dateStr);
+                continue;
+            }
             
             // Ajuste de Fuso Horário: ANA/CEMADEN enviam dados em UTC.
             // Conforme diretriz técnica: Hora Local (Recife) = UTC - 3.

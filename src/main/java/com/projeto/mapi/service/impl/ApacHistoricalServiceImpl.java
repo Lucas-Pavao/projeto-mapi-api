@@ -142,7 +142,10 @@ public class ApacHistoricalServiceImpl implements ApacHistoricalService {
             else if (h.contains("LATITUDE")) colMap.put("LATITUDE", i);
             else if (h.contains("LONGITUDE")) colMap.put("LONGITUDE", i);
             else if (h.contains("ANO/MÊS") || h.contains("ANO/MES")) colMap.put("ANOMES", i);
-            else if (h.matches("\\d{2}")) colMap.put("DAY_" + h, i);
+            else if (h.matches("\\d{1,2}")) {
+                String dayNum = h.length() == 1 ? "0" + h : h;
+                colMap.put("DAY_" + dayNum, i);
+            }
         }
 
         log.debug("Colunas detectadas: {}", colMap.keySet());

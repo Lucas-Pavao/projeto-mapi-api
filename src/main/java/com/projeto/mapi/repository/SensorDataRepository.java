@@ -12,8 +12,8 @@ public interface SensorDataRepository extends JpaRepository<SensorData, Long> {
     
     Optional<SensorData> findFirstBySensorIdOrderByTimestampDesc(String sensorId);
 
-    @Query("SELECT s FROM SensorData s WHERE s.id IN (SELECT MAX(s2.id) FROM SensorData s2 GROUP BY s2.sensorId)")
-    List<SensorData> findAllLatest();
+    @Query("SELECT s FROM SensorData s WHERE s.id IN (SELECT MAX(s2.id) FROM SensorData s2 GROUP BY s2.sensorId) AND s.timestamp >= :since")
+    List<SensorData> findAllLatest(LocalDateTime since);
 
     Optional<SensorData> findBySensorIdAndTimestamp(String sensorId, LocalDateTime timestamp);
 

@@ -7,6 +7,7 @@ import java.util.List;
 public interface SensorService {
     void processSensorMessage(String payload);
     List<SensorResponseDTO> getAllLatestData();
+    List<SensorResponseDTO> getAllLatestData(java.time.LocalDateTime since);
     List<SensorResponseDTO> getSensorHistory(String sensorId);
     SensorResponseDTO getLatestBySensorId(String sensorId);
     List<SensorResponseDTO> getSensorHistoryByCode(String code);
