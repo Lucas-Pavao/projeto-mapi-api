@@ -58,7 +58,7 @@ class HistoricalDataServiceTest {
 
         // Assert
         verify(floodPointRepository, times(1)).save(point);
-        assertEquals("NEAR_STATION", point.getPluviometerStationId());
+        org.junit.jupiter.api.Assertions.assertTrue(point.getPluviometerStationIds().contains("NEAR_STATION"));
     }
 
     @Test
@@ -84,6 +84,6 @@ class HistoricalDataServiceTest {
 
         // Assert
         verify(floodPointRepository, atLeastOnce()).save(point);
-        org.junit.jupiter.api.Assertions.assertNull(point.getPluviometerStationId());
+        org.junit.jupiter.api.Assertions.assertTrue(point.getPluviometerStationIds().isEmpty());
     }
 }

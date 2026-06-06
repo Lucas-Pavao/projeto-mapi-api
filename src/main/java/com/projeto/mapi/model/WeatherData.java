@@ -40,6 +40,12 @@ public class WeatherData {
 
     private Double precipitation;
 
+    @Column(name = "wind_speed")
+    private Double windSpeed;
+
+    @Column(name = "solar_radiation")
+    private Double solarRadiation;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

@@ -37,7 +37,7 @@ public class FloodPointRequestDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SensorConfigDTO {
-        private String estacao_pluviometrica_id;
-        private String estacao_nivel_rio_id;
+        private java.util.List<String> estacoes_pluviometricas_ids;
+        private java.util.List<String> estacoes_nivel_rio_ids;
     }
 }

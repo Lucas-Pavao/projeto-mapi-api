@@ -21,6 +21,9 @@ public class FloodPointResponseDTO {
     private Double dist_canal_m;
     private String bacia_hidrografica;
     private FloodPointRequestDTO.SensorConfigDTO config_sensores;
+    private java.util.List<String> sensores_proximos_ids;
+    private MapiResponseDTO.PreciseData liveData;
+    private FloodPredictionResponseDTO floodPrediction;
     private Boolean active;
     private Double tideHeight;
     private String tideUnit;

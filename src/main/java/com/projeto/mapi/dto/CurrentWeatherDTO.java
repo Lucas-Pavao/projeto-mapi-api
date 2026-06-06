@@ -10,5 +10,7 @@ public record CurrentWeatherDTO(
     @JsonProperty("surface_pressure") Double surfacePressure,
     @JsonProperty("weather_code") int weatherCode,
     @JsonProperty("is_day") int isDay,
-    @JsonProperty("precipitation") double precipitation
+    @JsonProperty("precipitation") double precipitation,
+    @JsonProperty("wind_speed_10m") Double windSpeed,
+    @JsonProperty("shortwave_radiation") Double solarRadiation
 ) {}

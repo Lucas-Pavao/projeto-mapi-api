@@ -46,8 +46,9 @@ public class ApacHistoricalServiceImpl implements ApacHistoricalService {
     }
 
     @Override
+    @org.springframework.scheduling.annotation.Async("taskExecutor")
     public void ingestHistoricalRainfall(String stationCode, int year) {
-        log.info("Iniciando coleta histórica APAC no ano {}. Alvo: {}", year, stationCode);
+        log.info("Iniciando coleta histórica APAC no ano {} (ASSÍNCRONO). Alvo: {}", year, stationCode);
         
         if (floodPointsCache == null) {
             floodPointsCache = floodPointRepository.findAll();
@@ -68,7 +69,8 @@ public class ApacHistoricalServiceImpl implements ApacHistoricalService {
 
             try {
                 processMonthlyReport(startDateStr, endDateStr, stationCode, cleanCode);
-                Thread.sleep(500); // Respeito ao servidor
+                // Reduzi o sleep já que estamos em threads separadas para anos diferentes
+                Thread.sleep(200); 
             } catch (Exception e) {
                 log.error("Erro ao processar intervalo {} a {} na APAC: {}", startDateStr, endDateStr, e.getMessage());
             }
@@ -242,9 +244,9 @@ public class ApacHistoricalServiceImpl implements ApacHistoricalService {
                 FloodPoint fp = nearPoint.get();
                 String mappingKey = fp.getSlug() + ":" + code;
                 if (!updatedPoints.contains(mappingKey)) {
-                    if (fp.getPluviometerStationId() == null || !fp.getPluviometerStationId().equals(sensorId)) {
+                    if (!fp.getPluviometerStationIds().contains(sensorId)) {
                         log.info("---- Vinculando ponto {} à estação APAC {}", fp.getSlug(), code);
-                        fp.setPluviometerStationId(sensorId);
+                        fp.getPluviometerStationIds().add(sensorId);
                         floodPointRepository.save(fp);
                     }
                     updatedPoints.add(mappingKey);

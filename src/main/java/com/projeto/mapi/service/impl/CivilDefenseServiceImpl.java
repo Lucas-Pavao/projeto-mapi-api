@@ -36,13 +36,15 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
     );
 
     @Override
+    @org.springframework.scheduling.annotation.Async("taskExecutor")
     public void ingestFloodEvents(String resourceId) {
-        log.info(">>> Iniciando ingestão via API: {}", resourceId);
+        log.info(">>> Iniciando ingestão via API (ASSÍNCRONO): {}", resourceId);
         processSource(resourceId, null);
     }
 
+    @org.springframework.scheduling.annotation.Async("taskExecutor")
     public void ingestFloodEventsViaCsv(String csvUrl) {
-        log.info(">>> Iniciando ingestão via CSV: {}", csvUrl);
+        log.info(">>> Iniciando ingestão via CSV (ASSÍNCRONO): {}", csvUrl);
         processSource(null, csvUrl);
     }
 
