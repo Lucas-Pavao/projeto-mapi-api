@@ -21,6 +21,12 @@ Este projeto centraliza e gerencia o fluxo de dados do ecossistema:
   [ MAPI Front ] (React 19 / MapLibre GL) 💻✨
 ```
 
+### Componentes do Ecossistema:
+*   📡 **[MAPI Edge (Sensores)](https://github.com/Lucas-Pavao/projeto-mapi-sensores):** Produtor de dados primários e inteligência de borda.
+*   🌊 **[MAPI API (Backend)](https://github.com/Lucas-Pavao/projeto-mapi-api):** Orquestrador central, ingestão MQTT e persistência temporal.
+*   🧠 **[MAPI AI (Inteligência)](https://github.com/Lucas-Pavao/projeto-mapi-ai):** Microserviço de inferência para predição de riscos.
+*   💻 **[MAPI Front (Dashboard)](https://github.com/Lucas-Pavao/projeto-mapi-front):** Interface geoespacial para monitoramento em tempo real.
+
 ### Conexões Estruturais:
 - **Entrada (Ingestão):** Assinante MQTT conectado ao Broker, coletando dados gerados pelo MAPI Edge e APIs de agências (ANA, APAC, CEMADEN).
 - **Processamento Síncrono:** Dispara requisições HTTP POST síncronas para o MAPI AI para receber métricas preditivas de risco de alagamento.
@@ -106,6 +112,7 @@ O ecossistema MAPI exige que os repositórios estejam em uma pasta comum:
 MinhaPastaMapi/
 ├── projeto-mapi-api/   <-- (Este repositório)
 ├── projeto-mapi-ai/    <-- (Repositório da IA)
+├── projeto-mapi-sensores/ <-- (Repositório do Edge/Sensores)
 └── projeto-mapi-front/ <-- (Repositório do Frontend)
 ```
 > **Nota:** Para rodar apenas a API e o Banco, comente as seções `mapi-ai` e `mapi-front` no `docker-compose.yml` usando `#`.
