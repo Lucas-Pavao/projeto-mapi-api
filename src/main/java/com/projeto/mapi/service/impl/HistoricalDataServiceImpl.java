@@ -68,10 +68,14 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
             ingestPointHistory(point.getSlug(), startYear, endYear);
         }
 
-        // 2. Ingestão de Sensores ANA (Por ID da Estação vinculado ao ponto)
+        // 2. Ingestão de Sensores ANA (Por IDs das Estações vinculados ao ponto)
         for (FloodPoint point : points) {
-            if (point.getPluviometerStationId() != null && !point.getPluviometerStationId().contains("APAC")) {
-                anaHistoricalService.ingestHistoricalSensorData(point.getPluviometerStationId(), years);
+            if (point.getPluviometerStationIds() != null) {
+                for (String stationId : point.getPluviometerStationIds()) {
+                    if (!stationId.contains("APAC")) {
+                        anaHistoricalService.ingestHistoricalSensorData(stationId, years);
+                    }
+                }
             }
         }
 
@@ -93,7 +97,7 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
     @Override
     @Transactional
     public void alignFloodEventsToRainPeaks() {
-        log.info("Iniciando Alinhamento de Alagamentos ao Pico de Chuva Regional (Raio 5km)...");
+        log.info("Iniciando Alinhamento de Alagamentos ao Pico de Chuva Regional (Raio 3km)...");
         List<com.projeto.mapi.model.FloodEvent> events = floodEventRepository.findAll();
         
         for (com.projeto.mapi.model.FloodEvent event : events) {
@@ -106,7 +110,7 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
 
                 // 1. Buscar o pico de chuva REGIONAL nos sensores (ANA/CEMADEN/APAC)
                 List<SensorData> nearbySensors = sensorDataRepository.findSensorsByRadius(
-                    point.getLatitude(), point.getLongitude(), 5.0, dayStart, dayEnd);
+                    point.getLatitude(), point.getLongitude(), 3.0, dayStart, dayEnd);
                 
                 LocalDateTime peakTime = null;
                 double maxPrecip = 0.0;
@@ -176,8 +180,12 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
         // ANA
         List<FloodPoint> points = floodPointRepository.findAll();
         for (FloodPoint point : points) {
-            if (point.getPluviometerStationId() != null && !point.getPluviometerStationId().contains("APAC")) {
-                anaHistoricalService.ingestHistoricalSensorData(point.getPluviometerStationId(), years);
+            if (point.getPluviometerStationIds() != null) {
+                for (String stationId : point.getPluviometerStationIds()) {
+                    if (!stationId.contains("APAC")) {
+                        anaHistoricalService.ingestHistoricalSensorData(stationId, years);
+                    }
+                }
             }
         }
 
@@ -227,7 +235,7 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
                             .queryParam("longitude", point.getLongitude())
                             .queryParam("start_date", startDate)
                             .queryParam("end_date", endDateStr)
-                            .queryParam("hourly", "temperature_2m,relative_humidity_2m,surface_pressure,precipitation,weather_code")
+                            .queryParam("hourly", "temperature_2m,relative_humidity_2m,surface_pressure,precipitation,weather_code,wind_speed_10m,shortwave_radiation")
                             .build())
                     .retrieve()
                     .body(WeatherArchiveResponseDTO.class);
@@ -255,6 +263,8 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
                     .humidity(hourly.humidity() != null ? hourly.humidity().get(i) : null)
                     .pressure(hourly.pressure() != null ? hourly.pressure().get(i) : null)
                     .weatherCode(hourly.weatherCode().get(i))
+                    .windSpeed(hourly.windSpeed() != null ? hourly.windSpeed().get(i) : null)
+                    .solarRadiation(hourly.solarRadiation() != null ? hourly.solarRadiation().get(i) : null)
                     .createdAt(LocalDateTime.now())
                     .build());
             if (batch.size() >= 1000) {
@@ -284,10 +294,12 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
             long sensorCount = 0;
             Map<Integer, Long> sensorByYear = new java.util.TreeMap<>();
             
-            if (point.getPluviometerStationId() != null) {
-                sensorCount += sensorDataRepository.countBySensorId(point.getPluviometerStationId());
-                sensorDataRepository.countBySensorIdGroupedByYear(point.getPluviometerStationId())
-                    .forEach(row -> sensorByYear.merge((Integer) row[0], (Long) row[1], Long::sum));
+            if (point.getPluviometerStationIds() != null) {
+                for (String stationId : point.getPluviometerStationIds()) {
+                    sensorCount += sensorDataRepository.countBySensorId(stationId);
+                    sensorDataRepository.countBySensorIdGroupedByYear(stationId)
+                        .forEach(row -> sensorByYear.merge((Integer) row[0], (Long) row[1], Long::sum));
+                }
             }
             
             // Também conta registros salvos diretamente com o slug do ponto (como arquivos locais)
@@ -384,18 +396,18 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
                 }
             }
 
-            if (nearest != null && minDistance < 5.0) { // Limite de 5km para consistência regional
+            if (nearest != null && minDistance < 3.0) { // Limite de 3km para consistência regional
                 String stationId = nearest.getSensorId();
                 // Se for um sensor genérico sem ID amigável, usa o código técnico
                 if (stationId == null || stationId.length() < 3) stationId = nearest.getCode();
                 
-                point.setPluviometerStationId(stationId);
+                point.getPluviometerStationIds().add(stationId);
                 floodPointRepository.save(point);
                 log.info("Ponto {} mapeado para a estação mais próxima: {} (Distância: {} km)", 
                     point.getSlug(), stationId, String.format("%.2f", minDistance));
             } else {
                 floodPointRepository.save(point); // Salva as atualizações das weather stations mesmo sem pluviômetro próximo
-                log.warn("Nenhuma estação encontrada em um raio de 5km para o ponto {}. Distância mínima: {} km", 
+                log.warn("Nenhuma estação encontrada em um raio de 3km para o ponto {}. Distância mínima: {} km", 
                     point.getSlug(), nearest != null ? String.format("%.2f", minDistance) : "N/A");
             }
         }

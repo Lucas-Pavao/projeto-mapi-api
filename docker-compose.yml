@@ -19,7 +19,7 @@ services:
 
   mapi-ai:
     build: 
-      context: /home/lucas/PycharmProjects/projeto-mapi-ai
+      context: ../projeto-mapi-ai
     container_name: mapi-ai
     environment:
       - DB_HOST=postgres
@@ -49,6 +49,18 @@ services:
         condition: service_healthy
       mapi-ai:
         condition: service_started
+
+  mapi-front:
+    build:
+      context: ../projeto-mapi-front
+    container_name: mapi-front
+    ports:
+      - "3000:5173"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - VITE_API_URL=http://localhost:8080
+    depends_on:
+      - mapi-api
 
 volumes:
   postgres_data:

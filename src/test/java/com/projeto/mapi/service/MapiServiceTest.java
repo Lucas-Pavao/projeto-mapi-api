@@ -50,7 +50,7 @@ class MapiServiceTest {
     void setUp() {
         mockWeather = new WeatherResponseDTO(
                 -8.05, -34.88, 1.0, 10.0,
-                new CurrentWeatherDTO("2026-05-18T20:00", 25.0, 80.0, 26.0, 1013.0, 1, 1, 5.0)
+                new CurrentWeatherDTO("2026-05-18T20:00", 25.0, 80.0, 26.0, 1013.0, 1, 1, 5.0, 15.0, 500.0)
         );
 
         mockSensors = List.of(
@@ -119,7 +119,7 @@ class MapiServiceTest {
 
         com.projeto.mapi.dto.FloodPointResponseDTO response = mapiService.createFloodPoint(request);
 
-        assertNull(response.getConfig_sensores().getEstacao_pluviometrica_id());
-        assertNull(response.getConfig_sensores().getEstacao_nivel_rio_id());
+        assertTrue(response.getConfig_sensores().getEstacoes_pluviometricas_ids().isEmpty());
+        assertTrue(response.getConfig_sensores().getEstacoes_nivel_rio_ids().isEmpty());
     }
 }

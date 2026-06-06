@@ -81,8 +81,9 @@ public class AnaHistoricalServiceImpl implements AnaHistoricalService {
 
         // Identifica se a estação pertence a um ponto monitorado
         String finalSensorId = stationCode;
-        Optional<FloodPoint> fp = floodPointRepository.findByPluviometerStationId(stationCode);
-        if (fp.isEmpty()) fp = floodPointRepository.findByRiverLevelStationId(stationCode);
+        Optional<FloodPoint> fp = floodPointRepository.findAll().stream()
+                .filter(p -> p.getPluviometerStationIds().contains(stationCode) || p.getRiverLevelStationIds().contains(stationCode))
+                .findFirst();
         
         if (fp.isPresent()) {
             finalSensorId = fp.get().getSlug();

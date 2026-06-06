@@ -38,6 +38,9 @@ public class FloodPredictionRequestDTO {
     
     @JsonProperty("river_level")
     private Double riverLevel;
+
+    @JsonProperty("nearby_sensors")
+    private java.util.List<MapiResponseDTO.SensorReadingDTO> nearbySensors;
     
     private LocalDateTime timestamp;
 }

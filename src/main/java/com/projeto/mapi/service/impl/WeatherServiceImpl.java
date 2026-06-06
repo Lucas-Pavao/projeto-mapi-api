@@ -36,7 +36,7 @@ public class WeatherServiceImpl implements WeatherService {
                         .path("/forecast")
                         .queryParam("latitude", latitude)
                         .queryParam("longitude", longitude)
-                        .queryParam("current", "temperature_2m,relative_humidity_2m,apparent_temperature,surface_pressure,weather_code,is_day,precipitation")
+                        .queryParam("current", "temperature_2m,relative_humidity_2m,apparent_temperature,surface_pressure,weather_code,is_day,precipitation,wind_speed_10m,shortwave_radiation")
                         .queryParam("timezone", "auto")
                         .build())
                 .retrieve()
@@ -63,6 +63,8 @@ public class WeatherServiceImpl implements WeatherService {
                     .weatherCode(current.weatherCode())
                     .isDay(current.isDay() == 1)
                     .precipitation(current.precipitation())
+                    .windSpeed(current.windSpeed())
+                    .solarRadiation(current.solarRadiation())
                     .build();
 
             weatherDataRepository.save(data);

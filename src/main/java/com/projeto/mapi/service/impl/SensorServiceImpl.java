@@ -80,22 +80,35 @@ public class SensorServiceImpl implements SensorService {
             finalSensorId = "APAC-PLUVIO-" + code;
         }
 
-        // Proximidade com pontos de alagamento para atualizar metadados (OPCIONAL)
+        // Proximidade com pontos de alagamento para vínculo em mão dupla (Dual-Link)
         if (temp.getLatitude() != null && temp.getLongitude() != null) {
             if (floodPointsCache == null) {
                 floodPointsCache = floodPointRepository.findAll();
             }
 
-            Optional<FloodPoint> nearPoint = floodPointsCache.stream()
-                    .filter(fp -> GeoUtils.calculateDistance(temp.getLatitude(), temp.getLongitude(), fp.getLatitude(), fp.getLongitude()) < 2.0)
-                    .findFirst();
+            // Regra de 3km para auto-vínculo
+            List<FloodPoint> nearbyPoints = floodPointsCache.stream()
+                    .filter(fp -> GeoUtils.calculateDistance(temp.getLatitude(), temp.getLongitude(), fp.getLatitude(), fp.getLongitude()) <= 3.0)
+                    .toList();
 
-            if (nearPoint.isPresent()) {
-                FloodPoint fp = nearPoint.get();
-                // Se o sensor tem um código, atualizamos o mapeamento no ponto se for novo
-                if (code != null && (fp.getPluviometerStationId() == null || !fp.getPluviometerStationId().equals(finalSensorId))) {
-                    log.info("---- Atualizando mapeamento real-time: Ponto {} -> Estação {}", fp.getSlug(), finalSensorId);
-                    fp.setPluviometerStationId(finalSensorId);
+            for (FloodPoint fp : nearbyPoints) {
+                boolean pointUpdated = false;
+                // Vínculo de Chuva
+                boolean isRain = root.has("precipitacao_acumulada") || root.has("chuva_acumulada") || root.has("Chuva_Adotada");
+                if (isRain && !fp.getPluviometerStationIds().contains(finalSensorId)) {
+                    log.info("---- [Dual-Link] Vinculando novo pluviômetro {} ao ponto {}", finalSensorId, fp.getSlug());
+                    fp.getPluviometerStationIds().add(finalSensorId);
+                    pointUpdated = true;
+                }
+                // Vínculo de Nível de Rio
+                boolean isRiver = root.has("Cota_Adotada");
+                if (isRiver && !fp.getRiverLevelStationIds().contains(finalSensorId)) {
+                    log.info("---- [Dual-Link] Vinculando novo nível de rio {} ao ponto {}", finalSensorId, fp.getSlug());
+                    fp.getRiverLevelStationIds().add(finalSensorId);
+                    pointUpdated = true;
+                }
+                
+                if (pointUpdated) {
                     floodPointRepository.save(fp);
                 }
             }

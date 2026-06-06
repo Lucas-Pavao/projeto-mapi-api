@@ -45,11 +45,11 @@ public class MapiController {
 
     @GetMapping("/pontos/{id_ponto}")
     @Operation(summary = "Busca o status atual de um ponto específico")
-    public ResponseEntity<MapiResponseDTO> getPointStatus(@PathVariable String id_ponto) {
+    public ResponseEntity<FloodPointResponseDTO> getPointStatus(@PathVariable String id_ponto) {
         FloodPointResponseDTO point = mapiService.getFloodPointBySlug(id_ponto);
         if (point == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(mapiService.getPreciseData(point.getLatitude(), point.getLongitude()));
+        return ResponseEntity.ok(point);
     }
 }

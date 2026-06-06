@@ -33,8 +33,17 @@ public class FloodPoint {
     private Double altitudeM;
     private Double distanceToChannelM;
 
-    private String pluviometerStationId;
-    private String riverLevelStationId;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "flood_point_pluviometers", joinColumns = @JoinColumn(name = "flood_point_id"))
+    @Column(name = "station_id")
+    @Builder.Default
+    private java.util.Set<String> pluviometerStationIds = new java.util.HashSet<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "flood_point_river_levels", joinColumns = @JoinColumn(name = "flood_point_id"))
+    @Column(name = "station_id")
+    @Builder.Default
+    private java.util.Set<String> riverLevelStationIds = new java.util.HashSet<>();
     
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "flood_point_weather_stations", joinColumns = @JoinColumn(name = "flood_point_id"))

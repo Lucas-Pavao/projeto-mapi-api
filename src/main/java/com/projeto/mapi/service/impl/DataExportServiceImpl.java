@@ -51,11 +51,11 @@ public class DataExportServiceImpl implements DataExportService {
         // Define o intervalo de busca
         LocalDateTime end = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0);
         LocalDateTime start = (days > 0) ? end.minusDays(days) : LocalDateTime.of(2021, 1, 1, 0, 0);
+// --- NOVA LÓGICA ESPACIAL: Busca regional em raio de 3km ---
+log.info("---- Exportando dados regionais (Raio 3km) para o ponto {}", slug);
 
-        // --- NOVA LÓGICA ESPACIAL: Busca regional em raio de 5km ---
-        log.info("---- Exportando dados regionais (Raio 5km) para o ponto {}", slug);
-        List<SensorData> sensorData = new ArrayList<>(sensorDataRepository.findSensorsByRadius(
-                point.getLatitude(), point.getLongitude(), 5.0, start, end));
+List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
+        point.getLatitude(), point.getLongitude(), 3.0, start, end);
         
         // Incluir os dados das estações meteorológicas vinculadas globalmente ao ponto
         if (point.getWeatherStationIds() != null && !point.getWeatherStationIds().isEmpty()) {

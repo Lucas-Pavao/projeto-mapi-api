@@ -52,6 +52,8 @@ CREATE TABLE IF NOT EXISTS weather_data (
     weather_code INTEGER,
     is_day BOOLEAN,
     precipitation DOUBLE PRECISION,
+    wind_speed DOUBLE PRECISION,
+    solar_radiation DOUBLE PRECISION,
     created_at TIMESTAMP WITHOUT TIME ZONE,
     PRIMARY KEY (id, timestamp)
 );
