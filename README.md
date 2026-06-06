@@ -53,7 +53,7 @@ A organização segue o padrão Clean Architecture adaptado para Spring Boot:
 ```text
 projeto-mapi-api/
 ├── agents.md                    # Estratégia de agentes especializados
-├── docker-compose.yml           # Orquestração da Stack (API + DB + AI)
+├── docker-compose.yml           # Orquestração da Stack (API + DB + AI + Front)
 ├── Dockerfile                   # Build multi-stage otimizado para Java 21
 ├── GEMINI.md                    # Dicionário de convenções e regras de ouro
 ├── pom.xml                      # Gestão de dependências Maven
@@ -83,20 +83,77 @@ projeto-mapi-api/
 2. **Sincronia do TimescaleDB:** O script `TimescaleSetup.sql` inicializa as **Hypertables** necessárias para a performance de séries temporais.
 3. **Healthchecks de Rede:** A API aguarda a prontidão do banco de dados (`pg_isready`) antes de iniciar o contexto do Spring.
 
-## 🚀 Como instalar e rodar
+## 🚀 Como instalar e rodar (Guia Passo a Passo)
 
-### Opção 1: Docker Compose (Recomendado)
-Para subir a stack completa (API + Banco + IA + Front):
-```bash
-docker compose up -d --build
+### Opção 1: Via Docker (Tutorial para Iniciantes) 🐳
+
+Este método sobe toda a stack do MAPI de forma automatizada.
+
+#### Passo 1: Instalação do Docker
+1. **Windows e Mac:** Baixe e instale o [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+   - *Dica no Windows:* Durante a instalação, aceite o uso do "WSL 2". Após instalar, reinicie o computador.
+2. **Linux:** Siga as instruções oficiais para sua distribuição (ex: `sudo apt install docker.io docker-compose-v2`).
+3. **Verificação:** Abra o terminal e digite:
+   ```bash
+   docker --version
+   docker compose version
+   ```
+   Se as versões aparecerem, o Docker está pronto!
+
+#### Passo 2: Preparando as Pastas
+O ecossistema MAPI exige que os repositórios estejam em uma pasta comum:
+```text
+MinhaPastaMapi/
+├── projeto-mapi-api/   <-- (Este repositório)
+├── projeto-mapi-ai/    <-- (Repositório da IA)
+└── projeto-mapi-front/ <-- (Repositório do Frontend)
 ```
+> **Nota:** Para rodar apenas a API e o Banco, comente as seções `mapi-ai` e `mapi-front` no `docker-compose.yml` usando `#`.
 
-### Opção 2: Bootstrapping Manual (Desenvolvedor)
-Após subir o banco via Docker, realize a carga inicial de dados via Swagger (`http://localhost:8080/swagger-ui.html`):
+#### Passo 3: Rodando o Projeto
+1. Abra o terminal na pasta `projeto-mapi-api`.
+2. Execute o comando:
+   ```bash
+   docker compose up -d --build
+   ```
+   - `up`: Sobe os serviços.
+   - `-d`: Roda em segundo plano.
+   - `--build`: Garante que o código novo seja compilado na imagem.
+
+#### Passo 4: Verificando se deu certo
+Execute `docker ps` para ver os containers ativos: `mapi-api`, `mapi-db`, `mapi-ai` e `mapi-front`.
+
+**Acessando as ferramentas:**
+- **Dashboard (Front):** [http://localhost:3000](http://localhost:3000)
+- **Documentação API (Swagger):** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+- **Banco de Dados:** Porta `5433` da sua máquina local.
+
+#### Passo 5: Como ver os logs
+Se algo não funcionar, verifique as mensagens do sistema:
+```bash
+docker logs -f mapi-api
+```
+*(Use `Ctrl + C` para sair).*
+
+#### Passo 6: Comandos Úteis
+- **Parar:** `docker compose stop`
+- **Ligar:** `docker compose start`
+- **Remover tudo:** `docker compose down`
+- **Limpeza Profunda (Apagar Banco):** `docker compose down -v`
+
+---
+
+### Opção 2: Bootstrapping Manual (Desenvolvedor) 💻
+Após subir a stack, é necessário realizar a carga inicial de dados via Swagger:
 
 1. **Mapeamento:** `POST /api/admin/ingestion/repair-stations` (Vincula sensores por proximidade).
 2. **Histórico:** `POST /api/admin/ingestion/historical-full-sync?years=5` (Sincroniza 5 anos de dados).
 3. **Ocorrências:** `POST /api/admin/ingestion/historical-civil-defense` (Importa dados da Defesa Civil).
+
+### ⚠️ Solução de Problemas Comuns
+1. **"Porta 8080 já está em uso":** Outro programa está usando a porta. Feche-o ou altere a porta no `docker-compose.yml`.
+2. **Erro ao compilar Java:** Certifique-se de que o código compila localmente antes de rodar no Docker.
+3. **Banco de Dados Vazio:** O script `TimescaleSetup.sql` roda apenas na primeira criação. Use `docker compose down -v` para forçar a recriação se necessário.
 
 ## 📄 Licença
 Este projeto está sob a licença **MIT**.
