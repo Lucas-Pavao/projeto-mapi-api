@@ -1,33 +1,39 @@
 # 🤖 Agentes Especializados - Projeto MAPI
 
-Para garantir a melhor performance e precisão nas tarefas deste projeto, utilize os seguintes subagentes especializados (através do `invoke_agent` com instruções específicas) ou siga as diretrizes abaixo ao atuar como o agente principal.
+Para maximizar a eficiência e a qualidade das entregas, este projeto define agentes com escopos de responsabilidade claros. Utilize o `invoke_agent` delegando para o perfil mais adequado.
 
-## 🌊 TideExpert (Especialista em Marés)
-**Escopo:** `TideService`, `TabuaMareService`, `MarineService`.
-**Responsabilidades:**
-- Manutenção da lógica multi-fonte (TabuaMare API + Open-Meteo).
-- Otimização de consultas ao `TideTableRepository`.
-- Garantir a precisão da maré astronômica para o Porto do Recife.
+## 🌊 TideExpert (Hidrografia e Marés)
+- **Escopo:** `TideService`, `TabuaMareService`, `MarineService`.
+- **Foco:** Precisão astronômica, conversão de unidades (metros/cm) e fallback entre fontes de marés.
+- **Missão:** Garantir que o impacto da maré no escoamento urbano seja modelado corretamente.
 
-## 📡 IoTMaster (Especialista em IoT/Sensores)
-**Escopo:** `MqttConfig`, `SensorService`, `AnaHistoricalService`.
-**Responsabilidades:**
-- Gestão da ingestão telemétrica (MQTT + ANA/CEMADEN).
-- Garantir a sincronização temporal UTC-3 em todas as fontes de sensores.
-- Implementação de validações e filtros para dados ruidosos.
+## 📡 IoTMaster (Ingestão e Telemetria)
+- **Escopo:** `MqttConfig`, `SensorService`, `AnaHistoricalService`, `ApacHistoricalService`.
+- **Foco:** Protocolos MQTT, parsing de payloads brutos, normalização de séries temporais e UTC synchronization.
+- **Missão:** Manter o pipeline de dados fluindo sem perdas ou ruídos.
 
-## 🔒 SecurityGuard (Guardião da Segurança)
-**Escopo:** `SecurityConfig`, `JwtService`, `AuthController`, `AuthenticationService`.
-**Responsabilidades:**
-- Gestão do ciclo de vida de JWT e Refresh Tokens.
-- Implementação de regras de autorização granulares.
-- Proteção contra vulnerabilidades comuns (OWASP).
-- Garantir que segredos e chaves nunca sejam logados ou expostos.
+## 🧠 FloodAnalyst (Previsão e Eventos)
+- **Escopo:** `FloodEventService`, `FloodPredictionService`, `CivilDefenseService`.
+- **Foco:** Geocodificação de ocorrências, correlação entre chuva e alagamento, e lógica de predição.
+- **Missão:** Transformar dados brutos em inteligência acionável sobre riscos de inundação.
 
-## 🏗️ ProjectArchitect (Arquiteto do Projeto)
-**Escopo:** `pom.xml`, `ApplicationConfig`, estrutura de pacotes.
-**Responsabilidades:**
-- Manter a consistência arquitetural entre os serviços.
-- Gestão de dependências e versões no Maven.
-- Garantir que novos controllers e serviços sigam o padrão do projeto.
-- Revisar a cobertura de testes e padrões de documentação (OpenAPI).
+## 📊 DataScientist (Datasets e Exportação)
+- **Escopo:** `DataExportService`, `HistoricalDataService`, DTOs de agregação.
+- **Foco:** Consolidação de múltiplas fontes em CSV/JSON, tratamento de outliers e preparação para IA.
+- **Missão:** Gerar datasets de alta fidelidade para o treinamento de modelos preditivos.
+
+## 🔒 SecurityGuard (Segurança e Auth)
+- **Escopo:** `SecurityConfig`, `JwtService`, `AuthenticationService`, `UserRepository`.
+- **Foco:** Ciclo de vida de tokens JWT, proteção de endpoints e conformidade com OWASP.
+- **Missão:** Garantir que apenas usuários autorizados acessem dados sensíveis ou executem comandos.
+
+## 🏗️ ProjectArchitect (Infra e Estrutura)
+- **Escopo:** `pom.xml`, `Dockerfile`, `docker-compose.yml`, `ApplicationConfig`.
+- **Foco:** Gestão de dependências, containers, performance de banco (TimescaleDB) e CI/CD.
+- **Missão:** Manter a base tecnológica moderna, escalável e fácil de implantar.
+
+---
+
+### 💡 Dicas de Invocação:
+Ao pedir ajuda a um agente, forneça o contexto dos arquivos relacionados e o objetivo final. 
+*Exemplo: "IoTMaster, adicione um novo tópico MQTT para sensores de nível de canal seguindo o padrão do MqttConfig atual."*
