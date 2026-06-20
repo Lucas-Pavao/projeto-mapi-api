@@ -12,8 +12,8 @@ public interface SensorDataRepository extends JpaRepository<SensorData, Long> {
     
     Optional<SensorData> findFirstBySensorIdOrderByTimestampDesc(String sensorId);
 
-    @Query("SELECT s FROM SensorData s WHERE s.id IN (SELECT MAX(s2.id) FROM SensorData s2 GROUP BY s2.sensorId) AND s.timestamp >= :since")
-    List<SensorData> findAllLatest(LocalDateTime since);
+    @Query(value = "SELECT DISTINCT ON (sensor_id) * FROM sensor_data WHERE timestamp >= :since ORDER BY sensor_id, timestamp DESC", nativeQuery = true)
+    List<SensorData> findAllLatest(@org.springframework.data.repository.query.Param("since") LocalDateTime since);
 
     Optional<SensorData> findBySensorIdAndTimestamp(String sensorId, LocalDateTime timestamp);
 
@@ -38,7 +38,7 @@ public interface SensorDataRepository extends JpaRepository<SensorData, Long> {
     @Query("SELECT DISTINCT s.sensorId FROM SensorData s")
     List<String> findDistinctSensorIds();
 
-    @Query("SELECT s FROM SensorData s WHERE s.id IN (SELECT MAX(s2.id) FROM SensorData s2 GROUP BY s2.sensorId)")
+    @Query(value = "SELECT DISTINCT ON (sensor_id) * FROM sensor_data ORDER BY sensor_id, timestamp DESC", nativeQuery = true)
     List<SensorData> findDistinctSensorsWithMetadata();
 
     @org.springframework.data.jpa.repository.Query("SELECT YEAR(s.timestamp), COUNT(s) FROM SensorData s WHERE s.sensorId = :sensorId GROUP BY YEAR(s.timestamp)")

@@ -20,6 +20,7 @@ public class MarineServiceImpl implements MarineService {
     }
 
     @Override
+    @org.springframework.cache.annotation.Cacheable(value = "marineData", key = "T(java.lang.Math).round(#latitude * 100) / 100.0 + '-' + T(java.lang.Math).round(#longitude * 100) / 100.0")
     public JsonNode getMarineData(double latitude, double longitude) {
         return this.restClient.get()
                 .uri(uriBuilder -> uriBuilder

@@ -64,6 +64,7 @@ public class TabuaMareServiceImpl implements TabuaMareService {
     }
 
     @Override
+    @org.springframework.cache.annotation.Cacheable(value = "tideData", key = "T(java.lang.Math).round(#latitude * 100) / 100.0 + '-' + T(java.lang.Math).round(#longitude * 100) / 100.0")
     public Double getCurrentTideHeight(double latitude, double longitude) {
         return getTideHeightAt(latitude, longitude, java.time.LocalDateTime.now());
     }
