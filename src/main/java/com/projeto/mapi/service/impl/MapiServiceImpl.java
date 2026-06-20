@@ -21,6 +21,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
+import com.projeto.mapi.model.FloodPrediction;
+import com.projeto.mapi.repository.FloodPredictionRepository;
+import com.projeto.mapi.model.FloodScenarioLabel;
+import com.projeto.mapi.repository.FloodScenarioLabelRepository;
+import com.projeto.mapi.dto.FloodScenarioLabelRequestDTO;
+import com.projeto.mapi.dto.FloodScenarioLabelResponseDTO;
+import com.projeto.mapi.repository.SensorDataRepository;
+import com.projeto.mapi.model.SensorData;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +43,9 @@ public class MapiServiceImpl implements MapiService {
     private final FloodPointRepository floodPointRepository;
     private final com.projeto.mapi.service.FloodPredictionService floodPredictionService;
     private final com.projeto.mapi.service.DataExportService dataExportService;
+    private final FloodPredictionRepository floodPredictionRepository;
+    private final FloodScenarioLabelRepository floodScenarioLabelRepository;
+    private final SensorDataRepository sensorDataRepository;
 
     private static final double MAX_SENSOR_RADIUS_KM = 20.0;
 
@@ -106,6 +117,30 @@ public class MapiServiceImpl implements MapiService {
                     .build();
             
             prediction = floodPredictionService.getPrediction(predictionRequest);
+
+            // Persistir a predição no banco de dados para auditoria / histórico
+            try {
+                FloodPrediction loggedPrediction = FloodPrediction.builder()
+                        .timestamp(predictionRequest.getTimestamp() != null ? predictionRequest.getTimestamp() : LocalDateTime.now())
+                        .stationId(predictionRequest.getStationId())
+                        .latitude(predictionRequest.getLatitude())
+                        .longitude(predictionRequest.getLongitude())
+                        .currentRainfall(predictionRequest.getCurrentRainfall())
+                        .rainfall3hAccumulated(predictionRequest.getRainfall3hAccumulated())
+                        .rainfall6hAccumulated(predictionRequest.getRainfall6hAccumulated())
+                        .rainfall12hAccumulated(predictionRequest.getRainfall12hAccumulated())
+                        .rainfall24hAccumulated(predictionRequest.getRainfall24hAccumulated())
+                        .tideLevel(predictionRequest.getTideLevel())
+                        .riverLevel(predictionRequest.getRiverLevel())
+                        .floodProbability(prediction != null ? prediction.getFloodProbability() : 0.0)
+                        .riskLevel(prediction != null ? prediction.getRiskLevel() : "UNKNOWN")
+                        .status(prediction != null && !"UNKNOWN".equals(prediction.getRiskLevel()) ? "SUCCESS" : "FAILED")
+                        .message(prediction != null ? prediction.getMessage() : "Sem resposta ou erro do modelo de IA")
+                        .build();
+                floodPredictionRepository.save(loggedPrediction);
+            } catch (Exception ex) {
+                log.error("Erro ao salvar histórico de predição no banco: {}", ex.getMessage());
+            }
         } catch (Exception e) {
             log.error("Falha ao obter predição da IA: {}", e.getMessage());
         }
@@ -123,6 +158,7 @@ public class MapiServiceImpl implements MapiService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "floodPoints", allEntries = true)
     public FloodPointResponseDTO createFloodPoint(FloodPointRequestDTO request) {
         log.info("Criando novo ponto de alagamento com hiper-automação: {}", request.getNome());
         
@@ -556,5 +592,139 @@ public class MapiServiceImpl implements MapiService {
 
         pilots.forEach(this::createFloodPoint);
         log.info("5 pontos piloto cadastrados com sucesso.");
+    }
+
+    @Override
+    @Transactional
+    public FloodScenarioLabelResponseDTO registerScenarioLabel(FloodScenarioLabelRequestDTO request) {
+        double latitude = request.latitude();
+        double longitude = request.longitude();
+        
+        log.info("Registrando cenário de alagamento: lat={}, lon={}, isFlooded={}", latitude, longitude, request.isFlooded());
+        
+        // 1. Obter dados de clima, sensores, maré e ondas
+        WeatherResponseDTO weatherData = weatherService.getWeatherData(latitude, longitude);
+        List<SensorResponseDTO> allSensors = sensorService.getAllLatestData();
+        
+        List<SensorResponseDTO> nearbySensors = allSensors.stream()
+                .filter(s -> s.getLatitude() != null && s.getLongitude() != null)
+                .filter(s -> GeoUtils.calculateDistance(latitude, longitude, s.getLatitude(), s.getLongitude()) <= 3.0)
+                .toList();
+
+        Double tideHeight = tideService.getCurrentTideHeight(latitude, longitude);
+        Double tideTabuaMare = tabuaMareService.getCurrentTideHeight(latitude, longitude);
+        Double waveHeight = marineService.getCurrentWaveHeight(latitude, longitude);
+        Double waveDirection = marineService.getCurrentWaveDirection(latitude, longitude);
+        Double wavePeriod = marineService.getCurrentWavePeriod(latitude, longitude);
+
+        MapiResponseDTO.PreciseData preciseData = determinePreciseData(weatherData, nearbySensors, latitude, longitude, tideHeight, tideTabuaMare, waveHeight, waveDirection, wavePeriod);
+
+        // 2. Calcular acumulados de chuva regionais diretamente dos sensores em raio de 3km
+        Double acc3h = 0.0, acc6h = 0.0, acc12h = 0.0, acc24h = 0.0;
+        try {
+            acc3h = calculateSensorAccumulatedRainfall(latitude, longitude, 3);
+            acc6h = calculateSensorAccumulatedRainfall(latitude, longitude, 6);
+            acc12h = calculateSensorAccumulatedRainfall(latitude, longitude, 12);
+            acc24h = calculateSensorAccumulatedRainfall(latitude, longitude, 24);
+        } catch (Exception e) {
+            log.warn("Erro ao calcular acumulados regionais para registro de rótulo: {}", e.getMessage());
+        }
+
+        // 3. Montar e persistir o objeto FloodScenarioLabel
+        LocalDateTime now = LocalDateTime.now();
+        
+        Double currentRain = preciseData.getPrecipitation();
+        Double actualTide = preciseData.getTideHeight();
+        Double actualRiver = preciseData.getWaterLevel();
+        
+        Double windSpeed = null;
+        String windDirection = null;
+        Double temp = null;
+        Double apparentTemp = null;
+        Double humidity = null;
+        Double pressure = null;
+        Double solarRad = null;
+        
+        if (weatherData != null && weatherData.current() != null) {
+            windSpeed = weatherData.current().windSpeed();
+            temp = weatherData.current().temperature();
+            apparentTemp = weatherData.current().apparentTemperature();
+            humidity = (double) weatherData.current().humidity();
+            pressure = weatherData.current().surfacePressure();
+            solarRad = weatherData.current().solarRadiation();
+        }
+
+        FloodScenarioLabel label = FloodScenarioLabel.builder()
+                .timestamp(now)
+                .latitude(latitude)
+                .longitude(longitude)
+                .isFlooded(request.isFlooded())
+                .currentRainfall(currentRain)
+                .rainfall3hAccumulated(acc3h)
+                .rainfall6hAccumulated(acc6h)
+                .rainfall12hAccumulated(acc12h)
+                .rainfall24hAccumulated(acc24h)
+                .tideLevel(actualTide)
+                .riverLevel(actualRiver)
+                .windSpeed(windSpeed)
+                .windDirection(windDirection)
+                .temperature(temp)
+                .apparentTemperature(apparentTemp)
+                .humidity(humidity)
+                .pressure(pressure)
+                .waveHeight(waveHeight)
+                .wavePeriod(wavePeriod)
+                .waveDirection(waveDirection)
+                .solarRadiation(solarRad)
+                .build();
+
+        label = floodScenarioLabelRepository.save(label);
+
+        return new FloodScenarioLabelResponseDTO(
+                label.getId(),
+                label.getTimestamp(),
+                label.getLatitude(),
+                label.getLongitude(),
+                label.getIsFlooded(),
+                label.getCurrentRainfall(),
+                label.getRainfall3hAccumulated(),
+                label.getRainfall6hAccumulated(),
+                label.getRainfall12hAccumulated(),
+                label.getRainfall24hAccumulated(),
+                label.getTideLevel(),
+                label.getRiverLevel(),
+                label.getWindSpeed(),
+                label.getWindDirection(),
+                label.getTemperature(),
+                label.getApparentTemperature(),
+                label.getHumidity(),
+                label.getPressure(),
+                label.getWaveHeight(),
+                label.getWavePeriod(),
+                label.getWaveDirection(),
+                label.getSolarRadiation()
+        );
+    }
+
+    private Double calculateSensorAccumulatedRainfall(double lat, double lon, int hours) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime start = now.minusHours(hours);
+        
+        // Buscar todos os dados de sensores na região de 3km no período
+        List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(lat, lon, 3.0, start, now);
+        
+        // Agrupar por hora (Truncar minutos/segundos) e pegar o valor máximo de precipitação naquela hora
+        java.util.Map<LocalDateTime, Double> hourlyMaxPrecip = new java.util.HashMap<>();
+        for (SensorData s : sensorData) {
+            if (s.getAccumulatedPrecipitation() != null) {
+                LocalDateTime hour = s.getTimestamp().withMinute(0).withSecond(0).withNano(0);
+                double val = s.getAccumulatedPrecipitation();
+                hourlyMaxPrecip.put(hour, Math.max(hourlyMaxPrecip.getOrDefault(hour, 0.0), val));
+            }
+        }
+        
+        // Somar os máximos de cada hora no período
+        double sum = hourlyMaxPrecip.values().stream().mapToDouble(Double::doubleValue).sum();
+        return Math.round(sum * 100.0) / 100.0;
     }
 }

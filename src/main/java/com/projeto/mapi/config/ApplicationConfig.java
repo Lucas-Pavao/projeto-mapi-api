@@ -18,6 +18,7 @@ import org.springframework.web.client.RestClient;
 
 @Configuration
 @RequiredArgsConstructor
+@org.springframework.cache.annotation.EnableCaching
 public class ApplicationConfig {
 
     private final UserRepository userRepository;

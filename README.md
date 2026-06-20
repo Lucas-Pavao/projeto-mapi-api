@@ -156,6 +156,15 @@ Após subir a stack, é necessário realizar a carga inicial de dados via Swagge
 1. **Mapeamento:** `POST /api/admin/ingestion/repair-stations` (Vincula sensores por proximidade).
 2. **Histórico:** `POST /api/admin/ingestion/historical-full-sync?years=5` (Sincroniza 5 anos de dados).
 3. **Ocorrências:** `POST /api/admin/ingestion/historical-civil-defense` (Importa dados da Defesa Civil).
+4. **Registro de Rótulos de Cenários:** `POST /api/pontos/scenarios` (Registra observações de cenários de alagamentos reais ou simulados unificando telemetria de sensores, clima e marés para gerar dados de treino de alta fidelidade para a IA).
+
+## 🚀 Melhorias Arquiteturais Implementadas
+
+Para aumentar a robustez do orquestrador do ecossistema, as seguintes soluções foram incorporadas:
+* **Ingestão MQTT Assíncrona:** A escuta do Broker MQTT delega o processamento pesado de telemetria a um pool de threads dedicado (`taskExecutor`), liberando a thread principal e eliminando riscos de perda de pacotes.
+* **Cache Inteligente de Pontos Críticos:** Implementação de caching automático com `@Cacheable` e `@CacheEvict` do Spring Framework para evitar sobrecarga de consultas no Postgres e assegurar atualização instantânea sob novos cadastros.
+* **Integridade JPA & TimescaleDB:** Ajuste do mapeamento JPA de chaves compostas (`id` + `timestamp`) para alinhar com o comportamento estrutural e de particionamento das *Hypertables* do banco temporal.
+* **Auditoria de Predições:** Gravação automática de logs de inferência no banco de dados (`flood_predictions`), servindo como histórico operacional e garantindo rastreabilidade de alertas.
 
 ### ⚠️ Solução de Problemas Comuns
 1. **"Porta 8080 já está em uso":** Outro programa está usando a porta. Feche-o ou altere a porta no `docker-compose.yml`.

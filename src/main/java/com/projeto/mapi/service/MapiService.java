@@ -11,4 +11,5 @@ public interface MapiService {
     List<FloodPointResponseDTO> getAllFloodPoints();
     FloodPointResponseDTO getFloodPointBySlug(String slug);
     void seedPilotData();
+    com.projeto.mapi.dto.FloodScenarioLabelResponseDTO registerScenarioLabel(com.projeto.mapi.dto.FloodScenarioLabelRequestDTO request);
 }

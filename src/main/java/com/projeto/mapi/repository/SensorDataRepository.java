@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface SensorDataRepository extends JpaRepository<SensorData, Long> {
+public interface SensorDataRepository extends JpaRepository<SensorData, com.projeto.mapi.model.SensorDataId> {
     List<SensorData> findBySensorIdOrderByTimestampDesc(String sensorId);
     
     Optional<SensorData> findFirstBySensorIdOrderByTimestampDesc(String sensorId);
