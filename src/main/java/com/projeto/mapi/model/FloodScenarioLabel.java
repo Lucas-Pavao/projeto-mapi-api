@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "flood_scenario_labels",
        indexes = {@Index(name = "idx_scenario_timestamp", columnList = "timestamp DESC")})
-@IdClass(FloodScenarioLabelId.class)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,7 +17,6 @@ public class FloodScenarioLabel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Id
     @Column(name = "\"timestamp\"")
     private LocalDateTime timestamp;
 

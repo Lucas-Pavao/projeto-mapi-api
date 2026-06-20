@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 @Table(name = "sensor_data", 
        uniqueConstraints = {@UniqueConstraint(columnNames = {"sensor_id", "timestamp"})},
        indexes = {@Index(name = "idx_sensor_timestamp", columnList = "sensor_id, timestamp")})
-@IdClass(SensorDataId.class)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,7 +32,6 @@ public class SensorData {
     @Column(name = "raw_data", columnDefinition = "TEXT")
     private String rawData;
 
-    @Id
     @Column(name = "\"timestamp\"")
     private LocalDateTime timestamp;
 

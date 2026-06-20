@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "flood_predictions",
        indexes = {@Index(name = "idx_prediction_timestamp", columnList = "timestamp DESC")})
-@IdClass(FloodPredictionId.class)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,7 +17,6 @@ public class FloodPrediction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Id
     @Column(name = "\"timestamp\"")
     private LocalDateTime timestamp;
 

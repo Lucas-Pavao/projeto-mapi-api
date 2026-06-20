@@ -1,6 +1,7 @@
 package com.projeto.mapi.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -42,5 +43,7 @@ public class FloodPredictionRequestDTO {
     @JsonProperty("nearby_sensors")
     private java.util.List<MapiResponseDTO.SensorReadingDTO> nearbySensors;
     
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime timestamp;
 }
+
