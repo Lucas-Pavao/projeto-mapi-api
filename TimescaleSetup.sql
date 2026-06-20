@@ -72,6 +72,62 @@ FROM sensor_data
 GROUP BY bucket, sensor_id
 WITH NO DATA;
 
--- 5. Índices Adicionais
+-- 5. Criar tabela flood_predictions (Estrutura compatível com Hibernate + Timescale)
+CREATE TABLE IF NOT EXISTS flood_predictions (
+    id BIGSERIAL,
+    timestamp TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    station_id VARCHAR(255),
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION,
+    current_rainfall DOUBLE PRECISION,
+    rainfall_3h_accumulated DOUBLE PRECISION,
+    rainfall_6h_accumulated DOUBLE PRECISION,
+    rainfall_12h_accumulated DOUBLE PRECISION,
+    rainfall_24h_accumulated DOUBLE PRECISION,
+    tide_level DOUBLE PRECISION,
+    river_level DOUBLE PRECISION,
+    flood_probability DOUBLE PRECISION,
+    risk_level VARCHAR(255),
+    status VARCHAR(255),
+    message TEXT,
+    PRIMARY KEY (id, timestamp)
+);
+
+-- Converter para Hypertable
+SELECT create_hypertable('flood_predictions', 'timestamp', if_not_exists => TRUE);
+
+-- 6. Criar tabela flood_scenario_labels (Estrutura compatível com Hibernate + Timescale)
+CREATE TABLE IF NOT EXISTS flood_scenario_labels (
+    id BIGSERIAL,
+    timestamp TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    latitude DOUBLE PRECISION NOT NULL,
+    longitude DOUBLE PRECISION NOT NULL,
+    is_flooded BOOLEAN NOT NULL,
+    current_rainfall DOUBLE PRECISION,
+    rainfall_3h_accumulated DOUBLE PRECISION,
+    rainfall_6h_accumulated DOUBLE PRECISION,
+    rainfall_12h_accumulated DOUBLE PRECISION,
+    rainfall_24h_accumulated DOUBLE PRECISION,
+    tide_level DOUBLE PRECISION,
+    river_level DOUBLE PRECISION,
+    wind_speed DOUBLE PRECISION,
+    wind_direction VARCHAR(255),
+    temperature DOUBLE PRECISION,
+    apparent_temperature DOUBLE PRECISION,
+    humidity DOUBLE PRECISION,
+    pressure DOUBLE PRECISION,
+    wave_height DOUBLE PRECISION,
+    wave_period DOUBLE PRECISION,
+    wave_direction DOUBLE PRECISION,
+    solar_radiation DOUBLE PRECISION,
+    PRIMARY KEY (id, timestamp)
+);
+
+-- Converter para Hypertable
+SELECT create_hypertable('flood_scenario_labels', 'timestamp', if_not_exists => TRUE);
+
+-- 7. Índices Adicionais
 CREATE INDEX IF NOT EXISTS idx_sensor_id_timestamp ON sensor_data (sensor_id, timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_weather_location_timestamp ON weather_data (latitude, longitude, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_prediction_timestamp ON flood_predictions (timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_scenario_timestamp ON flood_scenario_labels (timestamp DESC);

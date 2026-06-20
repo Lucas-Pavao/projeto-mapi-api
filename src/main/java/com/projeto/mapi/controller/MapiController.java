@@ -3,6 +3,8 @@ package com.projeto.mapi.controller;
 import com.projeto.mapi.dto.FloodPointRequestDTO;
 import com.projeto.mapi.dto.FloodPointResponseDTO;
 import com.projeto.mapi.dto.MapiResponseDTO;
+import com.projeto.mapi.dto.FloodScenarioLabelRequestDTO;
+import com.projeto.mapi.dto.FloodScenarioLabelResponseDTO;
 import com.projeto.mapi.service.MapiService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,8 +35,16 @@ public class MapiController {
     @PostMapping("/pontos")
     @Operation(summary = "Registra um novo ponto de monitoramento de alagamento")
     public ResponseEntity<FloodPointResponseDTO> createFloodPoint(
+
             @Valid @RequestBody FloodPointRequestDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(mapiService.createFloodPoint(request));
+    }
+
+    @PostMapping("/pontos/scenarios")
+    @Operation(summary = "Registra observações de cenários de alagamento com variáveis ambientais consolidadas")
+    public ResponseEntity<FloodScenarioLabelResponseDTO> registerScenarioLabel(
+            @Valid @RequestBody FloodScenarioLabelRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapiService.registerScenarioLabel(request));
     }
 
     @GetMapping("/pontos")

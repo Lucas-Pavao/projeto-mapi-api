@@ -14,4 +14,5 @@ public interface SensorService {
     SensorResponseDTO getLatestByCode(String code);
     List<String> getDistinctSensorIds();
     List<SensorResponseDTO> getFullSensorInventory();
+    List<com.projeto.mapi.model.FloodPoint> getFloodPointsCache();
 }

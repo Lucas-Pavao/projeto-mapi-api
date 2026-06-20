@@ -27,10 +27,9 @@ public class SensorServiceImpl implements SensorService {
     private final ObjectMapper objectMapper;
     private final com.projeto.mapi.service.TideService tideService;
 
-    private List<FloodPoint> floodPointsCache;
-
     @Override
     @Transactional
+    @org.springframework.scheduling.annotation.Async("taskExecutor")
     public void processSensorMessage(String payload) {
         log.info("Processando mensagem MQTT: {}", payload);
         try {
@@ -82,12 +81,10 @@ public class SensorServiceImpl implements SensorService {
 
         // Proximidade com pontos de alagamento para vínculo em mão dupla (Dual-Link)
         if (temp.getLatitude() != null && temp.getLongitude() != null) {
-            if (floodPointsCache == null) {
-                floodPointsCache = floodPointRepository.findAll();
-            }
+            List<FloodPoint> points = getFloodPointsCache();
 
             // Regra de 3km para auto-vínculo
-            List<FloodPoint> nearbyPoints = floodPointsCache.stream()
+            List<FloodPoint> nearbyPoints = points.stream()
                     .filter(fp -> GeoUtils.calculateDistance(temp.getLatitude(), temp.getLongitude(), fp.getLatitude(), fp.getLongitude()) <= 3.0)
                     .toList();
 
@@ -114,11 +111,9 @@ public class SensorServiceImpl implements SensorService {
             }
         } else {
             // Estação meteorológica (sem coordenadas), vincular a todos os pontos
-            if (floodPointsCache == null) {
-                floodPointsCache = floodPointRepository.findAll();
-            }
+            List<FloodPoint> points = getFloodPointsCache();
             boolean updatedAny = false;
-            for (FloodPoint fp : floodPointsCache) {
+            for (FloodPoint fp : points) {
                 if (fp.getWeatherStationIds() == null) {
                     fp.setWeatherStationIds(new java.util.HashSet<>());
                 }
@@ -347,5 +342,12 @@ public class SensorServiceImpl implements SensorService {
         } else if (node.has("umidade_relativa")) {
             data.setUnit("%");
         }
+    }
+
+    @Override
+    @org.springframework.cache.annotation.Cacheable("floodPoints")
+    public List<FloodPoint> getFloodPointsCache() {
+        log.info("Buscando pontos de alagamento do banco de dados e populando o cache.");
+        return floodPointRepository.findAll();
     }
 }

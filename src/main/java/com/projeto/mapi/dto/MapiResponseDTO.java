@@ -1,5 +1,7 @@
 package com.projeto.mapi.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,15 +26,22 @@ public class MapiResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SensorReadingDTO {
+        @JsonProperty("sensor_id")
         private String sensorId;
+        
         private Double latitude;
         private Double longitude;
         private Double value;
         private String unit;
         private String type; // "PRECIPITATION", "RIVER_LEVEL", etc.
+        
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime timestamp;
+        
+        @JsonProperty("distance_km")
         private Double distanceKm;
     }
+
 
     @Data
     @Builder

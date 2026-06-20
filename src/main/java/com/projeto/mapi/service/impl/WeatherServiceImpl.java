@@ -29,7 +29,7 @@ public class WeatherServiceImpl implements WeatherService {
     }
 
     @Override
-    @Transactional
+    @org.springframework.cache.annotation.Cacheable(value = "weatherData", key = "T(java.lang.Math).round(#latitude * 100) / 100.0 + '-' + T(java.lang.Math).round(#longitude * 100) / 100.0")
     public WeatherResponseDTO getWeatherData(double latitude, double longitude) {
         WeatherResponseDTO response = this.restClient.get()
                 .uri(uriBuilder -> uriBuilder
@@ -43,7 +43,7 @@ public class WeatherServiceImpl implements WeatherService {
                 .body(WeatherResponseDTO.class);
 
         if (response != null && response.current() != null) {
-            saveWeatherData(response);
+            java.util.concurrent.CompletableFuture.runAsync(() -> saveWeatherData(response));
         }
 
         return response;
