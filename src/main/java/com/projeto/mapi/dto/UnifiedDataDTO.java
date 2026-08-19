@@ -1,5 +1,6 @@
 package com.projeto.mapi.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -8,6 +9,8 @@ import java.time.LocalDateTime;
 @Builder
 public class UnifiedDataDTO {
     private String floodPointSlug;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime timestamp;
     
     // Sensores Locais

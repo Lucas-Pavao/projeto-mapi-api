@@ -2,6 +2,7 @@ package com.projeto.mapi.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -32,12 +33,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String username;
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
+        // Prioriza o header Authorization (clientes de API/scripts), com fallback pro cookie
+        // httpOnly "accessToken" (navegador via SPA) quando o header não vier.
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            jwt = authHeader.substring(7);
+        } else {
+            String cookieToken = extractCookie(request, "accessToken");
+            if (cookieToken == null) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+            jwt = cookieToken;
         }
-
-        jwt = authHeader.substring(7);
         try {
             username = jwtService.extractUsername(jwt);
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -56,5 +63,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // Token invalid or expired
         }
         filterChain.doFilter(request, response);
+    }
+
+    private String extractCookie(HttpServletRequest request, String name) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) return null;
+        for (Cookie cookie : cookies) {
+            if (name.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 }

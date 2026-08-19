@@ -71,7 +71,28 @@ public class ApplicationConfig {
         executor.setMaxPoolSize(10);
         executor.setQueueCapacity(100);
         executor.setThreadNamePrefix("Ingest-");
+        // Propaga o MDC (requestId) da thread HTTP para a thread @Async, para que o mesmo
+        // requestId apareça nos logs de ambas e permita correlacionar uma ingestão assíncrona
+        // com a requisição HTTP que a disparou.
+        executor.setTaskDecorator(new MdcTaskDecorator());
         executor.initialize();
         return executor;
+    }
+
+    private static class MdcTaskDecorator implements org.springframework.core.task.TaskDecorator {
+        @Override
+        public Runnable decorate(Runnable runnable) {
+            java.util.Map<String, String> contextMap = org.slf4j.MDC.getCopyOfContextMap();
+            return () -> {
+                if (contextMap != null) {
+                    org.slf4j.MDC.setContextMap(contextMap);
+                }
+                try {
+                    runnable.run();
+                } finally {
+                    org.slf4j.MDC.clear();
+                }
+            };
+        }
     }
 }

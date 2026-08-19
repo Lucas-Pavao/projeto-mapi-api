@@ -8,14 +8,16 @@ import com.projeto.mapi.model.HourData;
 import com.projeto.mapi.model.TideTable;
 import com.projeto.mapi.repository.TideTableRepository;
 import com.projeto.mapi.service.TideService;
+import com.projeto.mapi.util.GeoUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,50 +55,35 @@ public class TideServiceImpl implements TideService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<TideTableResponseDTO> getTideTablesByState(String state, Integer year) {
-        List<TideTable> results = tideTableRepository.findAllByStateIgnoreCaseAndYear(state, year);
-        
-        List<TideTableResponseDTO> dtos = results.stream().map(TideMapper::toDTO).collect(Collectors.toList());
+    public Page<TideTableResponseDTO> getTideTablesByState(String state, Integer year, Pageable pageable) {
+        Page<TideTableResponseDTO> page = tideTableRepository.findAllByStateIgnoreCaseAndYear(state, year, pageable)
+                .map(TideMapper::toDTO);
 
-        // Popular altura atual
-        dtos.forEach(dto -> {
-            if (dto.getGeoLocations() != null && !dto.getGeoLocations().isEmpty()) {
-                GeoLocationDTO geo = dto.getGeoLocations().get(0);
-                try {
-                    double lat = Double.parseDouble(geo.getLat());
-                    double lng = Double.parseDouble(geo.getLng());
-                    dto.setCurrentTideHeight(getTideHeightAt(lat, lng, java.time.LocalDateTime.now()));
-                } catch (Exception e) {
-                    log.warn("Erro ao parsear coordenadas: {}", e.getMessage());
-                }
-            }
-        });
-        
-        return dtos;
+        page.forEach(this::populateCurrentTideHeight);
+        return page;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<TideTableResponseDTO> searchTideTablesByHarbor(String harborName, Integer year) {
-        List<TideTableResponseDTO> dtos = tideTableRepository.findAllByHarborNameContainingIgnoreCaseAndYear(harborName, year)
-                .stream()
-                .map(TideMapper::toDTO)
-                .collect(Collectors.toList());
+    public Page<TideTableResponseDTO> searchTideTablesByHarbor(String harborName, Integer year, Pageable pageable) {
+        Page<TideTableResponseDTO> page = tideTableRepository.findAllByHarborNameContainingIgnoreCaseAndYear(harborName, year, pageable)
+                .map(TideMapper::toDTO);
 
-        dtos.forEach(dto -> {
-            if (dto.getGeoLocations() != null && !dto.getGeoLocations().isEmpty()) {
-                GeoLocationDTO geo = dto.getGeoLocations().get(0);
-                try {
-                    double lat = Double.parseDouble(geo.getLat());
-                    double lng = Double.parseDouble(geo.getLng());
-                    dto.setCurrentTideHeight(getTideHeightAt(lat, lng, java.time.LocalDateTime.now()));
-                } catch (Exception e) {
-                    log.warn("Erro ao parsear coordenadas: {}", e.getMessage());
-                }
+        page.forEach(this::populateCurrentTideHeight);
+        return page;
+    }
+
+    private void populateCurrentTideHeight(TideTableResponseDTO dto) {
+        if (dto.getGeoLocations() != null && !dto.getGeoLocations().isEmpty()) {
+            GeoLocationDTO geo = dto.getGeoLocations().get(0);
+            try {
+                double lat = Double.parseDouble(geo.getLat());
+                double lng = Double.parseDouble(geo.getLng());
+                dto.setCurrentTideHeight(getTideHeightAt(lat, lng, java.time.LocalDateTime.now()));
+            } catch (Exception e) {
+                log.warn("Erro ao parsear coordenadas: {}", e.getMessage());
             }
-        });
-
-        return dtos;
+        }
     }
 
     @Override
@@ -106,7 +93,7 @@ public class TideServiceImpl implements TideService {
     }
 
     @Override
-    @org.springframework.cache.annotation.Cacheable(value = "tideData", key = "T(java.lang.Math).round(#latitude * 100) / 100.0 + '-' + T(java.lang.Math).round(#longitude * 100) / 100.0")
+    @org.springframework.cache.annotation.Cacheable(value = "tideDataLocal", key = "T(java.lang.Math).round(#latitude * 100) / 100.0 + '-' + T(java.lang.Math).round(#longitude * 100) / 100.0")
     public Double getCurrentTideHeight(double latitude, double longitude) {
         return getTideHeightAt(latitude, longitude, java.time.LocalDateTime.now());
     }
@@ -133,7 +120,7 @@ public class TideServiceImpl implements TideService {
                     try {
                         double lat = Double.parseDouble(geo.getLat());
                         double lng = Double.parseDouble(geo.getLng());
-                        return calculateDistance(latitude, longitude, lat, lng);
+                        return GeoUtils.calculateDistance(latitude, longitude, lat, lng);
                     } catch (Exception e) {
                         return Double.MAX_VALUE;
                     }
@@ -172,14 +159,4 @@ public class TideServiceImpl implements TideService {
                 });
     }
 
-    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        double R = 6371;
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                   Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                   Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
-    }
 }

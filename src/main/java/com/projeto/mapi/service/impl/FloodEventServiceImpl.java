@@ -2,19 +2,22 @@ package com.projeto.mapi.service.impl;
 
 import com.projeto.mapi.dto.FloodEventDTO;
 import com.projeto.mapi.dto.ScraperEventDTO;
+import com.projeto.mapi.exception.InvalidRequestException;
 import com.projeto.mapi.model.FloodEvent;
 import com.projeto.mapi.model.FloodPoint;
 import com.projeto.mapi.repository.FloodEventRepository;
 import com.projeto.mapi.repository.FloodPointRepository;
 import com.projeto.mapi.service.FloodEventService;
+import com.projeto.mapi.util.GeoUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +31,7 @@ public class FloodEventServiceImpl implements FloodEventService {
     @Transactional
     public FloodEventDTO reportFlood(FloodEventDTO dto) {
         FloodPoint point = floodPointRepository.findBySlug(dto.getFloodPointSlug())
-                .orElseThrow(() -> new RuntimeException("Ponto de alagamento não encontrado: " + dto.getFloodPointSlug()));
+                .orElseThrow(() -> new com.projeto.mapi.exception.ResourceNotFoundException("Ponto de alagamento não encontrado: " + dto.getFloodPointSlug()));
 
         FloodEvent event = FloodEvent.builder()
                 .floodPoint(point)
@@ -50,16 +53,16 @@ public class FloodEventServiceImpl implements FloodEventService {
         
         // Log para auditoria de distância
         points.forEach(p -> {
-            double dist = calculateDistance(dto.getLatitude(), dto.getLongitude(), p.getLatitude(), p.getLongitude());
+            double dist = GeoUtils.calculateDistance(dto.getLatitude(), dto.getLongitude(), p.getLatitude(), p.getLongitude());
             if (dist < 10.0) { // Loga pontos próximos num raio de 10km para depuração
                 log.debug("Distância até {}: {} km", p.getName(), String.format("%.2f", dist));
             }
         });
 
         FloodPoint nearestPoint = points.stream()
-                .filter(p -> calculateDistance(dto.getLatitude(), dto.getLongitude(), p.getLatitude(), p.getLongitude()) < 3.0)
-                .min(Comparator.comparingDouble(p -> calculateDistance(dto.getLatitude(), dto.getLongitude(), p.getLatitude(), p.getLongitude())))
-                .orElseThrow(() -> new RuntimeException("Coordenadas [" + dto.getLatitude() + "," + dto.getLongitude() + 
+                .filter(p -> GeoUtils.calculateDistance(dto.getLatitude(), dto.getLongitude(), p.getLatitude(), p.getLongitude()) < 3.0)
+                .min(Comparator.comparingDouble(p -> GeoUtils.calculateDistance(dto.getLatitude(), dto.getLongitude(), p.getLatitude(), p.getLongitude())))
+                .orElseThrow(() -> new InvalidRequestException("Coordenadas [" + dto.getLatitude() + "," + dto.getLongitude() +
                     "] fora do raio de 3km de qualquer ponto monitorado."));
 
         // Evitar duplicatas (mesmo ponto e mesma data, ignorando descrição exata para ser mais resiliente a mudanças de texto)
@@ -86,13 +89,12 @@ public class FloodEventServiceImpl implements FloodEventService {
     }
 
     @Override
-    public List<FloodEventDTO> getHistoryByPoint(String slug) {
+    public Page<FloodEventDTO> getHistoryByPoint(String slug, Pageable pageable) {
         FloodPoint point = floodPointRepository.findBySlug(slug)
-                .orElseThrow(() -> new RuntimeException("Ponto de alagamento não encontrado: " + slug));
+                .orElseThrow(() -> new com.projeto.mapi.exception.ResourceNotFoundException("Ponto de alagamento não encontrado: " + slug));
 
-        return floodEventRepository.findByFloodPointId(point.getId()).stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+        return floodEventRepository.findByFloodPointIdOrderByStartTimeDesc(point.getId(), pageable)
+                .map(this::convertToDTO);
     }
 
     private FloodEventDTO convertToDTO(FloodEvent event) {
@@ -105,16 +107,5 @@ public class FloodEventServiceImpl implements FloodEventService {
                 .description(event.getDescription())
                 .confirmedBy(event.getConfirmedBy())
                 .build();
-    }
-
-    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        double R = 6371; // Raio da Terra em km
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLon = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                   Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                   Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
     }
 }

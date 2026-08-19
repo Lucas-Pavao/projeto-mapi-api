@@ -164,16 +164,19 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
     }
 
     @Override
+    @Async("taskExecutor")
     public void ingestApacHistoricalRainfall(String stationCode, int year) {
         apacHistoricalService.ingestHistoricalRainfall(stationCode, year);
     }
 
     @Override
+    @Async("taskExecutor")
     public void ingestApacFullStateRainfall(int year) {
         apacHistoricalService.ingestFullStateRainfall(year);
     }
 
     @Override
+    @Async("taskExecutor")
     public void ingestHistoricalSensors(int years) {
         mapiService.seedPilotData();
         
@@ -415,10 +418,12 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
 
     private void repairSensorCoordinates() {
         log.info("---- Corrigindo coordenadas nulas de sensores APAC no banco...");
-        List<SensorData> allSensors = sensorDataRepository.findAll();
+        // PERF: findAll() carregava a hypertable inteira (>1M registros em produção) só para filtrar
+        // as poucas linhas com lat/lon nulos em memória Java. Filtramos direto no banco.
+        List<SensorData> sensorsWithNullCoords = sensorDataRepository.findByLatitudeIsNullOrLongitudeIsNull();
         List<SensorData> sensorsToUpdate = new ArrayList<>();
 
-        for (SensorData s : allSensors) {
+        for (SensorData s : sensorsWithNullCoords) {
             if (s.getLatitude() == null || s.getLongitude() == null) {
                 ApacStationRegistry.StationMetadata meta = ApacStationRegistry.getMetadata(s.getCode());
                 if (meta == null) meta = ApacStationRegistry.findByName(s.getStationName());

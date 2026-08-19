@@ -75,30 +75,30 @@ public class MapiServiceImpl implements MapiService {
             log.info("Sensor mais próximo encontrado: {} a {} km", nearestSensor.getSensorId(), String.format("%.2f", distance));
         }
 
-        MapiResponseDTO.PreciseData preciseData = determinePreciseData(weatherData, nearbySensors, latitude, longitude, tideHeight, tideTabuaMare, waveHeight, waveDirection, wavePeriod);
+        // Busca o ponto crítico mais próximo e seu histórico uma única vez, e reaproveita
+        // tanto na agregação regional quanto na montagem do payload de predição da IA
+        // (antes esse mesmo cálculo era refeito duas vezes por requisição).
+        FloodPoint nearestPoint = floodPointRepository.findAll().stream()
+            .min(Comparator.comparingDouble(p -> GeoUtils.calculateDistance(latitude, longitude, p.getLatitude(), p.getLongitude())))
+            .orElse(null);
+        List<com.projeto.mapi.dto.UnifiedDataDTO> nearestPointHistory = nearestPoint != null
+            ? dataExportService.exportUnifiedDataWithAccumulated(nearestPoint.getSlug(), 1)
+            : List.of();
+
+        MapiResponseDTO.PreciseData preciseData = determinePreciseData(weatherData, nearbySensors, latitude, longitude, tideHeight, tideTabuaMare, waveHeight, waveDirection, wavePeriod, nearestPointHistory);
 
         // --- Integração com IA em Tempo Real ---
         com.projeto.mapi.dto.FloodPredictionResponseDTO prediction = null;
         try {
             // Obter acumulados reais para o ponto (Regional - Raio 3km)
             Double acc3h = 0.0, acc6h = 0.0, acc12h = 0.0, acc24h = 0.0;
-            
-            // Busca o ponto mais próximo cadastrado para obter o slug e histórico
-            FloodPoint nearestPoint = floodPointRepository.findAll().stream()
-                .min(Comparator.comparingDouble(p -> GeoUtils.calculateDistance(latitude, longitude, p.getLatitude(), p.getLongitude())))
-                .orElse(null);
 
-            if (nearestPoint != null) {
-                // Tenta buscar dados unificados recentes (últimas 24h) para calcular acumulados regionais
-                List<com.projeto.mapi.dto.UnifiedDataDTO> history = dataExportService.exportUnifiedDataWithAccumulated(nearestPoint.getSlug(), 1);
-                
-                if (!history.isEmpty()) {
-                    com.projeto.mapi.dto.UnifiedDataDTO latest = history.get(history.size() - 1);
-                    acc3h = latest.getAccumulated3h() != null ? latest.getAccumulated3h() : 0.0;
-                    acc6h = latest.getAccumulated6h() != null ? latest.getAccumulated6h() : 0.0;
-                    acc12h = latest.getAccumulated12h() != null ? latest.getAccumulated12h() : 0.0;
-                    acc24h = latest.getAccumulated24h() != null ? latest.getAccumulated24h() : 0.0;
-                }
+            if (!nearestPointHistory.isEmpty()) {
+                com.projeto.mapi.dto.UnifiedDataDTO latest = nearestPointHistory.get(nearestPointHistory.size() - 1);
+                acc3h = latest.getAccumulated3h() != null ? latest.getAccumulated3h() : 0.0;
+                acc6h = latest.getAccumulated6h() != null ? latest.getAccumulated6h() : 0.0;
+                acc12h = latest.getAccumulated12h() != null ? latest.getAccumulated12h() : 0.0;
+                acc24h = latest.getAccumulated24h() != null ? latest.getAccumulated24h() : 0.0;
             }
 
             com.projeto.mapi.dto.FloodPredictionRequestDTO predictionRequest = com.projeto.mapi.dto.FloodPredictionRequestDTO.builder()
@@ -110,9 +110,9 @@ public class MapiServiceImpl implements MapiService {
                     .rainfall6hAccumulated(acc6h)
                     .rainfall12hAccumulated(acc12h)
                     .rainfall24hAccumulated(acc24h)
-                    .tideLevel(preciseData.getTideHeight())
-                    .riverLevel(preciseData.getWaterLevel())
-                    .nearbySensors(preciseData.getLatestReadings())
+                    .tideLevel(preciseData.getTideHeight() != null ? preciseData.getTideHeight() : 0.0)
+                    .riverLevel(preciseData.getWaterLevel() != null ? preciseData.getWaterLevel() : 0.0)
+                    .nearbySensors(preciseData.getLatestReadings() != null ? preciseData.getLatestReadings() : java.util.List.of())
                     .timestamp(LocalDateTime.now())
                     .build();
             
@@ -386,7 +386,7 @@ public class MapiServiceImpl implements MapiService {
                 .orElse(null);
     }
 
-    private MapiResponseDTO.PreciseData determinePreciseData(WeatherResponseDTO weather, List<SensorResponseDTO> nearbySensors, Double latitude, Double longitude, Double tideHeight, Double tideTabuaMare, Double waveHeight, Double waveDirection, Double wavePeriod) {
+    private MapiResponseDTO.PreciseData determinePreciseData(WeatherResponseDTO weather, List<SensorResponseDTO> nearbySensors, Double latitude, Double longitude, Double tideHeight, Double tideTabuaMare, Double waveHeight, Double waveDirection, Double wavePeriod, List<com.projeto.mapi.dto.UnifiedDataDTO> nearestPointHistory) {
         MapiResponseDTO.PreciseData.PreciseDataBuilder builder = MapiResponseDTO.PreciseData.builder();
         
         // Padrão: Dados do Open-Meteo
@@ -455,28 +455,18 @@ public class MapiServiceImpl implements MapiService {
                 .toList();
             builder.latestReadings(latest);
             
-            // 2. Calcular ACUMULADOS (Aggregates) via DataExportService
-            // Busca o ponto mais próximo cadastrado para obter o contexto regional
-            FloodPoint nearestPoint = floodPointRepository.findAll().stream()
-                .min(Comparator.comparingDouble(p -> GeoUtils.calculateDistance(latitude, longitude, p.getLatitude(), p.getLongitude())))
-                .orElse(null);
-
-            if (nearestPoint != null) {
-                try {
-                    List<com.projeto.mapi.dto.UnifiedDataDTO> history = dataExportService.exportUnifiedDataWithAccumulated(nearestPoint.getSlug(), 1);
-                    if (!history.isEmpty()) {
-                        com.projeto.mapi.dto.UnifiedDataDTO last = history.get(history.size() - 1);
-                        builder.historicalAggregates(MapiResponseDTO.Aggregates.builder()
-                                .rain3h(last.getAccumulated3h())
-                                .rain6h(last.getAccumulated6h())
-                                .rain12h(last.getAccumulated12h())
-                                .rain24h(last.getAccumulated24h())
-                                .maxRiverLevel24h(last.getSensorWaterLevel()) // Simplificado para o nível regional atual
-                                .build());
-                    }
-                } catch (Exception e) {
-                    log.warn("Falha ao calcular agregados históricos regionais: {}", e.getMessage());
-                }
+            // 2. Calcular ACUMULADOS (Aggregates) a partir do histórico do ponto crítico mais
+            // próximo, já resolvido uma única vez pelo chamador (getPreciseData) e reaproveitado
+            // aqui em vez de repetir a busca do ponto e a exportação de histórico.
+            if (nearestPointHistory != null && !nearestPointHistory.isEmpty()) {
+                com.projeto.mapi.dto.UnifiedDataDTO last = nearestPointHistory.get(nearestPointHistory.size() - 1);
+                builder.historicalAggregates(MapiResponseDTO.Aggregates.builder()
+                        .rain3h(last.getAccumulated3h())
+                        .rain6h(last.getAccumulated6h())
+                        .rain12h(last.getAccumulated12h())
+                        .rain24h(last.getAccumulated24h())
+                        .maxRiverLevel24h(last.getSensorWaterLevel()) // Simplificado para o nível regional atual
+                        .build());
             }
 
             // Pega o MÁXIMO de precipitação da região por segurança
@@ -617,15 +607,16 @@ public class MapiServiceImpl implements MapiService {
         Double waveDirection = marineService.getCurrentWaveDirection(latitude, longitude);
         Double wavePeriod = marineService.getCurrentWavePeriod(latitude, longitude);
 
-        MapiResponseDTO.PreciseData preciseData = determinePreciseData(weatherData, nearbySensors, latitude, longitude, tideHeight, tideTabuaMare, waveHeight, waveDirection, wavePeriod);
+        MapiResponseDTO.PreciseData preciseData = determinePreciseData(weatherData, nearbySensors, latitude, longitude, tideHeight, tideTabuaMare, waveHeight, waveDirection, wavePeriod, List.of());
 
         // 2. Calcular acumulados de chuva regionais diretamente dos sensores em raio de 3km
         Double acc3h = 0.0, acc6h = 0.0, acc12h = 0.0, acc24h = 0.0;
         try {
-            acc3h = calculateSensorAccumulatedRainfall(latitude, longitude, 3);
-            acc6h = calculateSensorAccumulatedRainfall(latitude, longitude, 6);
-            acc12h = calculateSensorAccumulatedRainfall(latitude, longitude, 12);
-            acc24h = calculateSensorAccumulatedRainfall(latitude, longitude, 24);
+            Double[] accWindows = calculateSensorAccumulatedRainfallWindows(latitude, longitude, new int[]{3, 6, 12, 24});
+            acc3h = accWindows[0];
+            acc6h = accWindows[1];
+            acc12h = accWindows[2];
+            acc24h = accWindows[3];
         } catch (Exception e) {
             log.warn("Erro ao calcular acumulados regionais para registro de rótulo: {}", e.getMessage());
         }
@@ -706,25 +697,37 @@ public class MapiServiceImpl implements MapiService {
         );
     }
 
-    private Double calculateSensorAccumulatedRainfall(double lat, double lon, int hours) {
+    /**
+     * Calcula os acumulados de chuva para múltiplas janelas (ex: 3h/6h/12h/24h) com uma única
+     * consulta ao banco (a maior janela), evitando repetir a mesma varredura por raio+tempo no
+     * TimescaleDB uma vez por janela como acontecia antes.
+     */
+    private Double[] calculateSensorAccumulatedRainfallWindows(double lat, double lon, int[] windowsHours) {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime start = now.minusHours(hours);
-        
-        // Buscar todos os dados de sensores na região de 3km no período
-        List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(lat, lon, 3.0, start, now);
-        
-        // Agrupar por hora (Truncar minutos/segundos) e pegar o valor máximo de precipitação naquela hora
-        java.util.Map<LocalDateTime, Double> hourlyMaxPrecip = new java.util.HashMap<>();
-        for (SensorData s : sensorData) {
-            if (s.getAccumulatedPrecipitation() != null) {
-                LocalDateTime hour = s.getTimestamp().withMinute(0).withSecond(0).withNano(0);
-                double val = s.getAccumulatedPrecipitation();
-                hourlyMaxPrecip.put(hour, Math.max(hourlyMaxPrecip.getOrDefault(hour, 0.0), val));
+        int maxHours = java.util.Arrays.stream(windowsHours).max().orElse(0);
+        LocalDateTime maxStart = now.minusHours(maxHours);
+
+        // Buscar todos os dados de sensores na região de 3km cobrindo a maior janela solicitada
+        List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(lat, lon, 3.0, maxStart, now);
+
+        Double[] results = new Double[windowsHours.length];
+        for (int i = 0; i < windowsHours.length; i++) {
+            LocalDateTime windowStart = now.minusHours(windowsHours[i]);
+
+            // Agrupar por hora (Truncar minutos/segundos) e pegar o valor máximo de precipitação naquela hora
+            java.util.Map<LocalDateTime, Double> hourlyMaxPrecip = new java.util.HashMap<>();
+            for (SensorData s : sensorData) {
+                if (s.getAccumulatedPrecipitation() != null && !s.getTimestamp().isBefore(windowStart)) {
+                    LocalDateTime hour = s.getTimestamp().withMinute(0).withSecond(0).withNano(0);
+                    double val = s.getAccumulatedPrecipitation();
+                    hourlyMaxPrecip.merge(hour, val, Math::max);
+                }
             }
+
+            // Somar os máximos de cada hora no período
+            double sum = hourlyMaxPrecip.values().stream().mapToDouble(Double::doubleValue).sum();
+            results[i] = Math.round(sum * 100.0) / 100.0;
         }
-        
-        // Somar os máximos de cada hora no período
-        double sum = hourlyMaxPrecip.values().stream().mapToDouble(Double::doubleValue).sum();
-        return Math.round(sum * 100.0) / 100.0;
+        return results;
     }
 }

@@ -3,7 +3,10 @@ package com.projeto.mapi.service.impl;
 import com.projeto.mapi.config.AppProperties;
 import com.projeto.mapi.dto.TabuaMareResponse;
 import com.projeto.mapi.service.TabuaMareService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -16,14 +19,18 @@ import java.util.Comparator;
 public class TabuaMareServiceImpl implements TabuaMareService {
 
     private final RestClient restClient;
+    private final TabuaMareService self;
 
-    public TabuaMareServiceImpl(RestClient.Builder restClientBuilder, AppProperties appProperties) {
+    public TabuaMareServiceImpl(RestClient.Builder restClientBuilder, AppProperties appProperties, @Lazy TabuaMareService self) {
         this.restClient = restClientBuilder
                 .baseUrl(appProperties.getTabuamare().getApiUrl())
                 .build();
+        this.self = self;
     }
 
     @Override
+    @Retry(name = "tabuaMare")
+    @CircuitBreaker(name = "tabuaMare", fallbackMethod = "getStatesFallback")
     public TabuaMareResponse<List<String>> getStates() {
         return restClient.get()
                 .uri("/states")
@@ -31,7 +38,13 @@ public class TabuaMareServiceImpl implements TabuaMareService {
                 .body(new ParameterizedTypeReference<TabuaMareResponse<List<String>>>() {});
     }
 
+    private TabuaMareResponse<List<String>> getStatesFallback(Throwable t) {
+        return unavailable(t, List.of());
+    }
+
     @Override
+    @Retry(name = "tabuaMare")
+    @CircuitBreaker(name = "tabuaMare", fallbackMethod = "getHarborNamesFallback")
     public TabuaMareResponse<List<Object>> getHarborNames(String state) {
         return restClient.get()
                 .uri("/harbor_names/{state}", state)
@@ -39,7 +52,13 @@ public class TabuaMareServiceImpl implements TabuaMareService {
                 .body(new ParameterizedTypeReference<TabuaMareResponse<List<Object>>>() {});
     }
 
+    private TabuaMareResponse<List<Object>> getHarborNamesFallback(String state, Throwable t) {
+        return unavailable(t, List.of());
+    }
+
     @Override
+    @Retry(name = "tabuaMare")
+    @CircuitBreaker(name = "tabuaMare", fallbackMethod = "getHarborsFallback")
     public TabuaMareResponse<List<Object>> getHarbors(String ids) {
         return restClient.get()
                 .uri("/harbors/{ids}", ids)
@@ -47,7 +66,17 @@ public class TabuaMareServiceImpl implements TabuaMareService {
                 .body(new ParameterizedTypeReference<TabuaMareResponse<List<Object>>>() {});
     }
 
+    private TabuaMareResponse<List<Object>> getHarborsFallback(String ids, Throwable t) {
+        return unavailable(t, List.of());
+    }
+
     @Override
+    // Um mesmo (porto, mês, dia) é consultado uma vez por HORA dentro de getTideHeightAt quando
+    // chamado em laço por exportUnifiedDataWithAccumulated (ex: /api/precise-data, /api/pontos/{id}).
+    // Sem cache, isso gerava até 24 chamadas HTTP idênticas à API externa por dia exportado.
+    @org.springframework.cache.annotation.Cacheable(value = "tideTableDaily", key = "#harbor + '-' + #month + '-' + #days")
+    @Retry(name = "tabuaMare")
+    @CircuitBreaker(name = "tabuaMare", fallbackMethod = "getTideTableFallback")
     public TabuaMareResponse<List<Object>> getTideTable(String harbor, Integer month, String days) {
         return restClient.get()
                 .uri("/tabua-mare/{harbor}/{month}/{days}", harbor, month, days)
@@ -55,7 +84,16 @@ public class TabuaMareServiceImpl implements TabuaMareService {
                 .body(new ParameterizedTypeReference<TabuaMareResponse<List<Object>>>() {});
     }
 
+    private TabuaMareResponse<List<Object>> getTideTableFallback(String harbor, Integer month, String days, Throwable t) {
+        return unavailable(t, List.of());
+    }
+
     @Override
+    // O porto mais próximo só depende da coordenada, não do horário; cachear evita repetir a
+    // mesma busca de porto a cada hora do laço em getTideHeightAt/exportUnifiedDataWithAccumulated.
+    @org.springframework.cache.annotation.Cacheable(value = "tideNearestHarbor", key = "#latLng")
+    @Retry(name = "tabuaMare")
+    @CircuitBreaker(name = "tabuaMare", fallbackMethod = "getNearestHarborFallback")
     public TabuaMareResponse<Object> getNearestHarbor(String latLng) {
         return restClient.get()
                 .uri("/nearest-harbor-independent-state/{latLng}", latLng)
@@ -63,8 +101,24 @@ public class TabuaMareServiceImpl implements TabuaMareService {
                 .body(new ParameterizedTypeReference<TabuaMareResponse<Object>>() {});
     }
 
+    private TabuaMareResponse<Object> getNearestHarborFallback(String latLng, Throwable t) {
+        return unavailable(t, null);
+    }
+
+    // Fallback comum: usado quando a API externa da tábua de maré está fora do ar ou o circuit
+    // breaker está aberto (após falhas repetidas). Devolve uma resposta "vazia" em vez de deixar
+    // a exceção subir — getTideHeightAt() já sabe lidar com data/total nulos ou vazios.
+    private <D> TabuaMareResponse<D> unavailable(Throwable t, D emptyData) {
+        log.warn("TabuaMare API indisponível ({}): {}", t.getClass().getSimpleName(), t.getMessage());
+        return TabuaMareResponse.<D>builder()
+                .data(emptyData)
+                .total(0)
+                .error(new TabuaMareResponse.TabuaMareError("API externa de maré indisponível no momento", 503))
+                .build();
+    }
+
     @Override
-    @org.springframework.cache.annotation.Cacheable(value = "tideData", key = "T(java.lang.Math).round(#latitude * 100) / 100.0 + '-' + T(java.lang.Math).round(#longitude * 100) / 100.0")
+    @org.springframework.cache.annotation.Cacheable(value = "tideDataExternal", key = "T(java.lang.Math).round(#latitude * 100) / 100.0 + '-' + T(java.lang.Math).round(#longitude * 100) / 100.0")
     public Double getCurrentTideHeight(double latitude, double longitude) {
         return getTideHeightAt(latitude, longitude, java.time.LocalDateTime.now());
     }
@@ -74,7 +128,7 @@ public class TabuaMareServiceImpl implements TabuaMareService {
         log.info("TabuaMare: Buscando maré para Lat: {}, Lon: {} para a data: {}", latitude, longitude, timestamp);
         try {
             String latLng = "[" + latitude + "," + longitude + "]";
-            TabuaMareResponse<Object> nearestResponse = getNearestHarbor(latLng);
+            TabuaMareResponse<Object> nearestResponse = self.getNearestHarbor(latLng);
             
             log.debug("TabuaMare: Resposta do porto mais próximo: {}", nearestResponse);
 
@@ -115,7 +169,7 @@ public class TabuaMareServiceImpl implements TabuaMareService {
                 int hour = timestamp.getHour();
                 
                 String days = "[" + day + "]";
-                TabuaMareResponse<List<Object>> tideTable = getTideTable(harborId, month, days);
+                TabuaMareResponse<List<Object>> tideTable = self.getTideTable(harborId, month, days);
                 
                 if (tideTable != null && tideTable.getData() != null && !tideTable.getData().isEmpty()) {
                     Object firstData = tideTable.getData().get(0);

@@ -3,7 +3,10 @@ package com.projeto.mapi.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.projeto.mapi.config.AppProperties;
 import com.projeto.mapi.service.MarineService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -12,15 +15,19 @@ import org.springframework.web.client.RestClient;
 public class MarineServiceImpl implements MarineService {
 
     private final RestClient restClient;
+    private final MarineService self;
 
-    public MarineServiceImpl(RestClient.Builder restClientBuilder, AppProperties appProperties) {
+    public MarineServiceImpl(RestClient.Builder restClientBuilder, AppProperties appProperties, @Lazy MarineService self) {
         this.restClient = restClientBuilder
                 .baseUrl(appProperties.getMarine().getApiUrl())
                 .build();
+        this.self = self;
     }
 
     @Override
     @org.springframework.cache.annotation.Cacheable(value = "marineData", key = "T(java.lang.Math).round(#latitude * 100) / 100.0 + '-' + T(java.lang.Math).round(#longitude * 100) / 100.0")
+    @Retry(name = "openMeteo")
+    @CircuitBreaker(name = "openMeteo", fallbackMethod = "getMarineDataFallback")
     public JsonNode getMarineData(double latitude, double longitude) {
         return this.restClient.get()
                 .uri(uriBuilder -> uriBuilder
@@ -31,6 +38,12 @@ public class MarineServiceImpl implements MarineService {
                         .build())
                 .retrieve()
                 .body(JsonNode.class);
+    }
+
+    // getHourlyValue() já trata data == null como "sem informação de onda disponível".
+    private JsonNode getMarineDataFallback(double latitude, double longitude, Throwable t) {
+        log.warn("Open-Meteo Marine indisponível para {},{}: {} — {}", latitude, longitude, t.getClass().getSimpleName(), t.getMessage());
+        return null;
     }
 
     @Override
@@ -50,7 +63,7 @@ public class MarineServiceImpl implements MarineService {
 
     private Double getHourlyValue(double latitude, double longitude, String field) {
         try {
-            JsonNode data = getMarineData(latitude, longitude);
+            JsonNode data = self.getMarineData(latitude, longitude);
             if (data != null && data.has("hourly")) {
                 JsonNode hourly = data.get("hourly");
                 if (hourly.has("time") && hourly.has(field)) {

@@ -2,10 +2,11 @@ package com.projeto.mapi.service;
 
 import com.projeto.mapi.dto.FloodEventDTO;
 import com.projeto.mapi.dto.ScraperEventDTO;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface FloodEventService {
     FloodEventDTO reportFlood(FloodEventDTO floodEventDTO);
     FloodEventDTO ingestScraperEvent(ScraperEventDTO scraperEventDTO);
-    List<FloodEventDTO> getHistoryByPoint(String slug);
+    Page<FloodEventDTO> getHistoryByPoint(String slug, Pageable pageable);
 }

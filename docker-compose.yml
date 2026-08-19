@@ -10,7 +10,8 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./TimescaleSetup.sql:/docker-entrypoint-initdb.d/01_setup.sql
+      # Schema agora é gerenciado pelo Flyway (src/main/resources/db/migration), aplicado pelo
+      # próprio mapi-api ao subir — não pelo init-script do Postgres. Ver V1__baseline_schema.sql.
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U mapi_user -d tide_db"]
       interval: 5s
@@ -42,8 +43,29 @@ services:
       - POSTGRES_USER=mapi_user
       - POSTGRES_PASSWORD=mapi123
       - AI_API_URL=http://mapi-ai:8000
+      - APP_LOG_LEVEL=${APP_LOG_LEVEL:-INFO}
+      - LOG_PATH=/app/logs
+      # Segredo só para o stack local de desenvolvimento (docker compose). Em produção, defina
+      # JWT_SECRET no ambiente/secret manager real — nunca reutilize este valor.
+      - JWT_SECRET=${JWT_SECRET:-72de304e9224ec7b5f998c91fe76fc4cbfb92adcff845db5ee57fdac0a7de5eb}
+      - ADMIN_BOOTSTRAP_USERNAME=${ADMIN_BOOTSTRAP_USERNAME:-}
+      - ADMIN_BOOTSTRAP_PASSWORD=${ADMIN_BOOTSTRAP_PASSWORD:-}
+      # Cookie Secure exige HTTPS; este stack local não tem TLS em lugar nenhum. Em produção
+      # (atrás de TLS de verdade) isso deve ser removido/true.
+      - COOKIE_SECURE=${COOKIE_SECURE:-false}
+      # Front acessa a API via proxy do nginx (mesma origem), então CORS só importa se algo
+      # chamar a API direto — mantém restrito ao endereço do front mesmo assim.
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
     ports:
       - "8080:8080"
+    volumes:
+      - api_logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -53,14 +75,29 @@ services:
   mapi-front:
     build:
       context: ../projeto-mapi-front
+      # Vite embute VITE_* no bundle em tempo de BUILD, não de execução — por isso são build
+      # args (aplicados só quando a imagem é reconstruída), não `environment` do container.
+      # VITE_API_URL não entra mais aqui: a API é acessada via /api/... (proxy do nginx pro
+      # mapi-api, mesma origem do front) — ver nginx.conf.
+      args:
+        VITE_MAP_STYLE_LIGHT: ${VITE_MAP_STYLE_LIGHT:-https://basemaps.cartocdn.com/gl/positron-gl-style/style.json}
+        VITE_MAP_STYLE_DARK: ${VITE_MAP_STYLE_DARK:-https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json}
     container_name: mapi-front
     ports:
-      - "3000:5173"
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8080
-      - VITE_API_URL=http://localhost:8080
+      - "3000:80"
+    healthcheck:
+      # 127.0.0.1 explícito, não "localhost": o wget do alpine resolve "localhost" pra ::1
+      # (IPv6) primeiro, e o nginx desse image só escuta em IPv4 — com "localhost" o healthcheck
+      # falha sempre com "connection refused" mesmo com o nginx up e respondendo normalmente.
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:80"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     depends_on:
-      - mapi-api
+      mapi-api:
+        condition: service_healthy
 
 volumes:
   postgres_data:
+  api_logs:

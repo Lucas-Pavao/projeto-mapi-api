@@ -11,6 +11,8 @@ import com.projeto.mapi.service.SensorService;
 import com.projeto.mapi.util.GeoUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
@@ -251,10 +253,9 @@ public class SensorServiceImpl implements SensorService {
     }
 
     @Override
-    public List<SensorResponseDTO> getSensorHistory(String sensorId) {
-        return sensorDataRepository.findBySensorIdOrderByTimestampDesc(sensorId).stream()
-                .map(this::convertToDTO)
-                .toList();
+    public Page<SensorResponseDTO> getSensorHistory(String sensorId, Pageable pageable) {
+        return sensorDataRepository.findBySensorIdOrderByTimestampDesc(sensorId, pageable)
+                .map(this::convertToDTO);
     }
 
     @Override
@@ -284,10 +285,9 @@ public class SensorServiceImpl implements SensorService {
     }
 
     @Override
-    public List<SensorResponseDTO> getFullSensorInventory() {
-        return sensorDataRepository.findDistinctSensorsWithMetadata().stream()
-                .map(this::convertToDTO)
-                .toList();
+    public Page<SensorResponseDTO> getFullSensorInventory(Pageable pageable) {
+        return sensorDataRepository.findDistinctSensorsWithMetadata(pageable)
+                .map(this::convertToDTO);
     }
 
     private SensorResponseDTO convertToDTO(SensorData data) {

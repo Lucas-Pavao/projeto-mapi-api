@@ -49,6 +49,8 @@ public class MapiResponseDTO {
     @AllArgsConstructor
     public static class PreciseData {
         private String source; // "SENSOR", "OPEN_METEO" ou "MIXED"
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime timestamp;
         private java.util.List<String> sensorIds;
         private java.util.List<SensorReadingDTO> latestReadings;

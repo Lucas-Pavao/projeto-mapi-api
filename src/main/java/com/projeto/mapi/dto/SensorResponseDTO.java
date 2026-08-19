@@ -1,5 +1,6 @@
 package com.projeto.mapi.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +17,8 @@ public class SensorResponseDTO {
     private Double value;
     private String unit;
     private String batteryStatus;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime timestamp;
     private String stationName;
     private Double latitude;

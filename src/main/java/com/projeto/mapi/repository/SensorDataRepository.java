@@ -1,6 +1,8 @@
 package com.projeto.mapi.repository;
 
 import com.projeto.mapi.model.SensorData;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import java.time.LocalDateTime;
@@ -8,14 +10,18 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SensorDataRepository extends JpaRepository<SensorData, Long> {
-    List<SensorData> findBySensorIdOrderByTimestampDesc(String sensorId);
-    
+    Page<SensorData> findBySensorIdOrderByTimestampDesc(String sensorId, Pageable pageable);
+
     Optional<SensorData> findFirstBySensorIdOrderByTimestampDesc(String sensorId);
 
     @Query(value = "SELECT DISTINCT ON (sensor_id) * FROM sensor_data WHERE timestamp >= :since ORDER BY sensor_id, timestamp DESC", nativeQuery = true)
     List<SensorData> findAllLatest(@org.springframework.data.repository.query.Param("since") LocalDateTime since);
 
     Optional<SensorData> findBySensorIdAndTimestamp(String sensorId, LocalDateTime timestamp);
+
+    // Usado por repairSensorCoordinates(): evita carregar a hypertable inteira (>1M linhas) em memória,
+    // buscando apenas os registros que realmente precisam de correção de coordenadas.
+    List<SensorData> findByLatitudeIsNullOrLongitudeIsNull();
 
     List<SensorData> findBySensorIdAndTimestampBetween(String sensorId, LocalDateTime start, LocalDateTime end);
     List<SensorData> findBySensorIdInAndTimestampBetween(java.util.Collection<String> sensorIds, LocalDateTime start, LocalDateTime end);
@@ -38,8 +44,10 @@ public interface SensorDataRepository extends JpaRepository<SensorData, Long> {
     @Query("SELECT DISTINCT s.sensorId FROM SensorData s")
     List<String> findDistinctSensorIds();
 
-    @Query(value = "SELECT DISTINCT ON (sensor_id) * FROM sensor_data ORDER BY sensor_id, timestamp DESC", nativeQuery = true)
-    List<SensorData> findDistinctSensorsWithMetadata();
+    @Query(value = "SELECT DISTINCT ON (sensor_id) * FROM sensor_data ORDER BY sensor_id, timestamp DESC",
+           countQuery = "SELECT COUNT(DISTINCT sensor_id) FROM sensor_data",
+           nativeQuery = true)
+    Page<SensorData> findDistinctSensorsWithMetadata(Pageable pageable);
 
     @org.springframework.data.jpa.repository.Query("SELECT YEAR(s.timestamp), COUNT(s) FROM SensorData s WHERE s.sensorId = :sensorId GROUP BY YEAR(s.timestamp)")
     List<Object[]> countBySensorIdGroupedByYear(String sensorId);
