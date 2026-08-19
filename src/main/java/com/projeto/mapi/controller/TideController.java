@@ -6,6 +6,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -35,25 +38,25 @@ public class TideController {
     }
 
     @GetMapping("/state/{state}")
-    @Operation(summary = "Listar tábuas de maré por estado")
-    public ResponseEntity<List<TideTableResponseDTO>> getTideByState(
+    @Operation(summary = "Listar tábuas de maré por estado (paginado)")
+    public ResponseEntity<Page<TideTableResponseDTO>> getTideByState(
             @PathVariable String state,
-            @RequestParam(required = false) Integer year) {
+            @RequestParam(required = false) Integer year,
+            @PageableDefault(size = 20) Pageable pageable) {
         int queryYear = (year != null) ? year : java.time.Year.now().getValue();
         log.info("Buscando tábuas de maré para o estado: {} e ano: {}", state, queryYear);
-        List<TideTableResponseDTO> results = tideService.getTideTablesByState(state, queryYear);
-        return ResponseEntity.ok(results);
+        return ResponseEntity.ok(tideService.getTideTablesByState(state, queryYear, pageable));
     }
 
     @GetMapping("/search")
-    @Operation(summary = "Pesquisar portos por nome")
-    public ResponseEntity<List<TideTableResponseDTO>> searchTide(
+    @Operation(summary = "Pesquisar portos por nome (paginado)")
+    public ResponseEntity<Page<TideTableResponseDTO>> searchTide(
             @RequestParam String harbor,
-            @RequestParam(required = false) Integer year) {
+            @RequestParam(required = false) Integer year,
+            @PageableDefault(size = 20) Pageable pageable) {
         int queryYear = (year != null) ? year : java.time.Year.now().getValue();
         log.info("Pesquisando portos por nome: {} e ano: {}", harbor, queryYear);
-        List<TideTableResponseDTO> results = tideService.searchTideTablesByHarbor(harbor, queryYear);
-        return ResponseEntity.ok(results);
+        return ResponseEntity.ok(tideService.searchTideTablesByHarbor(harbor, queryYear, pageable));
     }
 
     @GetMapping("/harbors")

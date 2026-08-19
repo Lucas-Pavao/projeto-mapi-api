@@ -9,6 +9,11 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: true
+  # As migrations em db/migration são SQL específico de Postgres/TimescaleDB — H2 não entende
+  # (CREATE EXTENSION, create_hypertable, etc). Os testes usam ddl-auto=create-drop, que gera o
+  # schema H2 direto a partir das entidades JPA, então o Flyway não tem papel nenhum aqui.
+  flyway:
+    enabled: false
 
 jwt:
   secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970

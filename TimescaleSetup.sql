@@ -1,3 +1,8 @@
+-- SUPERADO: o schema agora é gerenciado por Flyway (src/main/resources/db/migration/), aplicado
+-- automaticamente pelo mapi-api ao subir. Este arquivo não é mais executado por docker-compose
+-- (era montado como init-script do Postgres) e fica aqui só como referência histórica de como o
+-- schema das hypertables foi originalmente desenhado.
+--
 -- SQL para Otimização do Banco de Dados MAPI com TimescaleDB
 -- Este script inicializa as tabelas como Hypertables para alta performance em séries temporais.
 

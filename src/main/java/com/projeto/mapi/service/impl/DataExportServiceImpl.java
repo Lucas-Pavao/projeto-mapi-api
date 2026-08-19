@@ -46,7 +46,7 @@ public class DataExportServiceImpl implements DataExportService {
     @Override
     public List<UnifiedDataDTO> exportUnifiedData(String slug, int days) {
         FloodPoint point = floodPointRepository.findBySlug(slug)
-                .orElseThrow(() -> new RuntimeException("Ponto não encontrado: " + slug));
+                .orElseThrow(() -> new com.projeto.mapi.exception.ResourceNotFoundException("Ponto não encontrado: " + slug));
 
         // Define o intervalo de busca
         LocalDateTime end = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0);

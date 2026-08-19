@@ -6,10 +6,11 @@ import com.projeto.mapi.service.FloodEventService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/eventos-alagamento")
@@ -32,8 +33,10 @@ public class FloodEventController {
     }
 
     @GetMapping("/{slug}")
-    @Operation(summary = "Retorna o histórico de alagamentos de um ponto específico")
-    public ResponseEntity<List<FloodEventDTO>> getHistory(@PathVariable String slug) {
-        return ResponseEntity.ok(floodEventService.getHistoryByPoint(slug));
+    @Operation(summary = "Retorna o histórico de alagamentos de um ponto específico (paginado)")
+    public ResponseEntity<Page<FloodEventDTO>> getHistory(
+            @PathVariable String slug,
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(floodEventService.getHistoryByPoint(slug, pageable));
     }
 }

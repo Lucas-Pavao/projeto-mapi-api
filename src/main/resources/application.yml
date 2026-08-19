@@ -19,6 +19,16 @@ spring:
         format_sql: true
         jdbc:
           time_zone: UTC
+  flyway:
+    enabled: true
+    # O schema já existia (criado organicamente via ddl-auto=update, no passado, antes de existir
+    # controle de migration) antes de introduzirmos o Flyway. baseline-on-migrate faz o Flyway, ao
+    # encontrar um banco EXISTENTE sem a tabela flyway_schema_history, registrar a V1 (que
+    # reproduz esse schema) como "já aplicada" em vez de tentar recriá-la. Num banco NOVO/vazio
+    # (ex: CI, ambiente novo), o Flyway ignora o baseline e roda a V1 normalmente.
+    baseline-on-migrate: true
+    baseline-version: "1"
+    baseline-description: "baseline_schema"
 
 mqtt:
   broker:
@@ -28,7 +38,10 @@ mqtt:
   topic: ${MQTT_TOPIC:projeto-mapi/sensores/#}
 
 jwt:
-  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  # Sem valor padrão de propósito: uma chave "default" versionada no repositório não é segredo
+  # nenhum. Se JWT_SECRET não estiver setada, a aplicação deve falhar ao subir, não usar uma
+  # chave pública conhecida por qualquer pessoa que tenha acesso a este código-fonte.
+  secret: ${JWT_SECRET}
   refreshExpiration: ${JWT_REFRESH_EXPIRATION:2592000000} # 30 dias
 
 app:
@@ -38,8 +51,71 @@ app:
     api-url: ${WEATHER_API_URL:https://api.open-meteo.com/v1}
   ai:
     api-url: ${AI_API_URL:http://localhost:8000}
+  cookie:
+    # Cookie Secure exige HTTPS — o navegador simplesmente descarta o Set-Cookie se a resposta
+    # não veio por HTTPS. Em produção (atrás de TLS de verdade) isso deve ser true; em dev local
+    # sem TLS (docker-compose), precisa ser desligado explicitamente via COOKIE_SECURE=false,
+    # senão o cookie de sessão nunca é gravado pelo navegador.
+    secure: ${COOKIE_SECURE:true}
+  cors:
+    # Front e API são "same-origin" do ponto de vista do navegador quando acessados através do
+    # proxy do nginx (ver nginx.conf do front) — CORS só entra em jogo se algo chamar a API
+    # direto, cross-origin. Sem wildcard porque allowCredentials(true) + "*" é proibido pelo
+    # próprio spec de CORS (o navegador rejeita).
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000}
 
+# Nível de log configurado em logback-spring.xml (override via env var APP_LOG_LEVEL).
 logging:
   level:
-    com.projeto.mapi: DEBUG
     org.springframework.integration: INFO
+
+# Resiliência para as integrações externas (TabuaMare, Open-Meteo). Retry só em falhas
+# transitórias (rede/5xx) — nunca em 4xx, que é erro do próprio request, repetir não ajuda.
+# Circuit breaker evita martelar uma API já fora do ar: depois de muitas falhas seguidas, passa
+# a "abrir" e falhar rápido (indo direto pro fallback) por um tempo, em vez de esperar timeout
+# a cada requisição.
+resilience4j:
+  circuitbreaker:
+    instances:
+      tabuaMare:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+      openMeteo:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+  retry:
+    instances:
+      tabuaMare:
+        max-attempts: 3
+        wait-duration: 500ms
+        retry-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+      openMeteo:
+        max-attempts: 3
+        wait-duration: 500ms
+        retry-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # /health e /info ficam públicos (ver SecurityConfig) pra health-check de orquestração
+        # (Docker/K8s); os demais (ex: /prometheus, /metrics, /env) exigem role ADMIN.
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}

@@ -18,6 +18,10 @@ public class JwtService {
 
     private final JwtProperties jwtProperties;
 
+    // Exposta pra quem precisa alinhar o Max-Age do cookie httpOnly com a expiração real do
+    // token (ver AuthController) — evita o "1 hora" mágico duplicado em dois lugares.
+    public static final long ACCESS_TOKEN_EXPIRATION_MS = 1000L * 60 * 60;
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -55,7 +59,7 @@ public class JwtService {
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hora
+                .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_MS))
                 .signWith(getSigningKey())
                 .compact();
     }
