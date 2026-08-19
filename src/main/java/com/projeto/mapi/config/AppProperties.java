@@ -42,6 +42,10 @@ public class AppProperties {
 
     @Data
     public static class Cors {
-        private java.util.List<String> allowedOrigins = java.util.List.of("http://localhost:3000");
+        // "localhost" e "127.0.0.1" são origens DIFERENTES pro navegador (o header Origin é
+        // comparado literalmente) — alguns ambientes resolvem "localhost" para IPv6 (::1) antes
+        // de tentar IPv4, então é comum acessar via 127.0.0.1 diretamente. Ambas ficam liberadas
+        // por padrão pra não travar o CORS por causa dessa diferença.
+        private java.util.List<String> allowedOrigins = java.util.List.of("http://localhost:3000", "http://127.0.0.1:3000");
     }
 }

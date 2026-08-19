@@ -54,8 +54,10 @@ services:
       # (atrás de TLS de verdade) isso deve ser removido/true.
       - COOKIE_SECURE=${COOKIE_SECURE:-false}
       # Front acessa a API via proxy do nginx (mesma origem), então CORS só importa se algo
-      # chamar a API direto — mantém restrito ao endereço do front mesmo assim.
-      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+      # chamar a API direto — mantém restrito ao endereço do front mesmo assim. Os dois hosts
+      # (localhost e 127.0.0.1) porque alguns ambientes resolvem "localhost" pra IPv6 (::1)
+      # antes de IPv4, e aí o acesso local precisa ser via 127.0.0.1 — Origin muda junto.
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
     ports:
       - "8080:8080"
     volumes:

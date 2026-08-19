@@ -62,7 +62,7 @@ app:
     # proxy do nginx (ver nginx.conf do front) — CORS só entra em jogo se algo chamar a API
     # direto, cross-origin. Sem wildcard porque allowCredentials(true) + "*" é proibido pelo
     # próprio spec de CORS (o navegador rejeita).
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000}
 
 # Nível de log configurado em logback-spring.xml (override via env var APP_LOG_LEVEL).
 logging:
