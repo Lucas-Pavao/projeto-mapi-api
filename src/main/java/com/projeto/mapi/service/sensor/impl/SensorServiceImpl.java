@@ -341,6 +341,10 @@ public class SensorServiceImpl implements SensorService {
                 .flowRate(data.getFlowRate())
                 .basinName(data.getBasinName())
                 .tideHeight(data.getTideHeight())
+                .riverName(data.getRiverName())
+                .riverPreAlertLevel(data.getRiverPreAlertLevel())
+                .riverAlertLevel(data.getRiverAlertLevel())
+                .riverFloodLevel(data.getRiverFloodLevel())
                 .build();
     }
 
