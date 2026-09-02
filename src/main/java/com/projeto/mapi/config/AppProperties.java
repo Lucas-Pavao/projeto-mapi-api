@@ -4,9 +4,6 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "app")
@@ -42,7 +39,17 @@ public class AppProperties {
         private boolean enabled = true;
         private long fixedRateMs = 900000L;
         private long initialDelayMs = 15000L;
-        private Map<String, String> stations = new LinkedHashMap<>();
+
+        // Descoberta dinâmica de estações (substitui a antiga lista fixa de 8 códigos, dos quais 2
+        // não existiam mais no inventário ativo da ANA). Serviço legado, público e sem
+        // autenticação, já usado por AnaHistoricalServiceImpl — lista todas as estações
+        // telemétricas do Brasil; filtramos por UF + raio a partir de um centro (RMR por padrão).
+        private String discoveryUrl = "http://telemetriaws1.ana.gov.br/ServiceANA.asmx/ListaEstacoesTelemetricas";
+        private String discoveryUf = "PE";
+        private double discoveryCenterLat = -8.0476;
+        private double discoveryCenterLon = -34.8770;
+        private double discoveryRadiusKm = 50.0;
+        private long discoveryCacheTtlHours = 24L;
     }
 
     @Data

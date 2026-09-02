@@ -3,7 +3,7 @@ package com.projeto.mapi.service;
 import com.projeto.mapi.model.SensorData;
 import com.projeto.mapi.repository.FloodPointRepository;
 import com.projeto.mapi.repository.SensorDataRepository;
-import com.projeto.mapi.service.impl.ApacHistoricalServiceImpl;
+import com.projeto.mapi.service.sensor.apac.impl.ApacHistoricalServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

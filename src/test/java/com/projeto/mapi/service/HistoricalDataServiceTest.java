@@ -4,7 +4,7 @@ import com.projeto.mapi.model.FloodPoint;
 import com.projeto.mapi.model.SensorData;
 import com.projeto.mapi.repository.FloodPointRepository;
 import com.projeto.mapi.repository.SensorDataRepository;
-import com.projeto.mapi.service.impl.HistoricalDataServiceImpl;
+import com.projeto.mapi.service.sensor.impl.HistoricalDataServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -59,17 +59,15 @@ app:
     enabled: ${ANA_COLLECTOR_ENABLED:true}
     fixed-rate-ms: ${ANA_COLLECTOR_INTERVAL_MS:900000}
     initial-delay-ms: ${ANA_COLLECTOR_INITIAL_DELAY_MS:15000}
-    # Código da estação -> nome amigável, usado para compor o sensorId (ANA-TELE-<nome>) mantendo
-    # compatibilidade com o histórico já gravado em sensor_data pelo antigo fluxo MQTT.
-    stations:
-      "39187800": CAPIBARIBE-SLM
-      "39187900": MATRIZ-DA-LUZ
-      "39145000": LIMOEIRO
-      "39084000": CARICE-ITAMBE
-      "39170000": VITORIA-S-ANTAO
-      "39370100": MARANHAO-IPOJUCA
-      "39590000": BARREIROS
-      "39540000": AGRESTINA
+    # Descoberta dinâmica de estações via serviço legado público da ANA (sem autenticação), em vez
+    # de uma lista fixa de códigos — validado ao vivo: 2 dos 8 códigos hardcoded originais não
+    # existiam mais no inventário ativo. Filtra por UF + raio a partir de um centro (RMR).
+    discovery-url: ${ANA_DISCOVERY_URL:http://telemetriaws1.ana.gov.br/ServiceANA.asmx/ListaEstacoesTelemetricas}
+    discovery-uf: ${ANA_DISCOVERY_UF:PE}
+    discovery-center-lat: ${ANA_DISCOVERY_CENTER_LAT:-8.0476}
+    discovery-center-lon: ${ANA_DISCOVERY_CENTER_LON:-34.8770}
+    discovery-radius-km: ${ANA_DISCOVERY_RADIUS_KM:50.0}
+    discovery-cache-ttl-hours: ${ANA_DISCOVERY_CACHE_TTL_HOURS:24}
   apac:
     base-url: ${APAC_BASE_URL:http://dados.apac.pe.gov.br:41120}
     cemaden-endpoint: ${APAC_CEMADEN_ENDPOINT:cemaden}

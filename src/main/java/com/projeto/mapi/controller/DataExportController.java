@@ -1,7 +1,7 @@
 package com.projeto.mapi.controller;
 
 import com.projeto.mapi.dto.UnifiedDataDTO;
-import com.projeto.mapi.service.DataExportService;
+import com.projeto.mapi.service.export.DataExportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -66,7 +66,7 @@ public class DataExportController {
             @RequestParam(defaultValue = "0") int days) {
         
         // Otimização: Aplicar acumulados para todos os pontos
-        List<com.projeto.mapi.model.FloodPoint> points = ((com.projeto.mapi.service.impl.DataExportServiceImpl)dataExportService).getPoints();
+        List<com.projeto.mapi.model.FloodPoint> points = ((com.projeto.mapi.service.export.impl.DataExportServiceImpl)dataExportService).getPoints();
         List<UnifiedDataDTO> allData = new java.util.ArrayList<>();
         for (com.projeto.mapi.model.FloodPoint p : points) {
             allData.addAll(dataExportService.exportUnifiedDataWithAccumulated(p.getSlug(), days));

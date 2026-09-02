@@ -86,4 +86,18 @@ public class SensorData {
 
     @Column(name = "tide_height")
     private Double tideHeight;
+
+    // Thresholds oficiais de nível de rio publicados pela APAC (endpoint meteorologia24h, estações
+    // fluviométricas como o Rio Duas Unas) — dado central para o alerta de alagamento.
+    @Column(name = "river_name")
+    private String riverName;
+
+    @Column(name = "river_pre_alert_level")
+    private Double riverPreAlertLevel;
+
+    @Column(name = "river_alert_level")
+    private Double riverAlertLevel;
+
+    @Column(name = "river_flood_level")
+    private Double riverFloodLevel;
 }

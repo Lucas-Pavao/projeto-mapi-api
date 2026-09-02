@@ -76,8 +76,14 @@ projeto-mapi-api/
     │   │   ├── model/           # Entidades JPA (Mapeamento TimescaleDB)
     │   │   ├── repository/      # Interfaces Spring Data (JPA/Timescale)
     │   │   ├── security/        # Lógica de Filtros e JWT
-    │   │   ├── service/         # Interfaces de Negócio
-    │   │   │   └── impl/        # Implementações (ANA, APAC, Civil Defense)
+    │   │   ├── service/         # Subpacotes por domínio, cada um com sua própria impl/:
+    │   │   │   ├── sensor/      #   SensorService + coletores ana/ e apac/
+    │   │   │   ├── tide/        #   TideService, TabuaMareService
+    │   │   │   ├── weather/     #   WeatherService, MarineService
+    │   │   │   ├── flood/       #   FloodEvent/FloodPrediction/CivilDefense
+    │   │   │   ├── export/      #   DataExportService
+    │   │   │   ├── auth/        #   Authentication, RefreshToken
+    │   │   │   └── geocoding/   #   GeocodingService (Nominatim)
     │   │   └── util/            # Helpers (GeoUtils, RmrFilter, SensorValueExtractor)
     │   └── resources/
     │       └── application.yml  # Configurações de Ambiente

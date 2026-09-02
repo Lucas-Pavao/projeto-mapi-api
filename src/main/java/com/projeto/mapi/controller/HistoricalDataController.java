@@ -1,6 +1,6 @@
 package com.projeto.mapi.controller;
 
-import com.projeto.mapi.service.HistoricalDataService;
+import com.projeto.mapi.service.sensor.HistoricalDataService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Administração - Ingestão", description = "Endpoints para carregar dados históricos")
 public class HistoricalDataController {
 
-    private final com.projeto.mapi.service.HistoricalDataService historicalDataService;
+    private final com.projeto.mapi.service.sensor.HistoricalDataService historicalDataService;
 
     @PostMapping("/historical-weather")
     @Operation(summary = "Inicia ingestão de histórico de chuva (Open-Meteo) para todos os pontos")
