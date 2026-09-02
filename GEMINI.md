@@ -6,7 +6,7 @@ Bem-vindo ao repositório do **Projeto MAPI** (Monitoramento e Alerta de Pontos 
 O MAPI atua como um hub integrador de múltiplas fontes de dados críticos:
 - **Marés:** Integração com TabuaMare API e fallback via Open-Meteo.
 - **Clima:** Dados em tempo real e históricos via Open-Meteo.
-- **Sensores (Pluviômetros/Nível):** Coleta via MQTT e APIs da ANA, APAC e CEMADEN.
+- **Sensores (Pluviômetros/Nível):** Coleta interna, via jobs agendados (`SensorCollectionTask`), diretamente das APIs da ANA, APAC e CEMADEN.
 - **Ocorrências Urbanas:** Ingestão de dados abertos (CKAN) da Prefeitura do Recife.
 
 ## 🤖 Estratégia de Agentes
@@ -28,7 +28,7 @@ Este projeto utiliza agentes especializados para garantir a integridade técnica
 
 ## 🚀 Fluxos Principais
 1. **Ingestão Histórica:** O `HistoricalDataServiceImpl` sincroniza séries temporais de 5 anos para treinamento de modelos.
-2. **Tempo Real (MQTT):** Fluxo contínuo via `MqttConfig` para dados de sensores críticos.
+2. **Coleta de Sensores:** Jobs agendados via `SensorCollectionTask` buscam dados de sensores críticos diretamente das APIs da ANA/APAC (substituiu o antigo pipeline MQTT vindo de um processo Python externo).
 3. **Geoprocessamento:** Ocorrências sem coordenadas usam o fallback Nominatim (`NominatimGeocodingServiceImpl`).
 4. **Exportação de Dataset:** O `DataExportServiceImpl` consolida Sensores + Clima + Maré + Labels em CSV para IA.
 

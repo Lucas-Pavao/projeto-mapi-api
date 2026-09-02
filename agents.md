@@ -10,7 +10,7 @@ O projeto adota uma adaptação da Clean Architecture para isolar as regras de n
 
 ```text
 com.projeto.mapi/
-├── config/          # Inicialização de Beans, beans MQTT, segurança e agendamentos cron.
+├── config/          # Inicialização de Beans, coleta agendada de sensores, segurança e cron.
 ├── controller/      # Camada REST (Exposição de Endpoints). Deve usar anotações do Swagger.
 ├── dto/             # Objetos de Transferência de Dados (Imutáveis por padrão).
 ├── exception/       # Handlers globais (@ControllerAdvice) e exceções de negócio.
@@ -28,7 +28,7 @@ O desenvolvimento é orientado a componentes especializados dedicados a domínio
 
 * 🌊 **TideExpert:** Toda e qualquer lógica analítica ou de integração com tabelas oceanográficas, marés astronômicas, previsões da Marinha ou dados do Porto do Recife.
 
-* 📡 **IoTMaster:** Toda a lógica reativa de captura, validação, desserialização de payloads MQTT e tratamentos de barramentos telemétricos.
+* 📡 **IoTMaster:** Toda a lógica de captura, validação e desserialização de payloads de sensores (ANA/APAC) e tratamento dos jobs agendados de ingestão telemétrica (`SensorCollectionTask`).
 
 * 🔒 **SecurityGuard:** Filtros de requisições, criptografia, ciclo de vida de tokens JWT e verificação de claims de acesso.
 
@@ -60,7 +60,7 @@ O sistema faz a fusão de dados em tempo real via streaming com dados histórico
 
 1. **Sincronização Absoluta UTC-3:** O ecossistema MAPI é focado na Região Metropolitana do Recife, que opera no fuso horário UTC-3. APIs externas como Open-Meteo e ANA frequentemente retornam datas em formato UTC puro. O agente de IA **DEVE** garantir que qualquer parser ou serviço de ingestão converta esses carimbos de tempo explicitamente para UTC-3 antes de persistir no banco ou enviar para a inferência de IA, prevenindo desalinhamento temporal nas previsões.
 
-2. **Resiliência no IoTMaster (MQTT):** O listener do broker MQTT atua como um barramento crítico de entrada. O código gerado não pode bloquear a thread principal de escuta. Utilize processamento assíncrono para delegar a persistência e a chamada de predição do modelo a pools de threads separados.
+2. **Resiliência no IoTMaster (Coleta Agendada):** Os jobs de `SensorCollectionTask` atuam como o barramento crítico de entrada de dados de sensores. O código gerado não pode bloquear a execução do agendador nem travar por falha de uma fonte externa. Utilize processamento assíncrono (`taskExecutor`) e Resilience4j (retry/circuit breaker) para delegar a persistência e a chamada de predição do modelo a pools de threads separados.
 
 3. **Mapeamento Espacial (Fórmula de Haversine):** O utilitário de geoprocessamento em `util/` aplica o algoritmo de Haversine para vincular estações meteorológicas a pontos críticos por proximidade espacial real. Não crie vínculos por IDs estáticos (hardcoded); use sempre o fluxo dinâmico do `repairStationMappings`.
 

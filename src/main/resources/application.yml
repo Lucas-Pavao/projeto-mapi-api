@@ -30,13 +30,6 @@ spring:
     baseline-version: "1"
     baseline-description: "baseline_schema"
 
-mqtt:
-  broker:
-    url: ${MQTT_BROKER_URL:tcp://broker.hivemq.com:1883}
-  client:
-    id: ${MQTT_CLIENT_ID:mapi-api-inbound}
-  topic: ${MQTT_TOPIC:projeto-mapi/sensores/#}
-
 jwt:
   # Sem valor padrão de propósito: uma chave "default" versionada no repositório não é segredo
   # nenhum. Se JWT_SECRET não estiver setada, a aplicação deve falhar ao subir, não usar uma
@@ -51,6 +44,42 @@ app:
     api-url: ${WEATHER_API_URL:https://api.open-meteo.com/v1}
   ai:
     api-url: ${AI_API_URL:http://localhost:8000}
+  # Coleta interna de dados hidrometeorológicos reais (substitui o antigo fluxo MQTT vindo do
+  # projeto Python "projeto-mapi"). A API agora busca esses dados diretamente, em jobs agendados
+  # (ver SensorCollectionTask), em vez de depender de um processo externo publicando via broker.
+  ana:
+    # Sem credenciais versionadas de propósito, igual ao JWT_SECRET — defina via env externamente.
+    identifier: ${ANA_IDENTIFICADOR:}
+    password: ${ANA_SENHA:}
+    auth-url: ${ANA_AUTH_URL:https://www.ana.gov.br/hidrowebservice/EstacoesTelemetricas/OAUth/v1}
+    base-url: ${ANA_BASE_URL:https://www.ana.gov.br/hidrowebservice/EstacoesTelemetricas/HidroinfoanaSerieTelemetricaAdotada/v1}
+    inventory-url: ${ANA_INVENTARIO_URL:https://www.ana.gov.br/hidrowebservice/EstacoesTelemetricas/HidroInventarioEstacoes/v1}
+    tipo-filtro-data: DATA_LEITURA
+    intervalo-busca: HORA_16
+    enabled: ${ANA_COLLECTOR_ENABLED:true}
+    fixed-rate-ms: ${ANA_COLLECTOR_INTERVAL_MS:900000}
+    initial-delay-ms: ${ANA_COLLECTOR_INITIAL_DELAY_MS:15000}
+    # Código da estação -> nome amigável, usado para compor o sensorId (ANA-TELE-<nome>) mantendo
+    # compatibilidade com o histórico já gravado em sensor_data pelo antigo fluxo MQTT.
+    stations:
+      "39187800": CAPIBARIBE-SLM
+      "39187900": MATRIZ-DA-LUZ
+      "39145000": LIMOEIRO
+      "39084000": CARICE-ITAMBE
+      "39170000": VITORIA-S-ANTAO
+      "39370100": MARANHAO-IPOJUCA
+      "39590000": BARREIROS
+      "39540000": AGRESTINA
+  apac:
+    base-url: ${APAC_BASE_URL:http://dados.apac.pe.gov.br:41120}
+    cemaden-endpoint: ${APAC_CEMADEN_ENDPOINT:cemaden}
+    meteorologia-endpoint: ${APAC_METEOROLOGIA_ENDPOINT:meteorologia24h}
+    cemaden-rmr-only: ${APAC_CEMADEN_RMR_ONLY:true}
+    meteorologia-rmr-only: ${APAC_METEOROLOGIA_RMR_ONLY:false}
+    enabled: ${APAC_COLLECTOR_ENABLED:true}
+    cemaden-fixed-rate-ms: ${APAC_CEMADEN_INTERVAL_MS:180000}
+    meteorologia-fixed-rate-ms: ${APAC_METEOROLOGIA_INTERVAL_MS:300000}
+    initial-delay-ms: ${APAC_COLLECTOR_INITIAL_DELAY_MS:20000}
   cookie:
     # Cookie Secure exige HTTPS — o navegador simplesmente descarta o Set-Cookie se a resposta
     # não veio por HTTPS. Em produção (atrás de TLS de verdade) isso deve ser true; em dev local
@@ -65,11 +94,8 @@ app:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://127.0.0.1:3000}
 
 # Nível de log configurado em logback-spring.xml (override via env var APP_LOG_LEVEL).
-logging:
-  level:
-    org.springframework.integration: INFO
 
-# Resiliência para as integrações externas (TabuaMare, Open-Meteo). Retry só em falhas
+# Resiliência para as integrações externas (TabuaMare, Open-Meteo, ANA, APAC). Retry só em falhas
 # transitórias (rede/5xx) — nunca em 4xx, que é erro do próprio request, repetir não ajuda.
 # Circuit breaker evita martelar uma API já fora do ar: depois de muitas falhas seguidas, passa
 # a "abrir" e falhar rápido (indo direto pro fallback) por um tempo, em vez de esperar timeout
@@ -89,6 +115,18 @@ resilience4j:
         failure-rate-threshold: 50
         wait-duration-in-open-state: 30s
         permitted-number-of-calls-in-half-open-state: 3
+      anaData:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+      apacScrape:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
   retry:
     instances:
       tabuaMare:
@@ -100,6 +138,18 @@ resilience4j:
       openMeteo:
         max-attempts: 3
         wait-duration: 500ms
+        retry-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+      anaData:
+        max-attempts: 3
+        wait-duration: 1s
+        retry-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+      apacScrape:
+        max-attempts: 3
+        wait-duration: 1s
         retry-exceptions:
           - org.springframework.web.client.ResourceAccessException
           - org.springframework.web.client.HttpServerErrorException

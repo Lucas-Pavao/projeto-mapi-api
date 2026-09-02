@@ -43,7 +43,7 @@ public class SensorController {
     }
 
     @GetMapping("/ids")
-    @Operation(summary = "Listar todos os IDs de sensores únicos cadastrados (MQTT/APAC/ANA)")
+    @Operation(summary = "Listar todos os IDs de sensores únicos cadastrados (APAC/ANA)")
     public ResponseEntity<List<String>> getDistinctSensorIds() {
         return ResponseEntity.ok(sensorService.getDistinctSensorIds());
     }

@@ -58,6 +58,12 @@ services:
       # (localhost e 127.0.0.1) porque alguns ambientes resolvem "localhost" pra IPv6 (::1)
       # antes de IPv4, e aí o acesso local precisa ser via 127.0.0.1 — Origin muda junto.
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+      # Credenciais da ANA (SensorCollectionTask) para a coleta interna de dados hidrometeorológicos
+      # reais, que substituiu o antigo processo Python publicando via MQTT. Sem valor padrão de
+      # propósito — defina no ambiente/secret manager real; sem elas, o coletor ANA fica desativado
+      # (loga aviso e não quebra a aplicação).
+      - ANA_IDENTIFICADOR=${ANA_IDENTIFICADOR:-}
+      - ANA_SENHA=${ANA_SENHA:-}
     ports:
       - "8080:8080"
     volumes:

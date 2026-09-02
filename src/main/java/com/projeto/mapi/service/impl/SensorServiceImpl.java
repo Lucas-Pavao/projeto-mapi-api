@@ -33,7 +33,7 @@ public class SensorServiceImpl implements SensorService {
     @Transactional
     @org.springframework.scheduling.annotation.Async("taskExecutor")
     public void processSensorMessage(String payload) {
-        log.info("Processando mensagem MQTT: {}", payload);
+        log.info("Processando payload de sensor: {}", payload);
         try {
             // Tratar o caso de múltiplos objetos JSON concatenados no mesmo payload
             com.fasterxml.jackson.core.JsonParser parser = objectMapper.getFactory().createParser(payload);
@@ -50,7 +50,7 @@ public class SensorServiceImpl implements SensorService {
                 processSinglePayload(root, sensorId, batteryStatus, root.toString());
             }
         } catch (Exception e) {
-            log.error("Erro ao processar mensagem JSON do MQTT: {}", payload, e);
+            log.error("Erro ao processar payload JSON de sensor: {}", payload, e);
         }
     }
 
