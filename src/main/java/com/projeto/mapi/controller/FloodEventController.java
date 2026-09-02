@@ -2,7 +2,7 @@ package com.projeto.mapi.controller;
 
 import com.projeto.mapi.dto.FloodEventDTO;
 import com.projeto.mapi.dto.ScraperEventDTO;
-import com.projeto.mapi.service.FloodEventService;
+import com.projeto.mapi.service.flood.FloodEventService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

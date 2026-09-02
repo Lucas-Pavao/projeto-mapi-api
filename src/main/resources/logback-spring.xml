@@ -44,8 +44,8 @@
         </rollingPolicy>
     </appender>
 
-    <!-- Appenders assíncronos: escrita em disco não pode bloquear threads de request/ingestão MQTT
-         (ver agents.md, regra do IoTMaster: o listener não pode travar por causa de I/O). -->
+    <!-- Appenders assíncronos: escrita em disco não pode bloquear threads de request/ingestão de
+         dados de sensores (ver SensorCollectionTask: os jobs de coleta não podem travar por I/O). -->
     <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="FILE"/>
         <queueSize>512</queueSize>

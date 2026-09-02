@@ -1,7 +1,7 @@
 package com.projeto.mapi.controller;
 
 import com.projeto.mapi.dto.TabuaMareResponse;
-import com.projeto.mapi.service.TabuaMareService;
+import com.projeto.mapi.service.tide.TabuaMareService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

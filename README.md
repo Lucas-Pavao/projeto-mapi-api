@@ -7,8 +7,8 @@ A **MAPI API** é o núcleo analítico e operacional do ecossistema de resiliên
 Este projeto centraliza e gerencia o fluxo de dados do ecossistema:
 
 ```text
-  [ MAPI Edge ] (Python / MQTT) 📡
-        │   (Pulsações Telemétricas e Inteligência de Borda)
+  [ Agências (ANA / APAC / CEMADEN) ] 📡
+        │   (APIs REST/HTTP públicas de estações hidrometeorológicas reais)
         ▼
   [  MAPI API  ] (Java 21 / Spring Boot / TimescaleDB) 🌊🚀 <-- (Este Serviço)
         │ ▲
@@ -21,14 +21,15 @@ Este projeto centraliza e gerencia o fluxo de dados do ecossistema:
   [ MAPI Front ] (React 19 / MapLibre GL) 💻✨
 ```
 
+> **Nota de arquitetura:** o antigo componente "MAPI Edge" (processo Python separado que buscava dados da ANA/APAC e os publicava via MQTT num broker público) foi descontinuado. A própria API agora busca esses dados diretamente, em jobs agendados (`SensorCollectionTask`), eliminando uma camada de infraestrutura e um ponto de falha externo. O repositório do MAPI Edge continua existindo como referência histórica, mas não faz mais parte do caminho crítico do sistema.
+
 ### Componentes do Ecossistema:
-*   📡 **[MAPI Edge (Sensores)](https://github.com/Lucas-Pavao/projeto-mapi-sensores):** Produtor de dados primários e inteligência de borda.
-*   🌊 **[MAPI API (Backend)](https://github.com/Lucas-Pavao/projeto-mapi-api):** Orquestrador central, ingestão MQTT e persistência temporal.
+*   🌊 **[MAPI API (Backend)](https://github.com/Lucas-Pavao/projeto-mapi-api):** Orquestrador central — coleta os dados de sensores diretamente das agências e persiste na base temporal.
 *   🧠 **[MAPI AI (Inteligência)](https://github.com/Lucas-Pavao/projeto-mapi-ai):** Microserviço de inferência para predição de riscos.
 *   💻 **[MAPI Front (Dashboard)](https://github.com/Lucas-Pavao/projeto-mapi-front):** Interface geoespacial para monitoramento em tempo real.
 
 ### Conexões Estruturais:
-- **Entrada (Ingestão):** Assinante MQTT conectado ao Broker, coletando dados gerados pelo MAPI Edge e APIs de agências (ANA, APAC, CEMADEN).
+- **Entrada (Ingestão):** Jobs agendados internos (`SensorCollectionTask`) buscam periodicamente dados das APIs de agências (ANA, APAC, CEMADEN) e os processam pelo mesmo pipeline de negócio de sempre.
 - **Processamento Síncrono:** Dispara requisições HTTP POST síncronas para o MAPI AI para receber métricas preditivas de risco de alagamento.
 - **Saída (Exposição):** Persiste dados no banco temporal (TimescaleDB) e expõe endpoints REST protegidos por JWT para o MAPI Front.
 
@@ -39,7 +40,7 @@ Este projeto centraliza e gerencia o fluxo de dados do ecossistema:
 | **Linguagem** | Java 21 (LTS) | Virtual Threads para alta concorrência e Records para imutabilidade. |
 | **Framework** | Spring Boot 3.4.0 | Injeção de dependências robusta e gerenciamento de tarefas agendadas. |
 | **Banco de Dados** | PostgreSQL 16 + TimescaleDB | Extensões de séries temporais (Hypertables) para indexação analítica. |
-| **Mensageria** | MQTT (Paho Client) | Captura reativa orientada a eventos de baixa latência para sensores. |
+| **Agendamento** | Spring `@Scheduled` + Resilience4j | Coleta periódica direta das APIs de sensores (ANA/APAC), com retry e circuit breaker. |
 | **Segurança** | Spring Security + JWT | Controle estrito de acesso e ciclo de vida de tokens. |
 | **Documentação** | OpenAPI 3.0 (Swagger) | Contrato claro de endpoints para integração facilitada. |
 
@@ -48,7 +49,7 @@ Este projeto centraliza e gerencia o fluxo de dados do ecossistema:
 O desenvolvimento é orientado por agentes especializados para garantir a integridade dos domínios:
 
 - 🌊 **TideExpert:** Domínio analítico de marés astronômicas (Porto do Recife/Marinha).
-- 📡 **IoTMaster:** Ingestão de streams telemétricos via MQTT e tratamento de fuso horário UTC-3.
+- 📡 **IoTMaster:** Coleta agendada de dados telemétricos (ANA/APAC) e tratamento de fuso horário UTC-3.
 - 🔒 **SecurityGuard:** Controlador do ciclo de vida de tokens JWT e perfis de acesso.
 - 🏗️ **ProjectArchitect:** Guardião dos padrões Clean Architecture e coesão do sistema.
 
@@ -67,7 +68,7 @@ projeto-mapi-api/
 └── src/
     ├── main/
     │   ├── java/com/projeto/mapi/
-    │   │   ├── config/          # Beans de Configuração (MQTT, Security, Scheduling)
+    │   │   ├── config/          # Beans de Configuração (Security, Scheduling, AppProperties)
     │   │   ├── controller/      # Camada REST (Endpoints Públicos e Administrativos)
     │   │   ├── dto/             # Data Transfer Objects (Imutabilidade)
     │   │   ├── exception/       # Handlers globais de erro
@@ -75,9 +76,15 @@ projeto-mapi-api/
     │   │   ├── model/           # Entidades JPA (Mapeamento TimescaleDB)
     │   │   ├── repository/      # Interfaces Spring Data (JPA/Timescale)
     │   │   ├── security/        # Lógica de Filtros e JWT
-    │   │   ├── service/         # Interfaces de Negócio
-    │   │   │   └── impl/        # Implementações (ANA, APAC, Civil Defense)
-    │   │   └── util/            # Helpers (GeoUtils, MqttValidator)
+    │   │   ├── service/         # Subpacotes por domínio, cada um com sua própria impl/:
+    │   │   │   ├── sensor/      #   SensorService + coletores ana/ e apac/
+    │   │   │   ├── tide/        #   TideService, TabuaMareService
+    │   │   │   ├── weather/     #   WeatherService, MarineService
+    │   │   │   ├── flood/       #   FloodEvent/FloodPrediction/CivilDefense
+    │   │   │   ├── export/      #   DataExportService
+    │   │   │   ├── auth/        #   Authentication, RefreshToken
+    │   │   │   └── geocoding/   #   GeocodingService (Nominatim)
+    │   │   └── util/            # Helpers (GeoUtils, RmrFilter, SensorValueExtractor)
     │   └── resources/
     │       └── application.yml  # Configurações de Ambiente
     └── test/                    # Suite de testes unitários e de integração
@@ -112,10 +119,9 @@ O ecossistema MAPI exige que os repositórios estejam em uma pasta comum:
 MinhaPastaMapi/
 ├── projeto-mapi-api/   <-- (Este repositório)
 ├── projeto-mapi-ai/    <-- (Repositório da IA)
-├── projeto-mapi-sensores/ <-- (Repositório do Edge/Sensores)
 └── projeto-mapi-front/ <-- (Repositório do Frontend)
 ```
-> **Nota:** Para rodar apenas a API e o Banco, comente as seções `mapi-ai` e `mapi-front` no `docker-compose.yml` usando `#`.
+> **Nota:** O antigo repositório de sensores (Edge/MQTT) não é mais necessário — a API coleta os dados diretamente. Para rodar apenas a API e o Banco, comente as seções `mapi-ai` e `mapi-front` no `docker-compose.yml` usando `#`.
 
 #### Passo 3: Rodando o Projeto
 1. Abra o terminal na pasta `projeto-mapi-api`.
@@ -161,7 +167,7 @@ Após subir a stack, é necessário realizar a carga inicial de dados via Swagge
 ## 🚀 Melhorias Arquiteturais Implementadas
 
 Para aumentar a robustez do orquestrador do ecossistema, as seguintes soluções foram incorporadas:
-* **Ingestão MQTT Assíncrona:** A escuta do Broker MQTT delega o processamento pesado de telemetria a um pool de threads dedicado (`taskExecutor`), liberando a thread principal e eliminando riscos de perda de pacotes.
+* **Coleta de Sensores Assíncrona:** Os jobs agendados de `SensorCollectionTask` (ANA/APAC) delegam o processamento pesado de telemetria a um pool de threads dedicado (`taskExecutor`), liberando a execução do agendador e eliminando riscos de perda de dados por lentidão de persistência.
 * **Cache Inteligente de Pontos Críticos:** Implementação de caching automático com `@Cacheable` e `@CacheEvict` do Spring Framework para evitar sobrecarga de consultas no Postgres e assegurar atualização instantânea sob novos cadastros.
 * **Integridade JPA & TimescaleDB:** Ajuste do mapeamento JPA de chaves compostas (`id` + `timestamp`) para alinhar com o comportamento estrutural e de particionamento das *Hypertables* do banco temporal.
 * **Auditoria de Predições:** Gravação automática de logs de inferência no banco de dados (`flood_predictions`), servindo como histórico operacional e garantindo rastreabilidade de alertas.

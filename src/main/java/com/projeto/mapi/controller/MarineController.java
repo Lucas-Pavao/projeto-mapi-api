@@ -1,7 +1,7 @@
 package com.projeto.mapi.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.projeto.mapi.service.MarineService;
+import com.projeto.mapi.service.weather.MarineService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

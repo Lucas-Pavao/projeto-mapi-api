@@ -42,4 +42,10 @@ public class SensorResponseDTO {
     private Double flowRate;
     private String basinName;
     private Double tideHeight;
+
+    // Estações fluviométricas da APAC com alerta oficial (ex.: Rio Duas Unas)
+    private String riverName;
+    private Double riverPreAlertLevel;
+    private Double riverAlertLevel;
+    private Double riverFloodLevel;
 }

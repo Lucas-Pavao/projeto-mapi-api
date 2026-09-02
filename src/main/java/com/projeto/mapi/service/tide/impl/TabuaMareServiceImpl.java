@@ -1,0 +1,277 @@
+package com.projeto.mapi.service.tide.impl;
+
+import com.projeto.mapi.config.AppProperties;
+import com.projeto.mapi.dto.TabuaMareResponse;
+import com.projeto.mapi.service.tide.TabuaMareService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+import java.util.List;
+import java.util.Map;
+import java.util.Comparator;
+
+@Service
+@Slf4j
+public class TabuaMareServiceImpl implements TabuaMareService {
+
+    private final RestClient restClient;
+    private final TabuaMareService self;
+
+    public TabuaMareServiceImpl(RestClient.Builder restClientBuilder, AppProperties appProperties, @Lazy TabuaMareService self) {
+        this.restClient = restClientBuilder
+                .baseUrl(appProperties.getTabuamare().getApiUrl())
+                .build();
+        this.self = self;
+    }
+
+    @Override
+    @RateLimiter(name = "tabuaMare")
+    @Retry(name = "tabuaMare")
+    @CircuitBreaker(name = "tabuaMare", fallbackMethod = "getStatesFallback")
+    public TabuaMareResponse<List<String>> getStates() {
+        return restClient.get()
+                .uri("/states")
+                .retrieve()
+                .body(new ParameterizedTypeReference<TabuaMareResponse<List<String>>>() {});
+    }
+
+    private TabuaMareResponse<List<String>> getStatesFallback(Throwable t) {
+        return unavailable(t, List.of());
+    }
+
+    @Override
+    @RateLimiter(name = "tabuaMare")
+    @Retry(name = "tabuaMare")
+    @CircuitBreaker(name = "tabuaMare", fallbackMethod = "getHarborNamesFallback")
+    public TabuaMareResponse<List<Object>> getHarborNames(String state) {
+        return restClient.get()
+                .uri("/harbor_names/{state}", state)
+                .retrieve()
+                .body(new ParameterizedTypeReference<TabuaMareResponse<List<Object>>>() {});
+    }
+
+    private TabuaMareResponse<List<Object>> getHarborNamesFallback(String state, Throwable t) {
+        return unavailable(t, List.of());
+    }
+
+    @Override
+    @RateLimiter(name = "tabuaMare")
+    @Retry(name = "tabuaMare")
+    @CircuitBreaker(name = "tabuaMare", fallbackMethod = "getHarborsFallback")
+    public TabuaMareResponse<List<Object>> getHarbors(String ids) {
+        return restClient.get()
+                .uri("/harbors/{ids}", ids)
+                .retrieve()
+                .body(new ParameterizedTypeReference<TabuaMareResponse<List<Object>>>() {});
+    }
+
+    private TabuaMareResponse<List<Object>> getHarborsFallback(String ids, Throwable t) {
+        return unavailable(t, List.of());
+    }
+
+    @Override
+    // Um mesmo (porto, mês, dia) é consultado uma vez por HORA dentro de getTideHeightAt quando
+    // chamado em laço por exportUnifiedDataWithAccumulated (ex: /api/precise-data, /api/pontos/{id}).
+    // Sem cache, isso gerava até 24 chamadas HTTP idênticas à API externa por dia exportado.
+    @org.springframework.cache.annotation.Cacheable(value = "tideTableDaily", key = "#harbor + '-' + #month + '-' + #days")
+    @RateLimiter(name = "tabuaMare")
+    @Retry(name = "tabuaMare")
+    @CircuitBreaker(name = "tabuaMare", fallbackMethod = "getTideTableFallback")
+    public TabuaMareResponse<List<Object>> getTideTable(String harbor, Integer month, String days) {
+        return restClient.get()
+                .uri("/tabua-mare/{harbor}/{month}/{days}", harbor, month, days)
+                .retrieve()
+                .body(new ParameterizedTypeReference<TabuaMareResponse<List<Object>>>() {});
+    }
+
+    private TabuaMareResponse<List<Object>> getTideTableFallback(String harbor, Integer month, String days, Throwable t) {
+        return unavailable(t, List.of());
+    }
+
+    @Override
+    // O porto mais próximo só depende da coordenada, não do horário; cachear evita repetir a
+    // mesma busca de porto a cada hora do laço em getTideHeightAt/exportUnifiedDataWithAccumulated.
+    @org.springframework.cache.annotation.Cacheable(value = "tideNearestHarbor", key = "#latLng")
+    @RateLimiter(name = "tabuaMare")
+    @Retry(name = "tabuaMare")
+    @CircuitBreaker(name = "tabuaMare", fallbackMethod = "getNearestHarborFallback")
+    public TabuaMareResponse<Object> getNearestHarbor(String latLng) {
+        return restClient.get()
+                .uri("/nearest-harbor-independent-state/{latLng}", latLng)
+                .retrieve()
+                .body(new ParameterizedTypeReference<TabuaMareResponse<Object>>() {});
+    }
+
+    private TabuaMareResponse<Object> getNearestHarborFallback(String latLng, Throwable t) {
+        return unavailable(t, null);
+    }
+
+    private double round1(double v) {
+        return Math.round(v * 10.0) / 10.0;
+    }
+
+    // Fallback comum: usado quando a API externa da tábua de maré está fora do ar ou o circuit
+    // breaker está aberto (após falhas repetidas). Devolve uma resposta "vazia" em vez de deixar
+    // a exceção subir — getTideHeightAt() já sabe lidar com data/total nulos ou vazios.
+    private <D> TabuaMareResponse<D> unavailable(Throwable t, D emptyData) {
+        log.warn("TabuaMare API indisponível ({}): {}", t.getClass().getSimpleName(), t.getMessage());
+        return TabuaMareResponse.<D>builder()
+                .data(emptyData)
+                .total(0)
+                .error(new TabuaMareResponse.TabuaMareError("API externa de maré indisponível no momento", 503))
+                .build();
+    }
+
+    @Override
+    @org.springframework.cache.annotation.Cacheable(value = "tideDataExternal", key = "T(java.lang.Math).round(#latitude * 100) / 100.0 + '-' + T(java.lang.Math).round(#longitude * 100) / 100.0")
+    public Double getCurrentTideHeight(double latitude, double longitude) {
+        return getTideHeightAt(latitude, longitude, java.time.LocalDateTime.now());
+    }
+
+    @Override
+    public Double getTideHeightAt(double latitude, double longitude, java.time.LocalDateTime timestamp) {
+        log.info("TabuaMare: Buscando maré para Lat: {}, Lon: {} para a data: {}", latitude, longitude, timestamp);
+        try {
+            // Arredonda a ~11km (1 casa decimal) antes de montar a chave de cache do porto mais
+            // próximo: portos são pontos esparsos, então leituras de sensores próximas (mesma
+            // cidade/RMR) devem reaproveitar a MESMA busca em vez de uma chamada externa por
+            // coordenada exata — sem isso, um ciclo de coleta com dezenas de estações gera dezenas
+            // de chamadas redundantes e estoura o limite por minuto da API.
+            String latLng = "[" + round1(latitude) + "," + round1(longitude) + "]";
+            TabuaMareResponse<Object> nearestResponse = self.getNearestHarbor(latLng);
+            
+            log.debug("TabuaMare: Resposta do porto mais próximo: {}", nearestResponse);
+
+            if (nearestResponse != null && nearestResponse.getData() != null) {
+                Map<String, Object> harborData = null;
+                
+                if (nearestResponse.getData() instanceof List) {
+                    List<Map<String, Object>> list = (List<Map<String, Object>>) nearestResponse.getData();
+                    if (!list.isEmpty()) {
+                        harborData = list.get(0);
+                    }
+                } else if (nearestResponse.getData() instanceof Map) {
+                    harborData = (Map<String, Object>) nearestResponse.getData();
+                }
+
+                if (harborData == null) {
+                    log.warn("TabuaMare: Dados do porto não encontrados na resposta.");
+                    return null;
+                }
+
+                Object idObj = harborData.get("id");
+                Object stateObj = harborData.get("state");
+                if (idObj == null) {
+                    log.warn("TabuaMare: ID do porto não encontrado na resposta.");
+                    return null;
+                }
+                
+                String harborId = idObj.toString();
+                if (harborId.matches("\\d+") && stateObj != null) {
+                    String state = stateObj.toString().toLowerCase();
+                    harborId = state + String.format("%02d", Integer.parseInt(harborId));
+                }
+                
+                log.info("TabuaMare: Porto identificado: {}", harborId);
+                
+                int month = timestamp.getMonthValue();
+                int day = timestamp.getDayOfMonth();
+                int hour = timestamp.getHour();
+                
+                String days = "[" + day + "]";
+                TabuaMareResponse<List<Object>> tideTable = self.getTideTable(harborId, month, days);
+                
+                if (tideTable != null && tideTable.getData() != null && !tideTable.getData().isEmpty()) {
+                    Object firstData = tideTable.getData().get(0);
+                    if (firstData instanceof Map) {
+                        Map<String, Object> data = (Map<String, Object>) firstData;
+                        List<Map<String, Object>> months = (List<Map<String, Object>>) data.get("months");
+                        if (months != null && !months.isEmpty()) {
+                            Map<String, Object> monthData = months.stream()
+                                .filter(m -> m.get("month") != null && Integer.parseInt(m.get("month").toString()) == month)
+                                .findFirst()
+                                .orElse(months.get(0));
+
+                            List<Map<String, Object>> daysList = (List<Map<String, Object>>) monthData.get("days");
+                            if (daysList != null && !daysList.isEmpty()) {
+                                Map<String, Object> dayData = daysList.stream()
+                                    .filter(d -> d.get("day") != null && Integer.parseInt(d.get("day").toString()) == day)
+                                    .findFirst()
+                                    .orElse(daysList.get(0));
+
+                                List<Map<String, Object>> hours = (List<Map<String, Object>>) dayData.get("hours");
+                                if (hours != null && !hours.isEmpty()) {
+                                    // Ordenar os eventos por horário
+                                    List<Map<String, Object>> sortedHours = hours.stream()
+                                        .sorted(Comparator.comparingInt(h -> {
+                                            String hStr = h.get("hour").toString();
+                                            return Integer.parseInt(hStr.split(":")[0]) * 60 + 
+                                                   Integer.parseInt(hStr.split(":")[1]);
+                                        }))
+                                        .toList();
+
+                                    int targetMinutes = hour * 60 + timestamp.getMinute();
+                                    Map<String, Object> prev = null;
+                                    Map<String, Object> next = null;
+
+                                    for (Map<String, Object> h : sortedHours) {
+                                        String hStr = h.get("hour").toString();
+                                        int hMinutes = Integer.parseInt(hStr.split(":")[0]) * 60 + 
+                                                       Integer.parseInt(hStr.split(":")[1]);
+                                        
+                                        if (hMinutes <= targetMinutes) {
+                                            prev = h;
+                                        } else {
+                                            next = h;
+                                            break;
+                                        }
+                                    }
+
+                                    if (prev != null && next != null) {
+                                        // Interpolação senoidal entre dois picos
+                                        double h1 = Double.parseDouble(prev.get("level").toString());
+                                        double h2 = Double.parseDouble(next.get("level").toString());
+                                        
+                                        String pStr = prev.get("hour").toString();
+                                        int t1 = Integer.parseInt(pStr.split(":")[0]) * 60 + Integer.parseInt(pStr.split(":")[1]);
+                                        
+                                        String nStr = next.get("hour").toString();
+                                        int t2 = Integer.parseInt(nStr.split(":")[0]) * 60 + Integer.parseInt(nStr.split(":")[1]);
+                                        
+                                        double fraction = (double) (targetMinutes - t1) / (t2 - t1);
+                                        double interpolated = (h1 + h2) / 2.0 + (h1 - h2) / 2.0 * Math.cos(Math.PI * fraction);
+                                        
+                                        // Arredondar para 2 casas decimais para evitar valores "quebrados"
+                                        interpolated = Math.round(interpolated * 100.0) / 100.0;
+
+                                        log.debug("TabuaMare: Interpolado entre {} ({}) e {} ({}) para {}: {}", 
+                                            pStr, h1, nStr, h2, timestamp, interpolated);
+                                        return interpolated;
+                                    } else {
+                                        // Se só temos um lado (início ou fim do dia), retorna o pico mais próximo
+                                        Map<String, Object> nearest = sortedHours.stream()
+                                            .min(Comparator.comparingInt(h -> {
+                                                String hStr = h.get("hour").toString();
+                                                int hMinutes = Integer.parseInt(hStr.split(":")[0]) * 60 + 
+                                                               Integer.parseInt(hStr.split(":")[1]);
+                                                return Math.abs(hMinutes - targetMinutes);
+                                            })).get();
+                                        return Double.parseDouble(nearest.get("level").toString());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("TabuaMare: Erro crítico ao processar maré para lat={}, lon={} em {}: {}", latitude, longitude, timestamp, e.getMessage());
+        }
+        return null;
+    }
+}

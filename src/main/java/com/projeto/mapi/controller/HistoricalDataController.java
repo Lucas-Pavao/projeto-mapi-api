@@ -1,6 +1,8 @@
 package com.projeto.mapi.controller;
 
-import com.projeto.mapi.service.HistoricalDataService;
+import com.projeto.mapi.dto.TideSyncSummaryDTO;
+import com.projeto.mapi.service.sensor.HistoricalDataService;
+import com.projeto.mapi.service.tide.TideTableSyncService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +15,8 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Administração - Ingestão", description = "Endpoints para carregar dados históricos")
 public class HistoricalDataController {
 
-    private final com.projeto.mapi.service.HistoricalDataService historicalDataService;
+    private final com.projeto.mapi.service.sensor.HistoricalDataService historicalDataService;
+    private final TideTableSyncService tideTableSyncService;
 
     @PostMapping("/historical-weather")
     @Operation(summary = "Inicia ingestão de histórico de chuva (Open-Meteo) para todos os pontos")
@@ -75,6 +78,13 @@ public class HistoricalDataController {
     public ResponseEntity<String> repairStations() {
         historicalDataService.repairStationMappings();
         return ResponseEntity.ok("Mapeamento de estações reparado com sucesso.");
+    }
+
+    @PostMapping("/tide-sync")
+    @Operation(summary = "Sincroniza a tábua de maré local (TabuaMare/DHN) para os portos mais próximos de todos os pontos cadastrados")
+    public ResponseEntity<TideSyncSummaryDTO> syncTideTables(@RequestParam(required = false) Integer year) {
+        int targetYear = year != null ? year : java.time.Year.now().getValue();
+        return ResponseEntity.ok(tideTableSyncService.syncYear(targetYear));
     }
 
     @DeleteMapping("/wipe-database")

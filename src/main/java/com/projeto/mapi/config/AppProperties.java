@@ -12,6 +12,8 @@ public class AppProperties {
     private Weather weather = new Weather();
     private TabuaMare tabuamare = new TabuaMare();
     private Marine marine = new Marine();
+    private Ana ana = new Ana();
+    private Apac apac = new Apac();
     private Cookie cookie = new Cookie();
     private Cors cors = new Cors();
 
@@ -23,6 +25,44 @@ public class AppProperties {
     @Data
     public static class Weather {
         private String apiUrl;
+    }
+
+    @Data
+    public static class Ana {
+        private String identifier;
+        private String password;
+        private String authUrl = "https://www.ana.gov.br/hidrowebservice/EstacoesTelemetricas/OAUth/v1";
+        private String baseUrl = "https://www.ana.gov.br/hidrowebservice/EstacoesTelemetricas/HidroinfoanaSerieTelemetricaAdotada/v1";
+        private String inventoryUrl = "https://www.ana.gov.br/hidrowebservice/EstacoesTelemetricas/HidroInventarioEstacoes/v1";
+        private String tipoFiltroData = "DATA_LEITURA";
+        private String intervaloBusca = "HORA_16";
+        private boolean enabled = true;
+        private long fixedRateMs = 900000L;
+        private long initialDelayMs = 15000L;
+
+        // Descoberta dinâmica de estações (substitui a antiga lista fixa de 8 códigos, dos quais 2
+        // não existiam mais no inventário ativo da ANA). Serviço legado, público e sem
+        // autenticação, já usado por AnaHistoricalServiceImpl — lista todas as estações
+        // telemétricas do Brasil; filtramos por UF + raio a partir de um centro (RMR por padrão).
+        private String discoveryUrl = "http://telemetriaws1.ana.gov.br/ServiceANA.asmx/ListaEstacoesTelemetricas";
+        private String discoveryUf = "PE";
+        private double discoveryCenterLat = -8.0476;
+        private double discoveryCenterLon = -34.8770;
+        private double discoveryRadiusKm = 50.0;
+        private long discoveryCacheTtlHours = 24L;
+    }
+
+    @Data
+    public static class Apac {
+        private String baseUrl = "http://dados.apac.pe.gov.br:41120";
+        private String cemadenEndpoint = "cemaden";
+        private String meteorologiaEndpoint = "meteorologia24h";
+        private boolean cemadenRmrOnly = true;
+        private boolean meteorologiaRmrOnly = false;
+        private boolean enabled = true;
+        private long cemadenFixedRateMs = 180000L;
+        private long meteorologiaFixedRateMs = 300000L;
+        private long initialDelayMs = 20000L;
     }
 
     @Data

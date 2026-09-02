@@ -19,12 +19,11 @@ jwt:
   secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
   refreshExpiration: 2592000000
 
-mqtt:
-  broker:
-    url: tcp://localhost:1883
-  client:
-    id: test-client
-  topic: test/topic
+app:
+  ana:
+    enabled: false
+  apac:
+    enabled: false
 
 weather:
   apiUrl: https://api.open-meteo.com/v1

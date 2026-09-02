@@ -92,6 +92,12 @@ class SecurityAndValidationIntegrationTest {
     }
 
     @Test
+    void exportEndpoint_withoutToken_isRejected() throws Exception {
+        mockMvc.perform(get("/api/export/ia-dataset/stream"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void weatherEndpoint_withoutRequiredParams_returns400NotServerError() throws Exception {
         mockMvc.perform(get("/api/weather"))
                 .andExpect(status().isBadRequest())
