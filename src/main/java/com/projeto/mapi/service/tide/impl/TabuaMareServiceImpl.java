@@ -4,6 +4,7 @@ import com.projeto.mapi.config.AppProperties;
 import com.projeto.mapi.dto.TabuaMareResponse;
 import com.projeto.mapi.service.tide.TabuaMareService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -29,6 +30,7 @@ public class TabuaMareServiceImpl implements TabuaMareService {
     }
 
     @Override
+    @RateLimiter(name = "tabuaMare")
     @Retry(name = "tabuaMare")
     @CircuitBreaker(name = "tabuaMare", fallbackMethod = "getStatesFallback")
     public TabuaMareResponse<List<String>> getStates() {
@@ -43,6 +45,7 @@ public class TabuaMareServiceImpl implements TabuaMareService {
     }
 
     @Override
+    @RateLimiter(name = "tabuaMare")
     @Retry(name = "tabuaMare")
     @CircuitBreaker(name = "tabuaMare", fallbackMethod = "getHarborNamesFallback")
     public TabuaMareResponse<List<Object>> getHarborNames(String state) {
@@ -57,6 +60,7 @@ public class TabuaMareServiceImpl implements TabuaMareService {
     }
 
     @Override
+    @RateLimiter(name = "tabuaMare")
     @Retry(name = "tabuaMare")
     @CircuitBreaker(name = "tabuaMare", fallbackMethod = "getHarborsFallback")
     public TabuaMareResponse<List<Object>> getHarbors(String ids) {
@@ -75,6 +79,7 @@ public class TabuaMareServiceImpl implements TabuaMareService {
     // chamado em laço por exportUnifiedDataWithAccumulated (ex: /api/precise-data, /api/pontos/{id}).
     // Sem cache, isso gerava até 24 chamadas HTTP idênticas à API externa por dia exportado.
     @org.springframework.cache.annotation.Cacheable(value = "tideTableDaily", key = "#harbor + '-' + #month + '-' + #days")
+    @RateLimiter(name = "tabuaMare")
     @Retry(name = "tabuaMare")
     @CircuitBreaker(name = "tabuaMare", fallbackMethod = "getTideTableFallback")
     public TabuaMareResponse<List<Object>> getTideTable(String harbor, Integer month, String days) {
@@ -92,6 +97,7 @@ public class TabuaMareServiceImpl implements TabuaMareService {
     // O porto mais próximo só depende da coordenada, não do horário; cachear evita repetir a
     // mesma busca de porto a cada hora do laço em getTideHeightAt/exportUnifiedDataWithAccumulated.
     @org.springframework.cache.annotation.Cacheable(value = "tideNearestHarbor", key = "#latLng")
+    @RateLimiter(name = "tabuaMare")
     @Retry(name = "tabuaMare")
     @CircuitBreaker(name = "tabuaMare", fallbackMethod = "getNearestHarborFallback")
     public TabuaMareResponse<Object> getNearestHarbor(String latLng) {
@@ -103,6 +109,10 @@ public class TabuaMareServiceImpl implements TabuaMareService {
 
     private TabuaMareResponse<Object> getNearestHarborFallback(String latLng, Throwable t) {
         return unavailable(t, null);
+    }
+
+    private double round1(double v) {
+        return Math.round(v * 10.0) / 10.0;
     }
 
     // Fallback comum: usado quando a API externa da tábua de maré está fora do ar ou o circuit
@@ -127,7 +137,12 @@ public class TabuaMareServiceImpl implements TabuaMareService {
     public Double getTideHeightAt(double latitude, double longitude, java.time.LocalDateTime timestamp) {
         log.info("TabuaMare: Buscando maré para Lat: {}, Lon: {} para a data: {}", latitude, longitude, timestamp);
         try {
-            String latLng = "[" + latitude + "," + longitude + "]";
+            // Arredonda a ~11km (1 casa decimal) antes de montar a chave de cache do porto mais
+            // próximo: portos são pontos esparsos, então leituras de sensores próximas (mesma
+            // cidade/RMR) devem reaproveitar a MESMA busca em vez de uma chamada externa por
+            // coordenada exata — sem isso, um ciclo de coleta com dezenas de estações gera dezenas
+            // de chamadas redundantes e estoura o limite por minuto da API.
+            String latLng = "[" + round1(latitude) + "," + round1(longitude) + "]";
             TabuaMareResponse<Object> nearestResponse = self.getNearestHarbor(latLng);
             
             log.debug("TabuaMare: Resposta do porto mais próximo: {}", nearestResponse);

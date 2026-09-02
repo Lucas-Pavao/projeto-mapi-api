@@ -129,34 +129,78 @@ public class TideServiceImpl implements TideService {
 
         if (nearestTable == null || nearestTable.getMonths() == null) return null;
 
-        // 3. Buscar o nível para a hora especificada
+        // 3. Encontrar as horas cadastradas do dia (a tábua só traz os picos de maré alta/baixa,
+        // ~4 por dia — não uma entrada por hora) e interpolar entre os dois picos ao redor do
+        // horário pedido, exatamente como TabuaMareServiceImpl.getTideHeightAt já faz para a API
+        // externa. Um filtro de "hora exata" aqui nunca acertaria, já que a hora pedida quase
+        // sempre cai FORA dos poucos horários de pico cadastrados.
         int month = timestamp.getMonthValue();
         int day = timestamp.getDayOfMonth();
-        int hour = timestamp.getHour();
 
-        return nearestTable.getMonths().stream()
+        List<HourData> hours = nearestTable.getMonths().stream()
                 .filter(m -> m.getMonth() != null && m.getMonth() == month)
                 .flatMap(m -> m.getDays() != null ? m.getDays().stream() : java.util.stream.Stream.empty())
                 .filter(d -> d.getDay() != null && d.getDay() == day)
                 .flatMap(d -> d.getHours() != null ? d.getHours().stream() : java.util.stream.Stream.empty())
-                .filter(h -> {
-                    // Tratar formato de hora (ex: "0200" ou "2")
-                    try {
-                        String hStr = h.getHour().replaceAll("[^0-9]", "");
-                        int hVal = Integer.parseInt(hStr);
-                        // A Marinha usa HHmm, pegamos os primeiros dois dígitos para a hora
-                        if (hStr.length() >= 3) hVal = hVal / 100;
-                        return hVal == hour;
-                    } catch (Exception e) {
-                        return false;
-                    }
-                })
-                .map(h -> h.getLevel() != null ? (double) h.getLevel() : null)
-                .findFirst()
-                .orElseGet(() -> {
-                    log.info("Dado local não encontrado. Buscando maré via TabuaMare API para lat: {}, lon: {} em {}", latitude, longitude, timestamp);
-                    return tabuaMareService.getTideHeightAt(latitude, longitude, timestamp);
-                });
+                .filter(h -> h.getHour() != null && h.getLevel() != null)
+                .sorted(java.util.Comparator.comparingInt(this::minutesOfDay))
+                .toList();
+
+        Double interpolated = interpolateLevel(hours, timestamp);
+        if (interpolated != null) {
+            return interpolated;
+        }
+
+        log.info("Dado local não encontrado. Buscando maré via TabuaMare API para lat: {}, lon: {} em {}", latitude, longitude, timestamp);
+        return tabuaMareService.getTideHeightAt(latitude, longitude, timestamp);
     }
 
+    private Double interpolateLevel(List<HourData> sortedHours, java.time.LocalDateTime timestamp) {
+        if (sortedHours.isEmpty()) return null;
+
+        int targetMinutes = timestamp.getHour() * 60 + timestamp.getMinute();
+        HourData prev = null;
+        HourData next = null;
+
+        for (HourData h : sortedHours) {
+            if (minutesOfDay(h) <= targetMinutes) {
+                prev = h;
+            } else {
+                next = h;
+                break;
+            }
+        }
+
+        if (prev != null && next != null) {
+            double h1 = prev.getLevel();
+            double h2 = next.getLevel();
+            double fraction = (double) (targetMinutes - minutesOfDay(prev)) / (minutesOfDay(next) - minutesOfDay(prev));
+            double result = (h1 + h2) / 2.0 + (h1 - h2) / 2.0 * Math.cos(Math.PI * fraction);
+            return Math.round(result * 100.0) / 100.0;
+        }
+
+        // Só temos um lado (início ou fim do dia cadastrado): usa o pico mais próximo.
+        HourData nearest = sortedHours.stream()
+                .min(java.util.Comparator.comparingInt(h -> Math.abs(minutesOfDay(h) - targetMinutes)))
+                .orElse(null);
+        return nearest != null ? (double) nearest.getLevel() : null;
+    }
+
+    // Formato real confirmado ao vivo na API (TabuaMare/DHN): "HH:mm:ss", ex. "00:42:00". Mantém
+    // fallback pro formato compacto "HHmm"/"H" só por segurança, caso a fonte de dados mude.
+    private int minutesOfDay(HourData h) {
+        String raw = h.getHour();
+        try {
+            if (raw.contains(":")) {
+                String[] parts = raw.split(":");
+                return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
+            }
+            String hStr = raw.replaceAll("[^0-9]", "");
+            int hVal = Integer.parseInt(hStr);
+            if (hStr.length() >= 3) return (hVal / 100) * 60 + (hVal % 100);
+            return hVal * 60;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
 }

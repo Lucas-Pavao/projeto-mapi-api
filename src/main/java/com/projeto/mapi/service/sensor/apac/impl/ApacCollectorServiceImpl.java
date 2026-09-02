@@ -27,10 +27,11 @@ import java.util.Map;
  * (SensorService.processSensorMessage).
  *
  * Nota de compatibilidade: SensorServiceImpl.processSinglePayload já força, para qualquer
- * sensorId que contenha "APAC" e tenha um "codigo" associado, o formato final
- * "APAC-PLUVIO-&lt;codigo&gt;" — isso vale tanto para Cemaden quanto para Meteorologia24h, e é um
- * comportamento pré-existente (o mesmo ocorria no fluxo MQTT antigo). O id_sensor construído
- * aqui só prevalece quando não há "codigo" na leitura.
+ * sensorId que contenha "APAC" e tenha um "codigo" associado, o formato final por código —
+ * "APAC-PLUVIO-&lt;codigo&gt;" para leituras normais (Cemaden/Meteorologia24h) e
+ * "APAC-RIO-&lt;codigo&gt;" especificamente para as estações fluviométricas com alerta oficial
+ * (ver parseRiverLevel/campo "nome_rio"), que são uma grandeza e fonte de alerta diferentes de um
+ * pluviômetro. O id_sensor construído aqui só prevalece quando não há "codigo" na leitura.
  */
 @Service
 @RequiredArgsConstructor

@@ -142,28 +142,52 @@ public class AnaDataClientImpl implements AnaDataClient {
             log.warn("ANA_IDENTIFICADOR/ANA_SENHA não configurados; coleta ANA desativada até serem definidos.");
             return null;
         }
-        try {
-            String body = restClient.get()
-                    .uri(URI.create(config.getAuthUrl()))
-                    .header("identificador", config.getIdentifier())
-                    .header("senha", config.getPassword())
-                    .header("accept", "application/json")
-                    .retrieve()
-                    .body(String.class);
 
-            JsonNode root = objectMapper.readTree(body);
-            String token = root.path("items").path("tokenautenticacao").asText(null);
-            if (token != null && !token.isBlank()) {
-                cachedToken = token;
-                tokenExpiresAt = Instant.now().plus(59, ChronoUnit.MINUTES);
-                log.info("Token ANA renovado com sucesso (válido por 59min).");
-                return cachedToken;
+        // Validado ao vivo: o endpoint de autenticação da ANA responde em ~30s quando funciona e
+        // devolve 503/504 com frequência sob instabilidade da infra deles — o Python de referência
+        // já tratava isso com retry dedicado (AuthManager usava urllib3 Retry nesse exato request).
+        // Como esse método engole a exceção (não deixa a coleta inteira falhar por causa do login),
+        // o @Retry do fetchStationMeasurements nunca alcançaria essa falha — por isso o retry é
+        // feito aqui dentro, não lá fora.
+        int maxAttempts = 3;
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                String body = restClient.get()
+                        .uri(URI.create(config.getAuthUrl()))
+                        .header("identificador", config.getIdentifier())
+                        .header("senha", config.getPassword())
+                        .header("accept", "application/json")
+                        .retrieve()
+                        .body(String.class);
+
+                JsonNode root = objectMapper.readTree(body);
+                String token = root.path("items").path("tokenautenticacao").asText(null);
+                if (token != null && !token.isBlank()) {
+                    cachedToken = token;
+                    tokenExpiresAt = Instant.now().plus(59, ChronoUnit.MINUTES);
+                    log.info("Token ANA renovado com sucesso (válido por 59min).");
+                    return cachedToken;
+                }
+                log.warn("Resposta de autenticação ANA sem token válido.");
+                return null;
+            } catch (Exception e) {
+                if (attempt < maxAttempts) {
+                    log.warn("Erro ao obter token ANA (tentativa {}/{}): {}. Retentando...", attempt, maxAttempts, e.getMessage());
+                    sleep(2000L * attempt);
+                } else {
+                    log.error("Erro ao obter token ANA após {} tentativas: {}", maxAttempts, e.getMessage());
+                }
             }
-            log.warn("Resposta de autenticação ANA sem token válido.");
-        } catch (Exception e) {
-            log.error("Erro ao obter token ANA: {}", e.getMessage());
         }
         return null;
+    }
+
+    private void sleep(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     @Override

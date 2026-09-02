@@ -75,10 +75,26 @@ public class SensorServiceImpl implements SensorService {
 
         String finalSensorId = sensorId;
         String code = temp.getCode();
-        
-        // PADRONIZAÇÃO: Se for um sensor da APAC (identificado pelo código ou ID atual), força o formato APAC-PLUVIO-CODE
+        boolean isRiverStation = root.has("nome_rio");
+
+        // PADRONIZAÇÃO: Se for um sensor da APAC (identificado pelo código ou ID atual), força o
+        // formato final por código. Estações fluviométricas (nível de rio com alerta oficial da
+        // APAC, ex. Rio Duas Unas) usam prefixo próprio — misturá-las com pluviômetros no mesmo
+        // "APAC-PLUVIO-" seria enganoso, já que são grandezas e fontes de alerta bem diferentes.
         if (code != null && !code.isBlank() && (sensorId.contains("APAC") || sensorId.startsWith("26"))) {
-            finalSensorId = "APAC-PLUVIO-" + code;
+            finalSensorId = (isRiverStation ? "APAC-RIO-" : "APAC-PLUVIO-") + code;
+        }
+
+        // Fallback de coordenadas: alguns formatos da APAC (estações "[APAC]" genéricas e as
+        // fluviométricas do meteorologia24h) não trazem lat/lon no payload em tempo real. Reusa o
+        // mesmo registro estático já usado pela ingestão histórica (ApacStationRegistry) em vez de
+        // perder o vínculo geográfico com os pontos de monitoramento nesses casos.
+        if ((temp.getLatitude() == null || temp.getLongitude() == null) && code != null) {
+            com.projeto.mapi.util.ApacStationRegistry.StationMetadata meta = com.projeto.mapi.util.ApacStationRegistry.getMetadata(code);
+            if (meta != null) {
+                temp.setLatitude(meta.getLatitude());
+                temp.setLongitude(meta.getLongitude());
+            }
         }
 
         // Proximidade com pontos de alagamento para vínculo em mão dupla (Dual-Link)
@@ -100,7 +116,7 @@ public class SensorServiceImpl implements SensorService {
                     pointUpdated = true;
                 }
                 // Vínculo de Nível de Rio
-                boolean isRiver = root.has("Cota_Adotada");
+                boolean isRiver = root.has("Cota_Adotada") || root.has("nivel_rio");
                 if (isRiver && !fp.getRiverLevelStationIds().contains(finalSensorId)) {
                     log.info("---- [Dual-Link] Vinculando novo nível de rio {} ao ponto {}", finalSensorId, fp.getSlug());
                     fp.getRiverLevelStationIds().add(finalSensorId);

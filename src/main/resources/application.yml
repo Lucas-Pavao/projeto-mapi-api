@@ -99,6 +99,16 @@ app:
 # a "abrir" e falhar rápido (indo direto pro fallback) por um tempo, em vez de esperar timeout
 # a cada requisição.
 resilience4j:
+  # Defesa em profundidade contra rate-limit: mesmo com a tábua de maré local populada
+  # (TideTableSyncService) cobrindo a esmagadora maioria dos lookups, isso limita proativamente
+  # as chamadas restantes à API externa em vez de só reagir depois de já ter tomado 429. Validado
+  # ao vivo: a TabuaMare devolve "429 Limite por minuto excedido" sob rajada; 15/min é conservador.
+  ratelimiter:
+    instances:
+      tabuaMare:
+        limit-for-period: 15
+        limit-refresh-period: 60s
+        timeout-duration: 5s
   circuitbreaker:
     instances:
       tabuaMare:
