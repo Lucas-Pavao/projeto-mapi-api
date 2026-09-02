@@ -209,15 +209,15 @@ public class SensorServiceImpl implements SensorService {
                 Double tideHeight = tideService.getTideHeightAt(data.getLatitude(), data.getLongitude(), data.getTimestamp());
                 data.setTideHeight(tideHeight);
             } catch (Exception e) {
-                log.warn("Erro ao calcular altura da maré para o sensor {}: {}", sensorId, e.getMessage());
+                log.warn("Erro ao calcular altura da maré para o sensor {}: {}", finalSensorId, e.getMessage());
             }
         }
 
         try {
             sensorDataRepository.save(data);
-            log.info("Dados do sensor {} salvos: timestamp={}", sensorId, timestamp);
+            log.info("Dados do sensor {} salvos: timestamp={}", finalSensorId, timestamp);
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
-            log.warn("Tentativa de salvar registro duplicado interceptada pelo banco: {} em {}", sensorId, timestamp);
+            log.warn("Tentativa de salvar registro duplicado interceptada pelo banco: {} em {}", finalSensorId, timestamp);
         }
     }
 
