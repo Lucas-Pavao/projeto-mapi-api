@@ -17,9 +17,16 @@ public final class RmrFilter {
             "SAO LOURENCO DA MATA", "ARACOIABA", "ILHA DE ITAMARACA", "ITAPISSUMA", "GOIANA"
     );
 
+    // "COMPESA" e "SEDE" foram removidos desta lista: validado ao vivo (ver log de produção) que
+    // são termos genéricos demais — "Compesa" é a companhia de saneamento ESTADUAL (aparece em
+    // nomes de estação por todo o interior de PE, ex. "[ETA Compesa]" em Tuparetama, São Caitano,
+    // Sanharó, Afogados da Ingazeira, Itacuruba, a centenas de km da RMR) e "sede" é uma palavra
+    // comum demais para servir de termo especial. Ambos geravam falsos positivos reais no filtro
+    // RMR-only do Cemaden, inflando o volume coletado e vinculando estações de outras regiões a
+    // todos os pontos de monitoramento (por falta de coordenadas).
     private static final List<String> RMR_TERMOS_ESPECIAIS = List.of(
             "CASTELO BRANCO", "ENGENHO VELHO", "CURADO", "VILA NATAL", "ALTO DA BONDADE",
-            "PINA", "IMBIRIBEIRA", "NOVA DESCOBERTA", "ALDEIA", "COMPESA", "SEDE"
+            "PINA", "IMBIRIBEIRA", "NOVA DESCOBERTA", "ALDEIA"
     );
 
     private RmrFilter() {
