@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.Date;
 import java.util.stream.Collectors;
@@ -96,6 +97,20 @@ public class GlobalExceptionHandler {
                 HttpStatus.UNAUTHORIZED.value(),
                 new Date(),
                 "Invalid username or password",
+                request.getDescription(false));
+    }
+
+    // Sem isso, qualquer URL sem rota mapeada (ex: um typo, ou um endpoint desativado) caía no
+    // catch-all de Exception.class abaixo e virava 500 — descoberto ao testar o Actuator na porta
+    // de management (uma URL inexistente devia dar 404, não erro interno).
+    @ExceptionHandler(NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorMessage handleNoResourceFoundException(NoResourceFoundException ex, WebRequest request) {
+        log.warn("Rota inexistente: {}", request.getDescription(false));
+        return new ErrorMessage(
+                HttpStatus.NOT_FOUND.value(),
+                new Date(),
+                "Recurso não encontrado",
                 request.getDescription(false));
     }
 

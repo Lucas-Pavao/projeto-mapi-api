@@ -37,6 +37,14 @@ jwt:
   secret: ${JWT_SECRET}
   refreshExpiration: ${JWT_REFRESH_EXPIRATION:2592000000} # 30 dias
 
+server:
+  tomcat:
+    # Desligado por padrão no Spring Boot (custo de registrar MBeans). Sem isso, o Micrometer não
+    # consegue publicar tomcat_threads_busy/tomcat_threads_config_max (usadas no painel de
+    # Utilization) — só as métricas de sessão, que vêm de outra fonte, aparecem sem isso.
+    mbeanregistry:
+      enabled: true
+
 app:
   navy:
     base-url: ${NAVY_API_URL:https://www.marinha.mil.br}
@@ -163,11 +171,16 @@ resilience4j:
           - org.springframework.web.client.HttpServerErrorException
 
 management:
+  server:
+    # Actuator sobe num connector HTTP próprio, separado da porta 8080 da API — assim ele nunca
+    # é publicado no docker-compose (só o 8080 é), o que é a real barreira de segurança aqui.
+    # O SecurityFilterChain de SecurityConfig continua interceptando essa porta também (testado
+    # ao vivo — não há isolamento automático de autenticação só por trocar de porta), por isso
+    # /health, /info e /prometheus continuam com regras explícitas de permitAll lá.
+    port: ${MANAGEMENT_PORT:9404}
   endpoints:
     web:
       exposure:
-        # /health e /info ficam públicos (ver SecurityConfig) pra health-check de orquestração
-        # (Docker/K8s); os demais (ex: /prometheus, /metrics, /env) exigem role ADMIN.
         include: health,info,prometheus,metrics
   endpoint:
     health:
@@ -177,3 +190,10 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+    distribution:
+      # Habilita os buckets de histograma (série "_bucket") pra http.server.requests, exigidos
+      # pelo histogram_quantile() do Prometheus — sem isso só dá pra ver média (sum/count), não
+      # percentis (p95/p99), que é justamente o que o dashboard de teoria das filas usa pra
+      # responder "como se comportam os casos extremos".
+      percentiles-histogram:
+        http.server.requests: true

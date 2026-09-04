@@ -1,0 +1,15 @@
+apiVersion: 1
+
+providers:
+  - name: mapi
+    orgId: 1
+    folder: MAPI
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    # allowUiUpdates: true deixa editar no navegador pra explorar/ajustar, mas qualquer alteração
+    # feita só na UI se perde no próximo redeploy do container — o arquivo .json em
+    # observability/grafana/dashboards/ é que é a fonte de verdade versionada.
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards

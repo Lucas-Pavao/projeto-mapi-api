@@ -37,7 +37,15 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/logout").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/sensors/**", "/api/weather/**").permitAll()
-                .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
+                // Verificado ao vivo: mesmo com management.server.port separado (application.yml),
+                // esse SecurityFilterChain continua interceptando as requisições do Actuator —
+                // não existe isolamento automático por porta aqui (ao contrário do que a doc do
+                // Spring Boot dá a entender pra outras versões/topologias). /health e /info ficam
+                // públicos pro healthcheck do Docker; /prometheus também, porque o Prometheus não
+                // faz login JWT — a proteção real dele é a porta 9404 nunca ser publicada no
+                // docker-compose (só alcançável de dentro da rede interna). O resto (/metrics,
+                // /env etc.) continua exigindo ADMIN.
+                .requestMatchers("/actuator/health/**", "/actuator/info", "/actuator/prometheus").permitAll()
                 .requestMatchers("/actuator/**").hasAuthority(Role.ADMIN.name())
                 .requestMatchers("/api/admin/ingestion/**").hasAuthority(Role.ADMIN.name())
                 .anyRequest().authenticated()

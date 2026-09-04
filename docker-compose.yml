@@ -69,7 +69,9 @@ services:
     volumes:
       - api_logs:/app/logs
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      # 9404, não 8080: com management.server.port setado (application.yml), o Actuator migra
+      # inteiro pra essa porta — /actuator/health deixa de existir na 8080.
+      test: ["CMD", "curl", "-f", "http://localhost:9404/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -79,6 +81,52 @@ services:
         condition: service_healthy
       mapi-ai:
         condition: service_started
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    container_name: mapi-prometheus
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      # Só em 127.0.0.1: acessível da própria máquina (ou via túnel SSH em produção), nunca da
+      # rede externa — Prometheus não tem autenticação própria.
+      - "127.0.0.1:9090:9090"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      mapi-api:
+        condition: service_healthy
+
+  grafana:
+    image: grafana/grafana:11.3.1
+    container_name: mapi-grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      # Mesmo padrão do JWT_SECRET acima: valor só para o stack local de desenvolvimento. Em
+      # produção, defina GRAFANA_ADMIN_PASSWORD no ambiente/secret manager real.
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-mapi123}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      # 3001, não 3000: a 3000 já é do mapi-front. Mesma restrição a 127.0.0.1 do Prometheus.
+      - "127.0.0.1:3001:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    depends_on:
+      prometheus:
+        condition: service_healthy
 
   mapi-front:
     build:
@@ -106,6 +154,46 @@ services:
       mapi-api:
         condition: service_healthy
 
+  status:
+    image: alpine:3.20
+    container_name: mapi-status
+    # Não é um serviço de verdade: só existe pra imprimir esse resumo quando TUDO (inclusive os
+    # healthchecks) já estiver de pé — "docker compose up" sozinho não faz isso. Sobe, imprime e
+    # sai; "Exited (0)" no "docker compose ps" é o estado esperado dele, não uma falha. Em modo
+    # "-d" (destacado) esse resumo não aparece no terminal na hora — veja com
+    # "docker compose logs status".
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mapi-ai:
+        condition: service_started
+      mapi-api:
+        condition: service_healthy
+      prometheus:
+        condition: service_healthy
+      grafana:
+        condition: service_healthy
+      mapi-front:
+        condition: service_healthy
+    command:
+      - sh
+      - -c
+      - |
+        echo ""
+        echo "================================================================"
+        echo " MAPI - stack no ar"
+        echo "================================================================"
+        echo " Front-end (mapi-front)   http://localhost:3000"
+        echo " API (mapi-api)           http://localhost:8080"
+        echo " Swagger UI               http://localhost:8080/swagger-ui/index.html"
+        echo " AI service (mapi-ai)     http://localhost:8000"
+        echo " Postgres (mapi-db)       localhost:5433"
+        echo " Prometheus               http://localhost:9090"
+        echo " Grafana                  http://localhost:3001  (admin / mapi123 - so dev)"
+        echo "================================================================"
+
 volumes:
   postgres_data:
   api_logs:
+  prometheus_data:
+  grafana_data:
