@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # job_name é usado como label "job" em todas as queries dos dashboards do Grafana (ver
+  # observability/grafana/dashboards/*.json) — se mudar aqui, tem que mudar lá também.
+  - job_name: mapi-api
+    metrics_path: /actuator/prometheus
+    static_configs:
+      # 9404 é a management.server.port do Spring (application.yml), alcançável só dentro da
+      # rede interna do docker-compose — não é publicada no host.
+      - targets: ["mapi-api:9404"]
+        labels:
+          service: mapi-api

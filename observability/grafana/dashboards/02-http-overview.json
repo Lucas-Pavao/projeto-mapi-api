@@ -1,0 +1,84 @@
+{
+  "uid": "mapi-http-overview",
+  "title": "MAPI - Visao Geral HTTP",
+  "description": "Rate/Errors/Duration da API: volume por status, taxa de erro e os endpoints que mais pesam.",
+  "tags": ["mapi", "http"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Requisições por status",
+      "description": "Volume de requisições HTTP concluídas, agrupado pelo resultado (SUCCESS, CLIENT_ERROR, SERVER_ERROR...).",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "reqps", "custom": { "stacking": { "mode": "normal" } } }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(http_server_requests_seconds_count{job=\"mapi-api\"}[$__rate_interval])) by (outcome)",
+          "legendFormat": "{{outcome}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Taxa de erro (5xx)",
+      "description": "Percentual de requisições que terminaram como SERVER_ERROR sobre o total.",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percent", "max": 100, "min": 0 }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "100 * sum(rate(http_server_requests_seconds_count{job=\"mapi-api\",outcome=\"SERVER_ERROR\"}[$__rate_interval])) / sum(rate(http_server_requests_seconds_count{job=\"mapi-api\"}[$__rate_interval]))",
+          "legendFormat": "taxa de erro"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "table",
+      "title": "Top 10 endpoints mais lentos",
+      "description": "Tempo médio de resposta por rota, maiores primeiro.",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "instant": true,
+          "format": "table",
+          "expr": "topk(10, sum(rate(http_server_requests_seconds_sum{job=\"mapi-api\"}[$__rate_interval])) by (uri) / sum(rate(http_server_requests_seconds_count{job=\"mapi-api\"}[$__rate_interval])) by (uri))"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "table",
+      "title": "Top 10 endpoints por tráfego",
+      "description": "Rotas com maior throughput (requisições/s).",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "instant": true,
+          "format": "table",
+          "expr": "topk(10, sum(rate(http_server_requests_seconds_count{job=\"mapi-api\"}[$__rate_interval])) by (uri))"
+        }
+      ]
+    }
+  ]
+}

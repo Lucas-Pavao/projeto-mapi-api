@@ -1,0 +1,151 @@
+{
+  "uid": "mapi-queueing-theory",
+  "title": "MAPI - Teoria das Filas",
+  "description": "Um painel por pergunta clássica de teoria das filas (Lei da Utilização, Lei de Little), respondida com métricas reais expostas pelo Actuator/Micrometer da API.",
+  "tags": ["mapi", "performance", "queueing-theory"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Throughput",
+      "description": "Quanto trabalho o sistema processa? Requisições HTTP concluídas por segundo, por rota.",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(http_server_requests_seconds_count{job=\"mapi-api\"}[$__rate_interval])) by (uri)",
+          "legendFormat": "{{uri}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Response Time",
+      "description": "Quanto tempo o usuário espera? Tempo médio de resposta HTTP (fila + processamento).",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(http_server_requests_seconds_sum{job=\"mapi-api\"}[$__rate_interval])) / sum(rate(http_server_requests_seconds_count{job=\"mapi-api\"}[$__rate_interval]))",
+          "legendFormat": "tempo médio de resposta"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Waiting Time",
+      "description": "Quanto tempo uma requisição fica esperando por um recurso? Tempo médio para obter uma conexão do pool HikariCP (fila de acesso ao banco).",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(hikaricp_connections_acquire_seconds_sum{job=\"mapi-api\"}[$__rate_interval])) / sum(rate(hikaricp_connections_acquire_seconds_count{job=\"mapi-api\"}[$__rate_interval]))",
+          "legendFormat": "espera média por conexão"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Service Time",
+      "description": "Quanto tempo o recurso trabalha? Tempo médio que uma conexão do pool fica em uso ativo (fora da fila).",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(hikaricp_connections_usage_seconds_sum{job=\"mapi-api\"}[$__rate_interval])) / sum(rate(hikaricp_connections_usage_seconds_count{job=\"mapi-api\"}[$__rate_interval]))",
+          "legendFormat": "tempo médio de uso (serviço)"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Utilization",
+      "description": "Quanto um recurso está ocupado? Fração ocupada do pool de conexões do banco e do pool de threads HTTP (Tomcat).",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percentunit", "max": 1, "min": 0 }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "hikaricp_connections_active{job=\"mapi-api\"} / hikaricp_connections_max{job=\"mapi-api\"}",
+          "legendFormat": "pool de conexões (DB)"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "tomcat_threads_busy_threads{job=\"mapi-api\"} / tomcat_threads_config_max_threads{job=\"mapi-api\"}",
+          "legendFormat": "threads HTTP (Tomcat)"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Queue Length",
+      "description": "Existe congestionamento? Número de threads aguardando uma conexão livre no pool do banco.",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "hikaricp_connections_pending{job=\"mapi-api\"}",
+          "legendFormat": "conexões aguardando"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Percentis",
+      "description": "Como se comportam os casos extremos? p50/p95/p99 do tempo de resposta HTTP.",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket{job=\"mapi-api\"}[$__rate_interval])) by (le))",
+          "legendFormat": "p50"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"mapi-api\"}[$__rate_interval])) by (le))",
+          "legendFormat": "p95"
+        },
+        {
+          "refId": "C",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{job=\"mapi-api\"}[$__rate_interval])) by (le))",
+          "legendFormat": "p99"
+        }
+      ]
+    }
+  ]
+}

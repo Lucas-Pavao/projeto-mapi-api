@@ -1,0 +1,121 @@
+{
+  "uid": "mapi-coletores-resiliencia",
+  "title": "MAPI - Coletores e Resiliencia",
+  "description": "Saúde dos jobs agendados de coleta (ANA/APAC) e dos circuit breakers do Resilience4j que os protegem.",
+  "tags": ["mapi", "collectors", "resilience4j"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Execuções de coleta por origem",
+      "description": "Ciclos de coleta agendada (ANA / APAC Cemaden / APAC Meteorologia) concluídos por segundo, por resultado.",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(mapi_collector_run_seconds_count{job=\"mapi-api\"}[$__rate_interval])) by (source, outcome)",
+          "legendFormat": "{{source}} ({{outcome}})"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "Duração das coletas (p95)",
+      "description": "Tempo (95º percentil) que cada ciclo de coleta leva, por origem.",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "histogram_quantile(0.95, sum(rate(mapi_collector_run_seconds_bucket{job=\"mapi-api\"}[$__rate_interval])) by (le, source))",
+          "legendFormat": "{{source}}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Registros processados vs. com erro",
+      "description": "Volume de leituras de sensores processadas com sucesso e com erro, por origem.",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(mapi_collector_records_processed_total{job=\"mapi-api\"}[$__rate_interval])) by (source)",
+          "legendFormat": "{{source}} processados"
+        },
+        {
+          "refId": "B",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(mapi_collector_records_errors_total{job=\"mapi-api\"}[$__rate_interval])) by (source)",
+          "legendFormat": "{{source}} erros"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Falhas inesperadas na coleta",
+      "description": "Exceções não tratadas que interromperam um ciclo de coleta inteiro (ex: fonte externa fora do ar).",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(mapi_collector_failures_total{job=\"mapi-api\"}[$__rate_interval])) by (source)",
+          "legendFormat": "{{source}}"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "state-timeline",
+      "title": "Estado dos circuit breakers",
+      "description": "CLOSED (normal), OPEN (bloqueando chamadas) ou HALF_OPEN (testando recuperação) por integração externa (tabuaMare, openMeteo, anaData, apacScrape).",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "resilience4j_circuitbreaker_state{job=\"mapi-api\"} == 1",
+          "legendFormat": "{{name}} - {{state}}"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Chamadas por circuit breaker",
+      "description": "Chamadas às integrações externas por segundo, separadas por resultado (successful, failed, not_permitted).",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "ops" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(rate(resilience4j_circuitbreaker_calls_seconds_count{job=\"mapi-api\"}[$__rate_interval])) by (name, kind)",
+          "legendFormat": "{{name}} ({{kind}})"
+        }
+      ]
+    }
+  ]
+}
