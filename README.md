@@ -43,6 +43,8 @@ Este projeto centraliza e gerencia o fluxo de dados do ecossistema:
 | **Agendamento** | Spring `@Scheduled` + Resilience4j | Coleta periódica direta das APIs de sensores (ANA/APAC), com retry e circuit breaker. |
 | **Segurança** | Spring Security + JWT | Controle estrito de acesso e ciclo de vida de tokens. |
 | **Documentação** | OpenAPI 3.0 (Swagger) | Contrato claro de endpoints para integração facilitada. |
+| **Observabilidade** | Prometheus + Grafana | Métricas via Actuator/Micrometer, dashboards de HTTP, JVM, filas e resiliência. |
+| **Teste de Carga** | k6 (com output remote-write) | Simula tráfego real e envia métricas ao vivo direto para o Prometheus/Grafana. |
 
 ## 🏗️ Arquitetura e Especialização
 
@@ -65,6 +67,13 @@ projeto-mapi-api/
 ├── GEMINI.md                    # Dicionário de convenções e regras de ouro
 ├── pom.xml                      # Gestão de dependências Maven
 ├── TimescaleSetup.sql           # Script crítico de inicialização de Hipertabelas
+├── observability/               # Stack de monitoramento (Prometheus + Grafana)
+│   ├── prometheus/prometheus.yml        # Scrape config (alvo: mapi-api:9404/actuator/prometheus)
+│   └── grafana/
+│       ├── provisioning/                # Datasource e auto-load de dashboards
+│       └── dashboards/                  # 5 dashboards prontos (HTTP, JVM, filas, coletores, k6)
+├── loadtest/
+│   └── stress-test.js           # Script k6 de teste de carga (ramping-vus)
 └── src/
     ├── main/
     │   ├── java/com/projeto/mapi/
@@ -140,6 +149,8 @@ Execute `docker ps` para ver os containers ativos: `mapi-api`, `mapi-db`, `mapi-
 - **Dashboard (Front):** [http://localhost:3000](http://localhost:3000)
 - **Documentação API (Swagger):** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 - **Banco de Dados:** Porta `5433` da sua máquina local.
+- **Prometheus:** [http://localhost:9090](http://localhost:9090)
+- **Grafana:** [http://localhost:3001](http://localhost:3001) (login padrão: `admin` / `mapi123`, apenas para uso local)
 
 #### Passo 5: Como ver os logs
 Se algo não funcionar, verifique as mensagens do sistema:
@@ -163,6 +174,28 @@ Após subir a stack, é necessário realizar a carga inicial de dados via Swagge
 2. **Histórico:** `POST /api/admin/ingestion/historical-full-sync?years=5` (Sincroniza 5 anos de dados).
 3. **Ocorrências:** `POST /api/admin/ingestion/historical-civil-defense` (Importa dados da Defesa Civil).
 4. **Registro de Rótulos de Cenários:** `POST /api/pontos/scenarios` (Registra observações de cenários de alagamentos reais ou simulados unificando telemetria de sensores, clima e marés para gerar dados de treino de alta fidelidade para a IA).
+
+## 📊 Observabilidade (Prometheus + Grafana)
+
+A stack sobe automaticamente com o `docker compose up` (junto com a API e o banco) e já vem com dashboards provisionados:
+
+- 🔥 **Prometheus** ([localhost:9090](http://localhost:9090)): faz *scrape* do endpoint `/actuator/prometheus` da mapi-api a cada 15s (exposto internamente na porta `9404` via Micrometer). Restrito a `127.0.0.1` — não tem autenticação própria.
+- 📈 **Grafana** ([localhost:3001](http://localhost:3001)): datasource e dashboards já provisionados via arquivos em `observability/grafana/provisioning` e `observability/grafana/dashboards`, sem nenhum setup manual:
+  1. **MAPI - Teoria das Filas** — utilização, tempo de espera e throughput do pool de threads (`taskExecutor`).
+  2. **MAPI - Visão Geral HTTP** — taxa de requisições, latência e erros por endpoint.
+  3. **MAPI - JVM e Recursos** — heap, GC, threads e uso de CPU da aplicação.
+  4. **MAPI - Coletores e Resiliência** — métricas dos coletores ANA/APAC e estado dos circuit breakers (Resilience4j).
+  5. **MAPI - Teste de Carga (k6)** — métricas ao vivo do teste de carga descrito abaixo.
+
+### Teste de Carga (k6)
+
+O serviço `k6` não sobe com o stack padrão — ele roda sob demanda, sob o profile `loadtest`, e envia as métricas via remote-write direto para o Prometheus (visíveis ao vivo no dashboard "MAPI - Teste de Carga"):
+
+```bash
+docker compose --profile loadtest run --rm k6 run /scripts/stress-test.js
+```
+
+O script (`loadtest/stress-test.js`) simula carga crescente (*ramping-vus*: 0 → 30 usuários virtuais) contra endpoints reais da API, reusando um pool fixo de coordenadas para aproveitar o cache de clima/maré.
 
 ## 🚀 Melhorias Arquiteturais Implementadas
 
