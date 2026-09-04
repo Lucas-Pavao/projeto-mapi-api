@@ -85,6 +85,15 @@ services:
   prometheus:
     image: prom/prometheus:v2.55.1
     container_name: mapi-prometheus
+    # Comando completo do entrypoint padrão da imagem + --web.enable-remote-write-receiver:
+    # necessário pro k6 (serviço abaixo) empurrar métricas de load test direto via remote-write,
+    # sem precisar de um segundo scrape target.
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.console.libraries=/usr/share/prometheus/console_libraries
+      - --web.console.templates=/usr/share/prometheus/consoles
+      - --web.enable-remote-write-receiver
     volumes:
       - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
@@ -125,6 +134,28 @@ services:
       retries: 5
       start_period: 15s
     depends_on:
+      prometheus:
+        condition: service_healthy
+
+  k6:
+    image: grafana/k6:0.54.0
+    container_name: mapi-k6
+    # Não participa do "docker compose up" normal — só roda sob demanda com:
+    #   docker compose --profile loadtest run --rm k6 run /scripts/stress-test.js
+    # (ou com -e BASE_URL/-e VUS pra sobrescrever os padrões do script).
+    profiles: ["loadtest"]
+    environment:
+      - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
+      # Sem isso o output prometheus-rw manda um histograma nativo (bom, mas mais chato de
+      # gráfico simples no Grafana); com trend-stats definido ele também expõe os agregados
+      # prontos (_p95, _avg etc) usados no dashboard 05-k6-load-test.json.
+      - K6_PROMETHEUS_RW_TREND_STATS=p(95),p(99),avg,min,max
+    volumes:
+      - ./loadtest:/scripts:ro
+    command: ["run", "--out", "experimental-prometheus-rw", "/scripts/stress-test.js"]
+    depends_on:
+      mapi-api:
+        condition: service_healthy
       prometheus:
         condition: service_healthy
 
@@ -190,6 +221,10 @@ services:
         echo " Postgres (mapi-db)       localhost:5433"
         echo " Prometheus               http://localhost:9090"
         echo " Grafana                  http://localhost:3001  (admin / mapi123 - so dev)"
+        echo "================================================================"
+        echo " Teste de carga (k6, sob demanda):"
+        echo "   docker compose --profile loadtest run --rm k6 run /scripts/stress-test.js"
+        echo " Acompanhe ao vivo no dashboard 'MAPI - Teste de Carga (k6)' no Grafana."
         echo "================================================================"
 
 volumes:
