@@ -5,7 +5,10 @@ import { Rate } from 'k6/metrics';
 // Script separado do stress-test.js "realista": aqui o objetivo NÃO é simular tráfego plausível,
 // é forçar oscilações extremas e rápidas de carga pra que os dashboards do Grafana (01, 03, 04 e
 // 05) tenham picos e vales bem visíveis numa apresentação ao vivo — em vez da rampa suave e única
-// do stress-test.js, que sobe devagar e é menos didática pra "ver a curva mudar na tela".
+// do stress-test.js, que sobe devagar e é menos didática pra "ver a curva mudar na tela". 5 picos
+// de alturas diferentes (não crescente-linear de propósito, pra não parecer uma rampa disfarçada)
+// intercalados com vales até 0, com subida/descida em poucos segundos, pra ficar nítido como
+// degraus na tela em vez de uma curva suave.
 const BASE_URL = __ENV.BASE_URL || 'http://mapi-api:8080';
 
 const COORDS = [
@@ -28,23 +31,31 @@ export const options = {
     spike_demo: {
       executor: 'ramping-vus',
       startVUs: 0,
-      // Dente-de-serra de propósito: 3 picos bruscos (cada vez mais alto) intercalados com vales
-      // até 0 VUs, em vez de uma rampa única. ~2min50s no total — curto o bastante pra caber numa
-      // demo em aula, mas com transições rápidas o suficiente (5-10s pra subir) pra aparecerem
-      // como degraus nítidos no Grafana, não como uma curva suave.
+      // Dente-de-serra de propósito: 5 picos bruscos, com alturas que sobem e descem (não uma
+      // rampa linear disfarçada), intercalados com vales até 0 VUs. ~3min no total — curto o
+      // bastante pra caber numa demo em aula, mas com transições rápidas o suficiente (4-6s pra
+      // subir/descer) pra aparecerem como degraus nítidos no Grafana, não como uma curva suave.
       stages: [
-        { duration: '10s', target: 5 },    // aquecimento
-        { duration: '10s', target: 120 },  // pico 1 - subida brusca
-        { duration: '20s', target: 120 },  // sustenta pico 1 (dá tempo do HikariCP/Tomcat reagirem)
-        { duration: '10s', target: 0 },    // vale total - queda também brusca
-        { duration: '15s', target: 0 },    // respiro visível na baseline
-        { duration: '5s', target: 180 },   // pico 2 - ainda mais brusco que o 1
-        { duration: '25s', target: 180 },  // sustenta pico 2
-        { duration: '10s', target: 10 },   // quase-vale (não zera, pra variar o formato do gráfico)
-        { duration: '15s', target: 10 },
-        { duration: '8s', target: 220 },   // pico 3 - o mais extremo, deve saturar HikariCP e abrir o circuit breaker
-        { duration: '20s', target: 220 },  // sustenta pico 3
-        { duration: '20s', target: 0 },    // ramp-down final
+        { duration: '5s', target: 5 },     // aquecimento
+        { duration: '6s', target: 100 },   // pico 1 - subida brusca
+        { duration: '12s', target: 100 },  // sustenta pico 1 (dá tempo do HikariCP/Tomcat reagirem)
+        { duration: '6s', target: 0 },     // vale total - queda também brusca
+        { duration: '8s', target: 0 },     // respiro visível na baseline
+        { duration: '5s', target: 160 },   // pico 2 - mais alto que o 1
+        { duration: '15s', target: 160 },  // sustenta pico 2
+        { duration: '6s', target: 0 },     // vale total de novo
+        { duration: '8s', target: 0 },
+        { duration: '5s', target: 90 },    // pico 3 - mais baixo que o 2, quebra o padrão crescente
+        { duration: '10s', target: 90 },   // sustenta pico 3
+        { duration: '6s', target: 0 },     // vale total
+        { duration: '8s', target: 0 },
+        { duration: '4s', target: 200 },   // pico 4 - brusco e alto de novo
+        { duration: '18s', target: 200 },  // sustenta pico 4
+        { duration: '6s', target: 10 },    // quase-vale (não zera, pra variar o formato do gráfico)
+        { duration: '10s', target: 10 },
+        { duration: '4s', target: 250 },   // pico 5 - o mais extremo, deve saturar HikariCP e abrir o circuit breaker
+        { duration: '20s', target: 250 },  // sustenta pico 5
+        { duration: '15s', target: 0 },    // ramp-down final
       ],
       gracefulRampDown: '5s',
       gracefulStop: '5s',
