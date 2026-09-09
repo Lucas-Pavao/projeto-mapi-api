@@ -141,8 +141,13 @@ services:
     image: grafana/k6:0.54.0
     container_name: mapi-k6
     # Não participa do "docker compose up" normal — só roda sob demanda com:
-    #   docker compose --profile loadtest run --rm k6 run /scripts/stress-test.js
-    # (ou com -e BASE_URL/-e VUS pra sobrescrever os padrões do script).
+    #   docker compose --profile loadtest run --rm k6
+    # NÃO acrescente "run /scripts/stress-test.js" depois de "k6" nesse comando: qualquer
+    # argumento passado a "docker compose run <serviço> <args>" substitui INTEIRAMENTE o
+    # "command:" abaixo, derrubando o "--out experimental-prometheus-rw" e fazendo o teste
+    # rodar sem enviar nenhuma métrica pro Prometheus (bug real já visto: 0 amostras recebidas
+    # via remote-write). Pra sobrescrever BASE_URL/etc., use "-e VAR=valor" antes do nome do
+    # serviço, nunca argumentos de comando.
     profiles: ["loadtest"]
     environment:
       - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
@@ -223,7 +228,7 @@ services:
         echo " Grafana                  http://localhost:3001  (admin / mapi123 - so dev)"
         echo "================================================================"
         echo " Teste de carga (k6, sob demanda):"
-        echo "   docker compose --profile loadtest run --rm k6 run /scripts/stress-test.js"
+        echo "   docker compose --profile loadtest run --rm k6"
         echo " Acompanhe ao vivo no dashboard 'MAPI - Teste de Carga (k6)' no Grafana."
         echo "================================================================"
 

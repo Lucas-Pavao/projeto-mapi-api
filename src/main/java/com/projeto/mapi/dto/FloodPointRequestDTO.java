@@ -13,31 +13,31 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FloodPointRequestDTO {
     @NotBlank(message = "O ID do ponto (slug) é obrigatório")
-    private String id_ponto;
+    private String slug;
 
     @NotBlank(message = "O nome do local é obrigatório")
-    private String nome;
-    
-    private String municipio;
-    private String descricao;
-    
+    private String name;
+
+    private String municipality;
+    private String description;
+
     @NotNull(message = "A latitude é obrigatória")
     private Double latitude;
-    
+
     @NotNull(message = "A longitude é obrigatória")
     private Double longitude;
 
-    private Double altitude_m;
-    private Double dist_canal_m;
-    
-    private SensorConfigDTO config_sensores;
+    private Double altitudeM;
+    private Double distanceToChannelM;
+
+    private SensorConfigDTO sensorConfig;
 
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SensorConfigDTO {
-        private java.util.List<String> estacoes_pluviometricas_ids;
-        private java.util.List<String> estacoes_nivel_rio_ids;
+        private java.util.List<String> pluviometerStationIds;
+        private java.util.List<String> riverLevelStationIds;
     }
 }

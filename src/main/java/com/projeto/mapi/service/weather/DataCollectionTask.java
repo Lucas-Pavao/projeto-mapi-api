@@ -25,7 +25,8 @@ public class DataCollectionTask {
         
         for (FloodPoint point : points) {
             try {
-                weatherService.getWeatherData(point.getLatitude(), point.getLongitude());
+                com.projeto.mapi.dto.WeatherResponseDTO data = weatherService.getWeatherData(point.getLatitude(), point.getLongitude());
+                weatherService.recordWeatherSample(data);
             } catch (Exception e) {
                 log.error("Erro ao coletar clima para o ponto {}: {}", point.getName(), e.getMessage());
             }

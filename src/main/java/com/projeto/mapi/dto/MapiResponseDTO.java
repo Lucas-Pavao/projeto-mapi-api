@@ -1,6 +1,5 @@
 package com.projeto.mapi.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,24 +20,26 @@ public class MapiResponseDTO {
     private Double distanceToNearestSensorKm;
     private FloodPredictionResponseDTO floodPrediction;
 
+    // Contrato de RESPOSTA ao front-end (camelCase, igual ao resto da MapiResponseDTO) — não
+    // confundir com FloodPredictionRequestDTO.SensorReadingDTO, que é o mesmo dado só que no
+    // formato snake_case exigido pelo contrato da MAPI AI (Python/FastAPI). Antes esta única
+    // classe era reaproveitada nos dois sentidos via @JsonProperty forçando sensor_id/distance_km
+    // aqui — o que vazava snake_case para o front no meio de um objeto camelCase.
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class SensorReadingDTO {
-        @JsonProperty("sensor_id")
         private String sensorId;
-        
         private Double latitude;
         private Double longitude;
         private Double value;
         private String unit;
         private String type; // "PRECIPITATION", "RIVER_LEVEL", etc.
-        
+
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
         private LocalDateTime timestamp;
-        
-        @JsonProperty("distance_km")
+
         private Double distanceKm;
     }
 

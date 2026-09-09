@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties(prefix = "app")
 public class AppProperties {
-    private Navy navy = new Navy();
     private Weather weather = new Weather();
     private TabuaMare tabuamare = new TabuaMare();
     private Marine marine = new Marine();
@@ -16,11 +15,6 @@ public class AppProperties {
     private Apac apac = new Apac();
     private Cookie cookie = new Cookie();
     private Cors cors = new Cors();
-
-    @Data
-    public static class Navy {
-        private String baseUrl;
-    }
 
     @Data
     public static class Weather {

@@ -29,17 +29,22 @@ public class DataExportServiceImpl implements DataExportService {
     private final FloodEventRepository floodEventRepository;
     private final TideService tideService;
 
-    public List<com.projeto.mapi.model.FloodPoint> getPoints() {
-        return floodPointRepository.findAll();
-    }
-
     @Override
     public List<UnifiedDataDTO> exportAllPointsData(int days) {
         List<FloodPoint> points = floodPointRepository.findAll();
-        
+
         // Otimização: Paralelismo para processar vários pontos ao mesmo tempo
         return points.parallelStream()
                 .flatMap(point -> exportUnifiedData(point.getSlug(), days).stream())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UnifiedDataDTO> exportAllPointsDataWithAccumulated(int days) {
+        List<FloodPoint> points = floodPointRepository.findAll();
+
+        return points.parallelStream()
+                .flatMap(point -> exportUnifiedDataWithAccumulated(point.getSlug(), days).stream())
                 .collect(Collectors.toList());
     }
 

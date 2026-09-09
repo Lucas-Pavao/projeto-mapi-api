@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/tabua-mare")
 @RequiredArgsConstructor
-@Tag(name = "Tabua de Maré (DevTu)", description = "Integração com a API tabuamare.devtu.qzz.io")
+@Tag(name = "Tábua de Maré (Externa)", description = "Integração com a API externa configurada em app.tabuamare.api-url (hoje: tabuamare.api.br) — fonte não-oficial usada como fallback quando não há tábua local sincronizada")
 public class TabuaMareController {
 
     private final TabuaMareService tabuaMareService;

@@ -2,6 +2,7 @@ package com.projeto.mapi.controller;
 
 import com.projeto.mapi.dto.FloodPointRequestDTO;
 import com.projeto.mapi.dto.FloodPointResponseDTO;
+import com.projeto.mapi.dto.FloodPredictionResponseDTO;
 import com.projeto.mapi.dto.MapiResponseDTO;
 import com.projeto.mapi.dto.FloodScenarioLabelRequestDTO;
 import com.projeto.mapi.dto.FloodScenarioLabelResponseDTO;
@@ -24,12 +25,28 @@ public class MapiController {
 
     private final MapiService mapiService;
 
-    @GetMapping("/precise-data")
-    @Operation(summary = "Busca dados ambientais precisos comparando sensores locais e Open-Meteo")
-    public ResponseEntity<MapiResponseDTO> getPreciseData(
+    // Dado ambiental agregado (sensores num raio de 3km, clima, maré, ondas) para uma coordenada
+    // qualquer. Leitura pura: sem chamar a MAPI AI, sem gravar nada — seguro pra pollar com
+    // frequência (ex: atualização em tempo real do mapa). GET porque é seguro e idempotente
+    // (dentro da janela de cache).
+    @GetMapping("/environmental-data")
+    @Operation(summary = "Busca o dado ambiental agregado (sensores, clima, maré, ondas) para uma coordenada")
+    public ResponseEntity<MapiResponseDTO> getEnvironmentalData(
             @RequestParam double latitude,
             @RequestParam double longitude) {
-        return ResponseEntity.ok(mapiService.getPreciseData(latitude, longitude));
+        return ResponseEntity.ok(mapiService.getEnvironmentalData(latitude, longitude));
+    }
+
+    // Roda uma nova avaliação de risco de alagamento (chama a MAPI AI) e grava o resultado em
+    // flood_predictions. POST porque cria um novo registro de auditoria a cada chamada — não é
+    // idempotente nem "seguro" no sentido HTTP (tem efeito colateral real), então GET seria a
+    // semântica errada aqui mesmo sendo só coordenadas como entrada.
+    @PostMapping("/flood-predictions")
+    @Operation(summary = "Roda uma nova predição de risco de alagamento da IA para as coordenadas informadas e grava a auditoria")
+    public ResponseEntity<FloodPredictionResponseDTO> createFloodPrediction(
+            @RequestParam double latitude,
+            @RequestParam double longitude) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapiService.createFloodPrediction(latitude, longitude));
     }
 
     @PostMapping("/pontos")
@@ -53,10 +70,10 @@ public class MapiController {
         return ResponseEntity.ok(mapiService.getAllFloodPoints());
     }
 
-    @GetMapping("/pontos/{id_ponto}")
+    @GetMapping("/pontos/{slug}")
     @Operation(summary = "Busca o status atual de um ponto específico")
-    public ResponseEntity<FloodPointResponseDTO> getPointStatus(@PathVariable String id_ponto) {
-        FloodPointResponseDTO point = mapiService.getFloodPointBySlug(id_ponto);
+    public ResponseEntity<FloodPointResponseDTO> getPointStatus(@PathVariable String slug) {
+        FloodPointResponseDTO point = mapiService.getFloodPointBySlug(slug);
         if (point == null) {
             return ResponseEntity.notFound().build();
         }

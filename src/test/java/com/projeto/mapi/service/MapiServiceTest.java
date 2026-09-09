@@ -114,8 +114,8 @@ class MapiServiceTest {
         when(weatherService.getWeatherData(anyDouble(), anyDouble())).thenReturn(mockWeather);
         
         com.projeto.mapi.dto.FloodPointRequestDTO request = com.projeto.mapi.dto.FloodPointRequestDTO.builder()
-                .id_ponto("FAR_POINT")
-                .nome("Ponto Distante")
+                .slug("FAR_POINT")
+                .name("Ponto Distante")
                 .latitude(0.0)
                 .longitude(0.0)
                 .build();
@@ -124,7 +124,7 @@ class MapiServiceTest {
 
         com.projeto.mapi.dto.FloodPointResponseDTO response = mapiService.createFloodPoint(request);
 
-        assertTrue(response.getConfig_sensores().getEstacoes_pluviometricas_ids().isEmpty());
-        assertTrue(response.getConfig_sensores().getEstacoes_nivel_rio_ids().isEmpty());
+        assertTrue(response.getSensorConfig().getPluviometerStationIds().isEmpty());
+        assertTrue(response.getSensorConfig().getRiverLevelStationIds().isEmpty());
     }
 }

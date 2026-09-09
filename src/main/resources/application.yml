@@ -46,8 +46,6 @@ server:
       enabled: true
 
 app:
-  navy:
-    base-url: ${NAVY_API_URL:https://www.marinha.mil.br}
   weather:
     api-url: ${WEATHER_API_URL:https://api.open-meteo.com/v1}
   ai:
