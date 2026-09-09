@@ -42,14 +42,14 @@
     {
       "id": 3,
       "type": "timeseries",
-      "title": "Taxa de erro",
-      "description": "Fração de requisições marcadas como falha pelo k6 (http_req_failed) e de checks que falharam.",
+      "title": "Taxa de erro por endpoint",
+      "description": "Fração de requisições marcadas como falha pelo k6 (http_req_failed) e de checks que falharam, quebrada pela tag \"name\"/\"check\" (ver hit()/post() em stress-test.js e spike-demo.js) — sem essa quebra, séries de endpoints diferentes ficavam empilhadas sob a mesma legenda estática \"requests falhas\", sem dar pra saber qual endpoint estava falhando.",
       "gridPos": { "h": 7, "w": 8, "x": 16, "y": 0 },
       "datasource": { "type": "prometheus", "uid": "prometheus" },
       "fieldConfig": { "defaults": { "unit": "percentunit", "max": 1, "min": 0 }, "overrides": [] },
       "targets": [
-        { "refId": "A", "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "k6_http_req_failed_rate", "legendFormat": "requests falhas" },
-        { "refId": "B", "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "1 - k6_checks_rate", "legendFormat": "checks falhos" }
+        { "refId": "A", "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "k6_http_req_failed_rate{name!=\"\"}", "legendFormat": "falha: {{name}}" },
+        { "refId": "B", "datasource": { "type": "prometheus", "uid": "prometheus" }, "expr": "1 - k6_checks_rate", "legendFormat": "check: {{check}}" }
       ]
     },
     {
