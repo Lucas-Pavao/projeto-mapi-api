@@ -11,17 +11,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FloodPointResponseDTO {
     private Long id;
-    private String id_ponto;
-    private String nome;
-    private String municipio;
-    private String descricao;
+    private String slug;
+    private String name;
+    private String municipality;
+    private String description;
     private Double latitude;
     private Double longitude;
-    private Double altitude_m;
-    private Double dist_canal_m;
-    private String bacia_hidrografica;
-    private FloodPointRequestDTO.SensorConfigDTO config_sensores;
-    private java.util.List<String> sensores_proximos_ids;
+    private Double altitudeM;
+    private Double distanceToChannelM;
+    private String basinName;
+    private FloodPointRequestDTO.SensorConfigDTO sensorConfig;
+    private java.util.List<String> nearbySensorIds;
     private MapiResponseDTO.PreciseData liveData;
     private FloodPredictionResponseDTO floodPrediction;
     private Boolean active;

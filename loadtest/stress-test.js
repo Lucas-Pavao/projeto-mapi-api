@@ -7,14 +7,25 @@ import { Rate } from 'k6/metrics';
 // publicada, passe -e BASE_URL=http://localhost:8080.
 const BASE_URL = __ENV.BASE_URL || 'http://mapi-api:8080';
 
-// Coordenadas fixas (Recife/Olinda) de propósito: WeatherService/MarineService fazem
-// @Cacheable com chave arredondada em 2 casas decimais, então reusar sempre o mesmo pool
-// pequeno faz a maioria das chamadas ser servida do cache local em vez de bater na Open-Meteo
-// a cada request — evita gerar carga real (e possível rate limit) numa API de terceiros.
+// Pool ampliado de ~3 para ~10 coordenadas (todas dentro da RMR): com só 3 pontos, depois das
+// 3 primeiras chamadas TUDO vinha do @Cacheable de WeatherService/MarineService e o
+// taskExecutor (pool "Ingest-" que alimenta o dashboard 01-teoria-das-filas) parava de receber
+// tarefas — só o dashboard do k6 continuava variando. Com mais pontos, novos cache misses reais
+// continuam acontecendo ao longo da rampa (VUs sorteiam índices novos conforme sobem), mantendo
+// o taskExecutor e o circuit breaker "openMeteo" ativos durante o teste inteiro. Ainda é um pool
+// pequeno e fixo de propósito: o cache evict roda a cada 10min (CacheConfig), então isso não gera
+// uma explosão de chamadas reais à Open-Meteo, só mais variedade que 3 pontos únicos.
 const COORDS = [
-  { lat: -8.05, lon: -34.90 },
-  { lat: -8.04, lon: -34.87 },
-  { lat: -7.99, lon: -34.85 },
+  { lat: -8.05, lon: -34.90 }, // Recife - Centro
+  { lat: -8.04, lon: -34.87 }, // Recife - Boa Viagem
+  { lat: -7.99, lon: -34.85 }, // Olinda
+  { lat: -8.11, lon: -34.99 }, // Jaboatão dos Guararapes
+  { lat: -8.02, lon: -34.94 }, // Recife - Zona Oeste
+  { lat: -7.94, lon: -34.87 }, // Paulista
+  { lat: -8.02, lon: -35.02 }, // Camaragibe
+  { lat: -8.28, lon: -35.03 }, // Cabo de Santo Agostinho
+  { lat: -8.15, lon: -34.92 }, // São Lourenço da Mata
+  { lat: -7.84, lon: -34.87 }, // Igarassu
 ];
 
 const errorRate = new Rate('errors');
@@ -25,26 +36,47 @@ export const options = {
       executor: 'ramping-vus',
       startVUs: 0,
       stages: [
-        { duration: '30s', target: 10 },
-        { duration: '1m', target: 30 },
-        { duration: '2m', target: 30 },
+        { duration: '30s', target: 15 },
+        { duration: '1m', target: 40 },
+        { duration: '1m30s', target: 40 },
+        // Spike pra 70 VUs: o objetivo aqui não é mais só simular tráfego, é saturar de
+        // propósito o pool do HikariCP (10 conexões por padrão) e os threads do Tomcat, pra que
+        // "Utilização" e "Queue Length" do dashboard 01-teoria-das-filas realmente subam do zero
+        // em vez de ficarem uma linha reta — sem isso, 30 VUs nunca chegava perto de enfileirar
+        // nada.
+        { duration: '30s', target: 70 },
+        { duration: '30s', target: 70 },
         { duration: '30s', target: 0 },
       ],
       gracefulRampDown: '15s',
     },
+    // Cenário paralelo, poucas VUs, vida inteira do teste: bate periodicamente no endpoint de
+    // exportação de CSV (query mais pesada de DB + serialização) pra gerar picos visíveis de heap/
+    // GC (dashboard 03-jvm-recursos) e de uso do HikariCP que não dependem do tráfego "normal" de
+    // leitura rápida do ramping_load. days=30 (em vez do endpoint /all/csv com days=0, que puxa
+    // TODO o histórico de TODOS os pontos) mantém isso pesado mas limitado — não é pra arriscar
+    // OOM a cada iteração.
+    heavy_export: {
+      executor: 'constant-vus',
+      vus: 2,
+      duration: '4m30s',
+      startTime: '5s',
+      exec: 'heavyExport',
+    },
   },
   thresholds: {
-    // p95 alto de propósito: weather/marine batem na Open-Meteo (externa) quando o cache
-    // @Cacheable ainda está frio pra aquele par de coordenadas — 1-2s de round-trip externo é
-    // normal aqui, não indica problema na mapi-api. Ajuste pra baixo se cortar esses endpoints.
-    http_req_duration: ['p(95)<2500'],
+    // Escopados por cenário (tag automática "scenario" do k6): a rampa principal e o export
+    // pesado têm perfis de latência completamente diferentes, então um limiar único acabava
+    // sendo ou frouxo demais pra rampa ou impossível de cumprir pro export.
+    'http_req_duration{scenario:ramping_load}': ['p(95)<3000'],
+    'http_req_duration{scenario:heavy_export}': ['p(95)<15000'],
     errors: ['rate<0.05'],
   },
 };
 
 function hit(name, url, params) {
-  // tags.name fixo em vez da URL crua: sem isso, cada querystring diferente (lat/lon, sensorId)
-  // vira uma série própria no Prometheus — explode cardinalidade e quebra o agrupamento por
+  // tags.name fixo em vez da URL crua: sem isso, cada querystring diferente (lat/lon, sensorId,
+  // slug) vira uma série própria no Prometheus — explode cardinalidade e quebra o agrupamento por
   // endpoint nos painéis do dashboard 05-k6-load-test.json.
   const mergedParams = Object.assign({}, params, {
     tags: Object.assign({ name }, params && params.tags),
@@ -65,11 +97,17 @@ export function setup() {
   const loginRes = http.post(`${BASE_URL}/api/auth/login`, JSON.stringify({ username, password }), headers);
   check(loginRes, { 'login retornou 200': (r) => r.status === 200 });
   const token = loginRes.json('accessToken');
+  const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
 
   const idsRes = http.get(`${BASE_URL}/api/sensors/ids`);
   const sensorIds = idsRes.status === 200 ? idsRes.json() : [];
 
-  return { token, sensorIds };
+  // Slugs reais dos pontos cadastrados, usados pelo cenário heavy_export — evita hardcoded/mock
+  // que quebraria assim que os pontos de monitoramento mudassem.
+  const pontosRes = http.get(`${BASE_URL}/api/pontos`, authHeaders);
+  const slugs = pontosRes.status === 200 ? pontosRes.json().map((p) => p.id_ponto).filter(Boolean) : [];
+
+  return { token, sensorIds, slugs };
 }
 
 export default function (data) {
@@ -101,4 +139,15 @@ export default function (data) {
   });
 
   sleep(Math.random() * 1 + 0.5);
+}
+
+export function heavyExport(data) {
+  if (data.slugs.length === 0) {
+    sleep(10);
+    return;
+  }
+  const authHeaders = { headers: { Authorization: `Bearer ${data.token}` }, timeout: '30s' };
+  const slug = data.slugs[Math.floor(Math.random() * data.slugs.length)];
+  hit('export/csv', `${BASE_URL}/api/export/ia-dataset/${slug}/csv?days=30`, authHeaders);
+  sleep(10 + Math.random() * 5);
 }

@@ -192,10 +192,16 @@ A stack sobe automaticamente com o `docker compose up` (junto com a API e o banc
 O serviço `k6` não sobe com o stack padrão — ele roda sob demanda, sob o profile `loadtest`, e envia as métricas via remote-write direto para o Prometheus (visíveis ao vivo no dashboard "MAPI - Teste de Carga"):
 
 ```bash
-docker compose --profile loadtest run --rm k6 run /scripts/stress-test.js
+docker compose --profile loadtest run --rm k6
 ```
 
-O script (`loadtest/stress-test.js`) simula carga crescente (*ramping-vus*: 0 → 30 usuários virtuais) contra endpoints reais da API, reusando um pool fixo de coordenadas para aproveitar o cache de clima/maré.
+> **Atenção:** não acrescente `run /scripts/stress-test.js` depois de `k6` nesse comando. O `command:` do serviço `k6` no `docker-compose.yml` já inclui `--out experimental-prometheus-rw` (é isso que envia as métricas pro Prometheus via remote-write). Qualquer argumento passado depois de `k6` num `docker compose run` **substitui inteiramente** esse `command:` — com `run /scripts/stress-test.js` o k6 roda o teste normalmente, mas sem o `--out`, então nada chega ao Prometheus/Grafana e o dashboard "MAPI - Teste de Carga" fica vazio (foi exatamente esse o bug: 0 amostras recebidas via remote-write, confirmado em `prometheus_api_remote_write_*_total`). Se quiser sobrescrever algo, use variáveis de ambiente (`-e BASE_URL=... -e K6_...`), não argumentos de comando.
+
+O script (`loadtest/stress-test.js`) roda dois cenários em paralelo contra endpoints reais da API:
+- **`ramping_load`** (*ramping-vus*: 0 → 40 → spike de 70 usuários virtuais): tráfego leve/misto (sensores, clima, maré, pontos), com um pool de ~10 coordenadas da RMR para gerar cache misses reais espalhados ao longo da rampa em vez de esgotar o cache nas 3 primeiras chamadas. O spike final satura de propósito o pool do HikariCP e os threads do Tomcat.
+- **`heavy_export`** (2 VUs fixas durante todo o teste): bate periodicamente no endpoint de exportação de CSV (`/api/export/ia-dataset/{slug}/csv`) com um recorte de 30 dias, gerando picos de I/O/serialização mais pesados.
+
+Isso foi desenhado para que a variação apareça em todos os dashboards, não só no "MAPI - Teste de Carga": o spike de VUs e o export pesado se refletem em "MAPI - Teoria das Filas" (utilização/queue length do HikariCP e Tomcat) e "MAPI - JVM e Recursos" (heap, GC, pool do banco); o tráfego para `/api/tabua-mare/states` (sem cache) continua abrindo o circuit breaker `tabuaMare`, visível em "MAPI - Coletores e Resiliência" — nesse painel, porém, os coletores ANA/APAC em si só reagem à própria agenda (`SensorCollectionTask`), não ao tráfego HTTP do teste.
 
 ## 🚀 Melhorias Arquiteturais Implementadas
 

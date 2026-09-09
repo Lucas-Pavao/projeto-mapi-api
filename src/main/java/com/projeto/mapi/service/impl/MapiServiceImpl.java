@@ -50,12 +50,12 @@ public class MapiServiceImpl implements MapiService {
     private static final double MAX_SENSOR_RADIUS_KM = 20.0;
 
     @Override
-    public MapiResponseDTO getPreciseData(double latitude, double longitude) {
-        log.info("Buscando dados precisos para lat: {}, lon: {}", latitude, longitude);
-        
+    public MapiResponseDTO getEnvironmentalData(double latitude, double longitude) {
+        log.info("Buscando dado ambiental para lat: {}, lon: {}", latitude, longitude);
+
         WeatherResponseDTO weatherData = weatherService.getWeatherData(latitude, longitude);
         List<SensorResponseDTO> allSensors = sensorService.getAllLatestData();
-        
+
         // --- NOVA LÓGICA: Filtrar sensores num raio de 3km ---
         List<SensorResponseDTO> nearbySensors = allSensors.stream()
                 .filter(s -> s.getLatitude() != null && s.getLongitude() != null)
@@ -87,19 +87,50 @@ public class MapiServiceImpl implements MapiService {
 
         MapiResponseDTO.PreciseData preciseData = determinePreciseData(weatherData, nearbySensors, latitude, longitude, tideHeight, tideTabuaMare, waveHeight, waveDirection, wavePeriod, nearestPointHistory);
 
-        // --- Integração com IA em Tempo Real ---
+        // floodPrediction fica deliberadamente de fora daqui: este método é só o dado ambiental
+        // (sensores + clima + maré + ondas), sem chamar a MAPI AI nem gravar auditoria de
+        // predição. Pensado para ser chamado com frequência (ex: mapa em tempo real) sem
+        // custo/risco de uma IA externa.
+        return MapiResponseDTO.builder()
+                .requestedLatitude(latitude)
+                .requestedLongitude(longitude)
+                .preciseData(preciseData)
+                .nearestSensor(nearestSensor)
+                .openMeteoData(weatherData)
+                .distanceToNearestSensorKm(distance)
+                .build();
+    }
+
+    @Override
+    public com.projeto.mapi.dto.FloodPredictionResponseDTO createFloodPrediction(double latitude, double longitude) {
+        MapiResponseDTO environmentalData = getEnvironmentalData(latitude, longitude);
+        return runPredictionAndAudit(environmentalData.getPreciseData(), environmentalData.getNearestSensor(), latitude, longitude);
+    }
+
+    @Override
+    public MapiResponseDTO getPreciseData(double latitude, double longitude) {
+        MapiResponseDTO environmentalData = getEnvironmentalData(latitude, longitude);
+        com.projeto.mapi.dto.FloodPredictionResponseDTO prediction =
+                runPredictionAndAudit(environmentalData.getPreciseData(), environmentalData.getNearestSensor(), latitude, longitude);
+        environmentalData.setFloodPrediction(prediction);
+        return environmentalData;
+    }
+
+    // Chama a MAPI AI com o contexto ambiental já calculado e audita a predição em
+    // flood_predictions. Isolado num único ponto para que tanto POST /api/flood-predictions
+    // quanto a composição interna usada por GET /api/pontos/{slug} usem exatamente a mesma
+    // lógica, sem duplicar a chamada HTTP nem o registro de auditoria.
+    private com.projeto.mapi.dto.FloodPredictionResponseDTO runPredictionAndAudit(
+            MapiResponseDTO.PreciseData preciseData, SensorResponseDTO nearestSensor, double latitude, double longitude) {
         com.projeto.mapi.dto.FloodPredictionResponseDTO prediction = null;
         try {
-            // Obter acumulados reais para o ponto (Regional - Raio 3km)
-            Double acc3h = 0.0, acc6h = 0.0, acc12h = 0.0, acc24h = 0.0;
-
-            if (!nearestPointHistory.isEmpty()) {
-                com.projeto.mapi.dto.UnifiedDataDTO latest = nearestPointHistory.get(nearestPointHistory.size() - 1);
-                acc3h = latest.getAccumulated3h() != null ? latest.getAccumulated3h() : 0.0;
-                acc6h = latest.getAccumulated6h() != null ? latest.getAccumulated6h() : 0.0;
-                acc12h = latest.getAccumulated12h() != null ? latest.getAccumulated12h() : 0.0;
-                acc24h = latest.getAccumulated24h() != null ? latest.getAccumulated24h() : 0.0;
-            }
+            // Obter acumulados reais para o ponto (Regional - Raio 3km), já calculados em
+            // determinePreciseData a partir do histórico do ponto crítico mais próximo.
+            MapiResponseDTO.Aggregates aggregates = preciseData.getHistoricalAggregates();
+            Double acc3h = aggregates != null && aggregates.getRain3h() != null ? aggregates.getRain3h() : 0.0;
+            Double acc6h = aggregates != null && aggregates.getRain6h() != null ? aggregates.getRain6h() : 0.0;
+            Double acc12h = aggregates != null && aggregates.getRain12h() != null ? aggregates.getRain12h() : 0.0;
+            Double acc24h = aggregates != null && aggregates.getRain24h() != null ? aggregates.getRain24h() : 0.0;
 
             com.projeto.mapi.dto.FloodPredictionRequestDTO predictionRequest = com.projeto.mapi.dto.FloodPredictionRequestDTO.builder()
                     .stationId(nearestSensor != null ? nearestSensor.getSensorId() : "VIRTUAL_STATION")
@@ -112,10 +143,10 @@ public class MapiServiceImpl implements MapiService {
                     .rainfall24hAccumulated(acc24h)
                     .tideLevel(preciseData.getTideHeight() != null ? preciseData.getTideHeight() : 0.0)
                     .riverLevel(preciseData.getWaterLevel() != null ? preciseData.getWaterLevel() : 0.0)
-                    .nearbySensors(preciseData.getLatestReadings() != null ? preciseData.getLatestReadings() : java.util.List.of())
+                    .nearbySensors(toAiSensorReadings(preciseData.getLatestReadings()))
                     .timestamp(LocalDateTime.now())
                     .build();
-            
+
             prediction = floodPredictionService.getPrediction(predictionRequest);
 
             // Persistir a predição no banco de dados para auditoria / histórico
@@ -144,26 +175,17 @@ public class MapiServiceImpl implements MapiService {
         } catch (Exception e) {
             log.error("Falha ao obter predição da IA: {}", e.getMessage());
         }
-
-        return MapiResponseDTO.builder()
-                .requestedLatitude(latitude)
-                .requestedLongitude(longitude)
-                .preciseData(preciseData)
-                .nearestSensor(nearestSensor)
-                .openMeteoData(weatherData)
-                .distanceToNearestSensorKm(distance)
-                .floodPrediction(prediction)
-                .build();
+        return prediction;
     }
 
     @Override
     @Transactional
     @org.springframework.cache.annotation.CacheEvict(value = "floodPoints", allEntries = true)
     public FloodPointResponseDTO createFloodPoint(FloodPointRequestDTO request) {
-        log.info("Criando novo ponto de alagamento com hiper-automação: {}", request.getNome());
-        
+        log.info("Criando novo ponto de alagamento com hiper-automação: {}", request.getName());
+
         // 1. Obter Altitude automaticamente via Open-Meteo
-        Double altitude = request.getAltitude_m();
+        Double altitude = request.getAltitudeM();
         try {
             WeatherResponseDTO weather = weatherService.getWeatherData(request.getLatitude(), request.getLongitude());
             if (weather != null && altitude == null) {
@@ -171,20 +193,20 @@ public class MapiServiceImpl implements MapiService {
                 log.info("Altitude obtida automaticamente: {}m", altitude);
             }
         } catch (Exception e) {
-            log.warn("Não foi possível obter altitude automaticamente para o ponto {}", request.getNome());
+            log.warn("Não foi possível obter altitude automaticamente para o ponto {}", request.getName());
         }
 
         // 2. Mapeamento de Sensores Regionais (Raio 3km)
         List<SensorResponseDTO> allSensors = sensorService.getAllLatestData();
-        
+
         java.util.Set<String> pluviometerIds = new java.util.HashSet<>();
-        if (request.getConfig_sensores() != null && request.getConfig_sensores().getEstacoes_pluviometricas_ids() != null) {
-            pluviometerIds.addAll(request.getConfig_sensores().getEstacoes_pluviometricas_ids());
+        if (request.getSensorConfig() != null && request.getSensorConfig().getPluviometerStationIds() != null) {
+            pluviometerIds.addAll(request.getSensorConfig().getPluviometerStationIds());
         }
 
         java.util.Set<String> riverLevelIds = new java.util.HashSet<>();
-        if (request.getConfig_sensores() != null && request.getConfig_sensores().getEstacoes_nivel_rio_ids() != null) {
-            riverLevelIds.addAll(request.getConfig_sensores().getEstacoes_nivel_rio_ids());
+        if (request.getSensorConfig() != null && request.getSensorConfig().getRiverLevelStationIds() != null) {
+            riverLevelIds.addAll(request.getSensorConfig().getRiverLevelStationIds());
         }
 
         // Auto-vincular TODOS os sensores num raio de 3km
@@ -201,7 +223,7 @@ public class MapiServiceImpl implements MapiService {
                 });
 
         // 3. Inferir Município se não fornecido
-        String municipio = request.getMunicipio();
+        String municipio = request.getMunicipality();
         if (municipio == null || municipio.isBlank()) {
             SensorResponseDTO nearest = findNearestSensor(request.getLatitude(), request.getLongitude(), allSensors);
             if (nearest != null && nearest.getMunicipality() != null) {
@@ -219,14 +241,14 @@ public class MapiServiceImpl implements MapiService {
         }
 
         FloodPoint floodPoint = FloodPoint.builder()
-                .slug(request.getId_ponto())
-                .name(request.getNome())
+                .slug(request.getSlug())
+                .name(request.getName())
                 .municipality(municipio)
-                .description(request.getDescricao())
+                .description(request.getDescription())
                 .latitude(request.getLatitude())
                 .longitude(request.getLongitude())
                 .altitudeM(altitude)
-                .distanceToChannelM(request.getDist_canal_m())
+                .distanceToChannelM(request.getDistanceToChannelM())
                 .pluviometerStationIds(pluviometerIds)
                 .riverLevelStationIds(riverLevelIds)
                 .basinName(bacia)
@@ -352,19 +374,19 @@ public class MapiServiceImpl implements MapiService {
 
         FloodPointResponseDTO.FloodPointResponseDTOBuilder builder = FloodPointResponseDTO.builder()
                 .id(fp.getId())
-                .id_ponto(fp.getSlug())
-                .nome(fp.getName())
-                .municipio(fp.getMunicipality())
-                .descricao(fp.getDescription())
+                .slug(fp.getSlug())
+                .name(fp.getName())
+                .municipality(fp.getMunicipality())
+                .description(fp.getDescription())
                 .latitude(fp.getLatitude())
                 .longitude(fp.getLongitude())
-                .altitude_m(fp.getAltitudeM())
-                .dist_canal_m(fp.getDistanceToChannelM())
-                .bacia_hidrografica(fp.getBasinName())
-                .sensores_proximos_ids(nearbySensorIds)
-                .config_sensores(FloodPointRequestDTO.SensorConfigDTO.builder()
-                        .estacoes_pluviometricas_ids(new java.util.ArrayList<>(fp.getPluviometerStationIds()))
-                        .estacoes_nivel_rio_ids(new java.util.ArrayList<>(fp.getRiverLevelStationIds()))
+                .altitudeM(fp.getAltitudeM())
+                .distanceToChannelM(fp.getDistanceToChannelM())
+                .basinName(fp.getBasinName())
+                .nearbySensorIds(nearbySensorIds)
+                .sensorConfig(FloodPointRequestDTO.SensorConfigDTO.builder()
+                        .pluviometerStationIds(new java.util.ArrayList<>(fp.getPluviometerStationIds()))
+                        .riverLevelStationIds(new java.util.ArrayList<>(fp.getRiverLevelStationIds()))
                         .build())
                 .active(fp.getActive())
                 .tideHeight(currentTide)
@@ -377,6 +399,26 @@ public class MapiServiceImpl implements MapiService {
         }
 
         return builder.build();
+    }
+
+    // Converte do contrato de RESPOSTA ao front (MapiResponseDTO.SensorReadingDTO, camelCase) para
+    // o contrato de REQUISIÇÃO à MAPI AI (FloodPredictionRequestDTO.SensorReadingDTO, snake_case) —
+    // são a mesma leitura de sensor, mas cada lado da API exige sua própria convenção de nomenclatura.
+    private List<com.projeto.mapi.dto.FloodPredictionRequestDTO.SensorReadingDTO> toAiSensorReadings(
+            List<MapiResponseDTO.SensorReadingDTO> readings) {
+        if (readings == null || readings.isEmpty()) return List.of();
+        return readings.stream()
+                .map(r -> com.projeto.mapi.dto.FloodPredictionRequestDTO.SensorReadingDTO.builder()
+                        .sensorId(r.getSensorId())
+                        .latitude(r.getLatitude())
+                        .longitude(r.getLongitude())
+                        .value(r.getValue())
+                        .unit(r.getUnit())
+                        .type(r.getType())
+                        .timestamp(r.getTimestamp())
+                        .distanceKm(r.getDistanceKm())
+                        .build())
+                .toList();
     }
 
     private SensorResponseDTO findNearestSensor(double lat, double lon, List<SensorResponseDTO> sensors) {
@@ -534,48 +576,48 @@ public class MapiServiceImpl implements MapiService {
         log.info("Semeando pontos piloto de monitoramento...");
         List<FloodPointRequestDTO> pilots = List.of(
             FloodPointRequestDTO.builder()
-                .id_ponto("AV_RECIFE_IBURA")
-                .nome("Av. Recife - Entrada do Ibura")
+                .slug("AV_RECIFE_IBURA")
+                .name("Av. Recife - Entrada do Ibura")
                 .latitude(-8.107910)
                 .longitude(-34.927138)
-                .config_sensores(FloodPointRequestDTO.SensorConfigDTO.builder()
-                    .estacoes_pluviometricas_ids(List.of("APAC-PLUVIO-261160615A"))
+                .sensorConfig(FloodPointRequestDTO.SensorConfigDTO.builder()
+                    .pluviometerStationIds(List.of("APAC-PLUVIO-261160615A"))
                     .build())
                 .build(),
             FloodPointRequestDTO.builder()
-                .id_ponto("CIN_UFPE")
-                .nome("CIn - UFPE")
+                .slug("CIN_UFPE")
+                .name("CIn - UFPE")
                 .latitude(-8.055310)
                 .longitude(-34.951160)
-                .config_sensores(FloodPointRequestDTO.SensorConfigDTO.builder()
-                    .estacoes_pluviometricas_ids(List.of("APAC-PLUVIO-261160601A"))
+                .sensorConfig(FloodPointRequestDTO.SensorConfigDTO.builder()
+                    .pluviometerStationIds(List.of("APAC-PLUVIO-261160601A"))
                     .build())
                 .build(),
             FloodPointRequestDTO.builder()
-                .id_ponto("AGAMENON_DERBY")
-                .nome("Av. Agamenon Magalhães (Derby)")
+                .slug("AGAMENON_DERBY")
+                .name("Av. Agamenon Magalhães (Derby)")
                 .latitude(-8.052554)
                 .longitude(-34.894371)
-                .config_sensores(FloodPointRequestDTO.SensorConfigDTO.builder()
-                    .estacoes_pluviometricas_ids(List.of("APAC-PLUVIO-261160621A"))
+                .sensorConfig(FloodPointRequestDTO.SensorConfigDTO.builder()
+                    .pluviometerStationIds(List.of("APAC-PLUVIO-261160621A"))
                     .build())
                 .build(),
             FloodPointRequestDTO.builder()
-                .id_ponto("JABOATAO_CENTRO")
-                .nome("Jaboatão Centro (Rio Duas Unas)")
+                .slug("JABOATAO_CENTRO")
+                .name("Jaboatão Centro (Rio Duas Unas)")
                 .latitude(-8.106520)
                 .longitude(-35.013210)
-                .config_sensores(FloodPointRequestDTO.SensorConfigDTO.builder()
-                    .estacoes_pluviometricas_ids(List.of("APAC-METEO-260790119H"))
+                .sensorConfig(FloodPointRequestDTO.SensorConfigDTO.builder()
+                    .pluviometerStationIds(List.of("APAC-METEO-260790119H"))
                     .build())
                 .build(),
             FloodPointRequestDTO.builder()
-                .id_ponto("MASCARENHAS_IMBIRIBEIRA")
-                .nome("Av. Mascarenhas de Morais")
+                .slug("MASCARENHAS_IMBIRIBEIRA")
+                .name("Av. Mascarenhas de Morais")
                 .latitude(-8.118123)
                 .longitude(-34.904945)
-                .config_sensores(FloodPointRequestDTO.SensorConfigDTO.builder()
-                    .estacoes_pluviometricas_ids(List.of("APAC-PLUVIO-261160609A"))
+                .sensorConfig(FloodPointRequestDTO.SensorConfigDTO.builder()
+                    .pluviometerStationIds(List.of("APAC-PLUVIO-261160609A"))
                     .build())
                 .build()
         );
@@ -671,30 +713,30 @@ public class MapiServiceImpl implements MapiService {
 
         label = floodScenarioLabelRepository.save(label);
 
-        return new FloodScenarioLabelResponseDTO(
-                label.getId(),
-                label.getTimestamp(),
-                label.getLatitude(),
-                label.getLongitude(),
-                label.getIsFlooded(),
-                label.getCurrentRainfall(),
-                label.getRainfall3hAccumulated(),
-                label.getRainfall6hAccumulated(),
-                label.getRainfall12hAccumulated(),
-                label.getRainfall24hAccumulated(),
-                label.getTideLevel(),
-                label.getRiverLevel(),
-                label.getWindSpeed(),
-                label.getWindDirection(),
-                label.getTemperature(),
-                label.getApparentTemperature(),
-                label.getHumidity(),
-                label.getPressure(),
-                label.getWaveHeight(),
-                label.getWavePeriod(),
-                label.getWaveDirection(),
-                label.getSolarRadiation()
-        );
+        return FloodScenarioLabelResponseDTO.builder()
+                .id(label.getId())
+                .timestamp(label.getTimestamp())
+                .latitude(label.getLatitude())
+                .longitude(label.getLongitude())
+                .isFlooded(label.getIsFlooded())
+                .currentRainfall(label.getCurrentRainfall())
+                .rainfall3hAccumulated(label.getRainfall3hAccumulated())
+                .rainfall6hAccumulated(label.getRainfall6hAccumulated())
+                .rainfall12hAccumulated(label.getRainfall12hAccumulated())
+                .rainfall24hAccumulated(label.getRainfall24hAccumulated())
+                .tideLevel(label.getTideLevel())
+                .riverLevel(label.getRiverLevel())
+                .windSpeed(label.getWindSpeed())
+                .windDirection(label.getWindDirection())
+                .temperature(label.getTemperature())
+                .apparentTemperature(label.getApparentTemperature())
+                .humidity(label.getHumidity())
+                .pressure(label.getPressure())
+                .waveHeight(label.getWaveHeight())
+                .wavePeriod(label.getWavePeriod())
+                .waveDirection(label.getWaveDirection())
+                .solarRadiation(label.getSolarRadiation())
+                .build();
     }
 
     /**

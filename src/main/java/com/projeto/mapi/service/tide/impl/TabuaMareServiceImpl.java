@@ -76,7 +76,7 @@ public class TabuaMareServiceImpl implements TabuaMareService {
 
     @Override
     // Um mesmo (porto, mês, dia) é consultado uma vez por HORA dentro de getTideHeightAt quando
-    // chamado em laço por exportUnifiedDataWithAccumulated (ex: /api/precise-data, /api/pontos/{id}).
+    // chamado em laço por exportUnifiedDataWithAccumulated (ex: /api/environmental-data, /api/pontos/{slug}).
     // Sem cache, isso gerava até 24 chamadas HTTP idênticas à API externa por dia exportado.
     @org.springframework.cache.annotation.Cacheable(value = "tideTableDaily", key = "#harbor + '-' + #month + '-' + #days")
     @RateLimiter(name = "tabuaMare")

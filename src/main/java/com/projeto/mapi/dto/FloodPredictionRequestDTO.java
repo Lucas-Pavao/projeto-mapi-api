@@ -41,9 +41,35 @@ public class FloodPredictionRequestDTO {
     private Double riverLevel;
 
     @JsonProperty("nearby_sensors")
-    private java.util.List<MapiResponseDTO.SensorReadingDTO> nearbySensors;
-    
+    private java.util.List<SensorReadingDTO> nearbySensors;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime timestamp;
+
+    // Contrato com a MAPI AI (Python/FastAPI): snake_case em TODOS os campos, de propósito —
+    // diferente de MapiResponseDTO.SensorReadingDTO (mesma leitura de sensor, mas servida em
+    // camelCase ao front). São dois DTOs deliberadamente separados porque cada lado da API tem
+    // sua própria convenção de nomenclatura; MapiServiceImpl converte de um para o outro antes de
+    // montar esta requisição.
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class SensorReadingDTO {
+        @JsonProperty("sensor_id")
+        private String sensorId;
+
+        private Double latitude;
+        private Double longitude;
+        private Double value;
+        private String unit;
+        private String type;
+
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+        private LocalDateTime timestamp;
+
+        @JsonProperty("distance_km")
+        private Double distanceKm;
+    }
 }
 

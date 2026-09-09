@@ -64,14 +64,8 @@ public class DataExportController {
     @Operation(summary = "Exporta dataset unificado de TODOS os pontos em formato CSV único")
     public ResponseEntity<String> getAllPointsDataCsv(
             @RequestParam(defaultValue = "0") int days) {
-        
-        // Otimização: Aplicar acumulados para todos os pontos
-        List<com.projeto.mapi.model.FloodPoint> points = ((com.projeto.mapi.service.export.impl.DataExportServiceImpl)dataExportService).getPoints();
-        List<UnifiedDataDTO> allData = new java.util.ArrayList<>();
-        for (com.projeto.mapi.model.FloodPoint p : points) {
-            allData.addAll(dataExportService.exportUnifiedDataWithAccumulated(p.getSlug(), days));
-        }
-        
+
+        List<UnifiedDataDTO> allData = dataExportService.exportAllPointsDataWithAccumulated(days);
         String csv = dataExportService.generateCsv(allData);
 
         return ResponseEntity.ok()

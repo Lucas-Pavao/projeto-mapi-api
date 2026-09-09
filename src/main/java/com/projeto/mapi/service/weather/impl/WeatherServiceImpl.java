@@ -38,7 +38,7 @@ public class WeatherServiceImpl implements WeatherService {
     @Retry(name = "openMeteo")
     @CircuitBreaker(name = "openMeteo", fallbackMethod = "getWeatherDataFallback")
     public WeatherResponseDTO getWeatherData(double latitude, double longitude) {
-        WeatherResponseDTO response = this.restClient.get()
+        return this.restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/forecast")
                         .queryParam("latitude", latitude)
@@ -48,15 +48,15 @@ public class WeatherServiceImpl implements WeatherService {
                         .build())
                 .retrieve()
                 .body(WeatherResponseDTO.class);
+    }
 
-        if (response != null && response.current() != null) {
-            // Usa o pool de threads dedicado da aplicação (taskExecutor) em vez do
-            // ForkJoinPool.commonPool() padrão do CompletableFuture, evitando disputar
-            // threads com outras tarefas paralelas da JVM para uma operação de I/O bloqueante (JPA save).
-            java.util.concurrent.CompletableFuture.runAsync(() -> saveWeatherData(response), taskExecutor);
-        }
-
-        return response;
+    @Override
+    public void recordWeatherSample(WeatherResponseDTO data) {
+        if (data == null || data.current() == null) return;
+        // Usa o pool de threads dedicado da aplicação (taskExecutor) em vez do
+        // ForkJoinPool.commonPool() padrão do CompletableFuture, evitando disputar
+        // threads com outras tarefas paralelas da JVM para uma operação de I/O bloqueante (JPA save).
+        java.util.concurrent.CompletableFuture.runAsync(() -> saveWeatherData(data), taskExecutor);
     }
 
     // Open-Meteo indisponível/instável: devolve um payload com current=null em vez de propagar a

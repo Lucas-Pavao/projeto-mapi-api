@@ -158,9 +158,20 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
         log.info("Alinhamento regional concluído.");
     }
 
-    private void processPointFullHistory(FloodPoint point, int startYear, int endYear, int years) {
-        // Método mantido para compatibilidade mas o fluxo principal agora é via loop otimizado em ingestHistoricalData
-        ingestPointHistory(point.getSlug(), startYear, endYear);
+    @Override
+    @Async("taskExecutor")
+    public void ingestHistoricalWeather(int years) {
+        mapiService.seedPilotData();
+
+        List<FloodPoint> points = floodPointRepository.findAll();
+        int endYear = LocalDateTime.now().getYear();
+        int startYear = endYear - years;
+
+        log.info(">>> Iniciando ingestão de histórico de CLIMA ({} anos) para {} pontos.", years, points.size());
+        for (FloodPoint point : points) {
+            ingestPointHistory(point.getSlug(), startYear, endYear);
+        }
+        log.info(">>> Ingestão de histórico de CLIMA concluída.");
     }
 
     @Override
