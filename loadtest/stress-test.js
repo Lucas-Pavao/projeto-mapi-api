@@ -29,6 +29,10 @@ const COORDS = [
 ];
 
 const errorRate = new Rate('errors');
+// Métrica separada da "errors" global: a mapi-ai (POST /api/flood-predictions) ainda não está
+// 100% estável, então falhas dela não devem contar pro threshold geral do teste nem fazer o
+// k6 sair com erro — só ficam visíveis à parte no dashboard/console.
+const floodPredictionErrorRate = new Rate('flood_prediction_errors');
 
 export const options = {
   scenarios: {
@@ -63,6 +67,18 @@ export const options = {
       startTime: '5s',
       exec: 'heavyExport',
     },
+    // Cenário à parte pra POST /api/flood-predictions (chama a mapi-ai via
+    // FloodPredictionServiceImpl). Poucas VUs e iterações espaçadas porque é a chamada mais cara
+    // do teste (I/O pra outro serviço) e, principalmente, porque a mapi-ai ainda não está 100%
+    // estável — não queremos que ela vire o gargalo dominante da rampa principal nem que suas
+    // falhas contaminem a métrica "errors" global (ver flood_prediction_errors abaixo).
+    flood_prediction: {
+      executor: 'constant-vus',
+      vus: 2,
+      duration: '4m30s',
+      startTime: '5s',
+      exec: 'floodPrediction',
+    },
   },
   thresholds: {
     // Escopados por cenário (tag automática "scenario" do k6): a rampa principal e o export
@@ -71,10 +87,13 @@ export const options = {
     'http_req_duration{scenario:ramping_load}': ['p(95)<3000'],
     'http_req_duration{scenario:heavy_export}': ['p(95)<15000'],
     errors: ['rate<0.05'],
+    // Sem threshold em cima de flood_prediction_errors de propósito: a mapi-ai ainda está em
+    // desenvolvimento e é esperado que erre com frequência. A métrica fica só de olho no
+    // dashboard/console, sem fazer o k6 sair com código de erro por causa dela.
   },
 };
 
-function hit(name, url, params) {
+function hit(name, url, params, metric = errorRate) {
   // tags.name fixo em vez da URL crua: sem isso, cada querystring diferente (lat/lon, sensorId,
   // slug) vira uma série própria no Prometheus — explode cardinalidade e quebra o agrupamento por
   // endpoint nos painéis do dashboard 05-k6-load-test.json.
@@ -83,7 +102,17 @@ function hit(name, url, params) {
   });
   const res = http.get(url, mergedParams);
   const ok = check(res, { [`${name} -> 2xx/3xx`]: (r) => r.status >= 200 && r.status < 400 });
-  errorRate.add(!ok);
+  metric.add(!ok);
+  return res;
+}
+
+function post(name, url, body, params, metric = errorRate) {
+  const mergedParams = Object.assign({}, params, {
+    tags: Object.assign({ name }, params && params.tags),
+  });
+  const res = http.post(url, body, mergedParams);
+  const ok = check(res, { [`${name} -> 2xx/3xx`]: (r) => r.status >= 200 && r.status < 400 });
+  metric.add(!ok);
   return res;
 }
 
@@ -150,4 +179,12 @@ export function heavyExport(data) {
   const slug = data.slugs[Math.floor(Math.random() * data.slugs.length)];
   hit('export/csv', `${BASE_URL}/api/export/ia-dataset/${slug}/csv?days=30`, authHeaders);
   sleep(10 + Math.random() * 5);
+}
+
+export function floodPrediction(data) {
+  const authHeaders = { headers: { Authorization: `Bearer ${data.token}` }, timeout: '15s' };
+  const coord = COORDS[Math.floor(Math.random() * COORDS.length)];
+  const qs = `latitude=${coord.lat}&longitude=${coord.lon}`;
+  post('flood-predictions', `${BASE_URL}/api/flood-predictions?${qs}`, null, authHeaders, floodPredictionErrorRate);
+  sleep(5 + Math.random() * 5);
 }
