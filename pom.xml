@@ -28,6 +28,10 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<!-- O BOM do Spring Boot 3.4.0 fixa Testcontainers em 1.20.4, cujo docker-java usa API 1.32 por
+		     padrão e é recusado por Docker Engine >= 29 (mínimo 1.44: "client version too old").
+		     Sobrescrevemos a versão do BOM (ADR 0004). -->
+		<testcontainers.version>1.21.4</testcontainers.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -125,6 +129,17 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- PENDENTE (ADR 0004): o H2 sai quando os testes Testcontainers substituírem os que hoje o usam. -->
+		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
@@ -143,6 +158,18 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<systemPropertyVariables>
+						<!-- Docker Engine >= 29 exige API >= 1.44; o docker-java do Testcontainers anuncia 1.32
+						     por padrão e o daemon responde "client version too old". Fixamos a versão da API
+						     aqui (e não em ~/.docker-java.properties) para o build funcionar em qualquer máquina/CI. -->
+						<api.version>1.44</api.version>
+					</systemPropertyVariables>
 				</configuration>
 			</plugin>
 			<plugin>
