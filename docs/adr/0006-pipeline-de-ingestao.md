@@ -222,7 +222,7 @@ Sensibilidade do raio (1, 2, 3, 5 km) fica possível porque cada vínculo é ver
 
 ### 8. Migração incremental via Flyway (V3 em diante)
 
-Cada passo (V3 a V6 agora; V7 adiada) é uma migration, **aditiva**, aplicada somente com aprovação do Lucas (regra da revisão, ADR 0003). O snapshot da Fase 2 (`docs/snapshots/2026-10-10-pre-revisao.md`) é o "antes".
+Cada passo (V3 a V6 agora; V7 = extensão PostGIS, ADR 0005; V8 adiada) é uma migration, **aditiva**, aplicada somente com aprovação do Lucas (regra da revisão, ADR 0003). O snapshot da Fase 2 (`docs/snapshots/2026-10-10-pre-revisao.md`) é o "antes".
 
 | Passo | Cria | Toca no existente? |
 |---|---|---|
@@ -230,17 +230,17 @@ Cada passo (V3 a V6 agora; V7 adiada) é uma migration, **aditiva**, aplicada so
 | `V4__raw_observation_and_quarantine.sql` | `raw_observation` (hypertable), `ingestion_quarantine`, índices `(source, station_id, content_hash)` | não |
 | `V5__observation_timeseries.sql` | `observation` (hypertable, `UNIQUE` natural), `observation_revision`, gatilho de revisão, views `observation_current` e `observation_hourly_v` | não |
 | `V6__labels_and_linkage.sql` | `flood_occurrence`, `occurrence_point_match`, `label_filter`, `linkage_config`, `point_station_link` | não (referencia `flood_points.id`) |
-| `V7__compression_retention_policies.sql` **(adiada)** | políticas da seção 9, só quando um limiar de medição for atingido | só as tabelas novas |
+| `V8__compression_retention_policies.sql` **(adiada)** | políticas da seção 9, só quando um limiar de medição for atingido | só as tabelas novas |
 | (código, não migration) | ingestores passam a escrever em staging e validação; leitores (export, `/api/sensors`, `/api/weather`) passam a ler `observation`; `alignFloodEventsToRainPeaks` desativado | — |
-| `V8` (**fora deste ADR, aprovação explícita própria**) | aposentar `sensor_data`, `weather_data`, `hourly_precipitation`; nenhum `DROP`/`DELETE`/`ALTER ... TYPE` entra antes | destrutivo |
+| `V9` (**fora deste ADR, aprovação explícita própria**) | aposentar `sensor_data`, `weather_data`, `hourly_precipitation`; nenhum `DROP`/`DELETE`/`ALTER ... TYPE` entra antes | destrutivo |
 
 Observações: (a) o continuous aggregate `hourly_precipitation` do baseline (`V1__baseline_schema.sql:68-77`) permanece intocado; (b) como `sensor_data`/`weather_data` serão congeladas e a carga histórica parte do zero, **não** se acrescenta `UNIQUE` em `weather_data` nem `ALTER ... TYPE timestamptz` nas tabelas antigas (a matriz, item 4, aceitava qualquer das duas formas); (c) como o banco local já tem `flyway_schema_history` com baseline, V3 em diante rodam sem tocar V1/V2; (d) a Fase 3 (PostGIS, terreno) é aditiva sobre `flood_points` e independente deste pipeline.
 
 ### 9. Retenção e compressão (F2-DADOS-06): plano condicionado a medição
 
-**Nada desta seção é aplicado agora (V7 adiada).** Com 5 pontos o volume é de ~1,5 milhão de linhas de clima em 5 anos e o disco não pede compressão. A seção fixa o plano e o **gatilho** que o aciona; antes disso, as tabelas nascem sem política.
+**Nada desta seção é aplicado agora (V8 adiada).** Com 5 pontos o volume é de ~1,5 milhão de linhas de clima em 5 anos e o disco não pede compressão. A seção fixa o plano e o **gatilho** que o aciona; antes disso, as tabelas nascem sem política.
 
-**Limiares que disparam V7** `[sem fonte]` (propostos, ajustáveis pelo autor; a primeira medição de tamanho e p95 depois da carga histórica vai para `docs/medidas/`): (a) `pg_total_relation_size('observation')` + `raw_observation` > 5 GB; ou (b) p95 do export de 1 ponto × 5 anos > 5 s medido por k6 sobre a view horária; ou (c) número de pontos ativos ≥ 50. Continuous aggregates só entram se (b) ocorrer com a view já indexada, e então com `materialized_only = false` ou com verificação de frescor no manifesto.
+**Limiares que disparam V8** `[sem fonte]` (propostos, ajustáveis pelo autor; a primeira medição de tamanho e p95 depois da carga histórica vai para `docs/medidas/`): (a) `pg_total_relation_size('observation')` + `raw_observation` > 5 GB; ou (b) p95 do export de 1 ponto × 5 anos > 5 s medido por k6 sobre a view horária; ou (c) número de pontos ativos ≥ 50. Continuous aggregates só entram se (b) ocorrer com a view já indexada, e então com `materialized_only = false` ou com verificação de frescor no manifesto.
 
 **Volume e premissas** (fonte: `docs/revisao/fase-1/F1-BACK-03.md` §6, quando não indicado; "derivado" = conta deste ADR sobre essas premissas):
 
@@ -297,7 +297,7 @@ Testes de integração com a imagem fixada no ADR 0005 (PostgreSQL + TimescaleDB
 2. Timestamps dos DTOs em ISO-8601 com `Z` (quebra o padrão `yyyy-MM-dd'T'HH:mm:ss` de `UnifiedDataDTO.java:12-13` e `SensorResponseDTO.java:21-22`).
 3. Manifesto do export (`/manifest`, `X-Dataset-Id`), CSV com unidade, fuso e `*_flag`.
 4. Endpoint administrativo de reprocessamento e remoção do endpoint de realinhamento.
-5. Cada migration V3–V6 (V7 adiada), individualmente.
+5. Cada migration V3–V6 (V8 adiada), individualmente.
 
 ## Perguntas para o autor
 
