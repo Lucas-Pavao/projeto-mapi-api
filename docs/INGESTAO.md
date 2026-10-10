@@ -21,6 +21,26 @@ A carga parte do zero (não há histórico de 5 anos em lugar nenhum). Ordem rec
 
 1. Confirmar o fuso da fonte em `source_registry` (estado diferente de `UNVERIFIED`) e o `variable_catalog` preenchido com faixas e fontes citadas.
 2. Disparar o backfill por fonte e intervalo (proposta): `POST /api/admin/ingestion/runs` com `{"source":"OPEN_METEO_ARCHIVE","from":"2021-01-01T00:00:00Z","to":"2026-01-01T00:00:00Z","mode":"REFETCH"}` (papel `ADMIN`). Fazer por blocos (por exemplo, um ano) para limitar o tamanho de cada lote; uma transação por lote.
+   **O `POST` é assíncrono.** Ele responde `202` com `{"runId": ...}` na hora e o run continua em segundo plano (`status = RUNNING`, depois `OK` ou `FAILED`). Disparar vários seguidos faz os runs rodarem em paralelo; a maré horária (`TIDE_PE02_HOURLY`) depende dos extremos (`DHN_TABUA_PE02`, `TABUAMARE_PE02`) já gravados e, se rodar antes, termina `OK` com 0 linhas (F2-BACK-21). O roteiro deve, para cada run: (a) disparar; (b) consultar `GET /api/admin/ingestion/runs/{runId}` até `status` sair de `RUNNING`; (c) só então disparar o próximo; (d) se `FAILED`, ler `errorSummary` antes de repetir. Ordem da maré: `DHN_TABUA_PE02`, `TABUAMARE_PE02`, por último `TIDE_PE02_HOURLY`.
+
+   Respeitar o limite da TabuaMare: o `RateLimiter 'tabuaMare'` permite 15 chamadas por 60 s (`application.yml`, `limit-for-period: 15`, `limit-refresh-period: 60s`), e `TABUAMARE_PE02` faz uma chamada por mês. Janela longa pode esgotar o limite e o run termina `FAILED` ("RateLimiter 'tabuaMare' does not permit further calls"; ocorreu no F2-BACK-21). Dividir a janela em blocos de no máximo 12 meses e esperar 60 s entre blocos da TabuaMare. Exemplo (cookie `accessToken` de um ADMIN no arquivo `$JAR`):
+
+   ```bash
+   run() {  # run <json>: dispara, espera o estado final e retorna erro se não for OK
+     id=$(curl -s -b "$JAR" -X POST localhost:8080/api/admin/ingestion/runs \
+          -H 'Content-Type: application/json' -d "$1" | jq -r .runId)
+     while :; do
+       st=$(curl -s -b "$JAR" "localhost:8080/api/admin/ingestion/runs/$id" | jq -r .status)
+       [ "$st" != RUNNING ] && break; sleep 5
+     done
+     echo "$id $st"; [ "$st" = OK ]
+   }
+   run '{"source":"DHN_TABUA_PE02","from":"2021-09-29T03:00:00Z","to":"2026-01-01T03:00:00Z","mode":"REFETCH"}' &&
+   run '{"source":"TABUAMARE_PE02","from":"2026-01-01T03:00:00Z","to":"2026-11-03T03:00:00Z","mode":"REFETCH"}' &&
+   run '{"source":"TIDE_PE02_HOURLY","from":"2021-10-01T03:00:00Z","to":"2026-11-01T03:00:00Z","mode":"REFETCH"}'
+   ```
+
+   Se um bloco da TabuaMare falhar por limite, `sleep 70` e repetir o mesmo bloco (idempotente).
 3. Conferir o `ingestion_run`: `status = OK`, e as contagens `fetched = raw_inserted + raw_unchanged`, `valid + quarantined` coerente com `fetched`.
 4. Revisar a quarentena (consulta abaixo) antes de liberar o dataset.
 5. A leitura horária é a view `observation_hourly_v` (sem materialização): não há agregado para atualizar. Hora rotulada pelo fim do intervalo `(t−1h, t]`.
