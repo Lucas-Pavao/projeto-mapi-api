@@ -51,27 +51,29 @@ public class NominatimGeocodingServiceImpl implements GeocodingService {
         }
 
         Optional<GeocodeResult> result = Optional.empty();
+        // Falha de rede/HTTP não é "endereço inexistente": nesse caso o resultado vazio NÃO entra no cache.
+        boolean[] transientFailure = {false};
 
         // Nível 1: endereço completo com bairro (só se há endereço)
         if (hasAddress) {
-            result = fetchFromNominatim(mainQuery, GeocodeLevel.STREET);
+            result = fetchFromNominatim(mainQuery, GeocodeLevel.STREET, transientFailure);
         }
 
         // Nível 2: apenas endereço e cidade (caso o bairro esteja com nome divergente)
         if (result.isEmpty() && hasAddress) {
             String fallbackQuery = String.format("%s, %s, Pernambuco, Brazil", address, city);
             log.info("[Geocode] Falha no nível 1. Tentando Fallback Nível 2: {}", fallbackQuery);
-            result = fetchFromNominatim(fallbackQuery, GeocodeLevel.STREET);
+            result = fetchFromNominatim(fallbackQuery, GeocodeLevel.STREET, transientFailure);
         }
 
         // Nível 3: apenas bairro e cidade (último recurso para manter estatística regional)
         if (result.isEmpty() && hasNeighborhood) {
             String neighborhoodQuery = String.format("%s, %s, Pernambuco, Brazil", neighborhood, city);
             log.info("[Geocode] Falha no nível 2. Tentando Fallback Nível 3 (Bairro): {}", neighborhoodQuery);
-            result = fetchFromNominatim(neighborhoodQuery, GeocodeLevel.NEIGHBORHOOD);
+            result = fetchFromNominatim(neighborhoodQuery, GeocodeLevel.NEIGHBORHOOD, transientFailure);
         }
 
-        cache.put(mainQuery, result);
+        if (result.isPresent() || !transientFailure[0]) cache.put(mainQuery, result);
         return result;
     }
 
@@ -99,7 +101,7 @@ public class NominatimGeocodingServiceImpl implements GeocodingService {
         return queryLevel;
     }
 
-    private Optional<GeocodeResult> fetchFromNominatim(String query, GeocodeLevel queryLevel) {
+    private Optional<GeocodeResult> fetchFromNominatim(String query, GeocodeLevel queryLevel, boolean[] transientFailure) {
         int retries = 3;
         while (retries > 0) {
             try {
@@ -128,6 +130,7 @@ public class NominatimGeocodingServiceImpl implements GeocodingService {
                     retries, query, e.getMessage());
                 if (retries == 0) {
                     log.error("[Geocode] Falha definitiva para query: {}", query);
+                    transientFailure[0] = true;
                 }
                 try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
             }

@@ -137,6 +137,16 @@ public class OccurrenceRepository {
         });
     }
 
+    /**
+     * Preenche a coordenada de uma ocorrência que foi gravada sem ela (geocodificador indisponível na época). Só toca
+     * linhas ainda sem coordenada; não mexe em raw_hash nem em revisão (o bruto não mudou).
+     */
+    public int fillGeocode(String resourceId, String recordId, double lat, double lon, String method, String level) {
+        return jdbc.update("UPDATE flood_occurrence SET geocoded_lat = ?, geocoded_lon = ?, geocode_method = ?, "
+                + "geocode_level = ? WHERE ckan_resource_id = ? AND ckan_record_id = ? AND geocoded_lat IS NULL",
+                lat, lon, method, level, resourceId, recordId);
+    }
+
     /** Ocorrência gravada cujo nível de geocodificação ainda não foi preenchido (legado anterior à V11). */
     public record PendingLevel(long id, String resourceId, String recordId, String address, Double lat, Double lon,
                                String geocodeMethod) {}

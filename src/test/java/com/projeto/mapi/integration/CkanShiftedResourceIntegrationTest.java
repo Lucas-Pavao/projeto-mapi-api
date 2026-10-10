@@ -117,6 +117,22 @@ class CkanShiftedResourceIntegrationTest extends AbstractIngestionTest {
     }
 
     @Test
+    void revalidateRetentaGeocodificarOcorrenciaGravadaSemCoordenadaSemMudarRevisao() throws Exception {
+        org.mockito.Mockito.reset(geocoding);
+        when(geocoding.geocodeWithLevel(any(), any(), any())).thenReturn(Optional.empty()); // geocodificador fora do ar
+        service.ingest("pkg", RES_A, sample().subList(0, 7));
+        assertThat(count("SELECT count(*) FROM flood_occurrence WHERE geocode_level = 'NONE'")).isEqualTo(3);
+
+        when(geocoding.geocodeWithLevel(any(), any(), any()))
+                .thenReturn(Optional.of(new GeocodeResult(-8.09, -34.93, GeocodeLevel.STREET)));
+        service.revalidate("pkg", RES_A);
+
+        assertThat(count("SELECT count(*) FROM flood_occurrence WHERE geocode_level = 'STREET' AND geocoded_lat = -8.09 "
+                + "AND geocode_method = 'GEOCODING_SERVICE' AND revision = 1")).isEqualTo(3);
+        assertThat(count("SELECT count(*) FROM flood_occurrence")).isEqualTo(3);
+    }
+
+    @Test
     void revalidateReprocessaOBrutoFechaAQuarentenaAntigaESemTocarNoBruto() throws Exception {
         service.ingest("pkg", RES_A, sample().subList(0, 7));
         long brutos = count("SELECT count(*) FROM raw_observation WHERE source = 'CKAN_RECIFE'");

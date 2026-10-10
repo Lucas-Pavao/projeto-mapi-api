@@ -203,7 +203,8 @@ public class OccurrenceIngestionServiceImpl implements OccurrenceIngestionServic
         for (Item it : byRecord.values()) {
             if (it.cls().status() != Status.ACCEPTED || inOtherResources.contains(identity(it))) continue;
             Stored s = stored.get(it.record().recordId());
-            if (s != null && s.rawHash().equals(it.hash())) continue;
+            // sem mudança no bruto só se tenta de novo quando a ocorrência ficou sem coordenada (geocodificador fora do ar)
+            if (s != null && s.rawHash().equals(it.hash()) && !"NOT_GEOCODED".equals(s.geocodeMethod())) continue;
             Optional<GeocodeResult> g = geocode(it.cls());
             if (g.isPresent()) coords.put(it.record().recordId(), g.get());
             else totals[0]++;
@@ -337,12 +338,17 @@ public class OccurrenceIngestionServiceImpl implements OccurrenceIngestionServic
                 continue;
             }
             GeocodeResult g = coords.get(id);
-            written += occurrences.upsert(new OccurrenceRow(packageId, resourceId, id, it.hash(), runId,
+            int upserted = occurrences.upsert(new OccurrenceRow(packageId, resourceId, id, it.hash(), runId,
                     cls.address(), cls.occurredFrom(), cls.occurredTo(), cls.precision(), null,
                     "TEXT_MATCH:" + cls.matchedText(), g == null ? null : g.lat(), g == null ? null : g.lon(),
                     g == null ? "NOT_GEOCODED" : GEOCODE_METHOD,
                     g == null ? GeocodeLevel.NONE.name() : g.level() == null ? null : g.level().name(),
                     clip(cls.neighborhood(), MAX_NEIGHBORHOOD)));
+            written += upserted;
+            if (upserted == 0 && g != null) {
+                occurrences.fillGeocode(resourceId, id, g.lat(), g.lon(), GEOCODE_METHOD,
+                        g.level() == null ? null : g.level().name());
+            }
         }
         quarantine.insertIfAbsent(runId, props.getRuleVersion(), now, entries);
         // quarentena TS aberta de um bruto cuja data agora é interpretável (mapeamento de colunas): fecha, não apaga
