@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # MAPi — terreno PE3D: reproduz inventário, mosaico, recortes COG, atributos por ponto e comparação.
 # Uso: tools/terreno/run.sh [etapa ...]   (sem argumentos roda todas)
-# Etapas: altitude inventario vrt cobertura recortes atributos comparar estimativas validar testes cog3857 (whitebox roda sozinho dentro de atributos e validar)
+# Etapas: altitude inventario vrt cobertura recortes atributos comparar estimativas validar testes cog3857 tiles (whitebox roda sozinho dentro de atributos e validar)
 # Requer: docker, curl. Nunca descompacta os zips (lê por /vsizip). Saídas em ../terreno (fora do git).
 set -euo pipefail
 AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -97,6 +97,46 @@ etapa_cog3857() {
   local vrt_sha cog_sha; vrt_sha=$(sha256sum "$OUT/mosaico.vrt" | cut -d' ' -f1); cog_sha=$(sha256sum "$OUT/cog3857/terrain_3857.tif" | cut -d' ' -f1)
   dk python3 -I /tools/terreno/manifesto_cog.py "$vrt_sha" "$cog_sha" "$seg" "$bbox" "$IMG_TAG@$IMG_DIGEST"
   ls -l "$OUT/cog3857"
+}
+
+# tiles (ADR 0008, decisao efetiva C3 apos C1 reprovar): PMTiles de PNG ja coloridos, zooms 12-17, a partir do COG 3857.
+# Cadeia: gdaldem color-relief (paleta_hipsometrica.txt) -> RGBA temporario -> gdal_translate MBTiles (zoom 17) -> gdaladdo average -> corta z<12 -> pmtiles convert.
+# Intermediarios (RGBA, MBTiles) sao apagados ao fim; fica tiles/terrain_hypsometry.pmtiles + terrain_manifest.json. Exige 1,5 GB livres.
+PMTILES_VER="1.31.2"
+PMTILES_TGZ_SHA256="3ed7dbf4ec2e6dfe5e25b6f70d1ffc932729f93c86db353bf514dd71010a312f"   # go-pmtiles_1.31.2_Linux_x86_64.tar.gz (BSD-3-Clause)
+ZOOM_MIN=12; ZOOM_MAX=17
+etapa_tiles() {
+  checa_disco
+  [ -s "$OUT/cog3857/terrain_3857.tif" ] || { echo "ABORTA: rode a etapa cog3857 antes" >&2; exit 1; }
+  local P="$OUT/pmtiles"; mkdir -p "$P" "$OUT/tiles"
+  if [ ! -x "$P/pmtiles" ]; then
+    curl -sL -m 300 -o "$P/p.tgz" "https://github.com/protomaps/go-pmtiles/releases/download/v${PMTILES_VER}/go-pmtiles_${PMTILES_VER}_Linux_x86_64.tar.gz"
+    echo "$PMTILES_TGZ_SHA256  $P/p.tgz" | sha256sum -c - || { echo "ABORTA: hash do pmtiles difere" >&2; exit 1; }
+    tar -xzf "$P/p.tgz" -C "$P" pmtiles LICENSE && rm "$P/p.tgz"
+  fi
+  local pms; pms=$(sha256sum "$P/pmtiles" | cut -d' ' -f1)
+  local bbox; bbox=$(tail -n +2 "$OUT/cobertura.csv" | awk -F, 'NR==1{xa=xb=$3;ya=yb=$4} {if($3<xa)xa=$3;if($3>xb)xb=$3;if($4<ya)ya=$4;if($4>yb)yb=$4}
+    END{printf "%.3f %.3f %.3f %.3f", xa-2000, ya-2000, xb+2000, yb+2000}')
+  local T="$OUT/tiles"; rm -f "$T/_rgba.tif" "$T/_z.mbtiles" "$T/terrain_hypsometry.pmtiles"
+  local t0 t1; t0=$(date +%s.%N)
+  dk gdaldem color-relief -alpha -of GTiff -co TILED=YES -co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER \
+    /terreno/cog3857/terrain_3857.tif /tools/terreno/paleta_hipsometrica.txt /terreno/tiles/_rgba.tif
+  checa_disco >/dev/null
+  dk gdal_translate -of MBTiles -co TILE_FORMAT=PNG -co MINZOOM=$ZOOM_MAX -co MAXZOOM=$ZOOM_MAX -co RESAMPLING=NEAREST \
+    /terreno/tiles/_rgba.tif /terreno/tiles/_z.mbtiles
+  rm -f "$T/_rgba.tif"
+  dk gdaladdo -r average /terreno/tiles/_z.mbtiles 2 4 8 16 32
+  dk python3 -I /tools/terreno/cortaz.py /terreno/tiles/_z.mbtiles $ZOOM_MIN
+  "$P/pmtiles" convert "$T/_z.mbtiles" "$T/terrain_hypsometry.pmtiles"
+  t1=$(date +%s.%N)
+  rm -f "$T/_z.mbtiles"
+  local seg; seg=$(awk -v a="$t0" -v b="$t1" 'BEGIN{printf "%.1f", b-a}')
+  "$P/pmtiles" show "$T/terrain_hypsometry.pmtiles" > "$T/pmtiles_show.txt"
+  "$P/pmtiles" show --header-json "$T/terrain_hypsometry.pmtiles" > "$T/pmtiles_header.json"
+  local vrt_sha cog_sha pal_sha; vrt_sha=$(sha256sum "$OUT/mosaico.vrt" | cut -d' ' -f1); cog_sha=$(sha256sum "$OUT/cog3857/terrain_3857.tif" | cut -d' ' -f1)
+  pal_sha=$(sha256sum "$AQUI/paleta_hipsometrica.txt" | cut -d' ' -f1)
+  dk python3 -I /tools/terreno/manifesto_tiles.py "$vrt_sha" "$cog_sha" "$pal_sha" "$seg" "$bbox" "$IMG_TAG@$IMG_DIGEST" "$PMTILES_VER" "$pms"
+  ls -l "$T"
 }
 
 ETAPAS=("$@"); [ ${#ETAPAS[@]} -gt 0 ] || ETAPAS=(altitude inventario vrt cobertura recortes atributos comparar estimativas validar testes)

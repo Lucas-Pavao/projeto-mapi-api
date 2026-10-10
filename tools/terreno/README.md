@@ -27,6 +27,15 @@ pontos de `cobertura.csv` + 2 km) e `terrain_manifest.json` (hash do VRT, bbox, 
 tempo de geração). Aborta com menos de 1,5 GB livres; o driver COG usa um temporário de ~0,8 GB além do COG final (~0,46 GB).
 O `.tif` não vai ao git: copie para `public/terrain/` do front (dev) ou para o volume servido pelo nginx.
 
+## Tiles PMTiles para o mapa (ADR 0008, C3 — decisão efetiva após C1 reprovar)
+
+`DADOS=... OUT=... tools/terreno/run.sh tiles` (precisa de `cog3857`). `gdaldem color-relief` com `paleta_hipsometrica.txt` -> RGBA
+temporário -> MBTiles PNG no zoom 17 -> `gdaladdo -r average` -> corta z < 12 -> `pmtiles convert` (go-pmtiles 1.31.2, BSD-3,
+tarball conferido por SHA-256 no `run.sh`). Saída: `OUT/tiles/terrain_hypsometry.pmtiles` (zooms 12–17) e `terrain_manifest.json`
+(zooms, bbox, paleta e seu hash, versões, contagem de tiles, tamanho, SHA-256, tempo). Os intermediários são apagados. A paleta
+é a mesma de `src/features/map/utils/terrain.ts` do front: mudou uma, mude a outra e regenere. Copie o `.pmtiles` para `public/terrain/`
+do front (dev) ou para o volume do nginx (precisa de `Range`).
+
 ## Hidrologia (fill, D8, área contribuinte)
 
 - Motor padrão: **WhiteboxTools v2.4.0** (binário oficial baixado para `OUT/whitebox/`; o zip é conferido contra
