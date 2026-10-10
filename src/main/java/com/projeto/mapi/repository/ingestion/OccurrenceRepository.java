@@ -10,9 +10,11 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 /** flood_occurrence, occurrence_point_match, label_filter e linkage_config (V6). JDBC puro. */
@@ -74,7 +76,9 @@ public class OccurrenceRepository {
         return jdbc.query("""
                 SELECT o.id, o.occurred_from, o.occurred_to, o.temporal_precision
                 FROM occurrence_point_match m JOIN flood_occurrence o ON o.id = m.occurrence_id
-                WHERE m.flood_point_id = ? AND m.linkage_config_id = ? ORDER BY o.occurred_from, o.id
+                WHERE m.flood_point_id = ? AND m.linkage_config_id = ? AND
+                """ + " " + CANONICAL + """
+                 ORDER BY o.occurred_from, o.id
                 """, (rs, i) -> new MatchedOccurrence(rs.getLong(1), rs.getObject(2, OffsetDateTime.class).toInstant(),
                 rs.getObject(3, OffsetDateTime.class).toInstant(), "HOUR".equals(rs.getString(4))),
                 pointId, linkageConfigId);
@@ -129,9 +133,33 @@ public class OccurrenceRepository {
         });
     }
 
+    /**
+     * Identidades ({@code _id|início}) já gravadas por OUTRO recurso do mesmo CKAN. O portal publica cada ano em
+     * recursos duplicados com os mesmos {@code _id}; a identidade de origem da ocorrência é {@code _id} +
+     * {@code occurred_from} (o {@code _id} sozinho repete entre anos). Vale a mais antiga (menor id).
+     */
+    public Set<String> knownInOtherResources(String resourceId, List<String> recordIds) {
+        Set<String> out = new HashSet<>();
+        if (recordIds.isEmpty()) return out;
+        jdbc.query(con -> {
+            var ps = con.prepareStatement("SELECT ckan_record_id, occurred_from FROM flood_occurrence "
+                    + "WHERE ckan_resource_id <> ? AND ckan_record_id = ANY(?)");
+            ps.setString(1, resourceId);
+            ps.setArray(2, con.createArrayOf("text", recordIds.toArray(String[]::new)));
+            return ps;
+        }, rs -> {
+            out.add(rs.getString(1) + "|" + rs.getObject(2, OffsetDateTime.class).toInstant());
+        });
+        return out;
+    }
+
+    /** Predicado SQL: a linha é a ocorrência canônica (menor id) da sua identidade de origem. */
+    static final String CANONICAL = "NOT EXISTS (SELECT 1 FROM flood_occurrence d WHERE d.ckan_record_id = o.ckan_record_id "
+            + "AND d.occurred_from = o.occurred_from AND d.id < o.id)";
+
     public List<GeocodedOccurrence> geocoded() {
-        return jdbc.query("SELECT id, geocoded_lat, geocoded_lon FROM flood_occurrence "
-                + "WHERE geocoded_lat IS NOT NULL AND geocoded_lon IS NOT NULL ORDER BY id",
+        return jdbc.query("SELECT o.id, o.geocoded_lat, o.geocoded_lon FROM flood_occurrence o "
+                + "WHERE o.geocoded_lat IS NOT NULL AND o.geocoded_lon IS NOT NULL AND " + CANONICAL + " ORDER BY o.id",
                 (rs, i) -> new GeocodedOccurrence(rs.getLong(1), rs.getDouble(2), rs.getDouble(3)));
     }
 

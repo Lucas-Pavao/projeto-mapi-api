@@ -115,4 +115,55 @@ class OccurrenceIngestionIntegrationTest extends AbstractIngestionTest {
         assertThat(count("SELECT count(*) FROM raw_observation WHERE station_id = 'res-1#1'")).isEqualTo(2);
         assertThat(count("SELECT count(*) FROM flood_occurrence WHERE ckan_record_id = '1' AND revision = 2")).isEqualTo(1);
     }
+
+    @Test
+    void dataTextoLivreLongoVaiParaQuarentenaENaoDerrubaOLote() {
+        // caso real do CKAN 2022 (_id 27476): texto livre no campo Data, mais longo que source_ts_norm varchar(40)
+        String livre = "Desabamento Parcial de Obras de Conteno / Drenagem - texto livre digitado no campo de data";
+        IngestionRunView run = service.ingest("pkg", RES, List.of(
+                rec("27476", "Desabamento", livre, "Rua Perto, 10"),
+                rec("27477", "Alagamentos", livre, "Rua Perto, 10"),
+                rec("27478", "Alagamentos", "2024-05-28T00:00:00", "Rua Perto, 10")));
+        assertThat(run.status()).isEqualTo("OK");
+        assertThat(run.rawInserted()).isEqualTo(3);
+        assertThat(run.quarantined()).isEqualTo(2);
+        assertThat(run.valid()).isEqualTo(1);
+        assertThat(count("SELECT count(*) FROM ingestion_quarantine WHERE rule_id = 'TS' AND reason = 'TS_UNPARSEABLE'")).isEqualTo(2);
+        // o texto original inteiro fica no payload bruto
+        assertThat(count("SELECT count(*) FROM raw_observation WHERE station_id = 'res-1#27476' "
+                + "AND payload->>'Data' = '" + livre + "' AND length(source_ts_norm) <= 40")).isEqualTo(1);
+    }
+
+    @Test
+    void recursosDuplicadosDoMesmoAnoEntramUmaVezSo() {
+        List<CkanRawRecord> recs = List.of(
+                rec("1", "Alagamentos", "2024-05-28T00:00:00", "Rua Perto, 10"),
+                rec("2", "Alagamentos", "2024-05-29T00:00:00", "Rua Perto, 11"));
+        service.ingest("pkg", "res-A", recs);
+        IngestionRunView b = service.ingest("pkg", "res-B", recs);
+        service.ingest("pkg", "res-C", recs);
+        assertThat(b.status()).isEqualTo("OK");
+        assertThat(count("SELECT count(*) FROM flood_occurrence")).isEqualTo(2);
+        assertThat(count("SELECT count(*) FROM flood_occurrence WHERE ckan_resource_id = 'res-A'")).isEqualTo(2);
+        // o staging bruto registra a repetição (auditoria)
+        assertThat(count("SELECT count(*) FROM raw_observation WHERE source = 'CKAN_RECIFE'")).isEqualTo(6);
+        // mesmo _id em outro ano (data diferente) é outra ocorrência
+        service.ingest("pkg", "res-2025", List.of(rec("1", "Alagamentos", "2025-01-10T00:00:00", "Rua Perto, 10")));
+        assertThat(count("SELECT count(*) FROM flood_occurrence")).isEqualTo(3);
+    }
+
+    @Test
+    void duplicatasJaGravadasNaoContamNoCasamento() {
+        // estado herdado da primeira carga: 3 linhas da mesma ocorrência em 3 recursos
+        List<CkanRawRecord> recs = List.of(rec("1", "Alagamentos", "2024-05-28T00:00:00", "Rua Perto, 10"));
+        service.ingest("pkg", "res-A", recs);
+        jdbc.update("INSERT INTO flood_occurrence (ckan_package_id, ckan_resource_id, ckan_record_id, raw_hash, run_id, "
+                + "address_text, occurred_from, occurred_to, temporal_precision, geocoded_lat, geocoded_lon, geocode_method) "
+                + "SELECT ckan_package_id, 'res-legado', ckan_record_id, raw_hash, run_id, address_text, occurred_from, "
+                + "occurred_to, temporal_precision, geocoded_lat, geocoded_lon, geocode_method FROM flood_occurrence");
+        assertThat(count("SELECT count(*) FROM flood_occurrence")).isEqualTo(2);
+        service.rematch(3000);
+        assertThat(count("SELECT count(*) FROM occurrence_point_match m JOIN linkage_config c ON c.id = m.linkage_config_id "
+                + "WHERE c.radius_m = 3000")).isEqualTo(1);
+    }
 }
