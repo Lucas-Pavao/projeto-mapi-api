@@ -43,7 +43,10 @@ balde) pode nascer sem anotação de framework quando for natural.
 | MapStruct (agents.md §6) | sem dependência MapStruct; `TideMapper` manual | ADR antes de adicionar MapStruct |
 | UTC na persistência (ADR 0001) | colunas `TIMESTAMP WITHOUT TIME ZONE`, 0 usos de `ZoneId`, 24 `LocalDateTime.now()`, Open-Meteo com `timezone=auto` (hora local) | código novo: `Instant` + fuso de origem declarado; migração do histórico na Fase 2, com aprovação |
 | Schema só via Flyway (ADR 0003) | `TimescaleSetup.sql` já marcado como SUPERADO | mudança de schema = nova `V<n>__*.sql`, com aprovação; não editar o .sql |
-| Testcontainers (ADR 0004) | testes ainda em H2 com Flyway desligado | teste novo de repositório/ingestão usa Testcontainers |
+| Testcontainers (ADR 0004) | base `AbstractTimescaleIntegrationTest` com a imagem `timescale/timescaledb-ha:pg16.15-ts2.30.2` (mesma do compose, PostGIS 3.6.4); testes antigos ainda em H2 | teste novo de repositório/ingestão/migração estende a base; Docker 29 exige `api.version=1.44` no surefire |
+| Migrações (ADRs 0005–0008) | V1–V2 baseline; V3–V6 pipeline de ingestão; V7 PostGIS; V8 auditoria de `flood_predictions`; V9 terreno | número = próximo livre **na hora de criar** (o Flyway exige ordem crescente); nunca reservar número para migração adiada |
+| Ingestão (ADR 0006) | staging → validação/quarentena → `observation` versionada, `ingestion_run`, `provenanceId` | fonte nova entra por adaptador do pipeline, nunca gravando direto em tabela consolidada |
+| Contrato de predição (ADR 0007) | `RiskLevel`, `DegradationReason`, previsão no fim do ciclo de coleta; GET não grava | não reintroduzir 0.0 em falha nem chamada à IA em GET |
 
 ## 3. Regras de implementação
 

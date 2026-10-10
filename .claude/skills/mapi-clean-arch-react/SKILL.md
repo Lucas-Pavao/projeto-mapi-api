@@ -48,8 +48,10 @@ subdiretórios.
 - Atualizar dado = `map.getSource(id).setData(...)`, não recriar camada.
 - Callbacks passados ao mapa em `useCallback`; transformações de série em `useMemo`.
 - Nada de GeoJSON grande em `useState` do componente raiz.
-- Camada raster (terreno/hipsometria) deve vir de tiles servidos (COG/XYZ), nunca de
-  arquivo inteiro baixado no cliente.
+- Camada de terreno (ADR 0008, aprovado): **COG em EPSG:3857** servido como estático pelo nginx e
+  lido por range requests com `maplibre-cog-protocol`; paleta/limiar no cliente. Critério de
+  aceitação fixado antes de medir: ≤ 5 MB por visita e ≤ 3 s em "Fast 4G" + CPU 4×; se falhar,
+  volta para tiles pré-gerados. Proibido desenhar "abaixo da maré" até o ADR 0009 fixar Δ.
 
 ## 4. Risco e degradação
 

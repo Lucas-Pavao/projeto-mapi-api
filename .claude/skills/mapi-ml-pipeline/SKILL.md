@@ -39,7 +39,7 @@ referência vertical estiver aprovado; antes disso, use cota relativa.
 
 ## 4. Rótulo
 
-CKAN Recife, filtrado por tipo (Cobrade: excluir deslizamento, enxurrada). Critério
+CKAN Recife, filtrado por tipo: **só "alagamento"** (decisão do autor; "inundação", enxurrada e deslizamento ficam fora). Precisão temporal HOUR/DAY gravada por ocorrência (ADR 0006); a formulação que trata eventos só com data está em `docs/MODELAGEM-IA.md`. Critério
 espacial (raio) e temporal de casamento ocorrência↔ponto↔hora documentado. Declarar o
 viés de notificação (recall medido é recall sobre o que foi comunicado) e a
 subnotificação de alagamento de maré em dia sem chuva.
@@ -70,9 +70,12 @@ Os `.joblib`/`.h5` atuais em `models/` não têm isso — tratar como não rastr
 
 ## 8. Contrato de inferência
 
-Saída: `probability`, `riskLevel`, `modelVersion`, `timestamp`, `topContributors` (3
-variáveis, via SHAP ou permutação). Falta de dado = imputação declarada ou recusa
-explícita com motivo, nunca silêncio. Backend converte falha/timeout em `UNKNOWN`.
+Contrato canônico no **ADR 0007 (aprovado)**. A IA responde `flood_probability`, `risk_level`
+(`LOW|MEDIUM|HIGH`, **nunca** `UNKNOWN`), `model_version` (obrigatório; `"unversioned"` até haver
+artefato com metadata), `horizon_hours`, `issued_at` (UTC, `Z`), `top_contributors`
+`[{feature_id, contribution}]` (SHAP ou permutação) e `imputed_features`. Dado insuficiente = **422**
+com `missing_features`, nunca 0.0. O backend converte falhas em `UNKNOWN` + `degradationReason` e
+traduz `feature_id` por um catálogo fixo em português — feature nova precisa entrar no catálogo.
 
 ## 9. Reprodutibilidade
 
