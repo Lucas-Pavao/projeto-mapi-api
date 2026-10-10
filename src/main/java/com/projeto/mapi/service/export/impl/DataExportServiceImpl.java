@@ -29,6 +29,7 @@ public class DataExportServiceImpl implements DataExportService {
     private final com.projeto.mapi.config.IngestionProperties ingestionProps;
     private final FloodEventRepository floodEventRepository;
     private final TideService tideService;
+    private final com.projeto.mapi.service.terrain.TerrainExportColumns terrainColumns;
 
     @Override
     public List<UnifiedDataDTO> exportAllPointsData(int days) {
@@ -196,7 +197,8 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
                         new com.projeto.mapi.exception.ResourceNotFoundException("Ponto não encontrado: " + slug)));
         List<UnifiedDataDTO> data = new ArrayList<>();
         for (FloodPoint p : points) data.addAll(exportUnifiedDataWithAccumulated(p.getSlug(), days, end));
-        String csv = generateCsv(data);
+        var terrain = terrainColumns.append(generateCsv(data)); // ADR 0008: colunas terrain_*
+        String csv = terrain.csv();
 
         LocalDateTime start = days > 0 ? end.minusDays(days) : LocalDateTime.of(2021, 1, 1, 0, 0);
         Map<String, java.util.Set<java.util.UUID>> runs = new TreeMap<>();
@@ -215,7 +217,7 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         var manifest = new com.projeto.mapi.dto.ExportManifestDTO(
                 com.projeto.mapi.service.ingestion.Hashing.sha256(csv), slug,
                 start.toInstant(java.time.ZoneOffset.UTC), end.toInstant(java.time.ZoneOffset.UTC), "UTC",
-                ingestionProps.getRuleVersion(), ingestionProps.getCodeVersion(), data.size(), flagged, prov,
+                ingestionProps.getRuleVersion(), ingestionProps.getCodeVersion(), data.size(), flagged, prov, terrain.provenance(),
                 List.of("sensores (ANA, APAC, Cemaden): ainda lidos de sensor_data (legado, fuso não verificado)",
                         "maré: TideService", "rótulo: flood_events (CKAN ainda não migrado)"));
         return new CsvExport(csv, manifest);

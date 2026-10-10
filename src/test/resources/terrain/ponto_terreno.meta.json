@@ -1,0 +1,99 @@
+{
+  "gerado_por": "tools/terreno/terreno.py atributos",
+  "sha256_mosaico_vrt": "d63e3b123507631b276eb98a1d247d3337655e50d4456168b61b582dc5408070",
+  "sha256_terreno_py": "c241579742200f89498d13f531b27aa362b08baddb04faffc3580d0777ad21dd",
+  "voo": "PE3D 2016 (MDT 1 m)",
+  "crs": "EPSG:31985 (SIRGAS 2000 / UTM 25S)",
+  "cota": "ortométrica (datum vertical do MDT); NÃO comparável à maré (NR/DHN) sem ADR de referência vertical",
+  "nodata": -9999.0,
+  "parametros": {
+    "raio_cota_m": [
+      3,
+      5
+    ],
+    "janelas_declividade_m": [
+      50,
+      100
+    ],
+    "janela_hidrologia_m": 2000,
+    "raio_snap_acumulacao_m": 10,
+    "recorte_cog_m": 1000,
+    "curva_passo_m": 0.05,
+    "curva_altura_max_m": 2.0,
+    "raio_fundo_curva_m": 50,
+    "raios_snap_sensibilidade_m": [
+      0,
+      5,
+      10,
+      20
+    ],
+    "vizinhanca": "D8 (8 vizinhos)",
+    "fill": "Priority-Flood (Barnes et al. 2014) sem epsilon; planos drenam pela árvore de descoberta"
+  },
+  "software": {
+    "gdal": "3.10.0",
+    "numpy": "1.26.4",
+    "python": "3.12.3",
+    "imagem": "ghcr.io/osgeo/gdal:ubuntu-small-3.10.0@sha256:383e17c221d48031c5ac4fe7500d95adccb05d719a9685542c1e8d2d84ef50e0"
+  },
+  "folhas": [
+    "MDT-SB-25-Y-C-V-4-SE-D-II",
+    "MDT-SB-25-Y-C-V-4-SE-D-IV",
+    "MDT-SB-25-Y-C-V-4-SE-F-II"
+  ],
+  "colunas": [
+    "slug",
+    "folha_origem",
+    "janela_hidrologia_m",
+    "cota_rua_m_raio3m",
+    "n_pixels_raio3m",
+    "cota_min_raio3m",
+    "cota_max_raio3m",
+    "cota_rua_m_raio5m",
+    "n_pixels_raio5m",
+    "cota_min_raio5m",
+    "cota_max_raio5m",
+    "cota_pixel_ponto_m",
+    "declividade_media_pct_50m",
+    "declividade_max_pct_50m",
+    "n_pixels_declividade_50m",
+    "declividade_media_pct_100m",
+    "declividade_max_pct_100m",
+    "n_pixels_declividade_100m",
+    "profundidade_depressao_m",
+    "profundidade_depressao_max_raio5m",
+    "fill_no_ponto_m",
+    "area_contribuinte_m2",
+    "area_contribuinte_pixel_do_ponto_m2",
+    "area_contribuinte_m2_snap0m",
+    "area_contribuinte_m2_snap5m",
+    "area_contribuinte_m2_snap10m",
+    "area_contribuinte_m2_snap20m",
+    "snap_dist_m",
+    "exutorio_x_utm",
+    "exutorio_y_utm",
+    "exutorio_cota_m",
+    "bacia_area_m2",
+    "bacia_toca_borda_janela",
+    "bacia_adjacente_a_nodata",
+    "bacia_cota_min_m",
+    "bacia_cota_max_m",
+    "fundo_bacia_cota_m",
+    "fundo_bacia_x_utm",
+    "fundo_bacia_y_utm",
+    "fundo_bacia_dist_ponto_m",
+    "curva_celulas_conectadas",
+    "curva_volume_2m_m3",
+    "curva_area_2m_m2",
+    "observacao"
+  ],
+  "definicoes": {
+    "cota_rua_m": "mediana do MDT nos pixels (válidos) cujo centro está a <= raio do ponto; colunas _raio3m e _raio5m",
+    "declividade_media_pct": "média de gdaldem slope -p (Horn, computeEdges=False) nos pixels dentro de janela quadrada de lado 50 m / 100 m centrada no ponto",
+    "area_contribuinte_m2": "acumulação D8 (nº de células x 1 m²) sobre o fill Priority-Flood da janela; pixel de maior acumulação em raio de snap de 10 m",
+    "profundidade_depressao_m": "fill - MDT no pixel que contém o ponto",
+    "bacia": "células cujo caminho D8 passa pelo exutório; fundo = célula de menor cota da bacia a <= 50 m do ponto",
+    "curva_cota_volume": "V(z) = soma (z - cota) das células da bacia conectadas (8-vizinhos, caminho com cota < z) ao fundo; z = fundo + k*5 cm, k=0..40; m3_por_cm = dV/(5 cm)",
+    "efeito_de_borda": "fora da janela o terreno é tratado como nodata (saída); se a bacia toca a borda, a área é limite inferior (bacia_toca_borda_janela)"
+  }
+}
