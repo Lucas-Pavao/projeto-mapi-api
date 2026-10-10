@@ -4,12 +4,16 @@ import com.projeto.mapi.dto.IngestionAcceptedDTO;
 import com.projeto.mapi.dto.TideSyncSummaryDTO;
 import com.projeto.mapi.service.sensor.HistoricalDataService;
 import com.projeto.mapi.service.tide.TideTableSyncService;
+import com.projeto.mapi.exception.ErrorMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
+
+import java.util.Date;
 
 @RestController
 @RequestMapping("/api/admin/ingestion")
@@ -64,17 +68,27 @@ public class HistoricalDataController {
     }
 
     @PostMapping("/historical-full-sync")
-    @Operation(summary = "Executa sincronização TOTAL (Clima, ANA, APAC, Defesa Civil e alinhamento de eventos) de todos os pontos")
+    @Operation(summary = "Executa sincronização TOTAL (Clima, ANA, APAC, Defesa Civil) de todos os pontos")
     public ResponseEntity<IngestionAcceptedDTO> startFullSync(@RequestParam(defaultValue = "5") int years) {
         historicalDataService.ingestHistoricalData(years);
         return accepted("Sincronização TOTAL de " + years + " anos iniciada em segundo plano para todos os pontos.");
     }
 
+    // Desativado, mas mantido (remover endpoint exige aprovação): responde 410 Gone sem alterar
+    // nada. Realinhar o horário do evento ao pico de chuva tornava o rótulo derivado da feature
+    // (rótulo circular), então o comportamento antigo não pode mais ser executado por ninguém.
     @PostMapping("/align-events")
-    @Operation(summary = "Alinha eventos de alagamento (00:00) ao pico de chuva meteorológica do dia (síncrono)")
-    public ResponseEntity<IngestionAcceptedDTO> alignEvents() {
-        historicalDataService.alignFloodEventsToRainPeaks();
-        return ResponseEntity.ok(new IngestionAcceptedDTO("Alinhamento de eventos concluído."));
+    @Operation(summary = "DESATIVADO (410 Gone): antes alinhava eventos 00:00 ao pico de chuva",
+            deprecated = true)
+    public ResponseEntity<ErrorMessage> alignEvents(WebRequest request) {
+        return ResponseEntity.status(HttpStatus.GONE).body(new ErrorMessage(
+                HttpStatus.GONE.value(),
+                new Date(),
+                "O alinhamento de eventos ao pico de chuva foi desativado: sobrescrever o horário do evento "
+                        + "com o pico de chuva faz o rótulo (alagou/não alagou) depender da própria feature de "
+                        + "chuva (rótulo circular). Os eventos mantêm o horário original da fonte. "
+                        + "Veja o ADR 0006 (pipeline de ML).",
+                request.getDescription(false)));
     }
 
     @GetMapping("/check-integrity")

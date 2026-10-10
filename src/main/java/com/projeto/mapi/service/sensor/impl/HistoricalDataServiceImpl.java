@@ -19,7 +19,6 @@ import com.projeto.mapi.util.ApacStationRegistry;
 import com.projeto.mapi.util.GeoUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +46,6 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
     private final ApacHistoricalService apacHistoricalService;
     private final CivilDefenseService civilDefenseService;
     private final com.projeto.mapi.service.MapiService mapiService;
-    private final ObjectProvider<HistoricalDataService> serviceProvider;
     private final RestClient restClient = RestClient.builder().baseUrl("https://archive-api.open-meteo.com/v1").build();
 
     @Override
@@ -88,74 +86,12 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
         civilDefenseService.ingestLastYears(years);
         log.info(">>> Ingestão de dados da Defesa Civil concluída.");
         
-        // Chamada via proxy para respeitar o @Transactional
-        log.info(">>> Iniciando correção automática de viés de horário para alagamentos...");
-        serviceProvider.getIfAvailable().alignFloodEventsToRainPeaks();
-        log.info(">>> Processo Global de Ingestão e Alinhamento Finalizado.");
-    }
-
-    @Override
-    @Transactional
-    public void alignFloodEventsToRainPeaks() {
-        log.info("Iniciando Alinhamento de Alagamentos ao Pico de Chuva Regional (Raio 3km)...");
-        List<com.projeto.mapi.model.FloodEvent> events = floodEventRepository.findAll();
-        
-        for (com.projeto.mapi.model.FloodEvent event : events) {
-            // Se o evento começa à meia-noite (comum em dados sem hora), tentamos alinhar
-            if (event.getStartTime().getHour() == 0 && event.getStartTime().getMinute() == 0) {
-                LocalDateTime dayStart = event.getStartTime().withHour(0).withMinute(0);
-                LocalDateTime dayEnd = event.getStartTime().withHour(23).withMinute(59);
-                
-                FloodPoint point = event.getFloodPoint();
-
-                // 1. Buscar o pico de chuva REGIONAL nos sensores (ANA/CEMADEN/APAC)
-                List<SensorData> nearbySensors = sensorDataRepository.findSensorsByRadius(
-                    point.getLatitude(), point.getLongitude(), 3.0, dayStart, dayEnd);
-                
-                LocalDateTime peakTime = null;
-                double maxPrecip = 0.0;
-
-                if (!nearbySensors.isEmpty()) {
-                    // Encontrar o timestamp com maior precipitação acumulada na região
-                    SensorData peakSensor = nearbySensors.stream()
-                        .filter(s -> s.getAccumulatedPrecipitation() != null)
-                        .max(java.util.Comparator.comparingDouble(SensorData::getAccumulatedPrecipitation))
-                        .orElse(null);
-                    
-                    if (peakSensor != null && peakSensor.getAccumulatedPrecipitation() > 0) {
-                        peakTime = peakSensor.getTimestamp();
-                        maxPrecip = peakSensor.getAccumulatedPrecipitation();
-                    }
-                }
-
-                // 2. Se não houver sensores, usar Open-Meteo como fallback
-                if (peakTime == null) {
-                    List<WeatherData> weather = weatherDataRepository.findByLatitudeAndLongitudeAndTimestampBetween(
-                        point.getLatitude(), point.getLongitude(), dayStart, dayEnd);
-                    
-                    WeatherData peakWeather = weather.stream()
-                        .filter(w -> w.getPrecipitation() != null)
-                        .max(java.util.Comparator.comparingDouble(WeatherData::getPrecipitation))
-                        .orElse(null);
-                    
-                    if (peakWeather != null && peakWeather.getPrecipitation() > 0) {
-                        peakTime = peakWeather.getTimestamp();
-                        maxPrecip = peakWeather.getPrecipitation();
-                    }
-                }
-
-                // 3. Aplicar alinhamento se um pico foi encontrado
-                if (peakTime != null) {
-                    log.info("Alinhando evento em {} (slug: {}). Pico de {}mm as {}", 
-                        point.getName(), point.getSlug(), maxPrecip, peakTime.getHour());
-                    event.setStartTime(peakTime);
-                    // Definimos uma janela de impacto padrão de 3 horas após o pico
-                    event.setEndTime(peakTime.plusHours(3));
-                    floodEventRepository.save(event);
-                }
-            }
-        }
-        log.info("Alinhamento regional concluído.");
+        // O antigo passo "alignFloodEventsToRainPeaks" foi REMOVIDO daqui de propósito: ele
+        // sobrescrevia startTime/endTime dos eventos da Defesa Civil (CKAN, 00:00) com o horário do
+        // pico de chuva dos sensores. Como a chuva é justamente a feature do modelo, isso fazia o
+        // rótulo (isFlooded) ser derivado da feature — rótulo circular, que infla métricas.
+        // Os eventos mantêm a data original da fonte (ver ADR 0006, pipeline de ML).
+        log.info(">>> Processo Global de Ingestão Finalizado (horários dos eventos preservados).");
     }
 
     @Override
