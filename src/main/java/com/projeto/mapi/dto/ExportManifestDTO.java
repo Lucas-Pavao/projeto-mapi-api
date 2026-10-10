@@ -27,7 +27,12 @@ public record ExportManifestDTO(
         Map<String, Integer> missingCounts,
         List<String> sourcesNotMigrated,
         List<String> deprecatedColumns,
-        LabelManifest label) {
+        LabelManifest label,
+        TideManifest tide) {
+
+    /** Maré prevista: referência vertical, método de interpolação e quantas horas têm valor. */
+    public record TideManifest(String verticalReference, String hourlyMethod, String uncertainty,
+                               String note, int rowsWithTide) {}
 
     /** Como o rótulo foi construído (MODELAGEM-IA A.1.4 e A.3.1) e quantos positivos, negativos e excluídos saíram. */
     public record LabelManifest(

@@ -4,7 +4,7 @@ import com.projeto.mapi.dto.UnifiedDataDTO;
 import com.projeto.mapi.model.*;
 import com.projeto.mapi.repository.*;
 import com.projeto.mapi.service.export.DataExportService;
-import com.projeto.mapi.service.tide.TideService;
+import com.projeto.mapi.service.export.TideFeatureCalculator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,6 @@ public class DataExportServiceImpl implements DataExportService {
     private final com.projeto.mapi.repository.ingestion.ObservationReadRepository observationRead;
     private final com.projeto.mapi.config.IngestionProperties ingestionProps;
     private final FloodEventRepository floodEventRepository;
-    private final TideService tideService;
     private final com.projeto.mapi.service.terrain.TerrainExportColumns terrainColumns;
     private final com.projeto.mapi.repository.ingestion.OccurrenceRepository occurrenceRepository;
     private final com.projeto.mapi.config.ExportLabelProperties labelProps;
@@ -155,8 +154,13 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         });
 
         // 5. Processar e Refinar (Tide + Flood Labels)
-        // Otimização: Cache de maré por hora para evitar chamadas repetidas à API externa se o porto for o mesmo
-        java.util.concurrent.ConcurrentHashMap<LocalDateTime, Double> tideCache = new java.util.concurrent.ConcurrentHashMap<>();
+        // Maré prevista do pipeline (TIDE_PE02_HOURLY + extremos): uma vez por chamada; sem fallback para outra fonte.
+        java.time.Instant tideFrom = start.toInstant(java.time.ZoneOffset.UTC);
+        java.time.Instant tideTo = end.toInstant(java.time.ZoneOffset.UTC);
+        Map<java.time.Instant, Double> tideHourly = tideHourly(tideFrom.minusSeconds(3600), tideTo.plusSeconds(6 * 3600));
+        List<TideFeatureCalculator.Extreme> tideExtremes = observationRead
+                .tideExtremes(tideFrom.minusSeconds(2 * 86400L), tideTo.plusSeconds(3 * 86400L)).stream()
+                .map(e -> new TideFeatureCalculator.Extreme(e.tsUtc(), e.level(), e.qualifier())).toList();
 
         var linkage = labelLinkage();
         List<Occ> occs = linkage.map(l -> occurrencesOf(point, l)).orElse(List.of());
@@ -165,18 +169,11 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
             LocalDateTime ts = entry.getKey();
             UnifiedDataDTO.UnifiedDataDTOBuilder builder = entry.getValue();
 
-            // Altura da Maré (Otimizado com cache local na exportação)
-            try {
-                Double tide = tideCache.computeIfAbsent(ts, t -> 
-                    tideService.getTideHeightAt(point.getLatitude(), point.getLongitude(), t));
-                
-                if (tide != null) {
-                    tide = Math.round(tide * 100.0) / 100.0;
-                }
-                builder.tideHeight(tide);
-            } catch (Exception e) {
-                builder.tideHeight(null);
-            }
+            // Maré prevista (altura em t, t+1..t+6, máximo, preamar seguinte, amplitude do dia, derivada)
+            var tf = TideFeatureCalculator.at(ts.toInstant(java.time.ZoneOffset.UTC), tideHourly, tideExtremes);
+            builder.tideHeight(tf.height()).tideHeightAhead(tf.ahead()).tideMaxNext6h(tf.maxNext6h())
+                    .tideHoursToNextHigh(tf.hoursToNextHigh()).tideRangeDayM(tf.rangeDayM())
+                    .tideRising(tf.rising()).tideSlopeMh(tf.slopeMh());
 
             // Rótulo novo (pipeline): t = fim da hora em UTC; só preenche se há linkage_config vigente
             if (linkage.isPresent()) {
@@ -223,6 +220,19 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
                 start.toInstant(java.time.ZoneOffset.UTC), end.toInstant(java.time.ZoneOffset.UTC));
     }
 
+    /** Altura da maré prevista nas horas cheias UTC (grade horária do pipeline; hora sem valor = ausente). */
+    private Map<java.time.Instant, Double> tideHourly(java.time.Instant from, java.time.Instant to) {
+        Map<java.time.Instant, Double> m = new java.util.HashMap<>();
+        for (var c : observationRead.hourly(TIDE_SOURCE, TIDE_STATION, from, to)) {
+            if (c.value() != null && TIDE_VARIABLE.equals(c.variable())) m.put(c.hourEndUtc(), c.value());
+        }
+        return m;
+    }
+
+    private static final String TIDE_SOURCE = com.projeto.mapi.service.ingestion.adapter.tide.TideHourlyAdapter.SOURCE;
+    private static final String TIDE_STATION = com.projeto.mapi.service.ingestion.adapter.tide.TideConstants.STATION;
+    private static final String TIDE_VARIABLE = com.projeto.mapi.service.ingestion.adapter.tide.TideConstants.VARIABLE_HOURLY;
+
     /** Umidade do solo ERA5-Land (F2-BACK-15); mesma estação (coordenada do ponto) da fonte Open-Meteo archive. */
     private List<com.projeto.mapi.repository.ingestion.ObservationReadRepository.HourlyCell> soilCells(
             FloodPoint point, LocalDateTime start, LocalDateTime end) {
@@ -258,6 +268,12 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
                 revisions.merge(key, cell.maxRevision(), Math::max);
             }
         }
+        for (var cell : observationRead.hourly(TIDE_SOURCE, TIDE_STATION, start.toInstant(java.time.ZoneOffset.UTC),
+                end.toInstant(java.time.ZoneOffset.UTC))) {
+            String key = TIDE_SOURCE + "|" + cell.variable();
+            runs.computeIfAbsent(key, k -> new java.util.TreeSet<>()).addAll(cell.runIds());
+            revisions.merge(key, cell.maxRevision(), Math::max);
+        }
         List<com.projeto.mapi.dto.ExportManifestDTO.SourceProvenance> prov = runs.entrySet().stream()
                 .map(e -> new com.projeto.mapi.dto.ExportManifestDTO.SourceProvenance(e.getKey().split("\\|")[0],
                         e.getKey().split("\\|")[1], List.copyOf(e.getValue()), revisions.get(e.getKey()))).toList();
@@ -268,9 +284,15 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
                 ingestionProps.getRuleVersion(), ingestionProps.getCodeVersion(), data.size(), flagged, prov, terrain.provenance(),
                 MISSING_POLICY, missingCounts(data),
                 List.of("sensores (ANA, APAC, Cemaden): ainda lidos de sensor_data (legado, fuso não verificado)",
-                        "maré: TideService",
+                        "maré: pipeline (TIDE_PE02_HOURLY a partir de TABUAMARE_PE02/DHN_TABUA_PE02), alturas em NR_DHN_pe02",
                         "rótulo legado isFlooded/severity: flood_events (obsoleto); rótulo novo: flood_occurrence"),
-                List.of("isFlooded", "severity"), labelManifest(points, data, start, end));
+                List.of("isFlooded", "severity"), labelManifest(points, data, start, end),
+                new com.projeto.mapi.dto.ExportManifestDTO.TideManifest(
+                        com.projeto.mapi.service.ingestion.adapter.tide.TideConstants.VERTICAL_REFERENCE,
+                        "COSENO entre extremos consecutivos da tábua DHN (Porto do Recife, pe02), hora cheia UTC; "
+                                + "sem extrapolar além do primeiro/último extremo nem entre extremos a mais de 8 h",
+                        "[sem fonte] não medida contra marégrafo; resolução da tábua 0,1 m (2021-2024) e 0,01 m (2025-2026)",
+                        TIDE_NOTE, (int) data.stream().filter(d -> d.getTideHeight() != null).count()));
         return new CsvExport(csv, manifest);
     }
 
@@ -323,7 +345,10 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         Map<String, Integer> out = new java.util.LinkedHashMap<>();
         for (String c : MISSING_COLUMNS) out.put(c, 0);
         out.put("soil_moisture_0_7cm", 0);
+        for (String c : TIDE_COLUMNS) out.put(c, 0);
         for (UnifiedDataDTO d : data) {
+            Object[] tv = tideValues(d);
+            for (int i = 0; i < tv.length; i++) if (tv[i] == null) out.merge(TIDE_COLUMNS[i], 1, Integer::sum);
             Object[] v = missingValues(d);
             for (int i = 0; i < v.length; i++) if (v[i] == null) out.merge(MISSING_COLUMNS[i], 1, Integer::sum);
             if (d.getSoilMoisture07cm() == null) out.merge("soil_moisture_0_7cm", 1, Integer::sum);
@@ -384,6 +409,11 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         return (ts.isAfter(eventStart) || ts.isEqual(eventStart)) && (ts.isBefore(eventEnd) || ts.isEqual(eventEnd));
     }
 
+    static final String TIDE_NOTE = "Altura da tábua referida ao NR da DHN; NÃO convertida ao datum do MDT (ADR 0009). "
+            + "A maré prevista em t+1..t+6 é exceção declarada de 'futuro' (tábua publicada antes; MODELAGEM-IA A.2.2). "
+            + "tide_rising = 1 se a derivada central (h(t+1)-h(t-1))/2 > 0, 0 se < 0, vazio se nula ou ausente; "
+            + "tide_range_day_m = máximo - mínimo dos extremos do dia civil America/Recife de t (proxy de sizígia/quadratura).";
+
     /** Política de ausência declarada no manifesto (ADR 0006: lacuna = NULL, nunca constante). */
     public static final String MISSING_POLICY = "Sem imputação. Valor ausente = célula vazia no CSV (null no JSON). "
             + "Colunas <var>_missing (1 = ausente, 0 = presente) ao fim do cabeçalho. acumuladosNh = vazio se a janela "
@@ -394,6 +424,23 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
     private static final String[] MISSING_COLUMNS = {"sensorPrecipitation", "sensorWaterLevel", "sensorSoilHumidity",
             "weatherPrecipitation", "weatherTemperature", "weatherPressure", "weatherCode", "tideHeight",
             "accumulated3h", "accumulated6h", "accumulated12h", "accumulated24h", "accumulated48h"};
+
+    /** Colunas de maré prevista acrescentadas ao fim do CSV (valores, depois os sinalizadores _missing na mesma ordem). */
+    static final String[] TIDE_COLUMNS = {"tide_height_t1", "tide_height_t2", "tide_height_t3", "tide_height_t4",
+            "tide_height_t5", "tide_height_t6", "tide_max_next_6h", "tide_hours_to_next_high", "tide_range_day_m",
+            "tide_rising", "tide_slope_m_h"};
+
+    private static Object[] tideValues(UnifiedDataDTO d) {
+        java.util.Map<Integer, Double> a = d.getTideHeightAhead();
+        Object[] out = new Object[TIDE_COLUMNS.length];
+        for (int k = 1; k <= TideFeatureCalculator.HORIZON_HOURS; k++) out[k - 1] = a == null ? null : a.get(k);
+        out[6] = d.getTideMaxNext6h();
+        out[7] = d.getTideHoursToNextHigh();
+        out[8] = d.getTideRangeDayM();
+        out[9] = d.getTideRising();
+        out[10] = d.getTideSlopeMh();
+        return out;
+    }
 
     private static Object[] missingValues(UnifiedDataDTO d) {
         return new Object[]{d.getSensorPrecipitation(), d.getSensorWaterLevel(), d.getSensorSoilHumidity(),
@@ -412,7 +459,11 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         csv.append("floodPointSlug,timestamp,sensorPrecipitation,sensorWaterLevel,sensorSoilHumidity,weatherPrecipitation,weatherTemperature,weatherPressure,weatherCode,tideHeight,accumulated3h,accumulated6h,accumulated12h,accumulated24h,accumulated48h,isFlooded,severity,timestampUtc");
         for (String c : MISSING_COLUMNS) csv.append(',').append(c).append("_missing");
         for (int h : labelProps.getHorizonsHours()) csv.append(",label_h").append(h);
-        csv.append(",label_day,label_excluded_reason,occurrence_ids,soil_moisture_0_7cm,soil_moisture_0_7cm_missing\n");
+        csv.append(",label_day,label_excluded_reason,occurrence_ids,soil_moisture_0_7cm,soil_moisture_0_7cm_missing");
+        // Maré prevista (F2-BACK-14): colunas novas no FIM, cada uma com sua _missing; tideHeight (acima) é a altura em t.
+        for (String c : TIDE_COLUMNS) csv.append(',').append(c);
+        for (String c : TIDE_COLUMNS) csv.append(',').append(c).append("_missing");
+        csv.append('\n');
 
         for (UnifiedDataDTO d : data) {
             csv.append(String.join(",",
@@ -428,7 +479,11 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
             csv.append(',').append(cell(d.getLabelDay())).append(',').append(cell(d.getLabelExcludedReason()))
                     .append(',').append(cell(d.getOccurrenceIds()))
                     .append(',').append(cell(d.getSoilMoisture07cm()))
-                    .append(',').append(d.getSoilMoisture07cm() == null ? '1' : '0').append('\n');
+                    .append(',').append(d.getSoilMoisture07cm() == null ? '1' : '0');
+            Object[] tide = tideValues(d);
+            for (Object v : tide) csv.append(',').append(cell(v));
+            for (Object v : tide) csv.append(',').append(v == null ? '1' : '0');
+            csv.append('\n');
         }
         return csv.toString();
     }
