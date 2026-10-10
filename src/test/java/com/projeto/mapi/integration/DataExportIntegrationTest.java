@@ -34,7 +34,7 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
     private static final String HEADER = "floodPointSlug,timestamp,sensorPrecipitation,sensorWaterLevel,"
             + "sensorSoilHumidity,weatherPrecipitation,weatherTemperature,weatherPressure,weatherCode,tideHeight,"
             + "accumulated3h,accumulated6h,accumulated12h,accumulated24h,accumulated48h,isFlooded,severity,"
-            + "sensorPrecipitation_missing,sensorWaterLevel_missing,sensorSoilHumidity_missing,weatherPrecipitation_missing,"
+            + "timestampUtc,sensorPrecipitation_missing,sensorWaterLevel_missing,sensorSoilHumidity_missing,weatherPrecipitation_missing,"
             + "weatherTemperature_missing,weatherPressure_missing,weatherCode_missing,tideHeight_missing,"
             + "accumulated3h_missing,accumulated6h_missing,accumulated12h_missing,accumulated24h_missing,accumulated48h_missing";
 
@@ -60,7 +60,7 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
         FloodPoint ponto = pointRepository.save(FloodPoint.builder()
                 .slug("ponto-teste").name("Ponto Teste").latitude(-8.05).longitude(-34.88).build());
 
-        LocalDateTime agora = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime agora = LocalDateTime.now(java.time.ZoneOffset.UTC).withMinute(0).withSecond(0).withNano(0);
         sensorRepository.save(SensorData.builder().sensorId("S1").latitude(-8.05).longitude(-34.88)
                 .timestamp(agora.minusHours(2)).accumulatedPrecipitation(7.5).build());
         // clima agora vem do pipeline novo (observation_hourly_v), em UTC
@@ -98,9 +98,10 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
         assertThat(dados).filteredOn(d -> d.getSensorPrecipitation() == null).hasSize(24);
         assertThat(dados).filteredOn(d -> d.getWeatherTemperature() == null).hasSize(24);
         String[] cols = linhas[1].split(",", -1);
+        assertThat(cols[17]).endsWith("Z");            // timestampUtc em ISO-8601 com Z
         assertThat(cols[2]).isEmpty();                 // sensorPrecipitation ausente
-        assertThat(cols[17]).isEqualTo("1");           // sensorPrecipitation_missing
-        assertThat(cols[19]).isEqualTo("1");           // sensorSoilHumidity_missing
+        assertThat(cols[18]).isEqualTo("1");           // sensorPrecipitation_missing
+        assertThat(cols[20]).isEqualTo("1");           // sensorSoilHumidity_missing
         assertThat(dados.get(0).getAccumulated48h()).isNull(); // janela de 48 h incompleta
 
         assertThat(dados).filteredOn(d -> Boolean.TRUE.equals(d.getIsFlooded())).hasSize(1);
@@ -113,7 +114,7 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
         List<UnifiedDataDTO> dados = exportService.exportUnifiedDataWithAccumulated("ponto-teste", 1);
         assertThat(dados).filteredOn(d -> d.getWeatherPrecipitation() != null && d.getWeatherPrecipitation() == 3.0).hasSize(1);
 
-        var export = exportService.exportCsv("ponto-teste", 1, java.time.LocalDateTime.now());
+        var export = exportService.exportCsv("ponto-teste", 1, java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
         assertThat(export.manifest().datasetId()).isEqualTo(com.projeto.mapi.service.ingestion.Hashing.sha256(export.csv()));
         assertThat(export.manifest().timezone()).isEqualTo("UTC");
         assertThat(export.manifest().missingPolicy()).contains("Sem imputação").contains("_missing");

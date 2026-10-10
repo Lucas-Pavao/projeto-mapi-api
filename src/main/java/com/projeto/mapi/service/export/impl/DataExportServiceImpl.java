@@ -60,7 +60,7 @@ public class DataExportServiceImpl implements DataExportService {
                 .orElseThrow(() -> new com.projeto.mapi.exception.ResourceNotFoundException("Ponto não encontrado: " + slug));
 
         // Define o intervalo de busca
-        LocalDateTime end = (endOverride != null ? endOverride : LocalDateTime.now()).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime end = (endOverride != null ? endOverride : LocalDateTime.now(java.time.ZoneOffset.UTC)).withMinute(0).withSecond(0).withNano(0);
         LocalDateTime start = (days > 0) ? end.minusDays(days) : LocalDateTime.of(2021, 1, 1, 0, 0);
 // --- NOVA LÓGICA ESPACIAL: Busca regional em raio de 3km ---
 log.info("---- Exportando dados regionais (Raio 3km) para o ponto {}", slug);
@@ -191,7 +191,7 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
     @Override
     public CsvExport exportCsv(String slug, int days, LocalDateTime endOverride) {
         boolean all = "all".equals(slug);
-        LocalDateTime end = (endOverride != null ? endOverride : LocalDateTime.now()).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime end = (endOverride != null ? endOverride : LocalDateTime.now(java.time.ZoneOffset.UTC)).withMinute(0).withSecond(0).withNano(0);
         List<FloodPoint> points = all ? floodPointRepository.findAll()
                 : List.of(floodPointRepository.findBySlug(slug).orElseThrow(() ->
                         new com.projeto.mapi.exception.ResourceNotFoundException("Ponto não encontrado: " + slug)));
@@ -272,6 +272,7 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         return UnifiedDataDTO.builder()
                 .floodPointSlug(slug)
                 .timestamp(ts)
+                .timestampUtc(ts.toInstant(java.time.ZoneOffset.UTC))
                 .isFlooded(false)
                 .severity(null);
     }
@@ -310,7 +311,7 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
     @Override
     public String generateCsv(List<UnifiedDataDTO> data) {
         StringBuilder csv = new StringBuilder();
-        csv.append("floodPointSlug,timestamp,sensorPrecipitation,sensorWaterLevel,sensorSoilHumidity,weatherPrecipitation,weatherTemperature,weatherPressure,weatherCode,tideHeight,accumulated3h,accumulated6h,accumulated12h,accumulated24h,accumulated48h,isFlooded,severity");
+        csv.append("floodPointSlug,timestamp,sensorPrecipitation,sensorWaterLevel,sensorSoilHumidity,weatherPrecipitation,weatherTemperature,weatherPressure,weatherCode,tideHeight,accumulated3h,accumulated6h,accumulated12h,accumulated24h,accumulated48h,isFlooded,severity,timestampUtc");
         for (String c : MISSING_COLUMNS) csv.append(',').append(c).append("_missing");
         csv.append('\n');
 
@@ -321,7 +322,7 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
                     cell(d.getWeatherPrecipitation()), cell(d.getWeatherTemperature()), cell(d.getWeatherPressure()),
                     cell(d.getWeatherCode()), cell(d.getTideHeight()), cell(d.getAccumulated3h()),
                     cell(d.getAccumulated6h()), cell(d.getAccumulated12h()), cell(d.getAccumulated24h()),
-                    cell(d.getAccumulated48h()), cell(d.getIsFlooded()), cell(d.getSeverity())));
+                    cell(d.getAccumulated48h()), cell(d.getIsFlooded()), cell(d.getSeverity()), cell(d.getTimestampUtc())));
             for (Object v : missingValues(d)) csv.append(',').append(v == null ? '1' : '0');
             csv.append('\n');
         }
