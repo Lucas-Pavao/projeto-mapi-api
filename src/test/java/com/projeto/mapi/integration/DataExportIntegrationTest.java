@@ -33,7 +33,10 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
 
     private static final String HEADER = "floodPointSlug,timestamp,sensorPrecipitation,sensorWaterLevel,"
             + "sensorSoilHumidity,weatherPrecipitation,weatherTemperature,weatherPressure,weatherCode,tideHeight,"
-            + "accumulated3h,accumulated6h,accumulated12h,accumulated24h,accumulated48h,isFlooded,severity";
+            + "accumulated3h,accumulated6h,accumulated12h,accumulated24h,accumulated48h,isFlooded,severity,"
+            + "sensorPrecipitation_missing,sensorWaterLevel_missing,sensorSoilHumidity_missing,weatherPrecipitation_missing,"
+            + "weatherTemperature_missing,weatherPressure_missing,weatherCode_missing,tideHeight_missing,"
+            + "accumulated3h_missing,accumulated6h_missing,accumulated12h_missing,accumulated24h_missing,accumulated48h_missing";
 
     @Autowired private DataExportService exportService;
     @Autowired private FloodPointRepository pointRepository;
@@ -90,8 +93,18 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
         assertThat(linhas).hasSize(26); // cabeçalho + 25
         assertThat(linhas[1].split(",", -1)).hasSameSizeAs(HEADER.split(","));
 
+        // sem imputação: ausência é célula vazia (nunca o literal "null") e o sinalizador _missing acompanha
+        assertThat(csv).doesNotContain("null");
+        assertThat(dados).filteredOn(d -> d.getSensorPrecipitation() == null).hasSize(24);
+        assertThat(dados).filteredOn(d -> d.getWeatherTemperature() == null).hasSize(24);
+        String[] cols = linhas[1].split(",", -1);
+        assertThat(cols[2]).isEmpty();                 // sensorPrecipitation ausente
+        assertThat(cols[17]).isEqualTo("1");           // sensorPrecipitation_missing
+        assertThat(cols[19]).isEqualTo("1");           // sensorSoilHumidity_missing
+        assertThat(dados.get(0).getAccumulated48h()).isNull(); // janela de 48 h incompleta
+
         assertThat(dados).filteredOn(d -> Boolean.TRUE.equals(d.getIsFlooded())).hasSize(1);
-        assertThat(dados).filteredOn(d -> d.getSensorPrecipitation() == 7.5).hasSize(1);
+        assertThat(dados).filteredOn(d -> Double.valueOf(7.5).equals(d.getSensorPrecipitation())).hasSize(1);
         assertThat(dados).allSatisfy(d -> assertThat(d.getTideHeight()).isEqualTo(1.23));
     }
 
@@ -103,6 +116,8 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
         var export = exportService.exportCsv("ponto-teste", 1, java.time.LocalDateTime.now());
         assertThat(export.manifest().datasetId()).isEqualTo(com.projeto.mapi.service.ingestion.Hashing.sha256(export.csv()));
         assertThat(export.manifest().timezone()).isEqualTo("UTC");
+        assertThat(export.manifest().missingPolicy()).contains("Sem imputação").contains("_missing");
+        assertThat(export.manifest().missingCounts().get("weatherTemperature")).isEqualTo(24);
         assertThat(export.manifest().provenance()).anySatisfy(p -> {
             assertThat(p.variable()).isEqualTo("precipitation");
             assertThat(p.runIds()).containsExactly(runId);
