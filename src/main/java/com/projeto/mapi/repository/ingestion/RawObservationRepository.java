@@ -68,6 +68,15 @@ public class RawObservationRepository {
                 """, (rs, i) -> map(source, rs), source, loInclusive, hiExclusive);
     }
 
+    /** run_id da versão mais recente do bruto de um registro de origem (proveniência de leituras ao vivo). */
+    public java.util.Optional<UUID> latestRunId(String source, String stationId, String sourceTsNorm) {
+        return jdbc.query("""
+                SELECT run_id FROM raw_observation
+                WHERE source = ? AND station_id = ? AND source_ts_norm = ?
+                ORDER BY ingested_at DESC, seq DESC LIMIT 1
+                """, (rs, i) -> rs.getObject(1, UUID.class), source, stationId, sourceTsNorm).stream().findFirst();
+    }
+
     public void insertAll(UUID runId, Instant ingestedAt, List<RawInsert> rows) {
         if (rows.isEmpty()) return;
         jdbc.batchUpdate("""

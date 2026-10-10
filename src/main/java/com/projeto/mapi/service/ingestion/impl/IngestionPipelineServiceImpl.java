@@ -128,6 +128,33 @@ public class IngestionPipelineServiceImpl implements IngestionPipelineService {
     }
 
     @Override
+    public IngestionRunView executePushed(String source, FetchedBatch batch) {
+        SourceAdapter adapter = adapters.get(source);
+        if (adapter == null) throw new InvalidRequestException("Fonte sem adaptador no pipeline: " + source);
+        UUID id = UUID.randomUUID();
+        ObjectNode params = mapper.createObjectNode();
+        params.put("source", source);
+        params.put("mode", "PUSHED");
+        runs.create(id, source, IngestionKind.LIVE.name(), IngestionMode.REFETCH.name(), null, null,
+                props.getCodeVersion(), adapter.parserVersion(), props.getRuleVersion(),
+                clock.instant().truncatedTo(ChronoUnit.MICROS), null, params);
+        RunState st = new RunState(mapper.createArrayNode());
+        st.requests.add(batch.requestInfo());
+        try {
+            tx.executeWithoutResult(s -> processFetched(id, adapter, batch, st));
+            st.batchesOk++;
+        } catch (RuntimeException e) {
+            st.batchesFailed++;
+            st.errors.append("lote falhou: ").append(e);
+            log.error("Run ao vivo {} ({}) falhou", id, source, e);
+        }
+        params.set("requests", st.requests);
+        runs.finish(id, st.batchesFailed == 0 ? "OK" : "FAILED", clock.instant().truncatedTo(ChronoUnit.MICROS),
+                st.counters, st.errors.length() == 0 ? null : st.errors.toString(), params);
+        return runs.findById(id).orElseThrow();
+    }
+
+    @Override
     public Optional<IngestionRunView> findRun(UUID id) {
         return runs.findById(id);
     }

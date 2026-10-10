@@ -39,6 +39,7 @@ class CollectionSourceUnavailableTest {
     @Mock private ApacScrapeClient apacClient;
     @Mock private AnaDataClient anaClient;
     @Mock private SensorService sensorService;
+    @Mock private com.projeto.mapi.service.ingestion.live.LiveSensorStagingService staging;
 
     private final ObjectMapper mapper = new ObjectMapper();
     private final AppProperties props = new AppProperties();
@@ -46,7 +47,7 @@ class CollectionSourceUnavailableTest {
     @Test
     void apac_falhaDaFonteViraSourceUnavailable() {
         when(apacClient.fetchRawStations(anyString())).thenThrow(new ResourceAccessException("timeout"));
-        var service = new ApacCollectorServiceImpl(apacClient, sensorService, mapper, props);
+        var service = new ApacCollectorServiceImpl(apacClient, sensorService, mapper, props, staging);
 
         CollectionSummaryDTO r = service.collectCemaden();
 
@@ -57,7 +58,7 @@ class CollectionSourceUnavailableTest {
     @Test
     void apac_respostaVaziaLegitimaNaoEhIndisponivel() {
         when(apacClient.fetchRawStations(anyString())).thenReturn(List.of());
-        var service = new ApacCollectorServiceImpl(apacClient, sensorService, mapper, props);
+        var service = new ApacCollectorServiceImpl(apacClient, sensorService, mapper, props, staging);
 
         CollectionSummaryDTO r = service.collectMeteorologia24h();
 
@@ -68,7 +69,7 @@ class CollectionSourceUnavailableTest {
     @Test
     void ana_descobertaFalhandoViraSourceUnavailable() {
         when(anaClient.discoverStations()).thenThrow(new ResourceAccessException("timeout"));
-        var service = new AnaCollectorServiceImpl(anaClient, sensorService, mapper, props);
+        var service = new AnaCollectorServiceImpl(anaClient, sensorService, mapper, props, staging);
 
         assertTrue(service.collectAll().sourceUnavailable());
     }
@@ -78,7 +79,7 @@ class CollectionSourceUnavailableTest {
         when(anaClient.discoverStations()).thenReturn(List.of(
                 new AnaStationDTO("1", "A", "R", -8.0, -34.9), new AnaStationDTO("2", "B", "R", -8.1, -34.9)));
         when(anaClient.fetchStationMeasurements(anyString(), anyString())).thenThrow(new ResourceAccessException("timeout"));
-        var service = new AnaCollectorServiceImpl(anaClient, sensorService, mapper, props);
+        var service = new AnaCollectorServiceImpl(anaClient, sensorService, mapper, props, staging);
 
         CollectionSummaryDTO r = service.collectAll();
 
@@ -93,7 +94,7 @@ class CollectionSourceUnavailableTest {
                 new AnaStationDTO("1", "A", "R", -8.0, -34.9), new AnaStationDTO("2", "B", "R", -8.1, -34.9)));
         when(anaClient.fetchStationMeasurements(eq("1"), anyString())).thenReturn(List.of(leitura));
         when(anaClient.fetchStationMeasurements(eq("2"), anyString())).thenThrow(new ResourceAccessException("timeout"));
-        var service = new AnaCollectorServiceImpl(anaClient, sensorService, mapper, props);
+        var service = new AnaCollectorServiceImpl(anaClient, sensorService, mapper, props, staging);
 
         CollectionSummaryDTO r = service.collectAll();
 

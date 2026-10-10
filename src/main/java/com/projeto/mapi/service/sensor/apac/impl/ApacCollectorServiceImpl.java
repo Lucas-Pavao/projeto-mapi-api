@@ -9,6 +9,7 @@ import com.projeto.mapi.dto.CollectionSummaryDTO;
 import com.projeto.mapi.service.sensor.apac.ApacCollectorService;
 import com.projeto.mapi.service.sensor.apac.ApacScrapeClient;
 import com.projeto.mapi.service.sensor.SensorService;
+import com.projeto.mapi.service.ingestion.live.LiveSensorStagingService;
 import com.projeto.mapi.util.RmrFilter;
 import com.projeto.mapi.util.SensorValueExtractor;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,7 @@ public class ApacCollectorServiceImpl implements ApacCollectorService {
     private final SensorService sensorService;
     private final ObjectMapper objectMapper;
     private final AppProperties appProperties;
+    private final LiveSensorStagingService staging;
 
     @Override
     public CollectionSummaryDTO collectCemaden() {
@@ -85,6 +87,7 @@ public class ApacCollectorServiceImpl implements ApacCollectorService {
 
         int processed = 0;
         int errors = 0;
+        List<JsonNode> staged = new java.util.ArrayList<>();
 
         for (JsonNode item : ultimaLeituraPorEstacao.values()) {
             try {
@@ -111,12 +114,16 @@ public class ApacCollectorServiceImpl implements ApacCollectorService {
                 }
 
                 sensorService.processSensorMessage(envelope.toString());
+                staged.add(envelope);
                 processed++;
             } catch (Exception e) {
                 errors++;
                 log.error("Erro ao processar estação APAC ({}): {}", fonte, e.getMessage());
             }
         }
+
+        // Pipeline novo (ADR 0006): meteorologia24h e Cemaden com fuso UNVERIFIED => quarentena TZ_UNVERIFIED.
+        staging.stage(isCemaden ? "CEMADEN" : "APAC_METEO24H", staged);
 
         return new CollectionSummaryDTO(processed, errors);
     }
