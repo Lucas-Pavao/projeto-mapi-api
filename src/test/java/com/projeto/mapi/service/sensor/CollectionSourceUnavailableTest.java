@@ -47,7 +47,8 @@ class CollectionSourceUnavailableTest {
     @Test
     void apac_falhaDaFonteViraSourceUnavailable() {
         when(apacClient.fetchRawStations(anyString())).thenThrow(new ResourceAccessException("timeout"));
-        var service = new ApacCollectorServiceImpl(apacClient, sensorService, mapper, props, staging);
+        var service = new ApacCollectorServiceImpl(apacClient, sensorService, mapper, props, staging,
+                new com.projeto.mapi.service.sensor.apac.ApacEnvelopeMapper(mapper));
 
         CollectionSummaryDTO r = service.collectCemaden();
 
@@ -58,7 +59,8 @@ class CollectionSourceUnavailableTest {
     @Test
     void apac_respostaVaziaLegitimaNaoEhIndisponivel() {
         when(apacClient.fetchRawStations(anyString())).thenReturn(List.of());
-        var service = new ApacCollectorServiceImpl(apacClient, sensorService, mapper, props, staging);
+        var service = new ApacCollectorServiceImpl(apacClient, sensorService, mapper, props, staging,
+                new com.projeto.mapi.service.sensor.apac.ApacEnvelopeMapper(mapper));
 
         CollectionSummaryDTO r = service.collectMeteorologia24h();
 

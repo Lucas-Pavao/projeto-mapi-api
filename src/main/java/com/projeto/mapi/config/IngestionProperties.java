@@ -39,4 +39,15 @@ public class IngestionProperties {
     /** Raio (m) do vínculo ocorrência-ponto quando não há linkage_config gravado. Padrão 500 m: decisão do autor, pergunta 25, 2026-10-10
      * (o config de 3 km da V6 permanece, sem apagar casamentos antigos). */
     private double occurrenceRadiusM = 500.0;
+
+    /** Base do serviço legado público da ANA (sem credencial): inventário e série telemétrica por estação. */
+    private String anaLegacyUrl = "http://telemetriaws1.ana.gov.br/ServiceANA.asmx";
+
+    /**
+     * Estações telemétricas da ANA com pluviômetro na RMR/Zona da Mata (levantadas em 2026-10-10 no inventário
+     * {@code ListaEstacoesTelemetricas} com sonda de {@code DadosHidrometeorologicos}; ver F2-DADOS-07): 39187800 São Lourenço
+     * da Mata II, 39370100 Engenho Maranhão (Ipojuca), 39167000 Vitória de Santo Antão Montante, 39084000 Caricé.
+     * Somam-se a elas os códigos numéricos de 8 dígitos dos pluviômetros ligados aos pontos críticos.
+     */
+    private List<String> anaHistoricalStations = List.of("39187800", "39370100", "39167000", "39084000");
 }

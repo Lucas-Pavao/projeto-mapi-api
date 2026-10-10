@@ -5,6 +5,7 @@ import com.projeto.mapi.exception.SourceUnavailableException;
 import com.projeto.mapi.service.ingestion.DraftValue;
 import com.projeto.mapi.service.ingestion.FetchedBatch;
 import com.projeto.mapi.service.ingestion.RawRecord;
+import com.projeto.mapi.service.ingestion.StationInfo;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -38,6 +39,25 @@ public abstract class SensorEnvelopeAdapter implements SourceAdapter {
     public void fetch(Instant from, Instant to, Consumer<FetchedBatch> sink) {
         throw new SourceUnavailableException("Fonte " + source() + " é ao vivo: sem reconsulta (REFETCH) por intervalo; "
                 + "use REVALIDATE sobre o bruto");
+    }
+
+    /**
+     * Lote a partir de envelopes já montados (fontes cujo endpoint devolve uma janela rolante de ~24 h). Estações
+     * saem do próprio envelope (código, nome, coordenadas, município).
+     */
+    protected FetchedBatch snapshotBatch(List<JsonNode> envelopes, Instant collectedAt, JsonNode requestInfo) {
+        List<RawRecord> records = new ArrayList<>();
+        java.util.Map<String, StationInfo> stations = new java.util.LinkedHashMap<>();
+        for (JsonNode e : envelopes) {
+            RawRecord r = toRaw(e, collectedAt);
+            records.add(r);
+            if (!r.stationId().isEmpty()) {
+                stations.putIfAbsent(r.stationId(), new StationInfo(source(), r.stationId(), text(e, "estacao_nome"),
+                        e.hasNonNull("latitude") ? e.get("latitude").asDouble() : null,
+                        e.hasNonNull("longitude") ? e.get("longitude").asDouble() : null, text(e, "municipio"), null));
+            }
+        }
+        return new FetchedBatch(records, new ArrayList<>(stations.values()), requestInfo);
     }
 
     /** Registro de origem do envelope: estação = código GMMC/ANA, senão o id_sensor do legado. */
