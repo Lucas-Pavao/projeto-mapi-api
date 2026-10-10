@@ -25,7 +25,8 @@ public class DataExportServiceImpl implements DataExportService {
 
     private final FloodPointRepository floodPointRepository;
     private final SensorDataRepository sensorDataRepository;
-    private final WeatherDataRepository weatherDataRepository;
+    private final com.projeto.mapi.repository.ingestion.ObservationReadRepository observationRead;
+    private final com.projeto.mapi.config.IngestionProperties ingestionProps;
     private final FloodEventRepository floodEventRepository;
     private final TideService tideService;
 
@@ -50,11 +51,16 @@ public class DataExportServiceImpl implements DataExportService {
 
     @Override
     public List<UnifiedDataDTO> exportUnifiedData(String slug, int days) {
+        return exportUnifiedData(slug, days, null);
+    }
+
+    @Override
+    public List<UnifiedDataDTO> exportUnifiedData(String slug, int days, LocalDateTime endOverride) {
         FloodPoint point = floodPointRepository.findBySlug(slug)
                 .orElseThrow(() -> new com.projeto.mapi.exception.ResourceNotFoundException("Ponto não encontrado: " + slug));
 
         // Define o intervalo de busca
-        LocalDateTime end = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime end = (endOverride != null ? endOverride : LocalDateTime.now()).withMinute(0).withSecond(0).withNano(0);
         LocalDateTime start = (days > 0) ? end.minusDays(days) : LocalDateTime.of(2021, 1, 1, 0, 0);
 // --- NOVA LÓGICA ESPACIAL: Busca regional em raio de 3km ---
 log.info("---- Exportando dados regionais (Raio 3km) para o ponto {}", slug);
@@ -72,8 +78,9 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
 
         log.info("---- Encontrados {} registros de sensores (total) na região do ponto {}.", sensorData.size(), slug);
         
-        List<WeatherData> weatherData = weatherDataRepository.findByLatitudeAndLongitudeAndTimestampBetween(
-                point.getLatitude(), point.getLongitude(), start, end);
+        // Clima: vem da grade horária determinística do pipeline novo (observation_hourly_v), rótulo = fim da hora
+        // em UTC. Hora incompleta ou ausente fica sem valor aqui (NULL), sem constante inventada pela view.
+        List<com.projeto.mapi.repository.ingestion.ObservationReadRepository.HourlyCell> weatherCells = weatherCells(point, start, end);
         
         List<FloodEvent> events = floodEventRepository.findByFloodPointId(point.getId());
 
@@ -121,14 +128,16 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
             }
         });
 
-        weatherData.forEach(w -> {
-            LocalDateTime hour = w.getTimestamp().withMinute(0).withSecond(0).withNano(0);
-            if (timeline.containsKey(hour)) {
-                timeline.get(hour)
-                        .weatherPrecipitation(w.getPrecipitation())
-                        .weatherTemperature(w.getTemperature())
-                        .weatherPressure(w.getPressure())
-                        .weatherCode(w.getWeatherCode());
+        weatherCells.forEach(w -> {
+            LocalDateTime hour = LocalDateTime.ofInstant(w.hourEndUtc(), java.time.ZoneOffset.UTC);
+            UnifiedDataDTO.UnifiedDataDTOBuilder b = timeline.get(hour);
+            if (b == null || w.value() == null) return;
+            switch (w.variable()) {
+                case "precipitation" -> b.weatherPrecipitation(w.value());
+                case "temperature" -> b.weatherTemperature(w.value());
+                case "pressure" -> b.weatherPressure(w.value());
+                case "weather_code" -> b.weatherCode((int) Math.round(w.value()));
+                default -> { }
             }
         });
 
@@ -170,10 +179,60 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         return fillMissingValues(result);
     }
 
+
+    private List<com.projeto.mapi.repository.ingestion.ObservationReadRepository.HourlyCell> weatherCells(
+            FloodPoint point, LocalDateTime start, LocalDateTime end) {
+        return observationRead.hourly(com.projeto.mapi.service.ingestion.adapter.OpenMeteoArchiveAdapter.SOURCE,
+                com.projeto.mapi.service.ingestion.adapter.OpenMeteoArchiveAdapter.stationId(point.getLatitude(), point.getLongitude()),
+                start.toInstant(java.time.ZoneOffset.UTC), end.toInstant(java.time.ZoneOffset.UTC));
+    }
+
+    @Override
+    public CsvExport exportCsv(String slug, int days, LocalDateTime endOverride) {
+        boolean all = "all".equals(slug);
+        LocalDateTime end = (endOverride != null ? endOverride : LocalDateTime.now()).withMinute(0).withSecond(0).withNano(0);
+        List<FloodPoint> points = all ? floodPointRepository.findAll()
+                : List.of(floodPointRepository.findBySlug(slug).orElseThrow(() ->
+                        new com.projeto.mapi.exception.ResourceNotFoundException("Ponto não encontrado: " + slug)));
+        List<UnifiedDataDTO> data = new ArrayList<>();
+        for (FloodPoint p : points) data.addAll(exportUnifiedDataWithAccumulated(p.getSlug(), days, end));
+        String csv = generateCsv(data);
+
+        LocalDateTime start = days > 0 ? end.minusDays(days) : LocalDateTime.of(2021, 1, 1, 0, 0);
+        Map<String, java.util.Set<java.util.UUID>> runs = new TreeMap<>();
+        Map<String, Integer> revisions = new TreeMap<>();
+        for (FloodPoint p : points) {
+            for (var cell : weatherCells(p, start, end)) {
+                String key = com.projeto.mapi.service.ingestion.adapter.OpenMeteoArchiveAdapter.SOURCE + "|" + cell.variable();
+                runs.computeIfAbsent(key, k -> new java.util.TreeSet<>()).addAll(cell.runIds());
+                revisions.merge(key, cell.maxRevision(), Math::max);
+            }
+        }
+        List<com.projeto.mapi.dto.ExportManifestDTO.SourceProvenance> prov = runs.entrySet().stream()
+                .map(e -> new com.projeto.mapi.dto.ExportManifestDTO.SourceProvenance(e.getKey().split("\\|")[0],
+                        e.getKey().split("\\|")[1], List.copyOf(e.getValue()), revisions.get(e.getKey()))).toList();
+        int flagged = (int) data.stream().filter(d -> d.getWeatherPrecipitation() == null).count();
+        var manifest = new com.projeto.mapi.dto.ExportManifestDTO(
+                com.projeto.mapi.service.ingestion.Hashing.sha256(csv), slug,
+                start.toInstant(java.time.ZoneOffset.UTC), end.toInstant(java.time.ZoneOffset.UTC), "UTC",
+                ingestionProps.getRuleVersion(), ingestionProps.getCodeVersion(), data.size(), flagged, prov,
+                List.of("sensores (ANA, APAC, Cemaden): ainda lidos de sensor_data (legado, fuso não verificado)",
+                        "maré: TideService", "rótulo: flood_events (CKAN ainda não migrado)"));
+        return new CsvExport(csv, manifest);
+    }
+
+    @Override
+    public List<UnifiedDataDTO> exportUnifiedDataWithAccumulated(String slug, int days, LocalDateTime endOverride) {
+        List<UnifiedDataDTO> baseData = exportUnifiedData(slug, days, endOverride);
+        return addAccumulated(baseData);
+    }
+
     @Override
     public List<UnifiedDataDTO> exportUnifiedDataWithAccumulated(String slug, int days) {
-        List<UnifiedDataDTO> baseData = exportUnifiedData(slug, days);
-        
+        return exportUnifiedDataWithAccumulated(slug, days, null);
+    }
+
+    private List<UnifiedDataDTO> addAccumulated(List<UnifiedDataDTO> baseData) {
         for (int i = 0; i < baseData.size(); i++) {
             baseData.get(i).setAccumulated3h(calculateSum(baseData, i, 3));
             baseData.get(i).setAccumulated6h(calculateSum(baseData, i, 6));

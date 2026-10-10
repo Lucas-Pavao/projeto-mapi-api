@@ -39,6 +39,8 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
     @Autowired private FloodPointRepository pointRepository;
     @Autowired private SensorDataRepository sensorRepository;
     @Autowired private WeatherDataRepository weatherRepository;
+    @Autowired private org.springframework.jdbc.core.JdbcTemplate jdbc;
+    private java.util.UUID runId;
     @Autowired private FloodEventRepository eventRepository;
 
     // A maré vem de API externa; aqui só queremos o export, então um valor fixo.
@@ -58,8 +60,20 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
         LocalDateTime agora = LocalDateTime.now().withMinute(0).withSecond(0).withNano(0);
         sensorRepository.save(SensorData.builder().sensorId("S1").latitude(-8.05).longitude(-34.88)
                 .timestamp(agora.minusHours(2)).accumulatedPrecipitation(7.5).build());
-        weatherRepository.save(WeatherData.builder().latitude(-8.05).longitude(-34.88)
-                .timestamp(agora.minusHours(1)).precipitation(3.0).temperature(27.0).pressure(1010.0).weatherCode(61).build());
+        // clima agora vem do pipeline novo (observation_hourly_v), em UTC
+        jdbc.execute("TRUNCATE observation_revision, observation, ingestion_quarantine, raw_observation, ingestion_run, station CASCADE");
+        java.util.UUID run = java.util.UUID.randomUUID();
+        runId = run;
+        jdbc.update("INSERT INTO ingestion_run (id, source, kind, mode, code_version, parser_version, rule_version, started_at, status)"
+                + " VALUES (?, 'OPEN_METEO_ARCHIVE', 'BACKFILL', 'REFETCH', 'test', 'test', 'test', now(), 'OK')", run);
+        java.time.Instant hora = agora.minusHours(1).toInstant(java.time.ZoneOffset.UTC);
+        for (Object[] v : new Object[][] {{"precipitation", "mm", 3.0}, {"temperature", "°C", 27.0},
+                {"pressure", "hPa", 1010.0}, {"weather_code", "wmo code", 61.0}}) {
+            jdbc.update("INSERT INTO observation (source, station_id, variable, resolution, ts_utc, value, unit, interval_start_utc,"
+                    + " run_id, raw_hash, rule_version, value_hash, origin_ts_norm) VALUES ('OPEN_METEO_ARCHIVE', ?, ?, 'PT1H', ?::timestamptz,"
+                    + " ?, ?, ?::timestamptz, ?, 'h', 'test', 'v', 'x')", "-8.0500,-34.8800", v[0], hora.toString(), v[2], v[1],
+                    hora.minusSeconds(3600).toString(), run);
+        }
         eventRepository.save(FloodEvent.builder().floodPoint(ponto)
                 .startTime(agora.minusHours(2)).endTime(agora.minusHours(2)).build());
     }
@@ -79,5 +93,19 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
         assertThat(dados).filteredOn(d -> Boolean.TRUE.equals(d.getIsFlooded())).hasSize(1);
         assertThat(dados).filteredOn(d -> d.getSensorPrecipitation() == 7.5).hasSize(1);
         assertThat(dados).allSatisfy(d -> assertThat(d.getTideHeight()).isEqualTo(1.23));
+    }
+
+    @Test
+    void climaVemDaGradeHorariaEManifestoAmarraOCsv() {
+        List<UnifiedDataDTO> dados = exportService.exportUnifiedDataWithAccumulated("ponto-teste", 1);
+        assertThat(dados).filteredOn(d -> d.getWeatherPrecipitation() != null && d.getWeatherPrecipitation() == 3.0).hasSize(1);
+
+        var export = exportService.exportCsv("ponto-teste", 1, java.time.LocalDateTime.now());
+        assertThat(export.manifest().datasetId()).isEqualTo(com.projeto.mapi.service.ingestion.Hashing.sha256(export.csv()));
+        assertThat(export.manifest().timezone()).isEqualTo("UTC");
+        assertThat(export.manifest().provenance()).anySatisfy(p -> {
+            assertThat(p.variable()).isEqualTo("precipitation");
+            assertThat(p.runIds()).containsExactly(runId);
+        });
     }
 }
