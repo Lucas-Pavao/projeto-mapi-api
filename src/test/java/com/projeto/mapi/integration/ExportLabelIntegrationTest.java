@@ -38,7 +38,7 @@ class ExportLabelIntegrationTest extends AbstractIngestionTest {
     @MockitoBean private TideService tide;
     @MockitoBean private GeocodingService geocoding;
 
-    private long cfg3000;
+    private long cfgMain;
     private UUID run;
 
     @BeforeEach
@@ -47,9 +47,12 @@ class ExportLabelIntegrationTest extends AbstractIngestionTest {
         limparDependentesDePontos();
         jdbc.execute("DELETE FROM occurrence_point_match");
         jdbc.execute("DELETE FROM flood_occurrence");
-        jdbc.update("DELETE FROM linkage_config WHERE created_by = 'test-label'");
+        jdbc.update("DELETE FROM linkage_config WHERE created_by = 'test-label' AND id NOT IN (SELECT linkage_config_id FROM occurrence_point_match)");
         points.deleteAll();
-        cfg3000 = jdbc.queryForObject("SELECT min(id) FROM linkage_config WHERE kind = 'OCCURRENCE_POINT' AND radius_m = 3000", Long.class);
+        // vigente = 500 m (pergunta 25); a V6 só traz 3 km, então o pipeline cria o config de 500 m (aqui, direto)
+        jdbc.update("INSERT INTO linkage_config (kind, radius_m, method, created_by) SELECT 'OCCURRENCE_POINT', 500,"
+                + " 'NEAREST_WITHIN_RADIUS', 'test-label' WHERE NOT EXISTS (SELECT 1 FROM linkage_config WHERE kind = 'OCCURRENCE_POINT' AND radius_m = 500)");
+        cfgMain = jdbc.queryForObject("SELECT min(id) FROM linkage_config WHERE kind = 'OCCURRENCE_POINT' AND radius_m = 500", Long.class);
         run = UUID.randomUUID();
         jdbc.update("INSERT INTO ingestion_run (id, source, kind, mode, code_version, parser_version, rule_version, started_at, status)"
                 + " VALUES (?, 'CKAN_RECIFE', 'BACKFILL', 'REFETCH', 't', 't', 't', now(), 'OK')", run);
@@ -75,7 +78,7 @@ class ExportLabelIntegrationTest extends AbstractIngestionTest {
     @Test
     void horaComOcorrenciaHourEmTMaisHRotulaEJanelaPosEventoExclui() {
         long a = point("pa", -8.05);
-        long occ = occurrence("1", "2026-05-08T17:30:00Z", "2026-05-08T17:30:00.000001Z", "HOUR", a, cfg3000);
+        long occ = occurrence("1", "2026-05-08T17:30:00Z", "2026-05-08T17:30:00.000001Z", "HOUR", a, cfgMain);
         var rows = export.exportUnifiedData("pa", 3, END);
 
         assertThat(at(rows, "2026-05-08T11:00:00Z").getLabelByHorizon().get(6)).isZero();
@@ -101,7 +104,7 @@ class ExportLabelIntegrationTest extends AbstractIngestionTest {
     @Test
     void diaComEventoDayExcluiAsHorasEnuncaViraNegativo() {
         long b = point("pb", -8.06);
-        occurrence("2", "2026-05-08T03:00:00Z", "2026-05-09T03:00:00Z", "DAY", b, cfg3000);
+        occurrence("2", "2026-05-08T03:00:00Z", "2026-05-09T03:00:00Z", "DAY", b, cfgMain);
         var rows = export.exportUnifiedData("pb", 3, END);
 
         var meio = at(rows, "2026-05-08T12:00:00Z");
@@ -120,22 +123,22 @@ class ExportLabelIntegrationTest extends AbstractIngestionTest {
     void ocorrenciaForaDoRaioDaConfigVigenteNaoRotula() {
         long c = point("pc", -8.07);
         jdbc.update("INSERT INTO linkage_config (kind, radius_m, method, created_by) VALUES "
-                + "('OCCURRENCE_POINT', 500, 'NEAREST_WITHIN_RADIUS', 'test-label')");
-        long cfg500 = jdbc.queryForObject("SELECT id FROM linkage_config WHERE created_by = 'test-label'", Long.class);
-        occurrence("3", "2026-05-08T10:00:00Z", "2026-05-08T10:00:00.000001Z", "HOUR", c, cfg500);
+                + "('OCCURRENCE_POINT', 250, 'NEAREST_WITHIN_RADIUS', 'test-label')");
+        long cfgAlt = jdbc.queryForObject("SELECT id FROM linkage_config WHERE created_by = 'test-label' AND radius_m = 250", Long.class);
+        occurrence("3", "2026-05-08T10:00:00Z", "2026-05-08T10:00:00.000001Z", "HOUR", c, cfgAlt);
 
-        var rows = export.exportUnifiedData("pc", 3, END);   // vigente = 3000 m
+        var rows = export.exportUnifiedData("pc", 3, END);   // vigente = 500 m
         assertThat(rows).allSatisfy(r -> {
             assertThat(r.getLabelByHorizon().get(6)).isZero();
             assertThat(r.getLabelDay()).isZero();
             assertThat(r.getOccurrenceIds()).isEmpty();
         });
 
-        labelProps.setLinkageConfigId(cfg500);               // sensibilidade: outro raio => outro rótulo
+        labelProps.setLinkageConfigId(cfgAlt);               // sensibilidade: outro raio => outro rótulo
         try {
             var m = export.exportCsv("pc", 3, END).manifest().label();
-            assertThat(m.linkageConfigId()).isEqualTo(cfg500);
-            assertThat(m.linkageRadiusM()).isEqualTo(500.0);
+            assertThat(m.linkageConfigId()).isEqualTo(cfgAlt);
+            assertThat(m.linkageRadiusM()).isEqualTo(250.0);
             assertThat(m.counts().get("label_h6").positives()).isEqualTo(6);
         } finally {
             labelProps.setLinkageConfigId(null);
@@ -148,8 +151,8 @@ class ExportLabelIntegrationTest extends AbstractIngestionTest {
         jdbc.update("UPDATE flood_points SET longitude = -34.9000 WHERE id = ?", d);
         when(geocoding.geocode(any(), any(), any())).thenAnswer(inv -> {
             String addr = inv.getArgument(0);
-            if (addr.contains("perto")) return Optional.of(new double[]{-8.0410, -34.9000});   // ~1 km
-            if (addr.contains("longe")) return Optional.of(new double[]{-8.0950, -34.9000});   // ~5 km
+            if (addr.contains("perto")) return Optional.of(new double[]{-8.0473, -34.9000});   // ~300 m
+            if (addr.contains("longe")) return Optional.of(new double[]{-8.0410, -34.9000});   // ~1 km: fora de 500 m
             return Optional.empty();
         });
         ingestion.ingest("pkg", "res-x", List.of(
@@ -162,7 +165,7 @@ class ExportLabelIntegrationTest extends AbstractIngestionTest {
         var rows = export.exportUnifiedData("pd", 2, LocalDateTime.of(2024, 5, 29, 0, 0));
         var t12 = at(rows, "2024-05-28T12:00:00Z");
         assertThat(t12.getLabelByHorizon().get(6)).isEqualTo(1);
-        assertThat(t12.getOccurrenceIds()).isEqualTo(String.valueOf(perto));   // a de 5 km não aparece
+        assertThat(t12.getOccurrenceIds()).isEqualTo(String.valueOf(perto));   // a de 1 km não aparece
         assertThat(rows.stream().filter(r -> Integer.valueOf(1).equals(r.getLabelByHorizon().get(6))).count()).isEqualTo(6);
     }
 
@@ -171,8 +174,8 @@ class ExportLabelIntegrationTest extends AbstractIngestionTest {
         long a = point("pa", -8.05);
         long b = point("pb", -8.06);
         point("pc", -8.07);
-        occurrence("1", "2026-05-08T17:30:00Z", "2026-05-08T17:30:00.000001Z", "HOUR", a, cfg3000);
-        occurrence("2", "2026-05-08T03:00:00Z", "2026-05-09T03:00:00Z", "DAY", b, cfg3000);
+        occurrence("1", "2026-05-08T17:30:00Z", "2026-05-08T17:30:00.000001Z", "HOUR", a, cfgMain);
+        occurrence("2", "2026-05-08T03:00:00Z", "2026-05-09T03:00:00Z", "DAY", b, cfgMain);
 
         var result = export.exportCsv("all", 3, END);
         String header = result.csv().split("\n")[0];
@@ -190,8 +193,8 @@ class ExportLabelIntegrationTest extends AbstractIngestionTest {
         var m = result.manifest().label();
         assertThat(m.horizonsHours()).containsExactly(6, 3);
         assertThat(m.postEventWindowHours()).containsEntry(6, 6).containsEntry(3, 3);
-        assertThat(m.linkageConfigId()).isEqualTo(cfg3000);
-        assertThat(m.linkageRadiusM()).isEqualTo(3000.0);
+        assertThat(m.linkageConfigId()).isEqualTo(cfgMain);
+        assertThat(m.linkageRadiusM()).isEqualTo(500.0);
         assertThat(m.policy()).contains("flood_occurrence").contains("DAY_EVENT_SAME_DAY");
         assertThat(m.occurrencesHour()).isEqualTo(1);
         assertThat(m.occurrencesDay()).isEqualTo(1);

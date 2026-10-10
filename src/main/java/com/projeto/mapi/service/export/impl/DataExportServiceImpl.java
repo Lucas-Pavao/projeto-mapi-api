@@ -198,9 +198,9 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
     }
 
 
-    /** linkage_config vigente do rótulo: o configurado por id ou o do raio de {@code mapi.ingestion.occurrence-radius-m}. */
+    /** linkage_config vigente do rótulo: o configurado por id ou o de menor id com o raio de {@code mapi.export.label.linkage-radius-m} (500 m). */
     private java.util.Optional<com.projeto.mapi.repository.ingestion.OccurrenceRepository.LinkageRef> labelLinkage() {
-        return occurrenceRepository.occurrenceLinkage(labelProps.getLinkageConfigId(), ingestionProps.getOccurrenceRadiusM());
+        return occurrenceRepository.occurrenceLinkage(labelProps.getLinkageConfigId(), labelProps.getLinkageRadiusM());
     }
 
     private List<Occ> occurrencesOf(FloodPoint point,

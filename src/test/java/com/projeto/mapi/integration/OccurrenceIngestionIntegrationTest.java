@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 /** T7 do ADR 0006: rótulo CKAN sem realinhamento, filtro de texto e raio gravado. */
+@org.springframework.test.context.TestPropertySource(properties = "mapi.ingestion.occurrence-radius-m=3000") // fixtures a ~1 km/~5 km; o padrão agora é 500 m
 class OccurrenceIngestionIntegrationTest extends AbstractIngestionTest {
 
     private static final String RES = "res-1";

@@ -20,17 +20,23 @@ public class ExportLabelProperties {
 
     /**
      * Janela pós-evento G (horas): instâncias com ocorrência em (t - G, t] ficam excluídas. Vazio = G igual ao
-     * horizonte de cada coluna. Origem: MODELAGEM-IA A.3.1 item 6 (proposta "G = H", [sem fonte]).
-     * [decisão do autor pendente — pergunta 25]
+     * horizonte de cada coluna. Origem: MODELAGEM-IA A.3.1 item 6 (G = H); aprovado pelo autor,
+     * pergunta 25, 2026-10-10 (G = 6 h para label_h6, 3 h para label_h3).
      */
     private Integer postEventWindowHours;
 
     /**
-     * Id do linkage_config (kind OCCURRENCE_POINT) usado no rótulo. Vazio = o config cujo raio é
-     * {@code mapi.ingestion.occurrence-radius-m}. O raio final é decisão do autor (MODELAGEM-IA A.3.1 item 4
-     * propõe 500 m, [sem fonte]). [decisão do autor pendente — pergunta 25]
+     * Id do linkage_config (kind OCCURRENCE_POINT) usado no rótulo. Vazio = o config de menor id cujo raio é
+     * {@link #linkageRadiusM}. Não apaga nem altera configs antigos (análise de sensibilidade troca o id).
      */
     private Long linkageConfigId;
+
+    /**
+     * Raio (m) do casamento ocorrência-ponto usado quando {@link #linkageConfigId} está vazio. Padrão 500 m:
+     * decisão do autor, pergunta 25, 2026-10-10 (proposta em MODELAGEM-IA A.3.1 item 4). Configurável para
+     * sensibilidade {250, 500, 1000, 3000}.
+     */
+    private double linkageRadiusM = 500.0;
 
     public int postEventHours(int horizonHours) {
         return postEventWindowHours != null ? postEventWindowHours : horizonHours;
