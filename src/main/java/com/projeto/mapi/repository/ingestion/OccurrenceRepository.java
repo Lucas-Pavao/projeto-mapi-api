@@ -25,7 +25,8 @@ public class OccurrenceRepository {
     /** Ocorrência a gravar (já classificada). */
     public record OccurrenceRow(String packageId, String resourceId, String recordId, String rawHash, UUID runId,
                                 String address, Instant from, Instant to, String precision, String cobradeCode,
-                                String cobradeText, Double lat, Double lon, String geocodeMethod) {}
+                                String cobradeText, Double lat, Double lon, String geocodeMethod, String geocodeLevel,
+                                String neighborhood) {}
 
     /** Ocorrência já gravada, para o casamento. */
     public record GeocodedOccurrence(long id, double lat, double lon) {}
@@ -105,14 +106,15 @@ public class OccurrenceRepository {
         return jdbc.update("""
                 INSERT INTO flood_occurrence (ckan_package_id, ckan_resource_id, ckan_record_id, raw_hash, run_id,
                   address_text, occurred_from, occurred_to, temporal_precision, cobrade_code, cobrade_text,
-                  geocoded_lat, geocoded_lon, geocode_method)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                  geocoded_lat, geocoded_lon, geocode_method, geocode_level, neighborhood)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT (ckan_resource_id, ckan_record_id) DO UPDATE SET
                   raw_hash = EXCLUDED.raw_hash, run_id = EXCLUDED.run_id, address_text = EXCLUDED.address_text,
                   occurred_from = EXCLUDED.occurred_from, occurred_to = EXCLUDED.occurred_to,
                   temporal_precision = EXCLUDED.temporal_precision, cobrade_code = EXCLUDED.cobrade_code,
                   cobrade_text = EXCLUDED.cobrade_text, geocoded_lat = EXCLUDED.geocoded_lat,
                   geocoded_lon = EXCLUDED.geocoded_lon, geocode_method = EXCLUDED.geocode_method,
+                  geocode_level = EXCLUDED.geocode_level, neighborhood = EXCLUDED.neighborhood,
                   revision = flood_occurrence.revision + 1
                 WHERE flood_occurrence.raw_hash <> EXCLUDED.raw_hash
                 """, ps -> {
@@ -130,7 +132,26 @@ public class OccurrenceRepository {
             ps.setObject(12, r.lat());
             ps.setObject(13, r.lon());
             ps.setString(14, r.geocodeMethod());
+            ps.setString(15, r.geocodeLevel());
+            ps.setString(16, r.neighborhood());
         });
+    }
+
+    /** Ocorrência gravada cujo nível de geocodificação ainda não foi preenchido (legado anterior à V11). */
+    public record PendingLevel(long id, String resourceId, String recordId, String address, Double lat, Double lon,
+                               String geocodeMethod) {}
+
+    public List<PendingLevel> pendingGeocodeLevel() {
+        return jdbc.query("SELECT id, ckan_resource_id, ckan_record_id, address_text, geocoded_lat, geocoded_lon, "
+                + "geocode_method FROM flood_occurrence WHERE geocode_level IS NULL ORDER BY id",
+                (rs, i) -> new PendingLevel(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getString(4),
+                        rs.getObject(5, Double.class), rs.getObject(6, Double.class), rs.getString(7)));
+    }
+
+    /** Preenche nível e bairro de uma ocorrência (só colunas informativas; não muda raw_hash nem revisão). */
+    public int setGeocodeInfo(long id, String level, String neighborhood) {
+        return jdbc.update("UPDATE flood_occurrence SET geocode_level = COALESCE(?, geocode_level), "
+                + "neighborhood = COALESCE(?, neighborhood) WHERE id = ?", level, neighborhood, id);
     }
 
     /**

@@ -2,6 +2,8 @@ package com.projeto.mapi.integration;
 
 import com.projeto.mapi.model.FloodPoint;
 import com.projeto.mapi.repository.FloodPointRepository;
+import com.projeto.mapi.service.geocoding.GeocodeLevel;
+import com.projeto.mapi.service.geocoding.GeocodeResult;
 import com.projeto.mapi.service.geocoding.GeocodingService;
 import com.projeto.mapi.service.ingestion.IngestionRunView;
 import com.projeto.mapi.service.ingestion.occurrence.CkanRawRecord;
@@ -37,10 +39,10 @@ class OccurrenceIngestionIntegrationTest extends AbstractIngestionTest {
         jdbc.update("DELETE FROM linkage_config WHERE created_by = 'pipeline'");
         points.save(FloodPoint.builder().slug("p1").name("P1").latitude(-8.0500).longitude(-34.9000).build());
         // o sanitizador legado ("rua perto, 10" -> "rua perto, , 10") é preservado; casa pelo trecho do nome
-        when(geocoding.geocode(any(), any(), any())).thenAnswer(inv -> {
+        when(geocoding.geocodeWithLevel(any(), any(), any())).thenAnswer(inv -> {
             String addr = inv.getArgument(0);
-            if (addr.contains("perto")) return Optional.of(new double[]{-8.0410, -34.9000}); // ~1 km
-            if (addr.contains("longe")) return Optional.of(new double[]{-8.0950, -34.9000}); // ~5 km
+            if (addr.contains("perto")) return Optional.of(new GeocodeResult(-8.0410, -34.9000, GeocodeLevel.STREET)); // ~1 km
+            if (addr.contains("longe")) return Optional.of(new GeocodeResult(-8.0950, -34.9000, GeocodeLevel.STREET)); // ~5 km
             return Optional.empty();
         });
     }

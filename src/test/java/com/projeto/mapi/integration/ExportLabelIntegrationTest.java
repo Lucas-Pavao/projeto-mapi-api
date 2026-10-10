@@ -5,6 +5,8 @@ import com.projeto.mapi.dto.UnifiedDataDTO;
 import com.projeto.mapi.model.FloodPoint;
 import com.projeto.mapi.repository.FloodPointRepository;
 import com.projeto.mapi.service.export.DataExportService;
+import com.projeto.mapi.service.geocoding.GeocodeLevel;
+import com.projeto.mapi.service.geocoding.GeocodeResult;
 import com.projeto.mapi.service.geocoding.GeocodingService;
 import com.projeto.mapi.service.ingestion.occurrence.CkanRawRecord;
 import com.projeto.mapi.service.ingestion.occurrence.OccurrenceIngestionService;
@@ -149,10 +151,10 @@ class ExportLabelIntegrationTest extends AbstractIngestionTest {
     void ingestaoRealCasaPeloRaioEForaDoRaioNaoRotula() {
         long d = point("pd", -8.0500);
         jdbc.update("UPDATE flood_points SET longitude = -34.9000 WHERE id = ?", d);
-        when(geocoding.geocode(any(), any(), any())).thenAnswer(inv -> {
+        when(geocoding.geocodeWithLevel(any(), any(), any())).thenAnswer(inv -> {
             String addr = inv.getArgument(0);
-            if (addr.contains("perto")) return Optional.of(new double[]{-8.0473, -34.9000});   // ~300 m
-            if (addr.contains("longe")) return Optional.of(new double[]{-8.0410, -34.9000});   // ~1 km: fora de 500 m
+            if (addr.contains("perto")) return Optional.of(new GeocodeResult(-8.0473, -34.9000, GeocodeLevel.STREET));   // ~300 m
+            if (addr.contains("longe")) return Optional.of(new GeocodeResult(-8.0410, -34.9000, GeocodeLevel.STREET));   // ~1 km: fora de 500 m
             return Optional.empty();
         });
         ingestion.ingest("pkg", "res-x", List.of(

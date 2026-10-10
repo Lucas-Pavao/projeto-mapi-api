@@ -68,6 +68,37 @@ public class RawObservationRepository {
                 """, (rs, i) -> map(source, rs), source, loInclusive, hiExclusive);
     }
 
+    /**
+     * Versão mais recente de cada registro de origem de um recurso (station_id começa com {@code prefix}),
+     * em ordem de station_id, a partir de {@code afterStation} (exclusivo). Paginação por chave para o reprocessamento
+     * do bruto sem carregar o recurso inteiro.
+     */
+    public List<RawVersion> latestByStationPrefix(String source, String prefix, String afterStation, int limit) {
+        return jdbc.query("""
+                SELECT DISTINCT ON (station_id) id, ingested_at, content_hash, station_id,
+                       collected_at, source_ts_text, source_ts_norm, source_tz, payload::text AS payload
+                FROM raw_observation
+                WHERE source = ? AND station_id LIKE ? AND station_id > ?
+                ORDER BY station_id, ingested_at DESC, seq DESC
+                LIMIT ?
+                """, (rs, i) -> map(source, rs), source, prefix.replace("%", "\\%").replace("_", "\\_") + "%",
+                afterStation, limit);
+    }
+
+    /** Payload da versão mais recente de um registro de origem pela station_id (sem olhar o instante de origem). */
+    public java.util.Optional<com.fasterxml.jackson.databind.JsonNode> latestPayload(String source, String stationId) {
+        return jdbc.query("""
+                SELECT payload::text FROM raw_observation WHERE source = ? AND station_id = ?
+                ORDER BY ingested_at DESC, seq DESC LIMIT 1
+                """, (rs, i) -> {
+            try {
+                return mapper.readTree(rs.getString(1));
+            } catch (JsonProcessingException e) {
+                throw new IllegalStateException(e);
+            }
+        }, source, stationId).stream().findFirst();
+    }
+
     /** run_id da versão mais recente do bruto de um registro de origem (proveniência de leituras ao vivo). */
     public java.util.Optional<UUID> latestRunId(String source, String stationId, String sourceTsNorm) {
         return jdbc.query("""
