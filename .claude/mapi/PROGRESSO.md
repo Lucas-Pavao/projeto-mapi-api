@@ -1,6 +1,6 @@
 # Progresso da revisão multiagente do MAPi
 
-Última execução: 2026-10-10 (2ª) · Fase atual: 1 · Próxima tarefa: F1-BACK-02
+Última execução: 2026-10-10 (2ª) · Fase atual: 1 (quase concluída) · Próxima tarefa: F1-BACK-04
 
 > Local: `projeto-mapi-api/.claude/mapi/PROGRESSO.md`. A pasta-mãe `MAPI/` não é repositório git;
 > o estado oficial fica no repositório orquestrador para ser versionado. Docs transversais
@@ -31,7 +31,7 @@
 | F0-ARQ-06 | 0 | Arquiteto | Rápido* | Handoff da Fase 0 | concluido | ca67b07 (branch `revisao/fase-0`) | 2026-10-10 · `docs/HANDOFF-fase-0.md` + `docs/handoff/fase-0.json` |
 | F0-ARQ-07 | 0 | Arquiteto | Equilibrado | Evals das skills (2–3 prompts por skill, com e sem skill) | pendente | | adiado: custo alto, baixo risco agora; fazer antes da Fase 2 |
 | F1-BACK-01 | 1 | Backend | Rápido | Inventário barato do backend | concluido | — | coberto por F0-ARQ-04: 138 arquivos / ~8,9 mil LOC main; 8 testes / 668 LOC |
-| F1-BACK-02 | 1 | Backend | Equilibrado | Leitura dirigida: aderência à arquitetura, jobs/resiliência (APAC 6 h fora), @Transactional, taskExecutor/Hikari, segurança (JWT, CORS, Actuator) | em_andamento |  | 2026-10-10 · subagente Sonnet · interrompido pelo limite semanal de uso; retomado com o contexto preservado após o reset |
+| F1-BACK-02 | 1 | Backend | Equilibrado | Leitura dirigida: aderência à arquitetura, jobs/resiliência (APAC 6 h fora), @Transactional, taskExecutor/Hikari, segurança (JWT, CORS, Actuator) | concluido | branch `revisao/fase-0` (relatório) | 2026-10-10 · subagente Sonnet (retomado após o limite de uso) · `docs/revisao/fase-1/F1-BACK-02.md` · 26 achados, 6 críticos; conferidos pelo Arquiteto: 0 timeouts HTTP (o único é a espera do rate limiter), fallback APAC `List.of()` faz falha virar sucesso 0/0, JWT_SECRET padrão público no compose |
 | F1-BACK-03 | 1 | Backend | Equilibrado | Revisão a fundo da ingestão histórica (backfill vs. pipeline, proveniência, lacunas, reamostragem, volume, raio do repair-stations) | concluido | branch `revisao/fase-0` (relatório) | 2026-10-10 · subagente Sonnet · `docs/revisao/fase-1/F1-BACK-03.md` · 26 achados, 6 críticos; conferidos pelo Arquiteto: rótulo circular (`alignFloodEventsToRainPeaks` sobrescreve startTime 00:00 com o pico de chuva) e ANA sem lat/lon fora do export; 5 tratamentos de fuso distintos; weather_data sem unique (reprocessar duplica) |
 | F1-BACK-04 | 1 | Backend | Rápido | Snapshot do OpenAPI (`/v3/api-docs`) versionado em `docs/openapi/` | pendente | | exige subir a API (docker) |
 | F1-BACK-05 | 1 | Backend | Equilibrado | Medidas "antes": cobertura (JaCoCo), p95 por endpoint (k6), N+1 (log Hibernate) | pendente | | sem `mvn` local: usar `./mvnw` |
@@ -40,13 +40,14 @@
 | F1-IA-01 | 1 | IA | Rápido | Inventário barato da IA | concluido | — | coberto por F0-ARQ-04: 847 LOC Python, 3 artefatos sem metadata |
 | F1-IA-02 | 1 | IA | Equilibrado | Leitura dirigida do módulo IA e do contrato real de degradação UNKNOWN (backend↔IA↔front) | concluido | branch `revisao/fase-0` (relatório) | 2026-10-10 · subagente Sonnet (parou no limite de uso depois de gravar o relatório completo) · `docs/revisao/fase-1/F1-IA-02.md` · 17 achados, 6 críticos [DISSERTACAO]: 9/28 features zeradas na inferência, H = 0 (nowcast), scaler antes do split, 0/4 baselines, artefato sem metadata, fallback silencioso p/ dataset sintético |
 | F1-QA-01 | 1 | QA | Rápido | Corrigir READMEs do AI/Front (MAPI Edge, MQTT, "quatro componentes") e varrer o resto | concluido | AI bd15c50 (branch `docs/remove-mapi-edge`); front: edição não commitada no README (WIP do Lucas) | 2026-10-10 · Opus · AI: diagrama sem Edge, "três componentes", link do compose → main; front: o WIP do Lucas já corrigia quase tudo, faltava L95 + link (feito). Achado novo: README do front cita enum `CRITICAL`, que o backend não tem → F1-ARQ-01 |
-| F1-QA-02 | 1 | QA | Rápido | Risco Grafana (credencial padrão) e Prometheus sem auth; documentar "só uso local" | em_andamento |  | 2026-10-10 · Opus · Grafana e Prometheus já ligados só em 127.0.0.1 (compose L103, L129); senha do Grafana sobrescrevível por env. Achado maior: Postgres em 0.0.0.0:5433 com senha fixa `mapi123` (compose L8–10). Aguarda F1-BACK-02 (JWT/Actuator) para um PR único de segurança |
+| F1-QA-02 | 1 | QA | Rápido | Risco Grafana (credencial padrão) e Prometheus sem auth; documentar "só uso local" | concluido | 2fe06c6 (branch `fix/seguranca-local`) | 2026-10-10 · Opus · Postgres 5433 e IA 8000 agora só em 127.0.0.1; `POSTGRES_PASSWORD` por variável; `docs/SEGURANCA-LOCAL.md` com portas, credenciais padrão e riscos que dependem de código; `docker compose config` ok |
 | F1-QA-03 | 1 | QA | Equilibrado | Blindar armadilha do k6 no compose (entrypoint em vez de command) | concluido | c21a38c (branch `fix/k6-remote-write-env`) | 2026-10-10 · Opus · `K6_OUT=experimental-prometheus-rw` no environment, `--out` removido do command; testado em grafana/k6:0.54.0 com argumento arbitrário → `output: Prometheus remote write`; `docker compose config` ok |
-| F1-ARQ-01 | 1 | Arquiteto | Equilibrado | Relatório de consistência entre repos (campos, unidades, fuso, enum de risco, nulos) | pendente | | |
-| F1-ARQ-02 | 1 | Arquiteto | Equilibrado + checkpoint Máximo | Diagnóstico e matriz de prioridade | pendente | | |
+| F1-ARQ-01 | 1 | Arquiteto | Equilibrado | Relatório de consistência entre repos (campos, unidades, fuso, enum de risco, nulos) | concluido | branch `revisao/fase-0` | 2026-10-10 · Opus · `docs/CONSISTENCIA-ENTRE-REPOS.md` · enum (CRITICAL/EXTREME inexistentes; UNKNOWN em 3 cores), contrato de predição, 5 tratamentos de fuso, unidades e nulos, nomes de campo |
+| F1-ARQ-02 | 1 | Arquiteto | Equilibrado + checkpoint Máximo | Diagnóstico e matriz de prioridade | concluido | branch `revisao/fase-0` | 2026-10-10 · Opus (autor) + checkpoint Opus independente · `docs/MATRIZ-PRIORIDADE-FASE-1.md` · 90 achados → 16 itens (7 P0); checkpoint APROVADO com 6 ressalvas, todas aplicadas (novo item 0: snapshot auditável) |
 | F1-ARQ-03 | 1 | Arquiteto | Equilibrado | ADRs das divergências convenção×código (fuso, schema Flyway×TimescaleSetup, H2×Testcontainers, records/MapStruct, domínio sem framework) | em_andamento | ver linha F1-ARQ-03 no histórico | 2026-10-10 · Opus · ADRs 0001–0004 aprovados; agents.md §2.4/§3.1/§6, GEMINI.md, README e skills ajustados · falta: records/MapStruct (desejável, sem ADR ainda) |
 | F1-QA-04 | 1 | QA | Rápido | Aviso de descontinuado no projeto-mapi (MAPI Edge) | concluido | projeto-mapi d86a996 (branch `docs/descontinuado`) | 2026-10-10 · Opus · bloco DESCONTINUADO no topo do README |
 | F1-ARQ-04 | 1 | Arquiteto | Rápido | Handoff da Fase 1 | pendente | | |
+| F2-DADOS-00 | 2 | Dados | Rápido | Snapshot auditável do banco atual (pg_dump + SHA-256 + contagem por tabela) antes de qualquer migração | pendente | | matriz item 0 (ressalva 4 do checkpoint) |
 | F2-DADOS-01 | 2 | Dados | Equilibrado | Benchmark e evidência sobre o banco (tamanho das hypertables, compressão, EXPLAIN ANALYZE, volume projetado) | pendente | | |
 | F2-DADOS-02 | 2 | Dados | Equilibrado + checkpoint | ADR PostgreSQL+TimescaleDB+PostGIS × MySQL | pendente | | |
 | F2-DADOS-03 | 2 | Dados | Rápido | Planilha comparativa do banco (xlsx) | pendente | | |
@@ -104,6 +105,10 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | 5 | ~~Front tem 14 arquivos modificados não commitados (flood.service, schemas, MapView…). É trabalho seu em andamento? Devo esperar o commit antes de qualquer PR no front?~~ **respondida 2026-10-10** | 2026-10-10 | — |
 | 6 | ~~Confirmar as definições ⚠ do glossário (ficha = 5 mm, soleira, lâmina, nível lá fora) contra a formulação da rede de Petri/Mercury~~ **respondida 2026-10-10** | 2026-10-10 | — |
 | 7 | ~~O repositório `projeto-mapi` (projeto-mapi-sensores, o antigo MAPI Edge) deve ser arquivado no GitHub ou receber README de "descontinuado"?~~ **respondida 2026-10-10** | 2026-10-10 | — |
+| 8 | Contrato de predição: posso fechar o enum em `LOW/MEDIUM/HIGH/UNKNOWN` (remover `CRITICAL`/`EXTREME` do front), devolver probabilidade `null` em falha (hoje 0.0 aparece como "0%") e adicionar `modelVersion`? (recomendação: sim) | 2026-10-10 | matriz item 7 parado; UNKNOWN continua verde no card |
+| 9 | Rótulo: o CKAN só tem data e o código sobrescreveu a hora dos eventos 00:00 com o pico de chuva (rótulo circular). Posso (a) desativar o realinhamento e (b) reimportar o CKAN preservando a data original? A escolha entre rótulo diário e horizonte 3/6 h fica para a formulação da Fase 4 | 2026-10-10 | matriz itens 1 e 6; qualquer métrica atual é inválida |
+| 10 | `DELETE /api/admin/ingestion/wipe-database` apaga tudo, inclusive usuários. Remover, ou restringir a um profile `dev` com confirmação? (recomendação: restringir ao `dev`) | 2026-10-10 | risco ao dataset e à banca |
+| 11 | A tabela `flood_predictions` (taxa de alerta, auditoria) entra nos resultados da dissertação? Se sim, o item 7 da matriz sobe para P0 | 2026-10-10 | prioridade do item 7 |
 
 ## Medidas antes e depois
 | Métrica | Antes | Depois | Quando | Onde foi medida |
@@ -115,6 +120,14 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | Ocorrências de `any` no front | 0 | | 2026-10-10 | `grep -rn ': any\|as any' src` |
 | Pontos críticos cadastrados | 5 | | 2026-10-10 | `MapiServiceImpl.java:573-620` (F1-BACK-03) |
 | Volume clima 5 anos × 5 pontos | ~219 mil linhas (~55 MB) | | 2026-10-10 | estimativa F1-BACK-03 §6, premissas a conferir no banco |
+| Timeouts HTTP configurados nos clientes externos | 0 | | 2026-10-10 | grep `timeout` em src/main (F1-B2-01, conferido) |
+| Testes backend (métodos) / em coleta, export, IA | 18 / 0 | | 2026-10-10 | F1-BACK-02 §7 |
+| Tratamentos de fuso distintos nas mesmas colunas | 5 | | 2026-10-10 | F1-BACK-03 tabela de fuso |
+| Features constantes (zeradas) na inferência da IA | 9 de 28 | | 2026-10-10 | F1-IA-02 (F1-I2-01) |
+| Baselines implementados | 0 de 4 | | 2026-10-10 | F1-IA-02 (F1-I2-04) |
+| Tratamentos visuais distintos de UNKNOWN no front | 3 | | 2026-10-10 | F1-FRONT-02 (F1-F2-04) |
+| `aria-label` / botões no front | 0 / 31 | | 2026-10-10 | F1-FRONT-02 (F1-F2-09) |
+| Portas de banco/IA em 0.0.0.0 | 2 | 0 | 2026-10-10 | docker-compose.yml (F1-QA-02, 2fe06c6) |
 | Cobertura de teste backend | não medida | | | F1-BACK-05 |
 | p95 por endpoint | não medido | | | F1-BACK-05 (k6) |
 
