@@ -25,6 +25,12 @@
 | 2026-10-10 | `flood_predictions` **não** entra nos resultados da dissertação (matriz item 7 fica P1) | — | Lucas |
 | 2026-10-10 | Não existe histórico de 5 anos em lugar nenhum: a carga histórica só depois dos itens 1–4 da matriz | — | Lucas |
 | 2026-10-10 | ADR 0007 aprovado integralmente (contrato de predição, ordem front → backend → IA) | 0007 | Lucas |
+| 2026-10-10 | ADR 0006 aprovado: pipeline staging → validação → consolidada; migrações V3–V6 aprovadas | 0006 | Lucas |
+| 2026-10-10 | Dado de desenvolvimento (~4 semanas) descartado no novo pipeline; snapshot `3ace3cde…` é o registro | 0006 | Lucas |
+| 2026-10-10 | Contrato de proveniência aprovado: `provenanceId` + `revision`, timestamps ISO com `Z`, manifesto do export, endpoint admin de reprocessamento | 0006 | Lucas |
+| 2026-10-10 | Rótulo positivo: só "alagamento" (Cobrade); "inundação" fica de fora | 0006 | Lucas |
+| 2026-10-10 | Rótulo diário × horizonte 3/6 h decidido na Fase 4 | — | Lucas |
+| 2026-10-10 | Fuso de ANA, APAC 24h e Cemaden verificado por correlação cruzada com Open-Meteo após a primeira carga (F2-DADOS-07); até lá, quarentena | 0006 | Lucas |
 
 ## Tarefas
 | ID | Fase | Agente | Nível | Tarefa | Status | PR/commit | Resultado em uma linha |
@@ -70,6 +76,8 @@
 | F2-ARQ-02 | 2 | Arquiteto | Equilibrado | Contrato de predição (OpenAPI + ADR) antes de mudar backend, IA e front (decisão 2026-10-10) | em_andamento | | 2026-10-10 · Opus · `docs/adr/0007-contrato-de-predicao.md` (Arquiteto) |
 | F2-FRONT-01 | 2 | Frontend | Equilibrado | Contrato de predição no front, passo 1 do ADR 0007 (zod tolerante, enum, UNKNOWN neutro único, campos novos opcionais) | concluido | sem commit (WIP do Lucas); patch `scratchpad/F2-FRONT-01.patch` copiado para `docs/revisao/fase-2/F2-FRONT-01.patch` | 2026-10-10 · subagente Sonnet · `docs/revisao/fase-2/F2-FRONT-01.md` · UNKNOWN 3→1 tratamento; mapeamento de risco 4→1 cópia; testes front 5→20; lint 0 erros, tsc limpo · fora: 6 `toLocale*` (F1-F2-19), UI de contributors, contraste da cor neutra |
 | F2-BACK-08 | 2 | Backend | Equilibrado | Contrato de predição no backend, passo 2 do ADR 0007 (enum, null em falha, degradationReason, previsão no ciclo de coleta, GET sem gravar) | pendente | | espera F2-BACK-07 (mesmo arquivo) |
+| F2-DADOS-07 | 2 | Dados | Equilibrado | Verificar fuso de ANA, APAC 24h e Cemaden por correlação cruzada com Open-Meteo (UTC) após a primeira carga | pendente | | depende de F2-BACK-01 + carga |
+| F2-BACK-09 | 2 | Backend | Equilibrado | Primeira carga histórica (5 anos) pelo pipeline novo + medidas de volume e p95 do export | pendente | | depende de F2-BACK-01, F2-BACK-06 |
 | F2-ARQ-01 | 2 | Arquiteto | Rápido | Handoff da Fase 2 | pendente | | |
 | F3-GEO-01 | 3 | Geo | Equilibrado | Processar rasters: unzip, atribuir CRS/nodata, VRT, recorte, COG; medir tamanhos | pendente | | precisa GDAL/rasterio (ausentes localmente → docker) |
 | F3-GEO-02 | 3 | Geo+Dados+Backend | Equilibrado + checkpoint | ADR de onde armazenar o terreno | pendente | | |
@@ -124,12 +132,12 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | 11 | ~~A tabela `flood_predictions` (taxa de alerta, auditoria) entra nos resultados da dissertação? Se sim, o item 7 da matriz sobe para P0~~ **respondida 2026-10-10** | 2026-10-10 | — |
 | 12 | ~~O banco local não tem o histórico de 5 anos (só ~4 semanas de setembro, 0 eventos de alagamento). A carga histórica existe em outro banco/máquina? Se não, recomendo **não** rodar `historical-full-sync` agora: o pipeline atual grava fusos misturados e reescreve o rótulo. Carregar só depois dos itens 1–4 da matriz~~ **respondida 2026-10-10** | 2026-10-10 | — |
 | 13 | ~~ADR 0007 (contrato de predição), itens marcados [aprovar]: `issuedAt`/`validUntil`/`horizonHours`; `degradationReason`; `lastValidIssuedAt`; catálogo de rótulos (`contributors`/`imputedFeatures`); `model_version="unversioned"` até a Fase 4; 422 da IA para dado insuficiente; hash fora da resposta; 200 em vez de 201 na degradação; regra de exibição de UNKNOWN; previsão feita pelo ciclo de coleta e GET sem gravar~~ **respondida 2026-10-10: aprovado** | 2026-10-10 | — |
-| 14 | ADR 0006: o que fazer com as ~4 semanas de dado de desenvolvimento? (a) descartar após o snapshot já tirado (recomendação), (b) reinterpretar por fonte, (c) manter como legado fora do dataset | 2026-10-10 | migração do fuso |
-| 15 | ADR 0006: aprova `provenanceId` + `revision` em `SensorResponseDTO`/`WeatherResponseDTO`, timestamps ISO com `Z`, manifesto do export (`/manifest`, cabeçalho `X-Dataset-Id`) e endpoint admin de reprocessamento? | 2026-10-10 | rastreabilidade exposta |
-| 16 | Rótulo: "inundação" (Cobrade) entra junto com "alagamento", ou só alagamento? | 2026-10-10 | definição do rótulo positivo |
-| 17 | Confirma que a escolha entre rótulo diário e horizonte 3/6 h fica para a formulação da Fase 4 (Máximo)? | 2026-10-10 | — |
-| 18 | Fuso de ANA, APAC meteorologia24h e Cemaden: verificar por correlação cruzada com Open-Meteo (UTC) após a primeira carga (nova tarefa F2-DADOS-07); até lá essas fontes ficam em quarentena. De acordo? | 2026-10-10 | 3 fontes fora do dataset |
-| 19 | Aprova as migrações aditivas V3–V6 do ADR 0006 (nenhuma apaga dado; V8, que aposentaria `sensor_data`/`weather_data`, terá aprovação própria)? | 2026-10-10 | F2-BACK-01 não começa |
+| 14 | ~~ADR 0006: o que fazer com as ~4 semanas de dado de desenvolvimento? (a) descartar após o snapshot já tirado (recomendação), (b) reinterpretar por fonte, (c) manter como legado fora do dataset~~ **respondida 2026-10-10: (a) descartar após o snapshot** | 2026-10-10 | — |
+| 15 | ~~ADR 0006: aprova `provenanceId` + `revision` em `SensorResponseDTO`/`WeatherResponseDTO`, timestamps ISO com `Z`, manifesto do export (`/manifest`, cabeçalho `X-Dataset-Id`) e endpoint admin de reprocessamento?~~ **respondida 2026-10-10: sim** | 2026-10-10 | — |
+| 16 | ~~Rótulo: "inundação" (Cobrade) entra junto com "alagamento", ou só alagamento?~~ **respondida 2026-10-10: não — rótulo só alagamento** | 2026-10-10 | — |
+| 17 | ~~Confirma que a escolha entre rótulo diário e horizonte 3/6 h fica para a formulação da Fase 4 (Máximo)?~~ **respondida 2026-10-10: sim** | 2026-10-10 | — |
+| 18 | ~~Fuso de ANA, APAC meteorologia24h e Cemaden: verificar por correlação cruzada com Open-Meteo (UTC) após a primeira carga (nova tarefa F2-DADOS-07); até lá essas fontes ficam em quarentena. De acordo?~~ **respondida 2026-10-10: sim** | 2026-10-10 | — |
+| 19 | ~~Aprova as migrações aditivas V3–V6 do ADR 0006 (nenhuma apaga dado; V8, que aposentaria `sensor_data`/`weather_data`, terá aprovação própria)?~~ **respondida 2026-10-10: sim** | 2026-10-10 | — |
 
 ## Medidas antes e depois
 | Métrica | Antes | Depois | Quando | Onde foi medida |

@@ -1,6 +1,6 @@
 # 0006 — Pipeline de ingestão: staging bruto, validação e série consolidada em UTC
 
-- Status: proposto
+- Status: **aprovado** (2026-10-10, Lucas: perguntas 14–19). Dado de desenvolvimento descartado após o snapshot; contrato de proveniência aprovado; rótulo só "alagamento" (sem "inundação"); fuso de ANA/APAC 24h/Cemaden verificado por correlação com Open-Meteo após a primeira carga; migrações V3–V6 aprovadas.
 - Checkpoint: v1 reprovada (5 pontos); v2 corrige a borda da hora, o `REVALIDATE`, o dedupe A→B→A e o escopo (sem compressão nem continuous aggregates agora) e registra limitações. **v2 APROVADA** em 2026-10-10 com 2 ressalvas, aplicadas: casos T2e×T4 separados; normalização de `source_ts_text`.
 - Data: 2026-10-10
 - Decisores: Agente 4 + Agente 1 (autor), checkpoint Máximo (pendente), Lucas
