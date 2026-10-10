@@ -32,7 +32,7 @@
 | F0-ARQ-07 | 0 | Arquiteto | Equilibrado | Evals das skills (2–3 prompts por skill, com e sem skill) | pendente | | adiado: custo alto, baixo risco agora; fazer antes da Fase 2 |
 | F1-BACK-01 | 1 | Backend | Rápido | Inventário barato do backend | concluido | — | coberto por F0-ARQ-04: 138 arquivos / ~8,9 mil LOC main; 8 testes / 668 LOC |
 | F1-BACK-02 | 1 | Backend | Equilibrado | Leitura dirigida: aderência à arquitetura, jobs/resiliência (APAC 6 h fora), @Transactional, taskExecutor/Hikari, segurança (JWT, CORS, Actuator) | em_andamento |  | 2026-10-10 · subagente Sonnet · interrompido pelo limite semanal de uso; retomado com o contexto preservado após o reset |
-| F1-BACK-03 | 1 | Backend | Equilibrado | Revisão a fundo da ingestão histórica (backfill vs. pipeline, proveniência, lacunas, reamostragem, volume, raio do repair-stations) | em_andamento |  | 2026-10-10 · subagente Sonnet · interrompido pelo limite semanal de uso; retomado com o contexto preservado após o reset |
+| F1-BACK-03 | 1 | Backend | Equilibrado | Revisão a fundo da ingestão histórica (backfill vs. pipeline, proveniência, lacunas, reamostragem, volume, raio do repair-stations) | concluido | branch `revisao/fase-0` (relatório) | 2026-10-10 · subagente Sonnet · `docs/revisao/fase-1/F1-BACK-03.md` · 26 achados, 6 críticos; conferidos pelo Arquiteto: rótulo circular (`alignFloodEventsToRainPeaks` sobrescreve startTime 00:00 com o pico de chuva) e ANA sem lat/lon fora do export; 5 tratamentos de fuso distintos; weather_data sem unique (reprocessar duplica) |
 | F1-BACK-04 | 1 | Backend | Rápido | Snapshot do OpenAPI (`/v3/api-docs`) versionado em `docs/openapi/` | pendente | | exige subir a API (docker) |
 | F1-BACK-05 | 1 | Backend | Equilibrado | Medidas "antes": cobertura (JaCoCo), p95 por endpoint (k6), N+1 (log Hibernate) | pendente | | sem `mvn` local: usar `./mvnw` |
 | F1-FRONT-01 | 1 | Frontend | Rápido | Inventário barato do front | concluido | — | coberto por F0-ARQ-04: bundle MapPage 1,22 MB, 0 `any`, MapView 1 106 linhas |
@@ -113,6 +113,8 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | DTOs que não são `record` | 25 de 36 | | 2026-10-10 | `grep -c record dto/*.java` |
 | Bundle front MapPage JS (não gzip) | 1 215 244 B | | 2026-10-10 | `dist/assets` do build existente (data do build não verificada) |
 | Ocorrências de `any` no front | 0 | | 2026-10-10 | `grep -rn ': any\|as any' src` |
+| Pontos críticos cadastrados | 5 | | 2026-10-10 | `MapiServiceImpl.java:573-620` (F1-BACK-03) |
+| Volume clima 5 anos × 5 pontos | ~219 mil linhas (~55 MB) | | 2026-10-10 | estimativa F1-BACK-03 §6, premissas a conferir no banco |
 | Cobertura de teste backend | não medida | | | F1-BACK-05 |
 | p95 por endpoint | não medido | | | F1-BACK-05 (k6) |
 
