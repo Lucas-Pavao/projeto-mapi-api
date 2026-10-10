@@ -54,6 +54,32 @@ public class OccurrenceRepository {
                 radiusM, createdBy, note);
     }
 
+    /** linkage_config de ocorrência usado no rótulo do export. */
+    public record LinkageRef(long id, double radiusM, String method) {}
+
+    /** O config de id dado (se for OCCURRENCE_POINT) ou, sem id, o de menor id com o raio dado. */
+    public Optional<LinkageRef> occurrenceLinkage(Long id, double radiusM) {
+        var map = (org.springframework.jdbc.core.RowMapper<LinkageRef>) (rs, i) ->
+                new LinkageRef(rs.getLong(1), rs.getDouble(2), rs.getString(3));
+        return (id != null
+                ? jdbc.query("SELECT id, radius_m, method FROM linkage_config WHERE kind = 'OCCURRENCE_POINT' AND id = ?", map, id)
+                : jdbc.query("SELECT id, radius_m, method FROM linkage_config WHERE kind = 'OCCURRENCE_POINT' "
+                        + "AND radius_m = ? ORDER BY id LIMIT 1", map, radiusM)).stream().findFirst();
+    }
+
+    /** Ocorrência casada com um ponto numa linkage_config. */
+    public record MatchedOccurrence(long id, Instant from, Instant to, boolean hour) {}
+
+    public List<MatchedOccurrence> matchedOccurrences(long pointId, long linkageConfigId) {
+        return jdbc.query("""
+                SELECT o.id, o.occurred_from, o.occurred_to, o.temporal_precision
+                FROM occurrence_point_match m JOIN flood_occurrence o ON o.id = m.occurrence_id
+                WHERE m.flood_point_id = ? AND m.linkage_config_id = ? ORDER BY o.occurred_from, o.id
+                """, (rs, i) -> new MatchedOccurrence(rs.getLong(1), rs.getObject(2, OffsetDateTime.class).toInstant(),
+                rs.getObject(3, OffsetDateTime.class).toInstant(), "HOUR".equals(rs.getString(4))),
+                pointId, linkageConfigId);
+    }
+
     public Map<String, Stored> stored(String resourceId, List<String> recordIds) {
         Map<String, Stored> out = new java.util.HashMap<>();
         if (recordIds.isEmpty()) return out;
