@@ -5,9 +5,10 @@ services:
     environment:
       - POSTGRES_DB=tide_db
       - POSTGRES_USER=mapi_user
-      - POSTGRES_PASSWORD=mapi123
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-mapi123}
     ports:
-      - "5433:5432"
+      # Só localhost: o banco não deve ficar acessível na rede (senha padrão de dev).
+      - "127.0.0.1:5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       # Schema agora é gerenciado pelo Flyway (src/main/resources/db/migration), aplicado pelo
@@ -27,10 +28,11 @@ services:
       - DB_PORT=5432
       - DB_NAME=tide_db
       - DB_USER=mapi_user
-      - DB_PASS=mapi123
+      - DB_PASS=${POSTGRES_PASSWORD:-mapi123}
       - API_URL=http://mapi-api:8080
     ports:
-      - "8000:8000"
+      # Só localhost: a API chama a IA pela rede interna do compose (mapi-ai:8000).
+      - "127.0.0.1:8000:8000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -41,7 +43,7 @@ services:
     environment:
       - POSTGRES_URL=jdbc:postgresql://postgres:5432/tide_db
       - POSTGRES_USER=mapi_user
-      - POSTGRES_PASSWORD=mapi123
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-mapi123}
       - AI_API_URL=http://mapi-ai:8000
       - APP_LOG_LEVEL=${APP_LOG_LEVEL:-INFO}
       - LOG_PATH=/app/logs
