@@ -1,5 +1,6 @@
 package com.projeto.mapi.service.flood.impl;
 
+import com.projeto.mapi.config.ExternalRestClientFactory;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.projeto.mapi.dto.FloodPredictionRequestDTO;
 import com.projeto.mapi.dto.FloodPredictionResponseDTO;
@@ -17,8 +18,9 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
 
     private final RestClient restClient;
 
-    public FloodPredictionServiceImpl(@Value("${app.ai.api-url:http://localhost:8000}") String aiApiUrl) {
-        this.restClient = RestClient.builder()
+    public FloodPredictionServiceImpl(@Value("${app.ai.api-url:http://localhost:8000}") String aiApiUrl,
+                                      ExternalRestClientFactory http) {
+        this.restClient = http.builder("ai")
                 .baseUrl(aiApiUrl)
                 .build();
     }

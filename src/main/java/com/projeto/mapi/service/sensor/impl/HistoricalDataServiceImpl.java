@@ -1,5 +1,6 @@
 package com.projeto.mapi.service.sensor.impl;
 
+import com.projeto.mapi.config.ExternalRestClientFactory;
 import com.projeto.mapi.dto.WeatherArchiveResponseDTO;
 import com.projeto.mapi.model.FloodPoint;
 import com.projeto.mapi.model.SensorData;
@@ -48,7 +49,12 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
     private final CivilDefenseService civilDefenseService;
     private final com.projeto.mapi.service.MapiService mapiService;
     private final ObjectProvider<HistoricalDataService> serviceProvider;
-    private final RestClient restClient = RestClient.builder().baseUrl("https://archive-api.open-meteo.com/v1").build();
+    private final ExternalRestClientFactory http;
+
+    // Cliente criado sob demanda e reaproveitado por fonte, com os timeouts de app.http.clients.open-meteo-archive
+    private RestClient restClient() {
+        return http.client("open-meteo-archive", "https://archive-api.open-meteo.com/v1", Map.of());
+    }
 
     @Override
     @Async("taskExecutor")
@@ -242,7 +248,7 @@ public class HistoricalDataServiceImpl implements HistoricalDataService {
 
         log.info("Buscando clima do Open-Meteo para {} no ano {}...", point.getSlug(), year);
         try {
-            WeatherArchiveResponseDTO response = restClient.get()
+            WeatherArchiveResponseDTO response = restClient().get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/archive")
                             .queryParam("latitude", point.getLatitude())

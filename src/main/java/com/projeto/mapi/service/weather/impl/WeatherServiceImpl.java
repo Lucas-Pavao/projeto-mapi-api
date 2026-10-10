@@ -1,5 +1,6 @@
 package com.projeto.mapi.service.weather.impl;
 
+import com.projeto.mapi.config.ExternalRestClientFactory;
 import com.projeto.mapi.dto.WeatherResponseDTO;
 import com.projeto.mapi.model.WeatherData;
 import com.projeto.mapi.repository.WeatherDataRepository;
@@ -22,11 +23,11 @@ public class WeatherServiceImpl implements WeatherService {
     private final WeatherDataRepository weatherDataRepository;
     private final java.util.concurrent.Executor taskExecutor;
 
-    public WeatherServiceImpl(RestClient.Builder restClientBuilder,
+    public WeatherServiceImpl(ExternalRestClientFactory http,
                              com.projeto.mapi.config.AppProperties appProperties,
                              WeatherDataRepository weatherDataRepository,
                              @org.springframework.beans.factory.annotation.Qualifier("taskExecutor") java.util.concurrent.Executor taskExecutor) {
-        this.restClient = restClientBuilder
+        this.restClient = http.builder("open-meteo")
                 .baseUrl(appProperties.getWeather().getApiUrl())
                 .build();
         this.weatherDataRepository = weatherDataRepository;
