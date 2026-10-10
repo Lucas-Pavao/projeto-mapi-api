@@ -23,7 +23,7 @@ checa_disco() {
 }
 mkdir -p "$OUT/recortes"
 checa_disco
-dk() { docker run --rm -u "$(id -u):$(id -g)" -e GDAL_IMAGE="$IMG_TAG@$IMG_DIGEST" \
+dk() { docker run --rm -u "$(id -u):$(id -g)" -e GDAL_IMAGE="$IMG_TAG@$IMG_DIGEST" -e MOTOR="${MOTOR:-whitebox}" \
   -v "$DADOS":/dados:ro -v "$OUT":/terreno -v "$AQUI":/tools/terreno:ro "$IMG" "$@"; }
 py() { dk python3 -I /tools/terreno/terreno.py "$@"; }
 
