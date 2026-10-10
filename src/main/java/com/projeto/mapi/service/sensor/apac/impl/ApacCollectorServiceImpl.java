@@ -60,7 +60,13 @@ public class ApacCollectorServiceImpl implements ApacCollectorService {
     }
 
     private CollectionSummaryDTO collect(String endpoint, String prefixoId, String fonte, boolean rmrOnly, boolean isCemaden) {
-        List<JsonNode> estacoes = apacScrapeClient.fetchRawStations(endpoint);
+        List<JsonNode> estacoes;
+        try {
+            estacoes = apacScrapeClient.fetchRawStations(endpoint);
+        } catch (Exception e) {
+            log.error("Fonte {} indisponível: {}", fonte, e.getMessage());
+            return CollectionSummaryDTO.unavailable();
+        }
 
         // O endpoint devolve um histórico rolante por estação (chegamos a ver ~150 leituras para
         // uma única estação no Cemaden, ~8.700 itens no total por fetch), não um snapshot atual.
