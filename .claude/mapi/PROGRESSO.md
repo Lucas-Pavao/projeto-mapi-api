@@ -90,14 +90,15 @@
 | F2-BACK-12 | 2 | Backend | Equilibrado | Completar o pipeline: CKAN (T7, rótulo só alagamento, precisão HOUR/DAY), sensores ANA/APAC/Cemaden no staging (T9, quarentena UNVERIFIED), TabuaMare e Open-Meteo current/marine; `Z` nos DTOs legados; export sem imputação silenciosa (`*_imputed`, coordenado com o projeto-mapi-ai); conferir a convenção de rótulo horário do Open-Meteo | pendente | | resíduo de F2-BACK-01 |
 | F2-DB-07 | 2 | Dados | Rápido | Migração V7: extensões postgis e postgis_raster | concluido | 7b8bac0 (`feat/postgis-v7`), integrado em a472922 | 2026-10-10 · Opus · teste prova `ST_Value` = 11,11 num raster sintético em EPSG:31985 |
 | F2-ARQ-01 | 2 | Arquiteto | Rápido | Handoff da Fase 2 | pendente | | |
-| F3-GEO-01 | 3 | Geo | Equilibrado | Processar rasters: unzip, atribuir CRS/nodata, VRT, recorte, COG; medir tamanhos | em_andamento | | 2026-10-10 · subagente Sonnet · VRT sobre /vsizip (sem descompactar; /home com 4,5 GB livres), CRS 31985 + nodata, recortes COG por ponto, tamanhos para o ADR 0008 |
-| F3-GEO-02 | 3 | Geo+Dados+Backend | Equilibrado + checkpoint | ADR de onde armazenar o terreno | pendente | | |
+| F3-GEO-01 | 3 | Geo | Equilibrado | Processar rasters: unzip, atribuir CRS/nodata, VRT, recorte, COG; medir tamanhos | concluido | 6671649 (`feat/terreno-pe3d`) | 2026-10-10 · subagente Sonnet · `tools/terreno/run.sh` (GDAL 3.10.0 por digest, /vsizip, ~80 s, saídas 12 MB fora do git); os .tif já têm CRS = 31985 (48/48), .tfw confere; 4/5 pontos cobertos (JABOATAO_CENTRO a 1 410 m da folha mais próxima) · reprodutível: 2 execuções com SHA-256 idêntico (`ponto_terreno.csv` 6a964372…) |
+| F3-GEO-02 | 3 | Geo+Dados+Backend | Equilibrado + checkpoint | ADR de onde armazenar o terreno | em_andamento |  | 2026-10-10 · subagente Sonnet · ADR 0008 com tamanhos medidos (recorte 1 km² ≈ 3 MB; mosaico COG ≈ 1,21 GB; bbox+2 km ≈ 0,35 GB, estimados); checkpoint depois |
 | F3-GEO-03 | 3 | Geo | Equilibrado + checkpoint | ADR referência vertical MDT × NR da DHN | concluido | ver commit "ADR 0009" | 2026-10-10 · subagente Sonnet + checkpoint Opus · ADR 0009: desnível NR↔datum NÃO fechado por fonte primária; checkpoint APROVADO (sinal conferido: cota_NR = H + Δ, Δ = 1,28 − NMM_alt) com 5 ressalvas aplicadas (incerteza só vale se MDT no SGB; incerteza de Δ ≠ da folga; `baixaConfianca` em vez de UNKNOWN; Δ só de A/B, sem varredura; soleira só de fonte própria) · status proposto até a pergunta 23 |
-| F3-GEO-04 | 3 | Geo | Equilibrado | Atributos por ponto e tabela `ponto_terreno` | em_andamento | | 2026-10-10 · subagente Sonnet · atributos em CSV `MAPI/terreno/ponto_terreno.csv` (tabela no banco depende do ADR 0008 + migração) |
-| F3-GEO-05 | 3 | Geo | Equilibrado | Comparar cota MDT × altitude Open-Meteo | em_andamento | | 2026-10-10 · subagente Sonnet · comparação cota MDT × altitudeM atual |
-| F3-GEO-06 | 3 | Geo | Equilibrado | `docs/TERRENO-PE3D.md` | pendente | | |
+| F3-GEO-04 | 3 | Geo | Equilibrado | Atributos por ponto e tabela `ponto_terreno` | concluido | idem | 2026-10-10 · cota (raio 3 m): Ibura 1,392 · CIn 7,679 · Derby 2,580 · Imbiribeira 2,068 m (ortométrica, não comparável à maré); declividade 3,1–6,3%; área contribuinte instável ao snap (Derby 0–13 396 m²) — Derby e Imbiribeira não representam a captação das galerias · Priority-Flood próprio sem validação → F3-GEO-07 |
+| F3-GEO-05 | 3 | Geo | Equilibrado | Comparar cota MDT × altitude Open-Meteo | concluido | idem | 2026-10-10 · `altitudeM` vem do `elevation` do Open-Meteo (MapiServiceImpl:187–193); MDT − Open-Meteo = −1,61 / −3,32 / −5,42 / −0,93 m (média −2,82, máx |5,42| em Derby); fallback grava 0,0 se o Open-Meteo falhar na criação do ponto |
+| F3-GEO-06 | 3 | Geo | Equilibrado | `docs/TERRENO-PE3D.md` | concluido | idem | 2026-10-10 · `docs/TERRENO-PE3D.md` (procedimento, cobertura, atributos, sensibilidade da área contribuinte, limitações) |
 | F3-BACK-01 | 3 | Backend | Equilibrado | Endpoint de terreno e colunas no CSV de treino | pendente | | |
 | F3-FRONT-01 | 3 | Frontend | Equilibrado | Camada de terreno no mapa (hipsometria, abaixo da cota de maré) | pendente | | |
+| F3-GEO-07 | 3 | Geo | Equilibrado | Validar a hidrologia (fill/D8/acumulação) do `terreno.py` contra uma ferramenta de referência (WhiteboxTools em container) e testes unitários; definir regra de snap documentada | pendente | | área contribuinte é feature do modelo |
 | F3-ARQ-01 | 3 | Arquiteto | Rápido | Handoff da Fase 3 | pendente | | |
 | F4-IA-01 | 4 | IA | Máximo | Formulação da tarefa, features e baselines (A.1–A.3) | pendente | | |
 | F4-IA-02 | 4 | IA | Equilibrado | Pipeline de treino e experimentos (A.4–A.5) | pendente | | |
@@ -172,6 +173,8 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | Tratamentos visuais distintos de UNKNOWN no front | 3 | 1 (F2-FRONT-01, sem commit) | 2026-10-10 | F1-FRONT-02 (F1-F2-04) |
 | `aria-label` / botões no front | 0 / 31 | | 2026-10-10 | F1-FRONT-02 (F1-F2-09) |
 | Gravações em `flood_predictions` por GET | 1 | 0 | 2026-10-10 | teste Testcontainers (F2-BACK-08) |
+| Pontos críticos com cota do MDT | 0/5 | 4/5 | 2026-10-10 | `tools/terreno/run.sh` (F3-GEO-01/04) |
+| Diferença MDT − altitude Open-Meteo (média / máx módulo) | — | −2,82 m / 5,42 m | 2026-10-10 | F3-GEO-05 |
 | Portas de banco/IA em 0.0.0.0 | 2 | 0 | 2026-10-10 | docker-compose.yml (F1-QA-02, 2fe06c6) |
 | Cobertura de teste backend (linhas / ramos) | 26,1% / 17,6% | 51,1% / 36,7% (integracao/fase-2 ca1cb91; 2 rodadas idênticas) | 2026-10-10 | JaCoCo 0.8.12, `docs/medidas/jacoco-2026-10-10.csv` |
 | Cobertura do export (`service.export.impl`) | 0,6% | 74,6% (integracao/fase-2, 7ccc0e8) | 2026-10-10 | idem |
