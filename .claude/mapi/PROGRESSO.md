@@ -53,20 +53,20 @@
 | F1-QA-04 | 1 | QA | Rápido | Aviso de descontinuado no projeto-mapi (MAPI Edge) | concluido | projeto-mapi d86a996 (branch `docs/descontinuado`) | 2026-10-10 · Opus · bloco DESCONTINUADO no topo do README |
 | F1-ARQ-04 | 1 | Arquiteto | Rápido | Handoff da Fase 1 | concluido | branch `revisao/fase-0` | 2026-10-10 · Opus · `docs/HANDOFF-fase-1.md` + `docs/handoff/fase-1.json` (90 achados: 21 críticos, 49 importantes, 20 desejáveis) |
 | F2-DADOS-00 | 2 | Dados | Rápido | Snapshot auditável do banco atual (pg_dump + SHA-256 + contagem por tabela) antes de qualquer migração | concluido | 06b4398 | 2026-10-10 · Opus · dump fora do git em `MAPI/snapshots/`, SHA-256 `3ace3cde…4dedd`, manifesto `docs/snapshots/2026-10-10-pre-revisao.md`. Achado: o banco local não tem o histórico de 5 anos (555 leituras de sensor, 40 de clima, 0 eventos); flood_predictions 25 102 linhas |
-| F2-DADOS-01 | 2 | Dados | Equilibrado | Benchmark e evidência sobre o banco (tamanho das hypertables, compressão, EXPLAIN ANALYZE, volume projetado) | pendente | | |
-| F2-DADOS-02 | 2 | Dados | Equilibrado + checkpoint | ADR PostgreSQL+TimescaleDB+PostGIS × MySQL | pendente | | |
-| F2-DADOS-03 | 2 | Dados | Rápido | Planilha comparativa do banco (xlsx) | pendente | | |
-| F2-DADOS-04 | 2 | Dados | Equilibrado | `docs/MODELO-DE-DADOS.md` com diagrama | pendente | | |
-| F2-DADOS-05 | 2 | Dados+Backend | Equilibrado + checkpoint | ADR do pipeline de ingestão (staging → validação → consolidada, idempotência, proveniência) | pendente | | |
-| F2-DADOS-06 | 2 | Dados | Equilibrado | Políticas de retenção e compressão | pendente | | |
+| F2-DADOS-01 | 2 | Dados | Equilibrado | Benchmark e evidência sobre o banco (tamanho das hypertables, compressão, EXPLAIN ANALYZE, volume projetado) | em_andamento | | 2026-10-10 · subagente Sonnet | `docs/medidas/benchmark-banco-2026-10-10.md` |
+| F2-DADOS-02 | 2 | Dados | Equilibrado + checkpoint | ADR PostgreSQL+TimescaleDB+PostGIS × MySQL | em_andamento | | 2026-10-10 · subagente Sonnet | `docs/adr/0005-escolha-do-banco.md` |
+| F2-DADOS-03 | 2 | Dados | Rápido | Planilha comparativa do banco (xlsx) | em_andamento | | 2026-10-10 · subagente Sonnet | `docs/medidas/comparacao-banco.xlsx` |
+| F2-DADOS-04 | 2 | Dados | Equilibrado | `docs/MODELO-DE-DADOS.md` com diagrama | em_andamento | | 2026-10-10 · subagente Sonnet | `docs/MODELO-DE-DADOS.md` |
+| F2-DADOS-05 | 2 | Dados+Backend | Equilibrado + checkpoint | ADR do pipeline de ingestão (staging → validação → consolidada, idempotência, proveniência) | em_andamento | | 2026-10-10 · subagente Sonnet | `docs/adr/0006-pipeline-de-ingestao.md` |
+| F2-DADOS-06 | 2 | Dados | Equilibrado | Políticas de retenção e compressão | em_andamento | | 2026-10-10 · subagente Sonnet | ADR 0006 §retenção |
 | F2-BACK-01 | 2 | Backend | Equilibrado | Implementar ingestão aprovada (migração incremental) | pendente | | exige aprovação de migração |
 | F2-BACK-02 | 2 | Backend | Equilibrado | Identificador de proveniência nas respostas de dado | pendente | | muda contrato: aprovação |
 | F2-BACK-03 | 2 | Backend | Equilibrado | `docs/INGESTAO.md` e `docs/API.md` | pendente | | |
-| F2-BACK-04 | 2 | Backend | Equilibrado | Testcontainers com TimescaleDB (ADR 0004): base de teste de repositório, migração Flyway e export; remover H2 quando verde | pendente | | matriz item 9 |
-| F2-BACK-05 | 2 | Backend | Equilibrado | `wipe-database` só no profile `dev` (decisão 2026-10-10) | pendente | | matriz item 10 |
-| F2-BACK-06 | 2 | Backend | Equilibrado | Desativar `alignFloodEventsToRainPeaks` e preservar a data original do CKAN, com precisão declarada (decisão 2026-10-10) | pendente | | matriz item 1 |
-| F2-BACK-07 | 2 | Backend | Equilibrado | Timeouts em todos os clientes HTTP; fallback que não mascara falha (Retry efetivo); métrica de idade do dado | pendente | | matriz item 8 |
-| F2-ARQ-02 | 2 | Arquiteto | Equilibrado | Contrato de predição (OpenAPI + ADR) antes de mudar backend, IA e front (decisão 2026-10-10) | pendente | | matriz item 7 |
+| F2-BACK-04 | 2 | Backend | Equilibrado | Testcontainers com TimescaleDB (ADR 0004): base de teste de repositório, migração Flyway e export; remover H2 quando verde | em_andamento | | 2026-10-10 · subagente Sonnet | worktree, branch `feat/testcontainers` |
+| F2-BACK-05 | 2 | Backend | Equilibrado | `wipe-database` só no profile `dev` (decisão 2026-10-10) | em_andamento | | 2026-10-10 · subagente Sonnet | worktree, branch `fix/wipe-database-dev` |
+| F2-BACK-06 | 2 | Backend | Equilibrado | Desativar `alignFloodEventsToRainPeaks` e preservar a data original do CKAN, com precisão declarada (decisão 2026-10-10) | em_andamento | | 2026-10-10 · subagente Sonnet | worktree, branch `fix/desativa-realinhamento-rotulo` |
+| F2-BACK-07 | 2 | Backend | Equilibrado | Timeouts em todos os clientes HTTP; fallback que não mascara falha (Retry efetivo); métrica de idade do dado | em_andamento | | 2026-10-10 · subagente Sonnet | worktree, branch `fix/timeouts-e-fallback-honesto` |
+| F2-ARQ-02 | 2 | Arquiteto | Equilibrado | Contrato de predição (OpenAPI + ADR) antes de mudar backend, IA e front (decisão 2026-10-10) | em_andamento | | 2026-10-10 · Opus | `docs/adr/0007-contrato-de-predicao.md` (Arquiteto) |
 | F2-ARQ-01 | 2 | Arquiteto | Rápido | Handoff da Fase 2 | pendente | | |
 | F3-GEO-01 | 3 | Geo | Equilibrado | Processar rasters: unzip, atribuir CRS/nodata, VRT, recorte, COG; medir tamanhos | pendente | | precisa GDAL/rasterio (ausentes localmente → docker) |
 | F3-GEO-02 | 3 | Geo+Dados+Backend | Equilibrado + checkpoint | ADR de onde armazenar o terreno | pendente | | |
@@ -120,6 +120,7 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | 10 | ~~`DELETE /api/admin/ingestion/wipe-database` apaga tudo, inclusive usuários. Remover, ou restringir a um profile `dev` com confirmação? (recomendação: restringir ao `dev`)~~ **respondida 2026-10-10** | 2026-10-10 | — |
 | 11 | ~~A tabela `flood_predictions` (taxa de alerta, auditoria) entra nos resultados da dissertação? Se sim, o item 7 da matriz sobe para P0~~ **respondida 2026-10-10** | 2026-10-10 | — |
 | 12 | ~~O banco local não tem o histórico de 5 anos (só ~4 semanas de setembro, 0 eventos de alagamento). A carga histórica existe em outro banco/máquina? Se não, recomendo **não** rodar `historical-full-sync` agora: o pipeline atual grava fusos misturados e reescreve o rótulo. Carregar só depois dos itens 1–4 da matriz~~ **respondida 2026-10-10** | 2026-10-10 | — |
+| 13 | ADR 0007 (contrato de predição), itens marcados [aprovar]: `issuedAt`/`validUntil`/`horizonHours`; `degradationReason`; `lastValidIssuedAt`; catálogo de rótulos (`contributors`/`imputedFeatures`); `model_version="unversioned"` até a Fase 4; 422 da IA para dado insuficiente; hash fora da resposta; 200 em vez de 201 na degradação; regra de exibição de UNKNOWN; previsão feita pelo ciclo de coleta e GET sem gravar | 2026-10-10 | matriz item 7 não começa |
 
 ## Medidas antes e depois
 | Métrica | Antes | Depois | Quando | Onde foi medida |
