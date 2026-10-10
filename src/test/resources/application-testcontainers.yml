@@ -1,0 +1,17 @@
+# Perfil dos testes de integração com Testcontainers (ADR 0004). Sobrescreve o H2 do
+# application.yml de teste: aqui o schema vem das migrations Flyway REAIS e o Hibernate apenas
+# VALIDA que as entidades batem com ele (igual à produção). URL/usuário/senha são injetados em
+# runtime por AbstractTimescaleIntegrationTest (@DynamicPropertySource), pois a porta do
+# contêiner é aleatória.
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: "1"
