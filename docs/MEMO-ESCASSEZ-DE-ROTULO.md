@@ -437,6 +437,19 @@ Se o autor e o orientador considerarem essencial manter a pergunta "ML vence bas
 15. Confirma que este memorando "queimou" a inspeção da chuva nos dias positivos e que, por isso, o limiar da regra
     de chuva virá de fonte externa (APAC/Cemaden ou curva IDF)?
 
+
+## 5. Decisões já tomadas pelo Arquiteto (autorização durável do autor, 2026-10-10)
+
+Itens de engenharia e de integridade de método, que não mudam a pergunta da dissertação:
+
+- **7** Sim, só como análise de sensibilidade: medir quantos dias "inundação" e "enxurrada" acrescentariam; o rótulo principal continua "alagamento" (decisão do autor).
+- **8** Sim: o CKAN 2022 está sendo recuperado (F2-BACK-18).
+- **9** 2025–2026 entram no export como "sem rótulo" (excluídos da avaliação), nunca como negativos: a ausência de registro no portal não é ausência de alagamento. 2021 (1 registro em 64 855) também entra como "sem rótulo".
+- **12** Sim: o backfill da maré 2021–2025 (F2-BACK-14) e a verificação de fuso dos pluviômetros (F2-DADOS-07) são as próximas tarefas de dados.
+- **15** Confirmado: a inspeção da chuva nos dias positivos foi "queimada" por este memorando; o limiar da regra de chuva virá de fonte externa (APAC/Cemaden ou curva IDF), registrado antes de qualquer experimento.
+
+Ficam com o autor (e, onde indicado, com o orientador): 1, 2, 3, 4, 5, 6, 10, 11, 13, 14.
+
 ---
 
 ## Apêndice A — Contas binomiais

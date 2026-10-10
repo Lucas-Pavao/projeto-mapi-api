@@ -43,6 +43,7 @@
 | 2026-10-10 | V10 (INSERT de `soil_moisture_0_7cm` no `variable_catalog`) aprovada pela autorização durável | 0006 | Arquiteto (autorizado) |
 | 2026-10-10 | **Regra prévia acionada**: CKAN só tem precisão DAY (N_HOUR = 0 < 20) → tarefa principal passa a ser a DIÁRIA, corte 06:00 (decisão 1–3 da MODELAGEM-IA, fixada antes de ver dados) | — | regra pré-registrada |
 | 2026-10-10 | Volume vazio criado por engano pelo compose antigo removido (0 tabelas conferidas) | — | Arquiteto (autorizado) |
+| 2026-10-10 | MEMO, itens 7/8/9/12/15: sensibilidade de categorias (só análise); recuperar CKAN 2022; 2021 e 2025–2026 como "sem rótulo" (nunca negativos); priorizar maré 2021–2025 e fuso dos pluviômetros; limiar da regra de chuva só de fonte externa | — (MEMO §5) | Arquiteto (autorizado) |
 
 ## Tarefas
 | ID | Fase | Agente | Nível | Tarefa | Status | PR/commit | Resultado em uma linha |
