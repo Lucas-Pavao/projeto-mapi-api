@@ -2,7 +2,7 @@ services:
   postgres:
     # Imagem fixa com TimescaleDB + PostGIS (ADR 0005): PG 16.15, TimescaleDB 2.30.2, PostGIS 3.6.4.
     # A imagem -ha guarda os dados em /home/postgres/pgdata (não em /var/lib/postgresql/data), por isso
-    # usa um volume novo; o volume antigo (postgres_data) foi preservado e só sai com aprovação separada.
+    # usa o volume postgres_ha_data. O volume antigo foi removido em 2026-10-10 com aprovação (dumps em MAPI/snapshots/).
     image: timescale/timescaledb-ha:pg16.15-ts2.30.2
     container_name: mapi-db
     environment:
@@ -260,8 +260,6 @@ services:
         echo "================================================================"
 
 volumes:
-  # Volume da imagem antiga (timescaledb:latest-pg16). Não usado; mantido até aprovação de remoção (ADR 0005).
-  postgres_data:
   postgres_ha_data:
   api_logs:
   prometheus_data:
