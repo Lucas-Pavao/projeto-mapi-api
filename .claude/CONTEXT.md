@@ -37,3 +37,11 @@ hypertables, EXPLAIN — nenhum container do banco estava rodando.
   = PG 16.14 + TimescaleDB 2.27.2, sem PostGIS.
 - Em aberto: perguntas 8–12 do PROGRESSO.md.
 - Limite de uso: 3 subagentes caíram por limite semanal; retomar via SendMessage preserva o contexto.
+
+## Acréscimo 2026-10-10 (primeira carga)
+- **Rodar o compose sempre a partir da worktree `integracao/fase-2`** com `-p projeto-mapi-api`
+  (volume `projeto-mapi-api_postgres_ha_data`). O checkout principal está na branch de documentação
+  `revisao/fase-0`, cujo compose ainda aponta a imagem antiga e um volume antigo — usá-lo criou por
+  engano um volume vazio (removido em 2026-10-10 após conferir 0 tabelas).
+- Banco local agora tem V1–V10 e a primeira carga (snapshot pré-migração `35dccf45…`).
+- CKAN é 100% precisão DAY → regra prévia troca a tarefa principal para a diária (corte 06:00).
