@@ -108,6 +108,14 @@
   - O CHM pede que navegantes enviem informações para correção das tábuas.
 - Restrição: não localizada. Para uso público e comercial, é preciso confirmar com o CHM.
 
+- **Uso no MAPi para 2021–2025 (F2-BACK-14, 2026-10-10):** a API TabuaMare só serve o ano corrente, então o histórico
+  2021–2025 do Porto do Recife (carta 902, estação pe02) foi extraído diretamente dos **PDFs oficiais das Tábuas das
+  Marés da DHN** por script versionado (`scripts/tabuas-dhn/extrair_tabua_dhn.py`); o SHA-256 de cada PDF fica no CSV
+  derivado (`src/main/resources/tide/dhn-pe02-<ano>.csv`). Os PDFs de **2021 e 2022 só foram encontrados no Internet
+  Archive** (cópias de páginas oficiais da Marinha); registrar isso como procedência na dissertação. A extração de 2026
+  conferiu com a API em 1 407 extremos (diferença máxima 0). Redistribuir os CSVs derivados depende do termo da DHN
+  (pendência abaixo).
+
 ## 9. TabuaMare — API de terceiros
 
 - Projeto: API de tábuas das marés do litoral brasileiro, que reorganiza em formato consultável os PDFs da DHN.
@@ -184,7 +192,7 @@ Formato sugerido, um item por fonte:
 5. APAC: termo de uso e licença dos dados de pluviometria e nível não localizados. Confirmar com a APAC por escrito. Consultar o termo de compromisso do PE3D (ver item 1).
 6. Cemaden: termo de dados não localizado. Confirmar com o Cemaden (Fale Conosco ou SIC) se a licença CC BY-ND 3.0 BR cobre as séries de dados e se derivados (médias, gráficos, bases transformadas) são permitidos.
 7. Open-Meteo: a página de licença não pôde ser lida (conteúdo vazio). Confirmar a frase de atribuição em https://open-meteo.com/en/license. Confirmar que o uso do MAPi (site sem assinatura nem publicidade) é não comercial. Se houver assinatura, publicidade ou produto comercial, contratar plano pago.
-8. DHN / CHM: páginas oficiais retornaram HTTP 403. Confirmar com o CHM o termo de uso e reutilização das tábuas e a responsabilidade pelas previsões.
+8. DHN / CHM: páginas oficiais retornaram HTTP 403. Confirmar com o CHM o termo de uso e reutilização das tábuas e a responsabilidade pelas previsões — inclusive se os CSVs extraídos dos PDFs 2021–2026 podem ficar no repositório (o pedido `docs/pedidos/01-…` pode incluir essa pergunta).
 9. TabuaMare: termo da API não localizado. O código é MIT, mas os dados são da DHN. Registrar como risco: dependência de serviço de terceiros sem termo publicado; avaliar consumir as tábuas da DHN diretamente em produção.
 10. CARTO: os limites de uso gratuito conflitam entre as cláusulas 12.c (5.000.000 por mês) e 12.d (1.000.000 por mês). Confirmar com a CARTO e registrar a chave de API própria no ambiente de produção.
 11. OpenStreetMap: a forma exata de atribuição muda entre a página de copyright e o guia de 2021. Escolher uma forma e aplicar de forma uniforme no front e na dissertação.

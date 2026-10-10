@@ -15,6 +15,9 @@ Solicito, se possível, a **Ficha de Descrição de Estação Maregráfica (F-41
 2. O **Nível Médio do Mar (Z0) acima do NR** e o período de observação que o originou (a Tábua indica 1,28 m);
 3. Se houver, o vínculo da RN da estação com o Sistema Geodésico Brasileiro (altitude da RN referida a Imbituba) e o número da RN no Banco de Dados Geodésicos do IBGE.
 
+Aproveito para perguntar se há restrição para reutilizar, em repositório acadêmico de código aberto, os valores das
+Tábuas das Marés do Porto do Recife de 2021 a 2026, extraídos dos PDFs publicados pela DHN, com citação da fonte.
+
 Tentei obter a ficha pela página do CHM, mas o acesso retornou erro (HTTP 403) em 10/10/2026.
 As informações serão usadas exclusivamente para fins acadêmicos, com a devida citação da DHN como fonte.
 
