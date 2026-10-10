@@ -1,6 +1,7 @@
 # 0008 — Armazenamento do terreno do PE3D
 
 - Status: **aprovado** (2026-10-10, Lucas, pergunta 24): migração V9 do terreno e camada COG em EPSG:3857. Checkpoint Máximo: v1 reprovada; v2 aprovada com 2 ressalvas aplicadas (limites do critério 4 fixados antes de medir; vizinho mais próximo).
+- **Resultado do critério 4 (2026-10-10, F3-FRONT-01): C1 REPROVADO** — tráfego do zoom 14 ao 17 = 20,95 MB (limite 5 MB; só o zoom 14 = 4,53 MB, 129 requisições 206) e tempo até aparecer = 5,8 s de mediana (5,69/5,80/5,96; limite 3 s), Playwright 1.48.2, Fast 4G (9/1,5 Mbps, 170 ms) + CPU 4×, ponto AGAMENON_DERBY, máquina sem GPU. Critério (iii) passou (`@geomatico/maplibre-cog-protocol@0.10.0`, MIT). **Decisão efetiva: C3 (tiles pré-gerados)**, pelo plano de retorno; limites mantidos. COG 3857 = 459 MB (estimativa era 0,35 GB) em 21,8 s; relatório `docs/revisao/fase-3/F3-FRONT-01.md`.
 - Data: 2026-10-10
 - Decisores: Agente 5 (Engenheiro Geoespacial, autor) com Agentes 4 (Dados) e 1 (Backend), checkpoint Máximo (pendente), Lucas
 - Tarefa: F3-GEO-02
