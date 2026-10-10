@@ -102,7 +102,7 @@
 | F3-GEO-07 | 3 | Geo | Equilibrado | Validar a hidrologia (fill/D8/acumulação) do `terreno.py` contra uma ferramenta de referência (WhiteboxTools em container) e testes unitários; definir regra de snap documentada | em_andamento | | 2026-10-10 · subagente Sonnet · worktree, branch `test/hidrologia-terreno` |
 | F3-ARQ-02 | 3 | Arquiteto | Rápido | Redigir os pedidos institucionais (CHM/DHN F-41, IBGE RN/NMM, PE3D relatório) | concluido | ver commit "pedidos" | 2026-10-10 · Opus · `docs/pedidos/` (3 rascunhos + README); envio pelo Lucas |
 | F3-ARQ-01 | 3 | Arquiteto | Rápido | Handoff da Fase 3 | pendente | | |
-| F4-IA-01 | 4 | IA | Máximo | Formulação da tarefa, features e baselines (A.1–A.3) | pendente | | |
+| F4-IA-01 | 4 | IA | Máximo | Formulação da tarefa, features e baselines (A.1–A.3) | em_andamento | | 2026-10-10 · subagente Opus (Máximo) · `docs/MODELAGEM-IA.md` A.1–A.3 + baselines; adiantado porque não depende de dado carregado |
 | F4-IA-02 | 4 | IA | Equilibrado | Pipeline de treino e experimentos (A.4–A.5) | pendente | | |
 | F4-IA-03 | 4 | IA | Máximo | Interpretação, métricas, explicabilidade, limitações (A.6) | pendente | | |
 | F4-IA-04 | 4 | IA | Equilibrado | Contrato de produção e degradação (A.7) | pendente | | |
