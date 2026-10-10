@@ -48,4 +48,9 @@ public class SensorResponseDTO {
     private Double riverPreAlertLevel;
     private Double riverAlertLevel;
     private Double riverFloodLevel;
+
+    // Proveniência (ADR 0006, aditivo): run do pipeline que produziu o valor vigente e a revisão.
+    // Nulos enquanto os sensores vierem do legado sensor_data (ANA/APAC/Cemaden ainda não migrados).
+    private String provenanceId;
+    private Integer revision;
 }
