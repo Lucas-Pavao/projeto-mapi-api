@@ -111,6 +111,7 @@
 | F4-IA-06 | 4 | IA | Rápido | Tabela comparativa de algoritmos (xlsx) | pendente | | |
 | F4-IA-07 | 4 | IA | Rápido | Deck pptx da disciplina | pendente | | |
 | F4-FRONT-01 | 4 | Frontend | Equilibrado | Painel por ponto, legenda para Defesa Civil, estado UNKNOWN; screenshots antes/depois | pendente | | |
+| F4-FRONT-01a | 4 | Frontend | Equilibrado | Acessibilidade, responsividade (390 px e projeção), estados de erro/vazio, legenda para a Defesa Civil | em_andamento | | 2026-10-10 · subagente Sonnet · sobre o WIP do Lucas, patch separado; skill `frontend-design` indisponível na sessão (registrado); sem Playwright para screenshots |
 | F4-ARQ-01 | 4 | Arquiteto | Rápido | Handoff da Fase 4 | pendente | | |
 | F5-QA-01 | 5 | QA | Rápido | `docs/FONTES-E-LICENCAS.md` | concluido | ver commit "FONTES-E-LICENCAS" | 2026-10-10 · subagente Haiku · `docs/FONTES-E-LICENCAS.md` · termo localizado em 8/11 fontes; pendentes: PE3D, ANA (API), APAC, DHN/CHM (403), termo da API TabuaMare · restrições: Open-Meteo gratuito só não comercial; CARTO exige chave própria; Nominatim 1 req/s; CKAN pode conter endereços (LGPD) |
 | F5-QA-02 | 5 | QA | Rápido | Checklist de release e guia de contribuição; conferir origem de todo número | pendente | | |
