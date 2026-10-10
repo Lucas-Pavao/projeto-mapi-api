@@ -36,6 +36,7 @@
 | 2026-10-10 | Migração V8: colunas de auditoria em `flood_predictions` (`model_version`, `horizon_hours`, `degradation_reason`, `imputed_features` jsonb, `flood_point_id` + índice) | 0007 | Lucas |
 | 2026-10-10 | Migrações adiadas (compressão, aposentadoria das tabelas antigas) só recebem número quando criadas; o Flyway exige ordem crescente | 0006 | Arquiteto |
 | 2026-10-10 | ADR 0009 aprovado: só cotas relativas até fechar Δ; Δ só de fonte (A/B), nunca calibrado com eventos de avaliação | 0009 | Lucas |
+| 2026-10-10 | ADR 0008 aprovado: atributos de terreno no banco (V9) + COG 3857 servido pelo nginx; retorno para tiles se > 5 MB/visita ou > 3 s em 4G | 0008 | Lucas |
 
 ## Tarefas
 | ID | Fase | Agente | Nível | Tarefa | Status | PR/commit | Resultado em uma linha |
@@ -97,7 +98,7 @@
 | F3-GEO-04 | 3 | Geo | Equilibrado | Atributos por ponto e tabela `ponto_terreno` | concluido | idem | 2026-10-10 · cota (raio 3 m): Ibura 1,392 · CIn 7,679 · Derby 2,580 · Imbiribeira 2,068 m (ortométrica, não comparável à maré); declividade 3,1–6,3%; área contribuinte instável ao snap (Derby 0–13 396 m²) — Derby e Imbiribeira não representam a captação das galerias · Priority-Flood próprio sem validação → F3-GEO-07 |
 | F3-GEO-05 | 3 | Geo | Equilibrado | Comparar cota MDT × altitude Open-Meteo | concluido | idem | 2026-10-10 · `altitudeM` vem do `elevation` do Open-Meteo (MapiServiceImpl:187–193); MDT − Open-Meteo = −1,61 / −3,32 / −5,42 / −0,93 m (média −2,82, máx |5,42| em Derby); fallback grava 0,0 se o Open-Meteo falhar na criação do ponto |
 | F3-GEO-06 | 3 | Geo | Equilibrado | `docs/TERRENO-PE3D.md` | concluido | idem | 2026-10-10 · `docs/TERRENO-PE3D.md` (procedimento, cobertura, atributos, sensibilidade da área contribuinte, limitações) |
-| F3-BACK-01 | 3 | Backend | Equilibrado | Endpoint de terreno e colunas no CSV de treino | pendente | | |
+| F3-BACK-01 | 3 | Backend | Equilibrado | Endpoint de terreno e colunas no CSV de treino | em_andamento | | 2026-10-10 · subagente Sonnet · worktree, branch `feat/terreno-backend` a partir de `integracao/fase-2` (V9, carga do CSV, endpoint, export) |
 | F3-FRONT-01 | 3 | Frontend | Equilibrado | Camada de terreno no mapa (hipsometria, abaixo da cota de maré) | pendente | | |
 | F3-GEO-07 | 3 | Geo | Equilibrado | Validar a hidrologia (fill/D8/acumulação) do `terreno.py` contra uma ferramenta de referência (WhiteboxTools em container) e testes unitários; definir regra de snap documentada | em_andamento | | 2026-10-10 · subagente Sonnet · worktree, branch `test/hidrologia-terreno` |
 | F3-ARQ-02 | 3 | Arquiteto | Rápido | Redigir os pedidos institucionais (CHM/DHN F-41, IBGE RN/NMM, PE3D relatório) | concluido | ver commit "pedidos" | 2026-10-10 · Opus · `docs/pedidos/` (3 rascunhos + README); envio pelo Lucas |
@@ -157,7 +158,7 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | 21 | ~~Posso remover o volume antigo `projeto-mapi-api_postgres_data` (imagem antiga)? O conteúdo está no dump `eac26687…` e no volume novo, com contagens conferidas~~ **respondida 2026-10-10: sim — volume removido em 2026-10-10 após conferir os dumps** | 2026-10-10 | — |
 | 22 | ~~Aprova uma migração aditiva em `flood_predictions` (colunas `model_version`, `horizon_hours`, `degradation_reason`, `imputed_features` jsonb, `flood_point_id` + índice) para tirar a auditoria do JSON em `message` e consultar `lastValidIssuedAt` por ponto?~~ **respondida 2026-10-10: sim — migração V8** | 2026-10-10 | — |
 | 23 | ~~ADR 0009 (referência vertical): aprova a opção C agora (só cotas relativas; nada de "nível lá fora − cota da rua" com maré) + B em paralelo (fechar Δ por RN do IBGE/NMM/GNSS)? E você pode (ou autoriza eu redigir para você enviar) os pedidos: F-41 do Recife ao CHM/DHN, altitude da RN do marégrafo e NMM ao IBGE, relatório técnico do PE3D (datum/geoide)?~~ **respondida 2026-10-10: sim; pedidos redigidos pelo Arquiteto** | 2026-10-10 | — |
-| 24 | ADR 0008: aprova a migração V9 do terreno (tabelas `terrain_run`, `point_terrain`, `point_terrain_curve`; aditiva) e a camada visual por COG em EPSG:3857 servido pelo nginx do front (com plano de retorno para tiles pré-gerados se passar de 5 MB por visita ou 3 s em 4G)? | 2026-10-10 | F3-BACK-01 e F3-FRONT-01 não começam |
+| 24 | ~~ADR 0008: aprova a migração V9 do terreno (tabelas `terrain_run`, `point_terrain`, `point_terrain_curve`; aditiva) e a camada visual por COG em EPSG:3857 servido pelo nginx do front (com plano de retorno para tiles pré-gerados se passar de 5 MB por visita ou 3 s em 4G)?~~ **respondida 2026-10-10: sim** | 2026-10-10 | — |
 
 ## Medidas antes e depois
 | Métrica | Antes | Depois | Quando | Onde foi medida |

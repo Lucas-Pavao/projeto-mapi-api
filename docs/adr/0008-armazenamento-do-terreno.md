@@ -1,6 +1,6 @@
 # 0008 — Armazenamento do terreno do PE3D
 
-- Status: proposto até o autor aprovar a migração do terreno (pergunta 24). Checkpoint Máximo: v1 reprovada; **v2 aprovada** em 2026-10-10 com 2 ressalvas aplicadas pelo Arquiteto (limites numéricos do critério 4 fixados antes de medir; resampling por vizinho mais próximo).
+- Status: **aprovado** (2026-10-10, Lucas, pergunta 24): migração V9 do terreno e camada COG em EPSG:3857. Checkpoint Máximo: v1 reprovada; v2 aprovada com 2 ressalvas aplicadas (limites do critério 4 fixados antes de medir; vizinho mais próximo).
 - Data: 2026-10-10
 - Decisores: Agente 5 (Engenheiro Geoespacial, autor) com Agentes 4 (Dados) e 1 (Backend), checkpoint Máximo (pendente), Lucas
 - Tarefa: F3-GEO-02
