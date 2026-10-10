@@ -219,6 +219,58 @@ def priority_flood(dem, nd):
     return np.array(filll).reshape(H, W), par, ordem
 
 
+DIRS = [(0, 1, 1.0), (0, -1, 1.0), (1, 0, 1.0), (-1, 0, 1.0),
+        (1, 1, math.sqrt(2)), (1, -1, math.sqrt(2)), (-1, 1, math.sqrt(2)), (-1, -1, math.sqrt(2))]
+
+
+def direcao_d8(fill, par_arvore, nd):
+    """D8 de máxima declividade sobre o DEM preenchido (declividade = queda / distância, diagonal = raiz de 2).
+    Empate de declividade: vence a primeira direção de DIRS (L, O, S, N, depois diagonais).
+    Células sem vizinho estritamente mais baixo (planos) seguem a árvore do Priority-Flood; células vizinhas de nodata
+    (inclui a borda da janela) são saídas (-1). Retorna par (int64; -1 saída, -2 nodata); sem ciclos: cada passo
+    ou reduz a cota do fill ou, num plano, sobe na árvore de descoberta."""
+    H, W = fill.shape
+    valid = fill != nd
+    best = np.full(fill.shape, 0.0); alvo = np.full(fill.shape, -1, dtype=np.int64)
+    idx = np.arange(fill.size, dtype=np.int64).reshape(fill.shape)
+    todos_validos = valid.copy()
+    for dy, dx, dist in DIRS:
+        nb = np.roll(fill, (-dy, -dx), (0, 1)); vn = np.roll(valid, (-dy, -dx), (0, 1))
+        todos_validos &= vn
+        sl = np.where(valid & vn, (fill - nb) / dist, 0.0)
+        melhor = sl > best
+        best = np.where(melhor, sl, best)
+        alvo = np.where(melhor, idx + dy * W + dx, alvo)
+    pa = np.asarray(par_arvore, dtype=np.int64).reshape(fill.shape)
+    par = np.where(alvo >= 0, alvo, pa)
+    par = np.where(valid & ~todos_validos, -1, par)       # vizinha de nodata/borda = saída
+    return np.where(valid, par, -2).ravel()
+
+
+def ordem_topologica(par):
+    """Índices em ordem pais-antes-dos-filhos (largura a partir das saídas). par: -1 saída, -2 nodata."""
+    par = np.asarray(par)
+    filhos = np.flatnonzero(par >= 0)
+    srt = filhos[np.argsort(par[filhos], kind="stable")]
+    chave = par[srt]
+    ini = np.searchsorted(chave, np.arange(par.size + 1))
+    srt = srt.tolist(); ini = ini.tolist()
+    ordem = np.flatnonzero(par == -1).tolist()
+    k = 0
+    while k < len(ordem):
+        i = ordem[k]; k += 1
+        ordem.extend(srt[ini[i]:ini[i + 1]])
+    return ordem
+
+
+def hidrologia_d8(arr, nd=ND):
+    """Pipeline próprio: Priority-Flood (fill) -> D8 de máxima declividade -> acumulação. Retorna (fill, par, ordem, acc 1D)."""
+    fill, par_arvore, _ = priority_flood(arr, nd)
+    par = direcao_d8(fill, par_arvore, nd)
+    ordem = ordem_topologica(par)
+    return fill, par.tolist(), ordem, acumulacao(par.tolist(), ordem, arr.size)
+
+
 def acumulacao(par, ordem, N):
     acc = [1] * N
     for i in reversed(ordem):
@@ -283,6 +335,18 @@ def declividade_pct(win_arr, gt_win, srs_wkt):
     return np.where(a == nd_out, np.nan, a)
 
 
+def le_janela(b, gt, p, Wm, Hm):
+    """Janela de hidrologia (2 km) centrada no ponto, com anel extra de 1 px de nodata (fora do mosaico = nodata).
+    Retorna (n, xo, yo, arr (n+2 x n+2, float64), gtw geotransform da janela com anel)."""
+    n = int(PARAMS["janela_hidrologia_m"] / gt[1])
+    xo, yo, _ = janela_alinhada(gt, p["x"], p["y"], PARAMS["janela_hidrologia_m"], Wm, Hm)
+    arr = np.full((n + 2, n + 2), ND, dtype=np.float64)
+    cx0, cy0 = max(xo, 0), max(yo, 0); cx1, cy1 = min(xo + n, Wm), min(yo + n, Hm)
+    arr[1 + cy0 - yo:1 + cy1 - yo, 1 + cx0 - xo:1 + cx1 - xo] = b.ReadAsArray(cx0, cy0, cx1 - cx0, cy1 - cy0)
+    gtw = (gt[0] + (xo - 1) * gt[1], gt[1], 0, gt[3] + (yo - 1) * gt[5], 0, gt[5])  # inclui anel
+    return n, xo, yo, arr, gtw
+
+
 def cmd_atributos():
     ds, gt = vrt_info(); b = ds.GetRasterBand(1)
     Wm, Hm = ds.RasterXSize, ds.RasterYSize
@@ -293,13 +357,7 @@ def cmd_atributos():
         c = cob[p["slug"]]
         if c["pixel_valido"] != "True":
             rows.append(dict(slug=p["slug"], observacao="fora do mosaico ou pixel nodata")); continue
-        n = int(PARAMS["janela_hidrologia_m"] / gt[1])
-        xo, yo, _ = janela_alinhada(gt, p["x"], p["y"], PARAMS["janela_hidrologia_m"], Wm, Hm)
-        # lê com clamp e preenche fora do mosaico com nodata; anel extra de 1 px de nodata
-        arr = np.full((n + 2, n + 2), ND, dtype=np.float64)
-        cx0, cy0 = max(xo, 0), max(yo, 0); cx1, cy1 = min(xo + n, Wm), min(yo + n, Hm)
-        arr[1 + cy0 - yo:1 + cy1 - yo, 1 + cx0 - xo:1 + cx1 - xo] = b.ReadAsArray(cx0, cy0, cx1 - cx0, cy1 - cy0)
-        gtw = (gt[0] + (xo - 1) * gt[1], gt[1], 0, gt[3] + (yo - 1) * gt[5], 0, gt[5])  # inclui anel
+        n, xo, yo, arr, gtw = le_janela(b, gt, p, Wm, Hm)
         X = gtw[0] + (np.arange(n + 2) + 0.5) * gtw[1]; Y = gtw[3] + (np.arange(n + 2) + 0.5) * gtw[5]
         XX, YY = np.meshgrid(X, Y)
         dist = np.hypot(XX - p["x"], YY - p["y"])
@@ -400,6 +458,106 @@ def cmd_atributos():
     json.dump(meta, open(f"{OUT}/ponto_terreno.meta.json", "w"), indent=2, ensure_ascii=False)
 
 
+# ---------------------------------------------------------------- janelas p/ validação
+def cmd_janelas():
+    """Grava a janela de hidrologia (2 km + anel de 1 px nodata) de cada ponto coberto em
+    validacao/janela_<slug>.tif (Float32, EPSG:31985), a entrada idêntica à do Priority-Flood para o WhiteboxTools."""
+    os.makedirs(f"{OUT}/validacao", exist_ok=True)
+    ds, gt = vrt_info(); b = ds.GetRasterBand(1); Wm, Hm = ds.RasterXSize, ds.RasterYSize
+    cob = {r["slug"]: r for r in csv.DictReader(open(f"{OUT}/cobertura.csv", encoding="utf-8"))}
+    for p in le_pontos():
+        if cob[p["slug"]]["pixel_valido"] != "True": continue
+        n, xo, yo, arr, gtw = le_janela(b, gt, p, Wm, Hm)
+        gtn = (gtw[0] + gtw[1], gtw[1], 0, gtw[3] + gtw[5], 0, gtw[5])      # sem o anel: a borda da grade é a saída, como no Priority-Flood
+        o = gdal.GetDriverByName("GTiff").Create(f"{OUT}/validacao/janela_{p['slug']}.tif", n, n, 1, gdal.GDT_Float32,
+                                                 ["COMPRESS=DEFLATE"])
+        o.SetGeoTransform(gtn); o.SetProjection(srs31985().ExportToWkt())
+        bb = o.GetRasterBand(1); bb.SetNoDataValue(ND); bb.WriteArray(arr[1:-1, 1:-1].astype(np.float32)); o.FlushCache(); o = None
+        print("janela", p["slug"], n, flush=True)
+
+
+# ---------------------------------------------------------------- validação x WhiteboxTools
+def hidro_arvore(arr):
+    """Método legado: acumulação sobre a árvore de descoberta do Priority-Flood. Retorna (fill, acc 2D)."""
+    fill, par, ordem = priority_flood(arr, ND)
+    return fill, np.array(acumulacao(par, ordem, arr.size)).reshape(arr.shape)
+
+
+METODOS = {"arvore_pf": hidro_arvore}
+
+
+def maximo_no_raio(acc, valido, dist, raio, pl, pc):
+    """Pixel de maior acumulação a <= raio do ponto (raio 0 = só o pixel que contém o ponto). Desempate: menor
+    distância ao ponto e depois menor (linha, coluna), para ser determinístico. Retorna (acc, linha, coluna)."""
+    if raio <= 0:
+        return int(acc[pl, pc]), pl, pc
+    m = (dist <= raio) & valido
+    a = np.where(m, acc, -1)
+    mx = a.max()
+    cand = np.argwhere(a == mx)
+    k = min(range(len(cand)), key=lambda q: (dist[cand[q][0], cand[q][1]], cand[q][0], cand[q][1]))
+    return int(mx), int(cand[k][0]), int(cand[k][1])
+
+
+def cmd_validar():
+    """Compara a hidrologia própria com a do WhiteboxTools (FillDepressions --fix_flats, D8Pointer, D8FlowAccumulation)
+    nas janelas de 2 km de validacao/. Saídas: validacao_whitebox.csv e validacao_whitebox.json."""
+    ds, gt = vrt_info()
+    cob = {r["slug"]: r for r in csv.DictReader(open(f"{OUT}/cobertura.csv", encoding="utf-8"))}
+    rows = []
+    for p in le_pontos():
+        c = cob[p["slug"]]
+        if c["pixel_valido"] != "True": continue
+        s = p["slug"]
+        def le(nome):
+            o = gdal.Open(f"{OUT}/validacao/{nome}_{s}.tif"); return o.GetRasterBand(1).ReadAsArray().astype(np.float64), o.GetGeoTransform()
+        arr, gtn = le("janela"); wfill, _ = le("wbt_fill"); wacc, _ = le("wbt_acc")
+        arr = np.pad(arr, 1, constant_values=ND); wfill = np.pad(wfill, 1, constant_values=ND); wacc = np.pad(wacc, 1, constant_values=0)
+        gtw = (gtn[0] - gtn[1], gtn[1], 0, gtn[3] - gtn[5], 0, gtn[5])
+        valido = arr != ND
+        wfill = np.where(valido, wfill, ND); wacc = np.where(valido, wacc, 0)
+        n = arr.shape[0] - 2
+        xo = int(round((gtw[0] - gt[0]) / gt[1])) + 1; yo = int(round((gtw[3] - gt[3]) / gt[5])) + 1
+        pl = int(c["lin"]) - yo + 1; pc = int(c["col"]) - xo + 1
+        X = gtw[0] + (np.arange(n + 2) + 0.5) * gtw[1]; Y = gtw[3] + (np.arange(n + 2) + 0.5) * gtw[5]
+        XX, YY = np.meshgrid(X, Y); dist = np.hypot(XX - p["x"], YY - p["y"])
+        for nome, fn in METODOS.items():
+            fill, acc = fn(arr)
+            r = dict(slug=s, metodo=nome)
+            r["prof_depressao_propria_m"] = round(float(fill[pl, pc] - arr[pl, pc]), 4)
+            r["prof_depressao_whitebox_m"] = round(float(wfill[pl, pc] - arr[pl, pc]), 4)
+            dif = np.abs(np.where(valido, fill - wfill, 0))
+            r["fill_dif_max_m"] = round(float(dif.max()), 4)
+            r["fill_celulas_dif_gt_1cm"] = int((dif > 0.01).sum())
+            r["celulas_preenchidas_proprio"] = int(((fill - arr > 0.001) & valido).sum())
+            r["celulas_preenchidas_whitebox"] = int(((wfill - arr > 0.001) & valido).sum())
+            la = np.log10(np.maximum(acc[valido], 1)); lw = np.log10(np.maximum(wacc[valido], 1))
+            r["log10_acc_correlacao_janela"] = round(float(np.corrcoef(la, lw)[0, 1]), 5)
+            r["celulas_acc_ge_1000_proprio"] = int((acc[valido] >= 1000).sum())
+            r["celulas_acc_ge_1000_whitebox"] = int((wacc[valido] >= 1000).sum())
+            for rs in PARAMS["raios_snap_sensibilidade_m"]:
+                a1, l1, c1 = maximo_no_raio(acc, valido, dist, rs, pl, pc)
+                a2, l2, c2 = maximo_no_raio(wacc, valido, dist, rs, pl, pc)
+                r[f"acc_snap{rs}m_proprio"] = a1; r[f"acc_snap{rs}m_whitebox"] = a2
+                r[f"acc_snap{rs}m_dif_abs"] = a1 - a2
+                r[f"acc_snap{rs}m_dif_rel_pct"] = round(100 * (a1 - a2) / max(a2, 1), 2)
+                r[f"acc_snap{rs}m_mesmo_pixel"] = (l1, c1) == (l2, c2)
+                r[f"acc_snap{rs}m_dist_pixels_m"] = round(float(math.hypot(l1 - l2, c1 - c2)), 1)
+            rows.append(r)
+            print({k: r[k] for k in ("slug", "metodo", "prof_depressao_propria_m", "prof_depressao_whitebox_m", "fill_dif_max_m",
+                                     "log10_acc_correlacao_janela", "acc_snap10m_proprio", "acc_snap10m_whitebox")}, flush=True)
+    cols = []
+    for r in rows:
+        for k in r:
+            if k not in cols: cols.append(k)
+    write_csv(f"{OUT}/validacao_whitebox.csv", rows, cols)
+    wbt_v = open(f"{OUT}/whitebox/versao.txt").read().strip() if os.path.exists(f"{OUT}/whitebox/versao.txt") else ""
+    wbt_h = open(f"{OUT}/whitebox/binario.sha256").read().split()[0] if os.path.exists(f"{OUT}/whitebox/binario.sha256") else ""
+    json.dump(dict(whitebox=wbt_v, sha256_binario_whitebox=wbt_h, ferramentas="FillDepressions --fix_flats; D8Pointer; D8FlowAccumulation --pntr --out_type=cells",
+                   raios_snap_m=PARAMS["raios_snap_sensibilidade_m"], linhas=rows),
+              open(f"{OUT}/validacao_whitebox.json", "w"), indent=1, ensure_ascii=False)
+
+
 # ---------------------------------------------------------------- comparação
 def cmd_comparar():
     alt = {r["slug"]: r for r in csv.DictReader(open(f"{OUT}/altitude_open_meteo.csv", encoding="utf-8"))}
@@ -466,4 +624,4 @@ def cmd_estimativas():
 
 if __name__ == "__main__":
     {"inventario": cmd_inventario, "cobertura": cmd_cobertura, "atributos": cmd_atributos,
-     "comparar": cmd_comparar, "estimativas": cmd_estimativas}[sys.argv[1]]()
+     "comparar": cmd_comparar, "janelas": cmd_janelas, "validar": cmd_validar, "estimativas": cmd_estimativas}[sys.argv[1]]()
