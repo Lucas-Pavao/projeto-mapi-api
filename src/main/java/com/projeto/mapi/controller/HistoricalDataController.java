@@ -96,12 +96,5 @@ public class HistoricalDataController {
         int targetYear = year != null ? year : java.time.Year.now().getValue();
         return ResponseEntity.ok(tideTableSyncService.syncYear(targetYear));
     }
-
-    @DeleteMapping("/wipe-database")
-    @Operation(summary = "LIMPA TODO O BANCO DE DADOS (Clima, Sensores e Eventos)")
-    public ResponseEntity<Void> wipeDatabase() {
-        historicalDataService.wipeDatabase();
-        return ResponseEntity.noContent().build();
-    }
 }
 
