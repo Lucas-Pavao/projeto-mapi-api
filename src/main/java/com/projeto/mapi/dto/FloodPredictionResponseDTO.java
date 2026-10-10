@@ -1,23 +1,50 @@
 package com.projeto.mapi.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-// Contrato de SAÍDA pro nosso front (camelCase, igual ao resto da API) — não confundir com o
-// shape bruto que a MAPI AI devolve (snake_case, ver FloodPredictionServiceImpl.AiPredictionDTO).
-// Antes esta mesma classe tinha @JsonProperty forçando flood_probability/risk_level/
-// estimated_time_to_event, vazando o formato da IA direto pro front (que já tinha até um shim de
-// normalização em flood.service.ts pra compensar isso).
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class FloodPredictionResponseDTO {
-    private Double floodProbability;
-    private String riskLevel; // "LOW", "MEDIUM", "HIGH", "EXTREME"
-    private String estimatedTimeToEvent;
-    private String message;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+
+/**
+ * Contrato de SAÍDA para o front (camelCase), ADR 0007 §5. Não confundir com o shape bruto da MAPI AI
+ * (snake_case, ver FloodPredictionServiceImpl.AiPredictionDTO).
+ *
+ * <p>As regras de coerência (§2) são conferidas por {@code PredictionCoherence}. Todo instante é UTC e
+ * serializa em ISO-8601 com "Z"; é truncado em segundos para a resposta ficar estável.
+ */
+@Builder(toBuilder = true)
+public record FloodPredictionResponseDTO(
+        RiskLevel riskLevel,
+        Double floodProbability,
+        String modelVersion,
+        Instant issuedAt,
+        Integer horizonHours,
+        Instant validUntil,
+        DegradationReason degradationReason,
+        Instant lastValidIssuedAt,
+        List<Contributor> contributors,
+        List<ImputedFeature> imputedFeatures,
+        @Deprecated String estimatedTimeToEvent,
+        String message) {
+
+    public FloodPredictionResponseDTO {
+        issuedAt = truncate(issuedAt);
+        validUntil = truncate(validUntil);
+        lastValidIssuedAt = truncate(lastValidIssuedAt);
+        contributors = contributors == null ? List.of() : List.copyOf(contributors);
+        imputedFeatures = imputedFeatures == null ? List.of() : List.copyOf(imputedFeatures);
+    }
+
+    private static Instant truncate(Instant i) {
+        return i == null ? null : i.truncatedTo(ChronoUnit.SECONDS);
+    }
+
+    /** Fator que mais pesou na previsão; {@code label} vem do catálogo fixo em português. */
+    public record Contributor(String featureId, String label, Double contribution) {
+    }
+
+    /** Variável que o backend (ou a IA) preencheu por imputação, em vez de medir. */
+    public record ImputedFeature(String featureId, String label) {
+    }
 }
-
