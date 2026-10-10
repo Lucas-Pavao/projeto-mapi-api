@@ -132,6 +132,7 @@ def test_nodata_interno_e_saida():
 
 def test_d8_ponderacao_diagonal_e_direcao_de_maxima_declividade():
     dem = np.full((5, 5), 20.0)
+    dem[:, 4] = 1.0     # coluna leste baixa: saída
     dem[2, 2] = 10.0
     dem[2, 3] = 9.0     # leste: queda 1,0 / 1 = 1,0
     dem[3, 3] = 8.7     # sudeste: queda 1,3 / 1,414 = 0,92 -> perde para leste
