@@ -1,6 +1,6 @@
 # 0007 — Contrato de predição entre IA, backend e front
 
-- Status: proposto, v2. Os três pontos da decisão de 2026-10-10 já estão aprovados pelo Lucas (enum fechado, probabilidade `null` em falha, `modelVersion`); os itens marcados **[aprovar]** ainda não.
+- Status: **aprovado** (2026-10-10). Pontos 1–3 aprovados primeiro e os itens antes marcados [aprovar] aprovados pelo Lucas na pergunta 13.
 - Data: 2026-10-10
 - Decisores: Arquiteto (autor), checkpoint Máximo, Lucas
 - Tarefa: F2-ARQ-02 · matriz item 7

@@ -55,4 +55,10 @@ Lucas contra a formulação do modelo estocástico em 2026-10-10.
 | Horizonte (H) | Janela futura da previsão `[t, t+H]`; propostos 3 h e 6 h. |
 | Rótulo | Ocorrência de alagamento do CKAN Recife (filtrada por tipo Cobrade) casada com ponto e hora. |
 | Proveniência | Metadados de origem de cada valor: fonte, identificador da estação, quando foi coletado, versão/correção da agência, raio de vínculo sensor↔ponto. |
+| Staging bruto (`raw_observation`) | Cópia append-only do que a fonte devolveu, com hash do payload e fuso de origem declarado. Nunca é editada (ADR 0006). |
+| Quarentena | Registro reprovado na validação (faixa, unidade, fuso não verificado), guardado com a regra e o motivo; não entra no dataset (ADR 0006). |
+| Série consolidada (`observation`) | Valor validado, em UTC, com chave única natural; correções da agência viram nova revisão (ADR 0006). |
+| Execução de ingestão (`ingestion_run`) | Uma carga ou reprocessamento: fonte, intervalo, parâmetros, versão do código, contagens. |
+| `provenanceId` | Identificador da execução de ingestão que produziu um valor; exposto nas respostas de dado (proposto no ADR 0006). |
+| Grade horária | Resolução canônica do dataset. Cada hora é rotulada pelo **fim** do intervalo: o valor das 13:00 cobre (12:00, 13:00] (ADR 0006). |
 | Fuso | Persistência em UTC; exibição em America/Recife (UTC−3) — ADR 0001. O histórico atual ainda está em hora local sem fuso até a migração da Fase 2. |
