@@ -161,6 +161,7 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         List<TideFeatureCalculator.Extreme> tideExtremes = observationRead
                 .tideExtremes(tideFrom.minusSeconds(2 * 86400L), tideTo.plusSeconds(3 * 86400L)).stream()
                 .map(e -> new TideFeatureCalculator.Extreme(e.tsUtc(), e.level(), e.qualifier())).toList();
+        var tideIndex = TideFeatureCalculator.index(tideExtremes); // índice uma vez por chamada (F2-BACK-22)
 
         var linkage = labelLinkage();
         List<Occ> occs = linkage.map(l -> occurrencesOf(point, l)).orElse(List.of());
@@ -170,7 +171,7 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
             UnifiedDataDTO.UnifiedDataDTOBuilder builder = entry.getValue();
 
             // Maré prevista (altura em t, t+1..t+6, máximo, preamar seguinte, amplitude do dia, derivada)
-            var tf = TideFeatureCalculator.at(ts.toInstant(java.time.ZoneOffset.UTC), tideHourly, tideExtremes);
+            var tf = TideFeatureCalculator.at(ts.toInstant(java.time.ZoneOffset.UTC), tideHourly, tideIndex);
             builder.tideHeight(tf.height()).tideHeightAhead(tf.ahead()).tideMaxNext6h(tf.maxNext6h())
                     .tideHoursToNextHigh(tf.hoursToNextHigh()).tideRangeDayM(tf.rangeDayM())
                     .tideRising(tf.rising()).tideSlopeMh(tf.slopeMh());
@@ -411,7 +412,7 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
 
     static final String TIDE_NOTE = "Altura da tábua referida ao NR da DHN; NÃO convertida ao datum do MDT (ADR 0009). "
             + "A maré prevista em t+1..t+6 é exceção declarada de 'futuro' (tábua publicada antes; MODELAGEM-IA A.2.2). "
-            + "tide_rising = 1 se a derivada central (h(t+1)-h(t-1))/2 > 0, 0 se < 0, vazio se nula ou ausente; "
+            + "tide_rising = 1 se a derivada central (h(t+1)-h(t-1))/2 > 0, 0 se < 0; se nula (hora de preamar/baixa-mar), desempata pelo passo h(t+1)-h(t) (>0 = 1, <0 = 0); vazio (com tide_rising_missing = 1) só se o insumo faltar ou o passo também for nulo; "
             + "tide_range_day_m = máximo - mínimo dos extremos do dia civil America/Recife de t (proxy de sizígia/quadratura).";
 
     /** Política de ausência declarada no manifesto (ADR 0006: lacuna = NULL, nunca constante). */
