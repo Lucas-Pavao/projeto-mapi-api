@@ -88,6 +88,21 @@ decide a escolha.**
 Leitura do cagg: `SELECT … FROM weather_hourly` (1 ponto, 5 anos, 43 824 linhas) = 29,7 ms (sem compressão
 do cagg).
 
+### Assimetria de configuração e rerrodada do MySQL
+
+A comparação acima tem viés: o PG usou `shared_buffers` 5932 MB e o MySQL o `innodb_buffer_pool_size` padrão
+(128 MB), menor que os 470 MB de dados. Rerrodada com `--innodb-buffer-pool-size=2G` (2304 MB confirmados por
+`@@innodb_buffer_pool_size`), mesma tabela e consultas, 3 execuções (tempo final do nó raiz, ms):
+
+| Cenário | MySQL particionado, 2 GB | MySQL comprimido, 2 GB |
+|---|---|---|
+| 30 dias | 1,38–1,68 | 1,23–1,24 |
+| 5 anos | 82,6–90,4 | 82,0–84,3 |
+
+Com buffer pool equiparável, 1 ponto × 5 anos fica em ~83 ms contra 50–59 ms do Timescale (≈1,4–1,7×): não é
+argumento contra o MySQL. Tamanhos em disco não mudam. Tempo de pull da `timescaledb-ha` (4,38 GB): não medido,
+camadas em cache local `[sem fonte]`.
+
 ## 5. Agregação horária contínua
 
 | Operação | Tempo | Origem |
