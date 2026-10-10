@@ -66,7 +66,7 @@ projeto-mapi-api/
 ├── Dockerfile                   # Build multi-stage otimizado para Java 21
 ├── GEMINI.md                    # Dicionário de convenções e regras de ouro
 ├── pom.xml                      # Gestão de dependências Maven
-├── TimescaleSetup.sql           # Script crítico de inicialização de Hipertabelas
+├── TimescaleSetup.sql           # Referência histórica; o schema é gerido pelo Flyway (ADR 0003)
 ├── observability/               # Stack de monitoramento (Prometheus + Grafana)
 │   ├── prometheus/prometheus.yml        # Scrape config (alvo: mapi-api:9404/actuator/prometheus)
 │   └── grafana/
@@ -102,7 +102,7 @@ projeto-mapi-api/
 ## 🐳 Infraestrutura e Docker: Pontos Críticos de Orquestração
 
 1. **Build Multi-Stage:** O `Dockerfile` isola o ambiente de compilação (Maven) do runtime (JRE 21), garantindo imagens leves e seguras.
-2. **Sincronia do TimescaleDB:** O script `TimescaleSetup.sql` inicializa as **Hypertables** necessárias para a performance de séries temporais.
+2. **Schema via Flyway:** ao subir, a API aplica as migrations de `src/main/resources/db/migration/`, que criam as **Hypertables** do TimescaleDB (ADR 0003).
 3. **Healthchecks de Rede:** A API aguarda a prontidão do banco de dados (`pg_isready`) antes de iniciar o contexto do Spring.
 
 ## 🚀 Como instalar e rodar (Guia Passo a Passo)
@@ -214,7 +214,7 @@ Para aumentar a robustez do orquestrador do ecossistema, as seguintes soluções
 ### ⚠️ Solução de Problemas Comuns
 1. **"Porta 8080 já está em uso":** Outro programa está usando a porta. Feche-o ou altere a porta no `docker-compose.yml`.
 2. **Erro ao compilar Java:** Certifique-se de que o código compila localmente antes de rodar no Docker.
-3. **Banco de Dados Vazio:** O script `TimescaleSetup.sql` roda apenas na primeira criação. Use `docker compose down -v` para forçar a recriação se necessário.
+3. **Banco de Dados Vazio:** as migrations Flyway rodam a cada subida da API e só aplicam o que falta. Para recriar do zero, `docker compose down -v` (apaga todos os dados).
 
 ## 📄 Licença
 Este projeto está sob a licença **MIT**.

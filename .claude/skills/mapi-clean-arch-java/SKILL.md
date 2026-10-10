@@ -29,13 +29,11 @@ com.projeto.mapi/
 Regra de dependência que vale **hoje**: `controller → service (interface) → repository/clients`.
 Controllers não acessam repositório nem entidade JPA. Entidade nunca sai na resposta HTTP.
 
-### Alvo proposto (ainda NÃO aprovado — depende de ADR)
+### Decisão (ADR 0002)
 
-O prompt da revisão pede "domínio sem anotação de framework". Isso conflita com o
-`agents.md` atual, em que `model/` **é** a entidade JPA. Até existir ADR aprovado:
-- não mova entidades nem crie pacote `domain/` por conta própria;
-- código novo pode já separar modelo de domínio quando o ganho for claro e local
-  (ex.: cálculo de risco puro, sem JPA), mantendo a entidade JPA em `model/`.
+As camadas acima **são o alvo**: não migrar para ports-and-adapters nem criar pacote `domain/`.
+A regra de dependência é congelada com ArchUnit. Lógica pura nova (ex.: cálculo físico do
+balde) pode nascer sem anotação de framework quando for natural.
 
 ## 2. Divergências conhecidas entre convenção e código (inventário de 2026-10-10)
 
@@ -43,9 +41,9 @@ O prompt da revisão pede "domínio sem anotação de framework". Isso conflita 
 |---|---|---|
 | DTO como `record` (agents.md §5) | 25 de 36 arquivos em `dto/` não são record | não reescreva em massa; converta só o que tocar |
 | MapStruct (agents.md §6) | sem dependência MapStruct; `TideMapper` manual | ADR antes de adicionar MapStruct |
-| Converter para UTC-3 **antes de persistir** (agents.md §3.1) | `hibernate.jdbc.time_zone: UTC`; GEMINI.md diz armazenar em UTC | conflito aberto, ver ADR de fuso; não mude persistência |
-| Schema em `TimescaleSetup.sql` (agents.md §2.4) | Flyway `db/migration/V1__baseline_schema.sql` também cria hypertables | duas fontes; mudança de schema = migração Flyway nova + atualizar o .sql, com aprovação |
-| Testes de integração com H2 (GEMINI.md) | H2 não executa TimescaleDB/PostGIS | Testcontainers proposto; ADR |
+| UTC na persistência (ADR 0001) | colunas `TIMESTAMP WITHOUT TIME ZONE`, 0 usos de `ZoneId`, 24 `LocalDateTime.now()`, Open-Meteo com `timezone=auto` (hora local) | código novo: `Instant` + fuso de origem declarado; migração do histórico na Fase 2, com aprovação |
+| Schema só via Flyway (ADR 0003) | `TimescaleSetup.sql` já marcado como SUPERADO | mudança de schema = nova `V<n>__*.sql`, com aprovação; não editar o .sql |
+| Testcontainers (ADR 0004) | testes ainda em H2 com Flyway desligado | teste novo de repositório/ingestão usa Testcontainers |
 
 ## 3. Regras de implementação
 
@@ -67,7 +65,7 @@ O prompt da revisão pede "domínio sem anotação de framework". Isso conflita 
 
 ## 4. Teste de arquitetura (ArchUnit) — a adicionar
 
-Quando o ADR aprovar, congele a regra atual com algo como:
+Regra aprovada no ADR 0002. Congele-a com algo como:
 
 ```java
 @AnalyzeClasses(packages = "com.projeto.mapi")
@@ -86,7 +84,7 @@ Rode antes de introduzir a regra e registre quantas violações já existem (med
 ## 5. Prompt-gate antes de entregar
 
 1. DTO novo é record com validação? Endpoint tem @Operation/@ApiResponse?
-2. Data/hora externa tem fuso declarado e convertido conforme o ADR vigente?
+2. Data/hora externa tem fuso de origem declarado e foi convertida para UTC (ADR 0001)?
 3. Falha de agência tratada com exceção própria + Resilience4j?
 4. Query compatível com índice da hypertable (filtro por `timestamp`)?
 5. Mudança de schema? Então parou e pediu aprovação.

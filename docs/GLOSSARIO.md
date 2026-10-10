@@ -6,8 +6,8 @@ código, documento ou slide. Coluna "Campo" é o nome proposto em código (ingl�
 conforme a preferência registrada para DTOs); se ainda não existe no código, aparece como
 *(proposto)*.
 
-Status: **v0, 2026-10-10 (F0-ARQ-02)**. Definições marcadas com ⚠ precisam de confirmação do
-Lucas contra a formulação do modelo estocástico.
+Status: **v1, 2026-10-10**. Definições de ficha, soleira, lâmina e nível lá fora confirmadas pelo
+Lucas contra a formulação do modelo estocástico em 2026-10-10.
 
 ## Hidrologia urbana e modelo físico
 
@@ -15,9 +15,9 @@ Lucas contra a formulação do modelo estocástico.
 |---|---|---|---|
 | Ponto crítico | Local monitorado com histórico ou risco de alagamento; entidade `FloodPoint` no backend. Referências: Derby (dominado por maré) e Imbiribeira (plano, escoamento lento). | — | `floodPoint` |
 | Lâmina | Altura da água acumulada sobre a superfície da rua no ponto crítico. | cm (exibição); mm no modelo estocástico | `waterDepth` *(proposto)* |
-| Ficha | Unidade discreta da rede de Petri: 1 ficha = 5 mm de lâmina/volume equivalente. ⚠ | 5 mm | — |
+| Ficha | Unidade discreta da rede de Petri: 1 ficha = 5 mm de lâmina/volume equivalente. | 5 mm | — |
 | Cota da rua | Elevação do terreno no ponto crítico, amostrada do MDT do PE3D. Ortométrica (não é referida ao NR da DHN). | m | `streetElevation` *(proposto)* |
-| Soleira | Cota da saída (exutório) da galeria no canal ou rio. Nível externo acima da soleira bloqueia, total ou parcialmente, o escoamento. ⚠ | m | `outletSillElevation` *(proposto)* |
+| Soleira | Cota da saída (exutório) da galeria no canal ou rio. Nível externo acima da soleira bloqueia, total ou parcialmente, o escoamento. | m | `outletSillElevation` *(proposto)* |
 | Nível lá fora | Nível da água no corpo receptor da galeria: `máx(nível do rio, maré prevista + resíduo)`. Precisa estar na mesma referência vertical da soleira para ser comparado. | m | `outsideLevel` *(proposto)* |
 | Folga até a soleira | `soleira − nível lá fora`. Negativa = galeria afogada. | m | *(proposto)* |
 | Refluxo | Entrada de água do corpo receptor pela galeria em direção à rua, quando o nível lá fora supera a cota da rua. | — | — |
@@ -55,4 +55,4 @@ Lucas contra a formulação do modelo estocástico.
 | Horizonte (H) | Janela futura da previsão `[t, t+H]`; propostos 3 h e 6 h. |
 | Rótulo | Ocorrência de alagamento do CKAN Recife (filtrada por tipo Cobrade) casada com ponto e hora. |
 | Proveniência | Metadados de origem de cada valor: fonte, identificador da estação, quando foi coletado, versão/correção da agência, raio de vínculo sensor↔ponto. |
-| Fuso | Persistência em UTC (`hibernate.jdbc.time_zone: UTC`); exibição em America/Recife (UTC−3). Conflito documental aberto — ver PROGRESSO.md, pergunta 1. |
+| Fuso | Persistência em UTC; exibição em America/Recife (UTC−3) — ADR 0001. O histórico atual ainda está em hora local sem fuso até a migração da Fase 2. |

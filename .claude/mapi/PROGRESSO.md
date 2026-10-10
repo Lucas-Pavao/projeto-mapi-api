@@ -1,6 +1,6 @@
 # Progresso da revisão multiagente do MAPi
 
-Última execução: 2026-10-10 · Fase atual: 1 (Fase 0 concluída) · Próxima tarefa: F1-BACK-02
+Última execução: 2026-10-10 (2ª) · Fase atual: 1 · Próxima tarefa: F1-BACK-02
 
 > Local: `projeto-mapi-api/.claude/mapi/PROGRESSO.md`. A pasta-mãe `MAPI/` não é repositório git;
 > o estado oficial fica no repositório orquestrador para ser versionado. Docs transversais
@@ -11,7 +11,14 @@
 |---|---|---|---|
 | 2026-10-10 | Estado da revisão, glossário, ADRs e handoffs ficam no projeto-mapi-api (pasta-mãe não é git) | — (operacional) | Arquiteto (F0) — Lucas pode vetar |
 | 2026-10-10 | As 5 skills de projeto ficam em `projeto-mapi-api/.claude/skills/`; cópia para os outros repos só depois de aprovadas | — (operacional) | Arquiteto (F0) |
-| 2026-10-10 | Skills descrevem a arquitetura **como está** (camadas do agents.md) e marcam o alvo ports-and-adapters como "não aprovado" até ADR | pendente (ver pergunta 2) | Arquiteto (F0) |
+| 2026-10-10 | ~~Skills marcam ports-and-adapters como alvo não aprovado~~ — substituída pelo ADR 0002 | 0002 | Arquiteto (F0) |
+| 2026-10-10 | UTC na persistência; America/Recife só na exibição; migração do histórico na Fase 2 com aprovação própria | 0001 | Lucas |
+| 2026-10-10 | Manter arquitetura em camadas atual; congelar com ArchUnit | 0002 | Lucas |
+| 2026-10-10 | Flyway como fonte única do schema | 0003 | Lucas |
+| 2026-10-10 | Testcontainers nos testes de integração; H2 sai | 0004 | Lucas |
+| 2026-10-10 | Front: pode-se trabalhar sobre as edições não commitadas existentes | — | Lucas |
+| 2026-10-10 | Glossário: ficha = 5 mm, soleira, lâmina e nível lá fora confirmados | — | Lucas |
+| 2026-10-10 | projeto-mapi (MAPI Edge) declarado descontinuado | — | Lucas |
 
 ## Tarefas
 | ID | Fase | Agente | Nível | Tarefa | Status | PR/commit | Resultado em uma linha |
@@ -29,7 +36,7 @@
 | F1-BACK-04 | 1 | Backend | Rápido | Snapshot do OpenAPI (`/v3/api-docs`) versionado em `docs/openapi/` | pendente | | exige subir a API (docker) |
 | F1-BACK-05 | 1 | Backend | Equilibrado | Medidas "antes": cobertura (JaCoCo), p95 por endpoint (k6), N+1 (log Hibernate) | pendente | | sem `mvn` local: usar `./mvnw` |
 | F1-FRONT-01 | 1 | Frontend | Rápido | Inventário barato do front | concluido | — | coberto por F0-ARQ-04: bundle MapPage 1,22 MB, 0 `any`, MapView 1 106 linhas |
-| F1-FRONT-02 | 1 | Frontend | Equilibrado | Leitura dirigida: estado servidor×UI, re-render do mapa, a11y, 390 px, estado UNKNOWN/erro | pendente | | só leitura até o WIP não commitado do front ser resolvido (pergunta 5) |
+| F1-FRONT-02 | 1 | Frontend | Equilibrado | Leitura dirigida: estado servidor×UI, re-render do mapa, a11y, 390 px, estado UNKNOWN/erro | pendente | | desbloqueado: trabalhar sobre o WIP existente (decisão 2026-10-10) |
 | F1-IA-01 | 1 | IA | Rápido | Inventário barato da IA | concluido | — | coberto por F0-ARQ-04: 847 LOC Python, 3 artefatos sem metadata |
 | F1-IA-02 | 1 | IA | Equilibrado | Leitura dirigida do módulo IA e do contrato real de degradação UNKNOWN (backend↔IA↔front) | pendente | | |
 | F1-QA-01 | 1 | QA | Rápido | Corrigir READMEs do AI/Front (MAPI Edge, MQTT, "quatro componentes") e varrer o resto | pendente | | achado já confirmado: AI README L10, L30–33, L104; Front README L95 |
@@ -37,7 +44,8 @@
 | F1-QA-03 | 1 | QA | Equilibrado | Blindar armadilha do k6 no compose (entrypoint em vez de command) | pendente | | |
 | F1-ARQ-01 | 1 | Arquiteto | Equilibrado | Relatório de consistência entre repos (campos, unidades, fuso, enum de risco, nulos) | pendente | | |
 | F1-ARQ-02 | 1 | Arquiteto | Equilibrado + checkpoint Máximo | Diagnóstico e matriz de prioridade | pendente | | |
-| F1-ARQ-03 | 1 | Arquiteto | Equilibrado | ADRs das divergências convenção×código (fuso, schema Flyway×TimescaleSetup, H2×Testcontainers, records/MapStruct, domínio sem framework) | pendente | | dependem das perguntas 1–4 |
+| F1-ARQ-03 | 1 | Arquiteto | Equilibrado | ADRs das divergências convenção×código (fuso, schema Flyway×TimescaleSetup, H2×Testcontainers, records/MapStruct, domínio sem framework) | em_andamento | ver linha F1-ARQ-03 no histórico | 2026-10-10 · Opus · ADRs 0001–0004 aprovados; agents.md §2.4/§3.1/§6, GEMINI.md, README e skills ajustados · falta: records/MapStruct (desejável, sem ADR ainda) |
+| F1-QA-04 | 1 | QA | Rápido | Aviso de descontinuado no projeto-mapi (MAPI Edge) | concluido | projeto-mapi d86a996 (branch `docs/descontinuado`) | 2026-10-10 · Opus · bloco DESCONTINUADO no topo do README |
 | F1-ARQ-04 | 1 | Arquiteto | Rápido | Handoff da Fase 1 | pendente | | |
 | F2-DADOS-01 | 2 | Dados | Equilibrado | Benchmark e evidência sobre o banco (tamanho das hypertables, compressão, EXPLAIN ANALYZE, volume projetado) | pendente | | |
 | F2-DADOS-02 | 2 | Dados | Equilibrado + checkpoint | ADR PostgreSQL+TimescaleDB+PostGIS × MySQL | pendente | | |
@@ -81,20 +89,20 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 ## Bloqueios abertos
 | ID | O que trava | O que destrava | Desde |
 |---|---|---|---|
-| F1-FRONT-02 (parcial) | 14 arquivos modificados e não commitados no projeto-mapi-front | decisão do Lucas (pergunta 5) | 2026-10-10 |
 | F3-GEO-01 | GDAL/rasterio ausentes no host | rodar em container (ex.: `ghcr.io/osgeo/gdal`) — sem decisão necessária | 2026-10-10 |
 | GitHub (todas as tarefas de PR) | `gh` ausente e sem MCP GitHub | instalar `gh` e autenticar, ou o Lucas abre os PRs a partir das branches | 2026-10-10 |
 
 ## Perguntas pendentes para o Lucas
 | # | Pergunta | Desde | Impacto se não responder |
 |---|---|---|---|
-| 1 | Fuso: o agents.md manda converter para UTC−3 **antes de persistir**; o GEMINI.md e o código (`hibernate.jdbc.time_zone: UTC`) armazenam em UTC. Qual vale? (recomendação: UTC no banco, UTC−3 só na exibição) | 2026-10-10 | ADR de fuso e todo o pipeline de ingestão/features ficam sem base |
-| 2 | Arquitetura alvo do backend: manter camadas atuais (model = entidade JPA) ou migrar gradualmente para domínio sem anotação de framework? | 2026-10-10 | ArchUnit só congela a regra atual; skill java fica em "como está" |
-| 3 | Schema: Flyway (`V1__baseline_schema.sql`) e `TimescaleSetup.sql` criam as mesmas hypertables. Posso tornar o Flyway a fonte única e o .sql um documento derivado? | 2026-10-10 | risco de divergência de schema; agents.md §2.4 fica desatualizado |
-| 4 | Testes de integração: GEMINI.md manda H2, mas H2 não executa TimescaleDB/PostGIS. Aceita Testcontainers? | 2026-10-10 | ingestão e queries nativas continuam sem teste real |
-| 5 | Front tem 14 arquivos modificados não commitados (flood.service, schemas, MapView…). É trabalho seu em andamento? Devo esperar o commit antes de qualquer PR no front? | 2026-10-10 | Fase 1 do front fica só leitura |
-| 6 | Confirmar as definições ⚠ do glossário (ficha = 5 mm, soleira, lâmina, nível lá fora) contra a formulação da rede de Petri/Mercury | 2026-10-10 | ponte IA↔modelo estocástico (Agente 8) fica sem base |
-| 7 | O repositório `projeto-mapi` (projeto-mapi-sensores, o antigo MAPI Edge) deve ser arquivado no GitHub ou receber README de "descontinuado"? | 2026-10-10 | READMEs continuam apontando para ele |
+| — | Perguntas 1–7 respondidas em 2026-10-10 (ver Decisões). Mantidas abaixo, riscadas, para auditoria. | | |
+| 1 | ~~Fuso: o agents.md manda converter para UTC−3 **antes de persistir**; o GEMINI.md e o código (`hibernate.jdbc.time_zone: UTC`) armazenam em UTC. Qual vale? (recomendação: UTC no banco, UTC−3 só na exibição)~~ **respondida 2026-10-10** | 2026-10-10 | — |
+| 2 | ~~Arquitetura alvo do backend: manter camadas atuais (model = entidade JPA) ou migrar gradualmente para domínio sem anotação de framework?~~ **respondida 2026-10-10** | 2026-10-10 | — |
+| 3 | ~~Schema: Flyway (`V1__baseline_schema.sql`) e `TimescaleSetup.sql` criam as mesmas hypertables. Posso tornar o Flyway a fonte única e o .sql um documento derivado?~~ **respondida 2026-10-10** | 2026-10-10 | — |
+| 4 | ~~Testes de integração: GEMINI.md manda H2, mas H2 não executa TimescaleDB/PostGIS. Aceita Testcontainers?~~ **respondida 2026-10-10** | 2026-10-10 | — |
+| 5 | ~~Front tem 14 arquivos modificados não commitados (flood.service, schemas, MapView…). É trabalho seu em andamento? Devo esperar o commit antes de qualquer PR no front?~~ **respondida 2026-10-10** | 2026-10-10 | — |
+| 6 | ~~Confirmar as definições ⚠ do glossário (ficha = 5 mm, soleira, lâmina, nível lá fora) contra a formulação da rede de Petri/Mercury~~ **respondida 2026-10-10** | 2026-10-10 | — |
+| 7 | ~~O repositório `projeto-mapi` (projeto-mapi-sensores, o antigo MAPI Edge) deve ser arquivado no GitHub ou receber README de "descontinuado"?~~ **respondida 2026-10-10** | 2026-10-10 | — |
 
 ## Medidas antes e depois
 | Métrica | Antes | Depois | Quando | Onde foi medida |
@@ -106,3 +114,9 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | Ocorrências de `any` no front | 0 | | 2026-10-10 | `grep -rn ': any\|as any' src` |
 | Cobertura de teste backend | não medida | | | F1-BACK-05 |
 | p95 por endpoint | não medido | | | F1-BACK-05 (k6) |
+
+## Divergências PROGRESSO × código (o código vence)
+| Data | O que se afirmava | O que o código mostra | Correção |
+|---|---|---|---|
+| 2026-10-10 | Achado F0-A03: schema duplicado entre Flyway e `TimescaleSetup.sql` (e o prompt da revisão dizia que as hypertables vinham do `TimescaleSetup.sql`) | `TimescaleSetup.sql` já tem cabeçalho "SUPERADO" e não é montado pelo compose; o Flyway já era a fonte real | achado rebaixado a "documentação desatualizada"; resolvido por ADR 0003 + README |
+| 2026-10-10 | GEMINI.md e `application.yml` sugeriam persistência em UTC | colunas `TIMESTAMP WITHOUT TIME ZONE`, 0 usos de `ZoneId`, Open-Meteo com `timezone=auto` → histórico gravado em hora local sem fuso | registrado no ADR 0001; migração na Fase 2 |

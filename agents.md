@@ -48,7 +48,7 @@ O banco de dados não é um repositório relacional comum; ele utiliza as capaci
 
 3. **Consultas Nativas (Native Queries):** Para buscar médias móveis, agrupamentos de tempo (ex: `time_bucket('1 hour', time)`) ou dados analíticos para predição, prefira escrever queries nativas usando as funções do TimescaleDB no repositório (`@Query(value = "...", nativeQuery = true)`).
 
-4. **Alinhamento com o `TimescaleSetup.sql`:** Toda modificação estrutural que afete a criação de tabelas históricas deve ser replicada e documentada detalhadamente no arquivo script de inicialização `TimescaleSetup.sql`.
+4. **Schema via Flyway (ADR 0003):** Toda modificação estrutural é uma nova migração `src/main/resources/db/migration/V<n>__descricao.sql`. O `TimescaleSetup.sql` é só referência histórica e não deve ser editado. Migração precisa de aprovação antes de ser aplicada.
 
 ---
 
@@ -58,7 +58,7 @@ O sistema faz a fusão de dados em tempo real via streaming com dados histórico
 
 ### Diretrizes de Ingestão para IA:
 
-1. **Sincronização Absoluta UTC-3:** O ecossistema MAPI é focado na Região Metropolitana do Recife, que opera no fuso horário UTC-3. APIs externas como Open-Meteo e ANA frequentemente retornam datas em formato UTC puro. O agente de IA **DEVE** garantir que qualquer parser ou serviço de ingestão converta esses carimbos de tempo explicitamente para UTC-3 antes de persistir no banco ou enviar para a inferência de IA, prevenindo desalinhamento temporal nas previsões.
+1. **Fuso horário — UTC na persistência (ADR 0001):** Todo instante é persistido em UTC. Cada parser declara explicitamente o fuso de origem da sua fonte (ex.: APAC em hora local de Recife, Open-Meteo conforme o parâmetro `timezone`) e converte para UTC antes de persistir ou enviar para a inferência. A conversão para `America/Recife` (UTC-3) acontece só na exibição. Não use `LocalDateTime.now()`: use `Instant`/`Clock`.
 
 2. **Resiliência no IoTMaster (Coleta Agendada):** Os jobs de `SensorCollectionTask` atuam como o barramento crítico de entrada de dados de sensores. O código gerado não pode bloquear a execução do agendador nem travar por falha de uma fonte externa. Utilize processamento assíncrono (`taskExecutor`) e Resilience4j (retry/circuit breaker) para delegar a persistência e a chamada de predição do modelo a pools de threads separados.
 
@@ -96,7 +96,7 @@ Antes de entregar qualquer código Java/Spring para este repositório, certifiqu
 
 * [ ] O código utiliza Java Records para DTOs e MapStruct para mappers?
 
-* [ ] Qualquer data/hora vinda de fontes externas foi tratada e convertida adequadamente para o fuso UTC-3?
+* [ ] Qualquer data/hora vinda de fontes externas teve o fuso de origem declarado e foi convertida para UTC antes de persistir (ADR 0001)?
 
 * [ ] Escrevi tratamento de exceções customizadas para cenários onde falhas de integração externa (ANA/APAC) possam ocorrer?
 

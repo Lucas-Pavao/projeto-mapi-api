@@ -63,7 +63,7 @@ Mapeamento enum→variante em um só lugar (`utils/`), exaustivo (`switch` com `
 
 ## 5. Fuso e unidades
 
-Backend persiste em UTC (ver ADR de fuso). Conversão para America/Recife é feita na
+Backend persiste em UTC (ADR 0001 do projeto-mapi-api); enquanto a migração da Fase 2 não rodar, o histórico pode estar em hora local — confira o campo de fuso da resposta. Conversão para America/Recife é feita na
 exibição, num utilitário único. Toda grandeza exibida mostra unidade (mm, m, cm).
 Nomes de campo seguem o `docs/GLOSSARIO.md` do projeto-mapi-api.
 
