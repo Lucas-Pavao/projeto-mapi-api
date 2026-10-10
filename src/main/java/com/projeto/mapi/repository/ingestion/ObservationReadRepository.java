@@ -18,7 +18,28 @@ public class ObservationReadRepository {
     public record HourlyCell(String variable, Instant hourEndUtc, Double value, boolean flagged,
                              List<UUID> runIds, int maxRevision) {}
 
+    /** Extremo vigente da maré prevista; {@code qualifier} = PREAMAR ou BAIXA_MAR (pode ser nulo se ambíguo). */
+    public record TideExtremeRow(Instant tsUtc, double level, String qualifier, String source) {}
+
     private final JdbcTemplate jdbc;
+
+    /**
+     * Extremos vigentes (ACTIVE) da maré prevista no Porto do Recife em {@code [fromUtc, toUtc)}. Se as duas fontes
+     * (API e tábua DHN) cobrem o mesmo instante, vale a da API.
+     */
+    public List<TideExtremeRow> tideExtremes(Instant fromUtc, Instant toUtc) {
+        return jdbc.query("""
+                SELECT DISTINCT ON (ts_utc) ts_utc, value, qualifier, source
+                FROM observation_current
+                WHERE station_id = 'pe02' AND variable = 'tide_height' AND resolution = 'EVENT'
+                  AND source IN ('TABUAMARE_PE02', 'DHN_TABUA_PE02')
+                  AND ts_utc >= ? AND ts_utc < ? AND value IS NOT NULL
+                ORDER BY ts_utc, CASE source WHEN 'TABUAMARE_PE02' THEN 0 ELSE 1 END
+                """, (rs, i) -> new TideExtremeRow(rs.getObject("ts_utc", OffsetDateTime.class).toInstant(),
+                rs.getDouble("value"), rs.getString("qualifier"), rs.getString("source")),
+                OffsetDateTime.ofInstant(fromUtc, java.time.ZoneOffset.UTC),
+                OffsetDateTime.ofInstant(toUtc, java.time.ZoneOffset.UTC));
+    }
 
     /** Horas com fim em [fromUtc, toUtc] de uma estação de uma fonte. */
     public List<HourlyCell> hourly(String source, String stationId, Instant fromUtc, Instant toUtc) {

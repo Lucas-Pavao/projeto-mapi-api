@@ -36,7 +36,12 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
             + "accumulated3h,accumulated6h,accumulated12h,accumulated24h,accumulated48h,isFlooded,severity,"
             + "timestampUtc,sensorPrecipitation_missing,sensorWaterLevel_missing,sensorSoilHumidity_missing,weatherPrecipitation_missing,"
             + "weatherTemperature_missing,weatherPressure_missing,weatherCode_missing,tideHeight_missing,"
-            + "accumulated3h_missing,accumulated6h_missing,accumulated12h_missing,accumulated24h_missing,accumulated48h_missing,label_h6,label_h3,label_day,label_excluded_reason,occurrence_ids,soil_moisture_0_7cm,soil_moisture_0_7cm_missing";
+            + "accumulated3h_missing,accumulated6h_missing,accumulated12h_missing,accumulated24h_missing,accumulated48h_missing,label_h6,label_h3,label_day,label_excluded_reason,occurrence_ids,soil_moisture_0_7cm,soil_moisture_0_7cm_missing,"
+            + "tide_height_t1,tide_height_t2,tide_height_t3,tide_height_t4,tide_height_t5,tide_height_t6,tide_max_next_6h,"
+            + "tide_hours_to_next_high,tide_range_day_m,tide_rising,tide_slope_m_h,"
+            + "tide_height_t1_missing,tide_height_t2_missing,tide_height_t3_missing,tide_height_t4_missing,"
+            + "tide_height_t5_missing,tide_height_t6_missing,tide_max_next_6h_missing,tide_hours_to_next_high_missing,"
+            + "tide_range_day_m_missing,tide_rising_missing,tide_slope_m_h_missing";
 
     @Autowired private DataExportService exportService;
     @Autowired private FloodPointRepository pointRepository;
@@ -46,12 +51,11 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
     private java.util.UUID runId;
     @Autowired private FloodEventRepository eventRepository;
 
-    // A maré vem de API externa; aqui só queremos o export, então um valor fixo.
+    // O export não usa mais o TideService (maré vem do pipeline); o mock evita chamadas externas de outros beans.
     @MockitoBean private TideService tideService;
 
     @BeforeEach
     void semeia() {
-        when(tideService.getStoredTideHeightAt(anyDouble(), anyDouble(), any(LocalDateTime.class))).thenReturn(1.23);
         eventRepository.deleteAll();
         sensorRepository.deleteAll();
         weatherRepository.deleteAll();
@@ -70,6 +74,17 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
         runId = run;
         jdbc.update("INSERT INTO ingestion_run (id, source, kind, mode, code_version, parser_version, rule_version, started_at, status)"
                 + " VALUES (?, 'OPEN_METEO_ARCHIVE', 'BACKFILL', 'REFETCH', 'test', 'test', 'test', now(), 'OK')", run);
+        // maré prevista do pipeline: 1,23 m constante em todas as horas cheias de -2 d a +8 h
+        java.util.UUID tideRun = java.util.UUID.randomUUID();
+        jdbc.update("INSERT INTO ingestion_run (id, source, kind, mode, code_version, parser_version, rule_version, started_at, status)"
+                + " VALUES (?, 'TIDE_PE02_HOURLY', 'BACKFILL', 'REFETCH', 'test', 'test', 'test', now(), 'OK')", tideRun);
+        for (int h = -48; h <= 8; h++) {
+            java.time.Instant t = agora.plusHours(h).toInstant(java.time.ZoneOffset.UTC);
+            jdbc.update("INSERT INTO observation (source, station_id, variable, resolution, ts_utc, value, unit, qualifier,"
+                    + " interval_start_utc, run_id, raw_hash, rule_version, value_hash, origin_ts_norm)"
+                    + " VALUES ('TIDE_PE02_HOURLY', 'pe02', 'tide_height_hourly', 'PT1H', ?::timestamptz, 1.23, 'm',"
+                    + " 'INTERP_COSSENO', ?::timestamptz, ?, 'h', 'test', 'v', 'x')", t.toString(), t.toString(), tideRun);
+        }
         java.time.Instant hora = agora.minusHours(1).toInstant(java.time.ZoneOffset.UTC);
         for (Object[] v : new Object[][] {{"precipitation", "mm", 3.0}, {"temperature", "°C", 27.0},
                 {"pressure", "hPa", 1010.0}, {"weather_code", "wmo code", 61.0}}) {
@@ -108,6 +123,14 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
         assertThat(dados).filteredOn(d -> Boolean.TRUE.equals(d.getIsFlooded())).hasSize(1);
         assertThat(dados).filteredOn(d -> Double.valueOf(7.5).equals(d.getSensorPrecipitation())).hasSize(1);
         assertThat(dados).allSatisfy(d -> assertThat(d.getTideHeight()).isEqualTo(1.23));
+        // maré constante: t+1..t+6 presentes, derivada nula => tide_rising vazio; sem extremos => preamar/amplitude vazias
+        assertThat(dados).allSatisfy(d -> {
+            assertThat(d.getTideHeightAhead()).hasSize(6).containsEntry(6, 1.23);
+            assertThat(d.getTideMaxNext6h()).isEqualTo(1.23);
+            assertThat(d.getTideSlopeMh()).isEqualTo(0.0);
+            assertThat(d.getTideRising()).isNull();
+            assertThat(d.getTideHoursToNextHigh()).isNull();
+        });
     }
 
     @Test

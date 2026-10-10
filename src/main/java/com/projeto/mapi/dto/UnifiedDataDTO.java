@@ -36,8 +36,15 @@ public class UnifiedDataDTO {
     /** Umidade do solo 0-7 cm, ERA5-Land (m³/m³); latência ~5 dias, só treino (MODELAGEM-IA A.2.3, feature 22). */
     private Double soilMoisture07cm;
 
-    // Maré
+    // Maré prevista (tábua DHN, Porto do Recife; m acima do NR da DHN, NR_DHN_pe02). tideHeight = altura em t.
     private Double tideHeight;
+    /** Features de maré (MODELAGEM-IA A.2.2): a maré prevista é exceção declarada de "futuro" (publicada antes). */
+    private java.util.Map<Integer, Double> tideHeightAhead; // k (1..6) -> altura em t+k
+    private Double tideMaxNext6h;
+    private Double tideHoursToNextHigh;
+    private Double tideRangeDayM;
+    private Integer tideRising;
+    private Double tideSlopeMh;
     
     // Label LEGADO (flood_events); obsoleto, mantido por compatibilidade (manifesto: deprecatedColumns)
     private Boolean isFlooded;
