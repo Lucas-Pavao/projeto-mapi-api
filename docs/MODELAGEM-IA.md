@@ -581,7 +581,8 @@ zero. Com poucos eventos, o resultado provável é "inconclusivo", e ele deve se
 - **Resolvida pelo código**: 12 — `severity` não é lâmina observada: eventos do CKAN recebem `MEDIUM` fixo
   (`CivilDefenseServiceImpl.java:294`; padrão em `FloodEventServiceImpl.java:81`). A severidade ordinal sai
   das tarefas supervisionadas; não há rótulo para ela.
-- **Em aberto** (sem proposta concreta; ver pergunta 26 do PROGRESSO.md): 6, 7, 8 (só depois da carga), 9, 10, 11.
+- **Aprovadas na pergunta 26 (recomendações do Arquiteto)**: 6 limiares definidos pela taxa máxima de falso alarme por ponto/mês informada pela Defesa Civil (pedido em `docs/pedidos/04-…`); até a resposta, reportar a curva PR inteira, sem limiar fixo; 7 JABOATAO_CENTRO fora dos modelos com terreno e avaliado num modelo sem terreno (ablação do efeito do terreno); 9 coletar umidade do solo ERA5-Land e o histórico do Open-Meteo Marine (se existir série histórica), MapBiomas depois; 10 balde com parâmetros compartilhados entre pontos, sem a variante B2b até o ADR 0009 fixar Δ; 11 o autor exporta a rede de Petri (Mercury) no formato da A.3.8.
+- **Pendente por desenho**: 8 (datas de corte) — só depois da carga, olhando a série de ocorrências por ano, sem ver desempenho.
 
 
 1. Confirmar a decisão da pergunta 17: tarefa horária (a) com `H = 6 h` principal e `3 h` secundário,
