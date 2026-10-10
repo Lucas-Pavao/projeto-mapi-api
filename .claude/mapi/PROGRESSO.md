@@ -1,6 +1,6 @@
 # Progresso da revisão multiagente do MAPi
 
-Última execução: 2026-10-10 (2ª, interrompida pelo limite de uso) · Fase atual: 2 · Próxima tarefa: F2-BACK-01 (retomar) → integração
+Última execução: 2026-10-10 (3ª) · Fase atual: 2 · Próxima tarefa: F2-BACK-01 (retomado, em andamento) → merge + V7 PostGIS
 
 > Local: `projeto-mapi-api/.claude/mapi/PROGRESSO.md`. A pasta-mãe `MAPI/` não é repositório git;
 > o estado oficial fica no repositório orquestrador para ser versionado. Docs transversais
@@ -81,7 +81,7 @@
 | F2-BACK-09 | 2 | Backend | Equilibrado | Primeira carga histórica (5 anos) pelo pipeline novo + medidas de volume e p95 do export | pendente | | depende de F2-BACK-01, F2-BACK-06 |
 | F2-ARQ-03 | 2 | Arquiteto | Equilibrado | Integrar F2-BACK-04..07 e rodar a suíte completa | concluido | 7ccc0e8 (`integracao/fase-2`) | 2026-10-10 · Opus · 1 conflito trivial resolvido em `HistoricalDataServiceImpl` (serviceProvider removido + cliente com timeout); 49 testes, 0 falhas; cobertura 36,2% linhas / 23,9% ramos; export 74,6% |
 | F2-DADOS-08 | 2 | Dados | Equilibrado | Executar a troca de imagem (ADR 0005, procedimento a–f) | concluido | branch `feat/imagem-timescaledb-ha` | 2026-10-10 · Opus · dump `eac26687…`, restauração na 2.27.2 + UPDATE p/ 2.30.2, contagens idênticas em 17 tabelas, API healthy · 1 incidente de script na 1ª tentativa (só no banco novo), refeito; registro em `docs/snapshots/2026-10-10-troca-de-imagem.md` |
-| F2-BACK-10 | 2 | Backend | Rápido | Testcontainers passar para a imagem `-ha` (pré-requisito da V7 PostGIS) | pendente | | depois de integrar F2-BACK-01/08 |
+| F2-BACK-10 | 2 | Backend | Rápido | Testcontainers passar para a imagem `-ha` (pré-requisito da V7 PostGIS) | concluido | 969bf5b (`integracao/fase-2`) | 2026-10-10 · Opus · `DEFAULT_DB_IMAGE` = `timescale/timescaledb-ha:pg16.15-ts2.30.2`; suíte integrada (F2-BACK-04..08 + segurança + k6 + imagem) 92 testes, 0 falhas, 42,3% linhas / 30,5% ramos |
 | F2-ARQ-01 | 2 | Arquiteto | Rápido | Handoff da Fase 2 | pendente | | |
 | F3-GEO-01 | 3 | Geo | Equilibrado | Processar rasters: unzip, atribuir CRS/nodata, VRT, recorte, COG; medir tamanhos | pendente | | precisa GDAL/rasterio (ausentes localmente → docker) |
 | F3-GEO-02 | 3 | Geo+Dados+Backend | Equilibrado + checkpoint | ADR de onde armazenar o terreno | pendente | | |
@@ -163,10 +163,11 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | Baselines implementados | 0 de 4 | | 2026-10-10 | F1-IA-02 (F1-I2-04) |
 | Tratamentos visuais distintos de UNKNOWN no front | 3 | 1 (F2-FRONT-01, sem commit) | 2026-10-10 | F1-FRONT-02 (F1-F2-04) |
 | `aria-label` / botões no front | 0 / 31 | | 2026-10-10 | F1-FRONT-02 (F1-F2-09) |
+| Gravações em `flood_predictions` por GET | 1 | 0 | 2026-10-10 | teste Testcontainers (F2-BACK-08) |
 | Portas de banco/IA em 0.0.0.0 | 2 | 0 | 2026-10-10 | docker-compose.yml (F1-QA-02, 2fe06c6) |
-| Cobertura de teste backend (linhas / ramos) | 26,1% / 17,6% | 36,2% / 23,9% (integracao/fase-2) | 2026-10-10 | JaCoCo 0.8.12, `docs/medidas/jacoco-2026-10-10.csv` |
+| Cobertura de teste backend (linhas / ramos) | 26,1% / 17,6% | 42,3% / 30,5% (integracao/fase-2 com F2-BACK-08) | 2026-10-10 | JaCoCo 0.8.12, `docs/medidas/jacoco-2026-10-10.csv` |
 | Cobertura do export (`service.export.impl`) | 0,6% | 74,6% (integracao/fase-2, 7ccc0e8) | 2026-10-10 | idem |
-| Testes backend executados | 20 (0 falhas) | 49 (0 falhas), integracao/fase-2 | 2026-10-10 | surefire |
+| Testes backend executados | 20 (0 falhas) | 92 (0 falhas), integracao/fase-2 com F2-BACK-08 | 2026-10-10 | surefire |
 | Linhas no banco local (sensor / clima / eventos / predições) | 555 / 40 / 0 / 25 102 | | 2026-10-10 | snapshot `3ace3cde…` |
 | p95 por endpoint (k6, ramping_load, cache) | 0,8–4,0 ms | | 2026-10-10 | `docs/medidas/LINHA-DE-BASE-2026-10-10.md` |
 | p95 export CSV 30 d (banco quase vazio) | 143,1 ms (n=44) | | 2026-10-10 | idem, rodada 2 — não representativo |
