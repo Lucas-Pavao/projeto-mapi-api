@@ -35,6 +35,7 @@
 | 2026-10-10 | Volume antigo `projeto-mapi-api_postgres_data` removido (dumps `3ace3cde…` e `eac26687…` conferidos por SHA-256) | 0005 | Lucas |
 | 2026-10-10 | Migração V8: colunas de auditoria em `flood_predictions` (`model_version`, `horizon_hours`, `degradation_reason`, `imputed_features` jsonb, `flood_point_id` + índice) | 0007 | Lucas |
 | 2026-10-10 | Migrações adiadas (compressão, aposentadoria das tabelas antigas) só recebem número quando criadas; o Flyway exige ordem crescente | 0006 | Arquiteto |
+| 2026-10-10 | ADR 0009 aprovado: só cotas relativas até fechar Δ; Δ só de fonte (A/B), nunca calibrado com eventos de avaliação | 0009 | Lucas |
 
 ## Tarefas
 | ID | Fase | Agente | Nível | Tarefa | Status | PR/commit | Resultado em uma linha |
@@ -99,6 +100,7 @@
 | F3-BACK-01 | 3 | Backend | Equilibrado | Endpoint de terreno e colunas no CSV de treino | pendente | | |
 | F3-FRONT-01 | 3 | Frontend | Equilibrado | Camada de terreno no mapa (hipsometria, abaixo da cota de maré) | pendente | | |
 | F3-GEO-07 | 3 | Geo | Equilibrado | Validar a hidrologia (fill/D8/acumulação) do `terreno.py` contra uma ferramenta de referência (WhiteboxTools em container) e testes unitários; definir regra de snap documentada | em_andamento | | 2026-10-10 · subagente Sonnet · worktree, branch `test/hidrologia-terreno` |
+| F3-ARQ-02 | 3 | Arquiteto | Rápido | Redigir os pedidos institucionais (CHM/DHN F-41, IBGE RN/NMM, PE3D relatório) | concluido | ver commit "pedidos" | 2026-10-10 · Opus · `docs/pedidos/` (3 rascunhos + README); envio pelo Lucas |
 | F3-ARQ-01 | 3 | Arquiteto | Rápido | Handoff da Fase 3 | pendente | | |
 | F4-IA-01 | 4 | IA | Máximo | Formulação da tarefa, features e baselines (A.1–A.3) | pendente | | |
 | F4-IA-02 | 4 | IA | Equilibrado | Pipeline de treino e experimentos (A.4–A.5) | pendente | | |
@@ -126,6 +128,7 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | (resolvido) | Limite semanal de uso derrubou 3 subagentes da F1 | reset do limite; agentes retomados | 2026-10-10 |
 | (resolvido) F3-GEO-01 | GDAL/rasterio ausentes no host | GDAL em container; leitura direta dos zips | 2026-10-10 |
 | GitHub (todas as tarefas de PR) | `gh` ausente e sem MCP GitHub | instalar `gh` e autenticar, ou o Lucas abre os PRs a partir das branches | 2026-10-10 |
+| F3-PED-01 | Δ (NR↔datum do MDT) não fechado | respostas do CHM/DHN, IBGE e PE3D aos pedidos em `docs/pedidos/` (envio pelo Lucas) | 2026-10-10 |
 
 ## Perguntas pendentes para o Lucas
 | # | Pergunta | Desde | Impacto se não responder |
@@ -153,7 +156,7 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | 20 | ~~ADR 0005: aprova manter PostgreSQL + TimescaleDB, adicionar PostGIS (migração V7) e trocar a imagem para `timescale/timescaledb-ha:pg16.15-ts2.30.2` pelo procedimento a–f do ADR (dump com hash, volume novo, restauração, conferência contra o snapshot; o volume antigo fica até aprovação separada)?~~ **respondida 2026-10-10: sim** | 2026-10-10 | — |
 | 21 | ~~Posso remover o volume antigo `projeto-mapi-api_postgres_data` (imagem antiga)? O conteúdo está no dump `eac26687…` e no volume novo, com contagens conferidas~~ **respondida 2026-10-10: sim — volume removido em 2026-10-10 após conferir os dumps** | 2026-10-10 | — |
 | 22 | ~~Aprova uma migração aditiva em `flood_predictions` (colunas `model_version`, `horizon_hours`, `degradation_reason`, `imputed_features` jsonb, `flood_point_id` + índice) para tirar a auditoria do JSON em `message` e consultar `lastValidIssuedAt` por ponto?~~ **respondida 2026-10-10: sim — migração V8** | 2026-10-10 | — |
-| 23 | ADR 0009 (referência vertical): aprova a opção C agora (só cotas relativas; nada de "nível lá fora − cota da rua" com maré) + B em paralelo (fechar Δ por RN do IBGE/NMM/GNSS)? E você pode (ou autoriza eu redigir para você enviar) os pedidos: F-41 do Recife ao CHM/DHN, altitude da RN do marégrafo e NMM ao IBGE, relatório técnico do PE3D (datum/geoide)? | 2026-10-10 | refluxo de maré fica só relativo |
+| 23 | ~~ADR 0009 (referência vertical): aprova a opção C agora (só cotas relativas; nada de "nível lá fora − cota da rua" com maré) + B em paralelo (fechar Δ por RN do IBGE/NMM/GNSS)? E você pode (ou autoriza eu redigir para você enviar) os pedidos: F-41 do Recife ao CHM/DHN, altitude da RN do marégrafo e NMM ao IBGE, relatório técnico do PE3D (datum/geoide)?~~ **respondida 2026-10-10: sim; pedidos redigidos pelo Arquiteto** | 2026-10-10 | — |
 
 ## Medidas antes e depois
 | Métrica | Antes | Depois | Quando | Onde foi medida |

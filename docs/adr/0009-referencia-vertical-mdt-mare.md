@@ -1,6 +1,6 @@
 # 0009 — Referência vertical entre o MDT do PE3D e a tábua de maré
 
-- Status: proposto (checkpoint Máximo: aprovado com 5 ressalvas aplicadas em 2026-10-10; falta aprovação do Lucas)
+- Status: **aprovado** (2026-10-10, Lucas, pergunta 23): opção C agora (só cotas relativas) + B em paralelo; pedidos institucionais redigidos em `docs/pedidos/`.
 - Data: 2026-10-10
 - Decisores: Agente 5 (Engenheiro Geoespacial, autor), checkpoint Máximo (pendente), Lucas
 - Tarefa: F3-GEO-03
