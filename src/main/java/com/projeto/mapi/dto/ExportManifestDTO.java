@@ -21,6 +21,7 @@ public record ExportManifestDTO(
         int rows,
         int rowsWithFlag,
         List<SourceProvenance> provenance,
+        com.projeto.mapi.service.terrain.TerrainExportColumns.Provenance terrain,
         List<String> sourcesNotMigrated) {
 
     /** run_ids que produziram os valores de uma fonte e variável no período. */
