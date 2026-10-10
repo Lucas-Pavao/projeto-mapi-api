@@ -573,6 +573,17 @@ zero. Com poucos eventos, o resultado provável é "inconclusivo", e ele deve se
 
 ## Decisões que dependem do autor
 
+### Respostas do autor (2026-10-10, pergunta 25)
+
+- **Aprovadas** (tinham proposta): 1 tarefa horária H = 6 h / 3 h com máscara DAY; 2 `N_min` = 20 e troca
+  automática para a tarefa diária; 3 corte às 06:00 local; 4 raio principal 500 m (conjunto de sensibilidade
+  mantido); 5 `G = H`.
+- **Resolvida pelo código**: 12 — `severity` não é lâmina observada: eventos do CKAN recebem `MEDIUM` fixo
+  (`CivilDefenseServiceImpl.java:294`; padrão em `FloodEventServiceImpl.java:81`). A severidade ordinal sai
+  das tarefas supervisionadas; não há rótulo para ela.
+- **Em aberto** (sem proposta concreta; ver pergunta 26 do PROGRESSO.md): 6, 7, 8 (só depois da carga), 9, 10, 11.
+
+
 1. Confirmar a decisão da pergunta 17: tarefa horária (a) com `H = 6 h` principal e `3 h` secundário,
    máscara dos dias `DAY` e verificação diária.
 2. Fixar `N_min` (proposta: 20 eventos `HOUR` no teste) e aceitar a troca automática para a tarefa diária
