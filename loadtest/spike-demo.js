@@ -105,7 +105,7 @@ export function setup() {
   const sensorIds = idsRes.status === 200 ? idsRes.json() : [];
 
   const pontosRes = http.get(`${BASE_URL}/api/pontos`, authHeaders);
-  const slugs = pontosRes.status === 200 ? pontosRes.json().map((p) => p.id_ponto).filter(Boolean) : [];
+  const slugs = pontosRes.status === 200 ? pontosRes.json().map((p) => p.slug).filter(Boolean) : [];
 
   return { token, sensorIds, slugs };
 }
