@@ -1,5 +1,6 @@
 package com.projeto.mapi.service.geocoding.impl;
 
+import com.projeto.mapi.config.ExternalRestClientFactory;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.projeto.mapi.service.geocoding.GeocodingService;
 import lombok.Data;
@@ -14,15 +15,18 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
+@lombok.RequiredArgsConstructor
 @Slf4j
 public class NominatimGeocodingServiceImpl implements GeocodingService {
 
     private final Map<String, Optional<double[]>> cache = new ConcurrentHashMap<>();
     
-    private final RestClient restClient = RestClient.builder()
-            .baseUrl("https://nominatim.openstreetmap.org")
-            .defaultHeader("User-Agent", "MAPI-Project-Recife")
-            .build();
+    private final ExternalRestClientFactory http;
+
+    // Cliente criado sob demanda e reaproveitado por fonte, com os timeouts de app.http.clients.nominatim
+    private RestClient restClient() {
+        return http.client("nominatim", "https://nominatim.openstreetmap.org", Map.of("User-Agent", "MAPI-Project-Recife"));
+    }
 
     @Override
     public Optional<double[]> geocode(String address, String neighborhood, String city) {
@@ -61,7 +65,7 @@ public class NominatimGeocodingServiceImpl implements GeocodingService {
                 // Respeitar o rate limit do Nominatim (1 req/sec)
                 Thread.sleep(1100);
 
-                List<NominatimResult> results = restClient.get()
+                List<NominatimResult> results = restClient().get()
                         .uri(uriBuilder -> uriBuilder
                                 .path("/search")
                                 .queryParam("q", query)

@@ -1,5 +1,6 @@
 package com.projeto.mapi.service.tide.impl;
 
+import com.projeto.mapi.config.ExternalRestClientFactory;
 import com.projeto.mapi.config.AppProperties;
 import com.projeto.mapi.dto.TabuaMareResponse;
 import com.projeto.mapi.service.tide.TabuaMareService;
@@ -22,8 +23,8 @@ public class TabuaMareServiceImpl implements TabuaMareService {
     private final RestClient restClient;
     private final TabuaMareService self;
 
-    public TabuaMareServiceImpl(RestClient.Builder restClientBuilder, AppProperties appProperties, @Lazy TabuaMareService self) {
-        this.restClient = restClientBuilder
+    public TabuaMareServiceImpl(ExternalRestClientFactory http, AppProperties appProperties, @Lazy TabuaMareService self) {
+        this.restClient = http.builder("tabua-mare")
                 .baseUrl(appProperties.getTabuamare().getApiUrl())
                 .build();
         this.self = self;

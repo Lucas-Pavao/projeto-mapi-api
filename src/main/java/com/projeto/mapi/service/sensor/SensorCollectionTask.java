@@ -27,6 +27,7 @@ public class SensorCollectionTask {
     private final AnaCollectorService anaCollectorService;
     private final ApacCollectorService apacCollectorService;
     private final MeterRegistry meterRegistry;
+    private final CollectorFreshness freshness;
 
     @Scheduled(fixedRateString = "${app.ana.fixed-rate-ms:900000}",
             initialDelayString = "${app.ana.initial-delay-ms:15000}")
@@ -60,8 +61,16 @@ public class SensorCollectionTask {
             CollectionSummaryDTO summary = action.get();
             meterRegistry.counter("mapi.collector.records.processed", "source", source).increment(summary.processed());
             meterRegistry.counter("mapi.collector.records.errors", "source", source).increment(summary.errors());
-            log.info("<< Coleta [{}] concluída: processados={} erros={} tempo={}ms",
-                    label, summary.processed(), summary.errors(), System.currentTimeMillis() - start);
+            if (summary.sourceUnavailable()) {
+                // Fonte fora do ar não é "ciclo com 0 leituras": conta à parte (alertável) e não
+                // renova a idade do último dado.
+                outcome = "source_unavailable";
+                meterRegistry.counter("mapi.collector.source.unavailable", "source", source).increment();
+            } else if (summary.processed() > 0) {
+                freshness.markSuccess(source);
+            }
+            log.info("<< Coleta [{}] concluída: processados={} erros={} fonteIndisponivel={} tempo={}ms",
+                    label, summary.processed(), summary.errors(), summary.sourceUnavailable(), System.currentTimeMillis() - start);
         } catch (Exception e) {
             outcome = "failure";
             meterRegistry.counter("mapi.collector.failures", "source", source).increment();

@@ -50,7 +50,13 @@ public class AnaCollectorServiceImpl implements AnaCollectorService {
             return CollectionSummaryDTO.empty();
         }
 
-        List<AnaStationDTO> estacoes = anaDataClient.discoverStations();
+        List<AnaStationDTO> estacoes;
+        try {
+            estacoes = anaDataClient.discoverStations();
+        } catch (Exception e) {
+            log.error("Fonte ANA indisponível (descoberta de estações): {}", e.getMessage());
+            return CollectionSummaryDTO.unavailable();
+        }
         if (estacoes.isEmpty()) {
             log.warn("Nenhuma estação ANA descoberta dentro do raio configurado; pulando ciclo.");
             return CollectionSummaryDTO.empty();
@@ -85,7 +91,9 @@ public class AnaCollectorServiceImpl implements AnaCollectorService {
             }
         }
 
-        return new CollectionSummaryDTO(processed, errors);
+        // Todas as estações falharam e nada foi processado: a fonte caiu, não "não havia leituras".
+        boolean fonteIndisponivel = processed == 0 && errors == estacoes.size();
+        return new CollectionSummaryDTO(processed, errors, fonteIndisponivel);
     }
 
     private String buildFriendlyName(String rawName) {

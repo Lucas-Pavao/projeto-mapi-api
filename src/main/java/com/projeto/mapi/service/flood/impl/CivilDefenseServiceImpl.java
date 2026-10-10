@@ -1,5 +1,6 @@
 package com.projeto.mapi.service.flood.impl;
 
+import com.projeto.mapi.config.ExternalRestClientFactory;
 import com.projeto.mapi.dto.*;
 import com.projeto.mapi.model.FloodEvent;
 import com.projeto.mapi.service.flood.CivilDefenseService;
@@ -28,7 +29,12 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
 
     private final FloodEventService floodEventService;
     private final GeocodingService geocodingService;
-    private final RestClient restClient = RestClient.builder().baseUrl("https://dados.recife.pe.gov.br").build();
+    private final ExternalRestClientFactory http;
+
+    // Cliente criado sob demanda e reaproveitado por fonte, com os timeouts de app.http.clients.ckan
+    private RestClient restClient() {
+        return http.client("ckan", "https://dados.recife.pe.gov.br", Map.of());
+    }
 
     private static final List<String> PACKAGE_IDS = List.of(
             "registro-de-atendimentos-da-defesa-civil",
@@ -68,7 +74,7 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
             try {
                 final int currentOffset = offset;
                 // Busca sem query 'q' específica para filtrar em Java com mais flexibilidade
-                CkanResponseDTO response = restClient.get()
+                CkanResponseDTO response = restClient().get()
                         .uri(uriBuilder -> uriBuilder
                                 .path("/api/3/action/datastore_search")
                                 .queryParam("resource_id", resourceId)
@@ -105,7 +111,7 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
         int totalProcessed = 0;
         int totalSaved = 0;
         try {
-            String csvContent = RestClient.create().get().uri(csvUrl).retrieve().body(String.class);
+            String csvContent = restClient().get().uri(csvUrl).retrieve().body(String.class);
             if (csvContent == null || csvContent.isBlank()) return new int[]{0, 0};
 
             csvContent = csvContent.replace("\"\"\"", "\"").replace("\"\"", "\"");
@@ -221,7 +227,7 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
         log.info("Sincronizando Defesa Civil (últimos {} anos)...", years);
         for (String packageId : PACKAGE_IDS) {
             try {
-                CkanPackageResponseDTO pkg = restClient.get()
+                CkanPackageResponseDTO pkg = restClient().get()
                         .uri(uriBuilder -> uriBuilder.path("/api/3/action/package_show")
                                 .queryParam("id", packageId).build())
                         .retrieve().body(CkanPackageResponseDTO.class);
