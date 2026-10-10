@@ -42,7 +42,7 @@ class MigrationsIntegrationTest extends AbstractTimescaleIntegrationTest {
     }
 
     @Test
-    void tabelasDoPipelineExistemEV7NaoFoiCriada() {
+    void tabelasDoPipelineExistemEMigracoesV3aV7Aplicadas() {
         List<String> tabelas = jdbc.queryForList(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'", String.class);
         assertThat(tabelas).contains("ingestion_run", "station", "variable_catalog", "source_registry",
@@ -51,7 +51,7 @@ class MigrationsIntegrationTest extends AbstractTimescaleIntegrationTest {
                 "label_filter", "linkage_config", "point_station_link");
         List<String> versoes = jdbc.queryForList(
                 "SELECT version FROM flyway_schema_history WHERE success = true", String.class);
-        assertThat(versoes).doesNotContain("7", "8", "9");
+        assertThat(versoes).contains("3", "4", "5", "6", "7");
     }
 
     /** T8: a migração do pipeline é aditiva; nenhuma instrução destrutiva em V3 a V6. */
@@ -77,5 +77,20 @@ class MigrationsIntegrationTest extends AbstractTimescaleIntegrationTest {
         List<String> tabelas = jdbc.queryForList(
                 "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'", String.class);
         assertThat(tabelas).contains("sensor_data", "weather_data", "hourly_precipitation");
+    }
+
+    @Test
+    void v7CriaPostgisEAmostragemDeRasterEm31985Funciona() {
+        // A Fase 3 amostra o MDT do PE3D (EPSG:31985) no banco; isto prova que a extensão raster responde.
+        assertThat(jdbc.queryForList("SELECT extname FROM pg_extension", String.class))
+                .contains("postgis", "postgis_raster");
+        Double valor = jdbc.queryForObject("""
+                SELECT ST_Value(
+                         ST_SetValue(ST_AddBand(ST_MakeEmptyRaster(10, 10, 290000, 9110000, 1, -1, 0, 0, 31985),
+                                                '32BF'::text, -9999, -9999),
+                                     1, 5, 5, 11.11),
+                         1, ST_SetSRID(ST_MakePoint(290004.5, 9109995.5), 31985))
+                """, Double.class);
+        assertThat(valor).isCloseTo(11.11, org.assertj.core.data.Offset.offset(1e-4));
     }
 }
