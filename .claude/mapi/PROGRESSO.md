@@ -39,6 +39,8 @@
 | 2026-10-10 | ADR 0008 aprovado: atributos de terreno no banco (V9) + COG 3857 servido pelo nginx; retorno para tiles se > 5 MB/visita ou > 3 s em 4G | 0008 | Lucas |
 | 2026-10-10 | Formulação de ML: tarefa horária H = 6 h (principal) / 3 h, só eventos HOUR, horas de dias DAY excluídas; troca para tarefa diária (corte 06:00) se < 20 eventos HOUR no teste; raio ocorrência↔ponto 500 m; G = H | — (`docs/MODELAGEM-IA.md`) | Lucas |
 | 2026-10-10 | ML: limiares MEDIUM/HIGH pela taxa de falso alarme aceita pela Defesa Civil (curva PR inteira até lá); Jaboatão fora dos modelos com terreno + ablação; coletar ERA5-Land e Marine histórico; balde com parâmetros compartilhados, sem B2b até Δ; Petri exportada pelo autor | — (`docs/MODELAGEM-IA.md`) | Lucas |
+| 2026-10-10 | **Autorização durável**: o Arquiteto segue com implementações e decisões dentro do escopo da revisão sem pedir aprovação prévia, registrando cada decisão aqui; ações destrutivas/irreversíveis continuam sinalizadas antes. `gh` configurado: PRs podem ser abertos | — | Lucas |
+| 2026-10-10 | V10 (INSERT de `soil_moisture_0_7cm` no `variable_catalog`) aprovada pela autorização durável | 0006 | Arquiteto (autorizado) |
 
 ## Tarefas
 | ID | Fase | Agente | Nível | Tarefa | Status | PR/commit | Resultado em uma linha |
@@ -136,12 +138,12 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 |---|---|---|---|
 | (resolvido) | Limite semanal de uso derrubou 3 subagentes da F1 | reset do limite; agentes retomados | 2026-10-10 |
 | (resolvido) F3-GEO-01 | GDAL/rasterio ausentes no host | GDAL em container; leitura direta dos zips | 2026-10-10 |
-| GitHub (todas as tarefas de PR) | `gh` ausente e sem MCP GitHub | instalar `gh` e autenticar, ou o Lucas abre os PRs a partir das branches | 2026-10-10 |
+| (resolvido) GitHub | `gh` ausente | `gh` configurado pelo Lucas | 2026-10-10 |
 | F3-PED-01 | Δ (NR↔datum do MDT) não fechado | respostas do CHM/DHN, IBGE e PE3D aos pedidos em `docs/pedidos/` (envio pelo Lucas) | 2026-10-10 |
-| F4-FRONT-01a (visual) | Verificação visual e screenshots antes/depois (390 px, 1920 px) | conectar a extensão Claude in Chrome (ou instalar Playwright) | 2026-10-10 |
+| (resolvido) F4-FRONT-01a (visual) | Verificação visual | extensão Claude in Chrome conectada; Playwright em uso no F3-FRONT-01 | 2026-10-10 |
 | F4-PED-01 | Limiares MEDIUM/HIGH | resposta da Defesa Civil ao pedido 04 (envio pelo Lucas) | 2026-10-10 |
 | F4-PED-02 | Baseline da rede de Petri | export da Petri pelo autor no formato da MODELAGEM-IA A.3.8 | 2026-10-10 |
-| F2-BACK-15 | Umidade do solo ERA5-Land no pipeline | aprovação da migração V10 (INSERT no variable_catalog) — pergunta 27 | 2026-10-10 |
+| (resolvido) F2-BACK-15 | Umidade do solo ERA5-Land no pipeline | V10 aprovada pela autorização durável | 2026-10-10 |
 
 ## Perguntas pendentes para o Lucas
 | # | Pergunta | Desde | Impacto se não responder |
@@ -173,7 +175,7 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | 24 | ~~ADR 0008: aprova a migração V9 do terreno (tabelas `terrain_run`, `point_terrain`, `point_terrain_curve`; aditiva) e a camada visual por COG em EPSG:3857 servido pelo nginx do front (com plano de retorno para tiles pré-gerados se passar de 5 MB por visita ou 3 s em 4G)?~~ **respondida 2026-10-10: sim** | 2026-10-10 | — |
 | 25 | ~~`docs/MODELAGEM-IA.md`, seção "Decisões que dependem do autor" (12 itens): principais — confirmar tarefa horária H = 6 h/3 h só com eventos HOUR e a regra de troca para a tarefa diária se < 20 eventos HOUR no teste; horário de corte da diária; raio de casamento ocorrência↔ponto (proposta 500 m; o de 3 km atual sobrepõe Ibura e Imbiribeira, a 2 695 m); razões de custo FN/falso alarme para MEDIUM e HIGH; datas de corte treino/validação/teste; o que fazer com Jaboatão (sem terreno); coletar ou não Marine, ERA5-Land e MapBiomas; quem exporta a rede de Petri~~ **respondida 2026-10-10: aprovados os itens com proposta (1–5); 12 resolvido pelo código; 6–11 → pergunta 26** | 2026-10-10 | — |
 | 26 | ~~Decisões restantes da `docs/MODELAGEM-IA.md` (com minha recomendação): **6** limiares MEDIUM/HIGH — recomendo pedir à Defesa Civil a taxa máxima de falso alarme aceitável por ponto por mês (mais fácil de responder que razões de custo); até lá, reportar a curva PR inteira; **7** Jaboatão (sem terreno) — recomendo excluí-lo dos modelos com terreno e avaliá-lo num modelo sem terreno, o que vira também uma ablação do efeito do terreno; **9** coletar umidade do solo ERA5-Land (sim, via o mesmo adaptador Open-Meteo archive) e o histórico do Marine (sim, se houver série histórica — a verificar), MapBiomas depois (estático, anual); **10** balde com parâmetros compartilhados entre pontos e sem a variante B2b até o ADR 0009 fixar Δ; **11** quem exporta a rede de Petri (Mercury) e com quantas replicações — imagino que você. (**8**, datas de corte, só depois de ver a série de ocorrências por ano, sem ver desempenho.)~~ **respondida 2026-10-10: recomendações aprovadas** | 2026-10-10 | — |
-| 27 | Aprova a migração V10 (aditiva, só um INSERT de `soil_moisture_0_7cm` no `variable_catalog`: faixa 0–1 m³/m³, instantânea, agregação "último valor") para a umidade do solo ERA5-Land entrar no pipeline? O Marine histórico ficou fora (só desde 2022, ~4,8 anos) | 2026-10-10 | feature 22 (umidade do solo) fica indisponível |
+| 27 | ~~Aprova a migração V10 (aditiva, só um INSERT de `soil_moisture_0_7cm` no `variable_catalog`: faixa 0–1 m³/m³, instantânea, agregação "último valor") para a umidade do solo ERA5-Land entrar no pipeline? O Marine histórico ficou fora (só desde 2022, ~4,8 anos)~~ **resolvida 2026-10-10 pela autorização durável: V10 aprovada** | 2026-10-10 | — |
 
 ## Medidas antes e depois
 | Métrica | Antes | Depois | Quando | Onde foi medida |
