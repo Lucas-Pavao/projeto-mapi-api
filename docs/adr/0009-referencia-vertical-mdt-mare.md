@@ -1,6 +1,6 @@
 # 0009 — Referência vertical entre o MDT do PE3D e a tábua de maré
 
-- Status: proposto
+- Status: proposto (checkpoint Máximo: aprovado com 5 ressalvas aplicadas em 2026-10-10; falta aprovação do Lucas)
 - Data: 2026-10-10
 - Decisores: Agente 5 (Engenheiro Geoespacial, autor), checkpoint Máximo (pendente), Lucas
 - Tarefa: F3-GEO-03
@@ -39,7 +39,15 @@ Cadeia documentada pelo IBGE (extrato 1, Figura 4): zero do marégrafo → zero 
 3. Recife **não** é estação da RMPG (Imbituba, Macaé, Salvador, Fortaleza, Santana; extrato 1). Não há relatório de níveis de referência do IBGE para Recife nos moldes dos de Imbituba/Belém/Salvador.
 4. Nenhum documento consultado dá a altitude (SGB) da RN do marégrafo do Recife nem a altura dela sobre o NR.
 
-**Estimativa de trabalho (não aprovada, não usar em código):** a altitude do plano NR no SGB é h_NR = NMM_alt − 1,28 m. Com NMM_alt entre +0,14 e +0,35 m, h_NR fica entre **−1,14 m e −0,93 m**; ponto central −1,04 m. O erro de leitura do gráfico é ≈ ±0,03 m; sobre isso somam-se: NMM de série antiga (1978–1986) × nível médio atual [sem fonte para a tendência local]; incerteza vertical do MDT (especificação < 0,25 m; observado σ ≈ 0,11 m em Cabo); diferença altitude normal × ortométrica (centimétrica) [sem fonte]. Incerteza combinada plausível: **±0,3 m**. Este número é uma ordem de grandeza e não substitui a medida.
+**Estimativa de trabalho (não aprovada, não usar em código):** a altitude do plano NR no SGB é h_NR = NMM_alt − 1,28 m. Com NMM_alt entre +0,14 e +0,35 m, h_NR fica entre **−1,14 m e −0,93 m**; ponto central −1,04 m. O erro de leitura do gráfico é ≈ ±0,03 m; sobre isso somam-se: NMM de série antiga (1978–1986) × nível médio atual [sem fonte para a tendência local]; incerteza vertical do MDT (especificação < 0,25 m; observado σ ≈ 0,11 m em Cabo); diferença altitude normal × ortométrica (centimétrica) [sem fonte]. Incerteza plausível de Δ: **±0,3 m**, ordem de grandeza que não substitui a medida.
+
+**Condição (ressalva 1):** o ±0,3 m só vale se o MDT estiver no SGB (altitude normal/ortométrica). Se o PE3D tiver usado altura elipsoidal, o erro é de **metros** (a ondulação geoidal no Recife é de metros; valor a obter no MAPGEO2015 [sem fonte]). A evidência de Lins (2018) sustenta a hipótese do SGB, mas não a fecha: são 9 pontos em um município, e os pontos "H" do IBGE têm datum não declarado na tabela.
+
+**Duas incertezas distintas (ressalva 2):**
+- Incerteza de **Δ** (plano NR↔datum): fica presa à RN (altura sobre o NR e altitude no SGB) e à ligação entre elas. Não inclui o MDT ponto a ponto.
+- Incerteza da **folga** (por ponto): Δ + σ de H do MDT (≈ 0,11 m ponto a ponto, observado em Cabo) + resíduo meteorológico + erro da previsão da tábua.
+- A subida do nível do mar desde 1978–1986 enviesa a **altura prevista pela tábua** (o NMM de 1,28 m é antigo), não o plano NR, que é um plano fixo da DHN. Isso entra na folga, não em Δ.
+- **Aviso:** a frente B1 mistura épocas (NMM do IBGE × 1,28 m da DHN de 1978–1986); por isso B1 é só consistência, não fecha Δ.
 
 ## Convenção de conversão
 
@@ -91,15 +99,15 @@ Passos, nesta ordem:
 
 Pode ser calculado já (referência relativa, sem Δ): `cota_rua_m` relativa entre pontos, profundidade da depressão, declividade, área contribuinte, curva cota-volume, diferença de cota entre rua e soleira se ambas vêm do MDT, e features temporais da maré (altura da tábua, fase, hora desde a preamar).
 
-**Não pode ser calculado até Δ aprovado:** `nível lá fora − cota da rua`, `folga até a soleira` com nível lá fora vindo da tábua, qualquer limiar de "maré supera a cota da rua", e o recorte de pontos "sujeitos a refluxo por maré". `soleira` e `cota da rua` seguem no datum do MDT; `outsideLevel` pelo rio (régua da ANA/APAC) tem referência própria, a ser tratada em ADR à parte.
+**Não pode ser calculado até Δ aprovado:** `nível lá fora − cota da rua`, `folga até a soleira` com nível lá fora vindo da tábua, qualquer limiar de "maré supera a cota da rua", e o recorte de pontos "sujeitos a refluxo por maré". **Soleira (ressalva 5):** a diferença rua−soleira só vale com soleira de fonte própria (levantamento de campo ou cadastro de drenagem). Não derivar soleira do MDT de 1 m (terreno nu, sem a galeria nem o canal). Sem essa fonte, a folga até a soleira fica indefinida. `soleira` e `cota da rua` seguem no datum do MDT; `outsideLevel` pelo rio (régua da ANA/APAC) tem referência própria, a ser tratada em ADR à parte.
 
 O que muda no código quando aprovado: coluna de Δ e incerteza em tabela de parâmetros (não constante no código), e a conversão `cota_NR = H + Δ` num único ponto do pipeline. Antes: nada muda em código, banco ou compose.
 
-Como medir: (i) concordância entre as frentes de B (alvo: diferença entre métodos < 0,15 m); (ii) a incerteza do Δ final entra nas faixas de risco (risco UNKNOWN se a folga for menor que a incerteza).
+Como medir: (i) concordância entre as frentes de B (alvo: diferença entre métodos < 0,15 m); (ii) a incerteza da folga entra como um **indicador de baixa confiança, separado do `riskLevel`**: marcar `baixaConfianca = true` quando |folga| < incerteza da folga. Não usar `UNKNOWN` para isso: no ADR 0007, UNKNOWN significa sem previsão válida.
 
 ### Como validar
 
-Eventos de alagamento de **maré em dia sem chuva** no CKAN (chuva 24 h ≈ 0 na estação APAC/Cemaden mais próxima): para cada ponto crítico com cota H e evento registrado, o nível lá fora previsto, convertido com Δ, deve ter superado a soleira/cota da rua no horário do evento (preamar de sizígia). Contagem de acertos e de erros por valor de Δ ± incerteza; também o inverso (preamar de sizígia sem registro). A varredura de Δ que maximiza a concordância é um **indício** de consistência, não um valor de Δ: não calibrar Δ com os alagamentos que depois serão usados para avaliar o modelo (vazamento). [Quantidade de eventos disponíveis no CKAN: sem fonte; levantar antes.]
+Eventos de alagamento de **maré em dia sem chuva** no CKAN (chuva 24 h ≈ 0 na estação APAC/Cemaden mais próxima): para cada ponto crítico com cota H e evento registrado, o nível lá fora previsto, convertido com Δ, deve ter superado a soleira/cota da rua no horário do evento (preamar de sizígia). Contagem de acertos e de erros por valor de Δ ± incerteza; também o inverso (preamar de sizígia sem registro). **Circularidade (ressalva 4), mecanismo adotado:** Δ vem só de A/B e os eventos CKAN apenas **checam** esse Δ; não há varredura de Δ. Se alguma varredura for feita, vale partição fixa: os eventos usados em qualquer varredura de Δ nunca entram na avaliação do modelo (lista congelada por id antes de treinar). **Limite do teste:** eventos do CKAN com precisão DAY não têm horário; o teste usa a preamar de sizígia do dia, o que é indício fraco, não prova. [Quantidade de eventos disponíveis no CKAN: sem fonte; levantar antes.]
 
 ## Condições que reabririam a decisão
 
