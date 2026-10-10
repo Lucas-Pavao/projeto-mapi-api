@@ -1,6 +1,6 @@
 # Progresso da revisão multiagente do MAPi
 
-Última execução: 2026-10-10 (2ª) · Fase atual: 2 (Fase 1 concluída) · Próxima tarefa: F2-DADOS-01
+Última execução: 2026-10-10 (2ª) · Fase atual: 2 (Fase 1 concluída) · Próxima tarefa: F2-DADOS-01 / F2-DADOS-05 / F2-BACK-04 (paralelo)
 
 > Local: `projeto-mapi-api/.claude/mapi/PROGRESSO.md`. A pasta-mãe `MAPI/` não é repositório git;
 > o estado oficial fica no repositório orquestrador para ser versionado. Docs transversais
@@ -19,6 +19,11 @@
 | 2026-10-10 | Front: pode-se trabalhar sobre as edições não commitadas existentes | — | Lucas |
 | 2026-10-10 | Glossário: ficha = 5 mm, soleira, lâmina e nível lá fora confirmados | — | Lucas |
 | 2026-10-10 | projeto-mapi (MAPI Edge) declarado descontinuado | — | Lucas |
+| 2026-10-10 | Contrato de predição: enum fechado `LOW/MEDIUM/HIGH/UNKNOWN`, probabilidade `null` em falha, `modelVersion` | — (vira ADR junto com o OpenAPI do contrato) | Lucas |
+| 2026-10-10 | Rótulo: desativar o realinhamento ao pico de chuva e reimportar o CKAN preservando a data original | — | Lucas |
+| 2026-10-10 | `wipe-database` restrito ao profile `dev` | — | Lucas |
+| 2026-10-10 | `flood_predictions` **não** entra nos resultados da dissertação (matriz item 7 fica P1) | — | Lucas |
+| 2026-10-10 | Não existe histórico de 5 anos em lugar nenhum: a carga histórica só depois dos itens 1–4 da matriz | — | Lucas |
 
 ## Tarefas
 | ID | Fase | Agente | Nível | Tarefa | Status | PR/commit | Resultado em uma linha |
@@ -57,6 +62,11 @@
 | F2-BACK-01 | 2 | Backend | Equilibrado | Implementar ingestão aprovada (migração incremental) | pendente | | exige aprovação de migração |
 | F2-BACK-02 | 2 | Backend | Equilibrado | Identificador de proveniência nas respostas de dado | pendente | | muda contrato: aprovação |
 | F2-BACK-03 | 2 | Backend | Equilibrado | `docs/INGESTAO.md` e `docs/API.md` | pendente | | |
+| F2-BACK-04 | 2 | Backend | Equilibrado | Testcontainers com TimescaleDB (ADR 0004): base de teste de repositório, migração Flyway e export; remover H2 quando verde | pendente | | matriz item 9 |
+| F2-BACK-05 | 2 | Backend | Equilibrado | `wipe-database` só no profile `dev` (decisão 2026-10-10) | pendente | | matriz item 10 |
+| F2-BACK-06 | 2 | Backend | Equilibrado | Desativar `alignFloodEventsToRainPeaks` e preservar a data original do CKAN, com precisão declarada (decisão 2026-10-10) | pendente | | matriz item 1 |
+| F2-BACK-07 | 2 | Backend | Equilibrado | Timeouts em todos os clientes HTTP; fallback que não mascara falha (Retry efetivo); métrica de idade do dado | pendente | | matriz item 8 |
+| F2-ARQ-02 | 2 | Arquiteto | Equilibrado | Contrato de predição (OpenAPI + ADR) antes de mudar backend, IA e front (decisão 2026-10-10) | pendente | | matriz item 7 |
 | F2-ARQ-01 | 2 | Arquiteto | Rápido | Handoff da Fase 2 | pendente | | |
 | F3-GEO-01 | 3 | Geo | Equilibrado | Processar rasters: unzip, atribuir CRS/nodata, VRT, recorte, COG; medir tamanhos | pendente | | precisa GDAL/rasterio (ausentes localmente → docker) |
 | F3-GEO-02 | 3 | Geo+Dados+Backend | Equilibrado + checkpoint | ADR de onde armazenar o terreno | pendente | | |
@@ -105,11 +115,11 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | 5 | ~~Front tem 14 arquivos modificados não commitados (flood.service, schemas, MapView…). É trabalho seu em andamento? Devo esperar o commit antes de qualquer PR no front?~~ **respondida 2026-10-10** | 2026-10-10 | — |
 | 6 | ~~Confirmar as definições ⚠ do glossário (ficha = 5 mm, soleira, lâmina, nível lá fora) contra a formulação da rede de Petri/Mercury~~ **respondida 2026-10-10** | 2026-10-10 | — |
 | 7 | ~~O repositório `projeto-mapi` (projeto-mapi-sensores, o antigo MAPI Edge) deve ser arquivado no GitHub ou receber README de "descontinuado"?~~ **respondida 2026-10-10** | 2026-10-10 | — |
-| 8 | Contrato de predição: posso fechar o enum em `LOW/MEDIUM/HIGH/UNKNOWN` (remover `CRITICAL`/`EXTREME` do front), devolver probabilidade `null` em falha (hoje 0.0 aparece como "0%") e adicionar `modelVersion`? (recomendação: sim) | 2026-10-10 | matriz item 7 parado; UNKNOWN continua verde no card |
-| 9 | Rótulo: o CKAN só tem data e o código sobrescreveu a hora dos eventos 00:00 com o pico de chuva (rótulo circular). Posso (a) desativar o realinhamento e (b) reimportar o CKAN preservando a data original? A escolha entre rótulo diário e horizonte 3/6 h fica para a formulação da Fase 4 | 2026-10-10 | matriz itens 1 e 6; qualquer métrica atual é inválida |
-| 10 | `DELETE /api/admin/ingestion/wipe-database` apaga tudo, inclusive usuários. Remover, ou restringir a um profile `dev` com confirmação? (recomendação: restringir ao `dev`) | 2026-10-10 | risco ao dataset e à banca |
-| 11 | A tabela `flood_predictions` (taxa de alerta, auditoria) entra nos resultados da dissertação? Se sim, o item 7 da matriz sobe para P0 | 2026-10-10 | prioridade do item 7 |
-| 12 | O banco local não tem o histórico de 5 anos (só ~4 semanas de setembro, 0 eventos de alagamento). A carga histórica existe em outro banco/máquina? Se não, recomendo **não** rodar `historical-full-sync` agora: o pipeline atual grava fusos misturados e reescreve o rótulo. Carregar só depois dos itens 1–4 da matriz | 2026-10-10 | dataset de treino e medidas de volume da Fase 2 |
+| 8 | ~~Contrato de predição: posso fechar o enum em `LOW/MEDIUM/HIGH/UNKNOWN` (remover `CRITICAL`/`EXTREME` do front), devolver probabilidade `null` em falha (hoje 0.0 aparece como "0%") e adicionar `modelVersion`? (recomendação: sim)~~ **respondida 2026-10-10** | 2026-10-10 | — |
+| 9 | ~~Rótulo: o CKAN só tem data e o código sobrescreveu a hora dos eventos 00:00 com o pico de chuva (rótulo circular). Posso (a) desativar o realinhamento e (b) reimportar o CKAN preservando a data original? A escolha entre rótulo diário e horizonte 3/6 h fica para a formulação da Fase 4~~ **respondida 2026-10-10** | 2026-10-10 | — |
+| 10 | ~~`DELETE /api/admin/ingestion/wipe-database` apaga tudo, inclusive usuários. Remover, ou restringir a um profile `dev` com confirmação? (recomendação: restringir ao `dev`)~~ **respondida 2026-10-10** | 2026-10-10 | — |
+| 11 | ~~A tabela `flood_predictions` (taxa de alerta, auditoria) entra nos resultados da dissertação? Se sim, o item 7 da matriz sobe para P0~~ **respondida 2026-10-10** | 2026-10-10 | — |
+| 12 | ~~O banco local não tem o histórico de 5 anos (só ~4 semanas de setembro, 0 eventos de alagamento). A carga histórica existe em outro banco/máquina? Se não, recomendo **não** rodar `historical-full-sync` agora: o pipeline atual grava fusos misturados e reescreve o rótulo. Carregar só depois dos itens 1–4 da matriz~~ **respondida 2026-10-10** | 2026-10-10 | — |
 
 ## Medidas antes e depois
 | Métrica | Antes | Depois | Quando | Onde foi medida |
