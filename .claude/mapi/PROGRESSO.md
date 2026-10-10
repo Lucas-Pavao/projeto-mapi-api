@@ -69,15 +69,16 @@
 | F2-BACK-01 | 2 | Backend | Equilibrado | Implementar ingestão aprovada (migração incremental) | pendente | | exige aprovação de migração |
 | F2-BACK-02 | 2 | Backend | Equilibrado | Identificador de proveniência nas respostas de dado | pendente | | muda contrato: aprovação |
 | F2-BACK-03 | 2 | Backend | Equilibrado | `docs/INGESTAO.md` e `docs/API.md` | pendente | | |
-| F2-BACK-04 | 2 | Backend | Equilibrado | Testcontainers com TimescaleDB (ADR 0004): base de teste de repositório, migração Flyway e export; remover H2 quando verde | em_andamento | | 2026-10-10 · subagente Sonnet · worktree, branch `feat/testcontainers` |
-| F2-BACK-05 | 2 | Backend | Equilibrado | `wipe-database` só no profile `dev` (decisão 2026-10-10) | em_andamento | | 2026-10-10 · subagente Sonnet · worktree, branch `fix/wipe-database-dev` |
-| F2-BACK-06 | 2 | Backend | Equilibrado | Desativar `alignFloodEventsToRainPeaks` e preservar a data original do CKAN, com precisão declarada (decisão 2026-10-10) | em_andamento | | 2026-10-10 · subagente Sonnet · worktree, branch `fix/desativa-realinhamento-rotulo` |
-| F2-BACK-07 | 2 | Backend | Equilibrado | Timeouts em todos os clientes HTTP; fallback que não mascara falha (Retry efetivo); métrica de idade do dado | em_andamento | | 2026-10-10 · subagente Sonnet · worktree, branch `fix/timeouts-e-fallback-honesto` |
+| F2-BACK-04 | 2 | Backend | Equilibrado | Testcontainers com TimescaleDB (ADR 0004): base de teste de repositório, migração Flyway e export; remover H2 quando verde | concluido | 6b8c0d6 (`feat/testcontainers`); relatório 6f05775 | 2026-10-10 · subagente Sonnet · Testcontainers 1.21.4 + TimescaleDB real, Flyway + validate; 7 testes novos (migrations, hypertables, time_bucket/raio/DISTINCT ON, export CSV); Docker 29 exigiu `api.version=1.44` · H2 segue nos testes antigos (pendência) |
+| F2-BACK-05 | 2 | Backend | Equilibrado | `wipe-database` só no profile `dev` (decisão 2026-10-10) | concluido | 95364bc (`fix/wipe-database-dev`) | 2026-10-10 · subagente Sonnet · `DevAdminController` com `@Profile("dev")`: sem dev → 404; compose não ativa dev |
+| F2-BACK-06 | 2 | Backend | Equilibrado | Desativar `alignFloodEventsToRainPeaks` e preservar a data original do CKAN, com precisão declarada (decisão 2026-10-10) | concluido | 2c15fa4 (`fix/desativa-realinhamento-rotulo`) | 2026-10-10 · subagente Sonnet · realinhamento removido do código e do full-sync; `align-events` responde 410 citando ADR 0006; evento 00:00 continua 00:00 · pendência: export ainda dá janela fixa de 3 h a evento só com data (00:00–03:59) → resolvido pela precisão DAY do ADR 0006 + decisão da Fase 4 (pergunta 17) |
+| F2-BACK-07 | 2 | Backend | Equilibrado | Timeouts em todos os clientes HTTP; fallback que não mascara falha (Retry efetivo); métrica de idade do dado | concluido | 03967a6, db38e0f (`fix/timeouts-e-fallback-honesto`) | 2026-10-10 · subagente Sonnet · timeouts por fonte em `app.http`; fallbacks `List.of()` removidos (Retry volta a disparar, ciclo distingue `sourceUnavailable`); gauge `mapi_collector_last_data_age_seconds{source}` · faltam gauge de Open-Meteo/maré e regra de alerta |
 | F2-ARQ-02 | 2 | Arquiteto | Equilibrado | Contrato de predição (OpenAPI + ADR) antes de mudar backend, IA e front (decisão 2026-10-10) | em_andamento | | 2026-10-10 · Opus · `docs/adr/0007-contrato-de-predicao.md` (Arquiteto) |
 | F2-FRONT-01 | 2 | Frontend | Equilibrado | Contrato de predição no front, passo 1 do ADR 0007 (zod tolerante, enum, UNKNOWN neutro único, campos novos opcionais) | concluido | sem commit (WIP do Lucas); patch `scratchpad/F2-FRONT-01.patch` copiado para `docs/revisao/fase-2/F2-FRONT-01.patch` | 2026-10-10 · subagente Sonnet · `docs/revisao/fase-2/F2-FRONT-01.md` · UNKNOWN 3→1 tratamento; mapeamento de risco 4→1 cópia; testes front 5→20; lint 0 erros, tsc limpo · fora: 6 `toLocale*` (F1-F2-19), UI de contributors, contraste da cor neutra |
 | F2-BACK-08 | 2 | Backend | Equilibrado | Contrato de predição no backend, passo 2 do ADR 0007 (enum, null em falha, degradationReason, previsão no ciclo de coleta, GET sem gravar) | pendente | | espera F2-BACK-07 (mesmo arquivo) |
 | F2-DADOS-07 | 2 | Dados | Equilibrado | Verificar fuso de ANA, APAC 24h e Cemaden por correlação cruzada com Open-Meteo (UTC) após a primeira carga | pendente | | depende de F2-BACK-01 + carga |
 | F2-BACK-09 | 2 | Backend | Equilibrado | Primeira carga histórica (5 anos) pelo pipeline novo + medidas de volume e p95 do export | pendente | | depende de F2-BACK-01, F2-BACK-06 |
+| F2-ARQ-03 | 2 | Arquiteto | Equilibrado | Integrar F2-BACK-04..07 e rodar a suíte completa | concluido | 7ccc0e8 (`integracao/fase-2`) | 2026-10-10 · Opus · 1 conflito trivial resolvido em `HistoricalDataServiceImpl` (serviceProvider removido + cliente com timeout); 49 testes, 0 falhas; cobertura 36,2% linhas / 23,9% ramos; export 74,6% |
 | F2-ARQ-01 | 2 | Arquiteto | Rápido | Handoff da Fase 2 | pendente | | |
 | F3-GEO-01 | 3 | Geo | Equilibrado | Processar rasters: unzip, atribuir CRS/nodata, VRT, recorte, COG; medir tamanhos | pendente | | precisa GDAL/rasterio (ausentes localmente → docker) |
 | F3-GEO-02 | 3 | Geo+Dados+Backend | Equilibrado + checkpoint | ADR de onde armazenar o terreno | pendente | | |
@@ -149,7 +150,7 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | Ocorrências de `any` no front | 0 | | 2026-10-10 | `grep -rn ': any\|as any' src` |
 | Pontos críticos cadastrados | 5 | | 2026-10-10 | `MapiServiceImpl.java:573-620` (F1-BACK-03) |
 | Volume clima 5 anos × 5 pontos | ~219 mil linhas (~55 MB) | | 2026-10-10 | estimativa F1-BACK-03 §6, premissas a conferir no banco |
-| Timeouts HTTP configurados nos clientes externos | 0 | | 2026-10-10 | grep `timeout` em src/main (F1-B2-01, conferido) |
+| Timeouts HTTP configurados nos clientes externos | 0 | todos os clientes (F2-BACK-07) | 2026-10-10 | grep `timeout` em src/main (F1-B2-01, conferido) |
 | Testes backend (métodos) / em coleta, export, IA | 20 / 0 (o subagente contou 18 por leitura; o surefire executou 20 — vale o surefire) | | 2026-10-10 | F1-BACK-02 §7 |
 | Tratamentos de fuso distintos nas mesmas colunas | 5 | | 2026-10-10 | F1-BACK-03 tabela de fuso |
 | Features constantes (zeradas) na inferência da IA | 9 de 28 | | 2026-10-10 | F1-IA-02 (F1-I2-01) |
@@ -157,9 +158,9 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | Tratamentos visuais distintos de UNKNOWN no front | 3 | 1 (F2-FRONT-01, sem commit) | 2026-10-10 | F1-FRONT-02 (F1-F2-04) |
 | `aria-label` / botões no front | 0 / 31 | | 2026-10-10 | F1-FRONT-02 (F1-F2-09) |
 | Portas de banco/IA em 0.0.0.0 | 2 | 0 | 2026-10-10 | docker-compose.yml (F1-QA-02, 2fe06c6) |
-| Cobertura de teste backend (linhas / ramos) | 26,1% / 17,6% | | 2026-10-10 | JaCoCo 0.8.12, `docs/medidas/jacoco-2026-10-10.csv` |
-| Cobertura do export (`service.export.impl`) | 0,6% | | 2026-10-10 | idem |
-| Testes backend executados | 20 (0 falhas) | | 2026-10-10 | surefire |
+| Cobertura de teste backend (linhas / ramos) | 26,1% / 17,6% | 36,2% / 23,9% (integracao/fase-2) | 2026-10-10 | JaCoCo 0.8.12, `docs/medidas/jacoco-2026-10-10.csv` |
+| Cobertura do export (`service.export.impl`) | 0,6% | 74,6% (integracao/fase-2, 7ccc0e8) | 2026-10-10 | idem |
+| Testes backend executados | 20 (0 falhas) | 49 (0 falhas), integracao/fase-2 | 2026-10-10 | surefire |
 | Linhas no banco local (sensor / clima / eventos / predições) | 555 / 40 / 0 / 25 102 | | 2026-10-10 | snapshot `3ace3cde…` |
 | p95 por endpoint (k6, ramping_load, cache) | 0,8–4,0 ms | | 2026-10-10 | `docs/medidas/LINHA-DE-BASE-2026-10-10.md` |
 | p95 export CSV 30 d (banco quase vazio) | 143,1 ms (n=44) | | 2026-10-10 | idem, rodada 2 — não representativo |
