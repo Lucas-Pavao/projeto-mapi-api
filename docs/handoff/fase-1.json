@@ -1,0 +1,754 @@
+{
+ "fase": 1,
+ "data": "2026-10-10",
+ "total_achados": 90,
+ "por_severidade": {
+  "critico": 21,
+  "importante": 49,
+  "desejavel": 20
+ },
+ "metricas": {
+  "cobertura_linhas_pct": 26.1,
+  "cobertura_ramos_pct": 17.6,
+  "cobertura_export_pct": 0.6,
+  "testes": 20,
+  "p95_cache_ms": [
+   0.8,
+   4.0
+  ],
+  "p95_export_30d_ms_banco_vazio": 143.1,
+  "timeouts_http": 0,
+  "tratamentos_de_fuso": 5,
+  "features_zeradas_inferencia": "9/28",
+  "baselines": "0/4",
+  "linhas_sensor": 555,
+  "linhas_clima": 40,
+  "eventos": 0,
+  "predicoes": 25102,
+  "openapi_operacoes": 46,
+  "snapshot_sha256": "3ace3cdeaeeaee39bc4a8e8321098dc31c7b62b7ef98bd54304d426c69d4dedd"
+ },
+ "matriz": "docs/MATRIZ-PRIORIDADE-FASE-1.md",
+ "achados": [
+  {
+   "id": "F1-B2-01",
+   "titulo": "Nenhum timeout em clientes externos (APAC, ANA, IA, Open-Meteo)",
+   "severidade": "critico",
+   "afeta_dissertacao": true,
+   "arquivos": "`ApacScrapeClientImpl.java:33-40`, `AnaDataClientImpl.java:60-64`, `FloodPredictionServiceImpl.java:20-24`, `ApplicationConfig.java:58-65`",
+   "metrica": "0 timeouts configurados em 10+ clientes"
+  },
+  {
+   "id": "F1-B2-02",
+   "titulo": "Agendador de 1 thread (inferência) e ANA sequencial",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "`SensorCollectionTask.java:28-47`, `AnaCollectorServiceImpl.java:63-66`",
+   "metrica": "6 jobs em 1 thread"
+  },
+  {
+   "id": "F1-B2-03",
+   "titulo": "Fallback devolve lista vazia: falha vira \"sucesso 0/0\" e Retry nunca dispara",
+   "severidade": "critico",
+   "afeta_dissertacao": true,
+   "arquivos": "`ApacScrapeClientImpl.java:43-44,69-72`, `AnaDataClientImpl.java:67-68`, `SensorCollectionTask.java:60-70`",
+   "metrica": "3 tentativas configuradas, 0 efetivas"
+  },
+  {
+   "id": "F1-B2-04",
+   "titulo": "Idempotência por SELECT + captura de violação dentro de transação",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "`SensorServiceImpl.java:33,150,216-221`, `V1__baseline_schema.sql:45`",
+   "metrica": "1 SELECT por leitura/ciclo"
+  },
+  {
+   "id": "F1-B2-05",
+   "titulo": "`processed` mede submissão, não gravação; fila de 110 rejeita e perde",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "`ApplicationConfig.java:70-72`, `ApacCollectorServiceImpl.java:107-108`, `SensorServiceImpl.java:52-54`",
+   "metrica": "capacidade 10+100=110"
+  },
+  {
+   "id": "F1-B2-06",
+   "titulo": "Sem backfill nem alerta após queda; 6 h de APAC viram zeros no dataset",
+   "severidade": "critico",
+   "afeta_dissertacao": true,
+   "arquivos": "`ApacCollectorServiceImpl.java:65-78`, `prometheus.yml`, `DataExportServiceImpl.java:211`",
+   "metrica": "6 h = 120 ciclos Cemaden + 72 Meteo sem dado"
+  },
+  {
+   "id": "F1-B2-07",
+   "titulo": "Timestamp inválido vira `now()`; teste consagra",
+   "severidade": "critico",
+   "afeta_dissertacao": true,
+   "arquivos": "`SensorServiceImpl.java:246-247,261`, `SensorServiceTest.java:65`",
+   "metrica": "2 pontos de fallback"
+  },
+  {
+   "id": "F1-B2-08",
+   "titulo": "Transação aberta durante HTTP externo",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "`MapiServiceImpl.java:305`, `DataExportServiceImpl.java:23`, `TideServiceImpl.java:102`",
+   "metrica": "3 locais"
+  },
+  {
+   "id": "F1-B2-09",
+   "titulo": "Hikari 10 = executor max 10; pools sem dimensionamento",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "`ApplicationConfig.java:70-72`, `application.yml` (ausente)",
+   "metrica": "10 vs 10 conexões/threads"
+  },
+  {
+   "id": "F1-B2-10",
+   "titulo": "Maré por leitura carrega grafo de tábuas do ano (N+1)",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "`TideServiceImpl.java:103-150`, `TideTable.java:37,41`",
+   "metrica": "1 `findAllByYear` por leitura/hora"
+  },
+  {
+   "id": "F1-B2-11",
+   "titulo": "Dashboards sem executor, IA e idade-do-dado",
+   "severidade": "desejavel",
+   "afeta_dissertacao": false,
+   "arquivos": "`observability/grafana/dashboards/*.json`",
+   "metrica": "5 dashboards, 0 métricas de executor"
+  },
+  {
+   "id": "F1-B2-12",
+   "titulo": "Segredo JWT público no compose; Postgres 5433 e IA 8000 em 0.0.0.0; registro aberto dá acesso ao export",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "`docker-compose.yml:9-10,32-33,50`, `SecurityConfig.java:37`",
+   "metrica": "3 portas/segredos expostos"
+  },
+  {
+   "id": "F1-B2-13",
+   "titulo": "Rate limit só em login/register e contornável por X-Forwarded-For",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "`LoginRateLimitingFilter.java:36-38,90-93`",
+   "metrica": "5 req/min em 2 rotas"
+  },
+  {
+   "id": "F1-B2-14",
+   "titulo": "Grafana admin/mapi123, Prometheus sem auth, Actuator prometheus público interno, refresh sem rotação",
+   "severidade": "desejavel",
+   "afeta_dissertacao": false,
+   "arquivos": "`docker-compose.yml:96,121`, `SecurityConfig.java:48`, `AuthenticationServiceImpl.java`",
+   "metrica": "4 itens"
+  },
+  {
+   "id": "F1-B2-15",
+   "titulo": "GET de ponto e `environmental-data` fazem trabalho de export + IA por requisição",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "`MapiServiceImpl.java:60-100,305,396`",
+   "metrica": "~25 chamadas de maré por GET"
+  },
+  {
+   "id": "F1-B2-16",
+   "titulo": "Export CSV sem limite de dias, em memória, maré por hora em transação",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "`DataExportController.java:48-75`, `DataExportServiceImpl.java:23,58,145,254-280`",
+   "metrica": "721 linhas (30 d) a ~50.000 h/ponto (`days=0`)"
+  },
+  {
+   "id": "F1-B2-17",
+   "titulo": "Query de raio JPQL sem índice espacial nem clamp do acos",
+   "severidade": "desejavel",
+   "afeta_dissertacao": false,
+   "arquivos": "`SensorDataRepository.java` (`findSensorsByRadius`)",
+   "metrica": "1 varredura por hora-janela"
+  },
+  {
+   "id": "F1-B2-18",
+   "titulo": "Imputação silenciosa por constantes no export (25 °C, 1013 hPa, 30 %, 0 mm)",
+   "severidade": "critico",
+   "afeta_dissertacao": true,
+   "arquivos": "`DataExportServiceImpl.java:199-232`",
+   "metrica": "6 variáveis imputadas, 0 flags"
+  },
+  {
+   "id": "F1-B2-19",
+   "titulo": "Semântica de `sensorPrecipitation`/`accumulated*` não documentada; export sem manifesto de versão",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "`DataExportServiceImpl.java:95-100,188-197,254-280`",
+   "metrica": "0 metadados no CSV"
+  },
+  {
+   "id": "F1-B2-20",
+   "titulo": "Sem teste do export, da gravação de predição, da coleta e da idempotência; suíte em H2",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "`src/test/**`, `src/test/resources/application.yml`",
+   "metrica": "7 classes, 18 testes, 0 sobre coleta/export/IA"
+  },
+  {
+   "id": "F1-B2-21",
+   "titulo": "Teste fixa o fallback de timestamp para \"agora\" como correto",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "`SensorServiceTest.java:65`",
+   "metrica": "1 teste"
+  },
+  {
+   "id": "F1-B2-22",
+   "titulo": "ArchUnit ausente; 4 violações pré-existentes medidas",
+   "severidade": "desejavel",
+   "afeta_dissertacao": false,
+   "arquivos": "`AuthController.java:9,76`, `FloodEventDTO`, `ScraperEventDTO`, `SensorService.java:19`",
+   "metrica": "4 violações (1+2+1)"
+  },
+  {
+   "id": "F1-B2-23",
+   "titulo": "`MapiServiceImpl` com 775 linhas mistura 5 responsabilidades",
+   "severidade": "desejavel",
+   "afeta_dissertacao": false,
+   "arquivos": "`service/impl/MapiServiceImpl.java`",
+   "metrica": "775 linhas"
+  },
+  {
+   "id": "F1-B2-24",
+   "titulo": "IA sem timeout/CB, sem PENDING nem reprocessamento, 0.0 em falha, sem model_version, risco não validado",
+   "severidade": "critico",
+   "afeta_dissertacao": true,
+   "arquivos": "`FloodPredictionServiceImpl.java:26-60`, `MapiServiceImpl.java:125-178`, `FloodPrediction.java:56`",
+   "metrica": "0 mecanismos de reprocesso"
+  },
+  {
+   "id": "F1-B2-25",
+   "titulo": "GET /api/pontos/{slug} grava em `flood_predictions`",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "`MapiServiceImpl.java:305,396,153-173`",
+   "metrica": "1 INSERT por GET"
+  },
+  {
+   "id": "F1-B2-26",
+   "titulo": "Cache `floodPoints` com entidades mutáveis e evicção a cada 10 min",
+   "severidade": "desejavel",
+   "afeta_dissertacao": false,
+   "arquivos": "`CacheConfig.java:23-24`, `SensorServiceImpl.java:375-379`",
+   "metrica": "TTL efetivo 600 s"
+  },
+  {
+   "id": "F1-B3-01",
+   "titulo": "`weather_data` sem unique; dedupe >8000 linhas",
+   "severidade": "critico",
+   "afeta_dissertacao": false,
+   "arquivos": "HistoricalDataServiceImpl.java:234; V1:50-64",
+   "metrica": "0 constraints únicas; duplica no ano corrente"
+  },
+  {
+   "id": "F1-B3-02",
+   "titulo": "Fuso heterogêneo por fonte na mesma coluna",
+   "severidade": "critico",
+   "afeta_dissertacao": true,
+   "arquivos": "HistoricalDataServiceImpl.java:245; WeatherServiceImpl.java:47; AnaHistoricalServiceImpl.java:119",
+   "metrica": "9 fontes/caminhos, 5 tratamentos distintos"
+  },
+  {
+   "id": "F1-B3-03",
+   "titulo": "`-3h` ANA sem citação; ANA ao vivo sem deslocamento",
+   "severidade": "critico",
+   "afeta_dissertacao": true,
+   "arquivos": "AnaHistoricalServiceImpl.java:117-119; SensorServiceImpl.java:58-65",
+   "metrica": "erro potencial de 3 h"
+  },
+  {
+   "id": "F1-B3-04",
+   "titulo": "Rótulo circular (alinhamento ao pico, sobrescreve original)",
+   "severidade": "critico",
+   "afeta_dissertacao": true,
+   "arquivos": "HistoricalDataServiceImpl.java:99-159; DataExportServiceImpl.java:244",
+   "metrica": "100% dos eventos 00:00 realinhados"
+  },
+  {
+   "id": "F1-B3-05",
+   "titulo": "ANA fora do export (sem lat/lon)",
+   "severidade": "critico",
+   "afeta_dissertacao": true,
+   "arquivos": "AnaHistoricalServiceImpl.java:83-131; DataExportServiceImpl.java:62-71",
+   "metrica": "0 linhas ANA no export"
+  },
+  {
+   "id": "F1-B3-06",
+   "titulo": "`sensor_id`=slug causa colisão entre estações",
+   "severidade": "critico",
+   "afeta_dissertacao": true,
+   "arquivos": "AnaHistoricalServiceImpl.java:83-91,122",
+   "metrica": "1 estação por (ponto, timestamp)"
+  },
+  {
+   "id": "F1-B3-07",
+   "titulo": "Diário × sub-horário com `max` por hora",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "ApacHistoricalServiceImpl.java:189; DataExportServiceImpl.java:94",
+   "metrica": "pico espúrio 1/dia/estação"
+  },
+  {
+   "id": "F1-B3-08",
+   "titulo": "Imputação por constantes; ausência vira 0",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "DataExportServiceImpl.java:199-234",
+   "metrica": "6 constantes inventadas"
+  },
+  {
+   "id": "F1-B3-09",
+   "titulo": "Sem proveniência no histórico",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "ApacHistoricalServiceImpl.java:276; AnaHistoricalServiceImpl.java:126",
+   "metrica": "0 campos de versão/coleta/payload"
+  },
+  {
+   "id": "F1-B3-10",
+   "titulo": "Sem correção retroativa; dia parcial congelado",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "ApacHistoricalServiceImpl.java:64,275",
+   "metrica": "primeiro valor vence"
+  },
+  {
+   "id": "F1-B3-11",
+   "titulo": "Raios fixos e não gravados",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "HistoricalDataServiceImpl.java:413; ApacHistoricalServiceImpl.java:240; FloodEventServiceImpl.java:63",
+   "metrica": "6 usos de 3 km, 1 de 2 km, 0 configuráveis"
+  },
+  {
+   "id": "F1-B3-12",
+   "titulo": "CKAN: dedupe por dia, severidade fixa, sem id/coord",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "FloodEventServiceImpl.java:69-83; CivilDefenseServiceImpl.java:192-270",
+   "metrica": "1 evento/ponto/dia"
+  },
+  {
+   "id": "F1-B3-13",
+   "titulo": "repair-stations: janela de 7 dias; meteo a todos",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "HistoricalDataServiceImpl.java:366-387",
+   "metrica": "5/5 pontos recebem toda estação sem coordenadas"
+  },
+  {
+   "id": "F1-B3-14",
+   "titulo": "Fallback `now()` e `parseDouble` cru",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "SensorServiceImpl.java:247,261; AnaHistoricalServiceImpl.java:132",
+   "metrica": "2 fallbacks silenciosos"
+  },
+  {
+   "id": "F1-B3-15",
+   "titulo": "Coletor ao vivo descarta leituras intermediárias",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "ApacCollectorServiceImpl.java:66-80",
+   "metrica": "1 de ~150 leituras/estação/ciclo"
+  },
+  {
+   "id": "F1-B3-16",
+   "titulo": "Lote APAC engolido; integridade só conta linhas",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "ApacHistoricalServiceImpl.java:292-300; HistoricalDataServiceImpl.java:333",
+   "metrica": "limiar fixo 30000"
+  },
+  {
+   "id": "F1-B3-17",
+   "titulo": "Export lento/pesado em memória",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "TideServiceImpl.java:101-156; DataExportServiceImpl.java:254-280",
+   "metrica": "~43,8 mil consultas de maré/ponto; ~33 MB (5 pts) a 1,3 GB (200 pts)"
+  },
+  {
+   "id": "F1-B3-18",
+   "titulo": "Maré: fuso ignorado, mês vazio sem reparo",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "TideTableSyncServiceImpl.java:117,131; TideServiceImpl.java:182",
+   "metrica": "0 usos de `tide_tables.timezone`"
+  },
+  {
+   "id": "F1-B3-19",
+   "titulo": "Clima do coletor não casa com igualdade lat/lon",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "WeatherServiceImpl.java:73; DataExportServiceImpl.java:75",
+   "metrica": "1 grade ≠ coordenada do ponto"
+  },
+  {
+   "id": "F1-B3-20",
+   "titulo": "Cenários só \"agora\", sem data, fora do export",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "MapiServiceImpl.java:631-714",
+   "metrica": "0 cenários no dataset"
+  },
+  {
+   "id": "F1-B3-21",
+   "titulo": "`wipe-database` destrói tudo",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "HistoricalDataController.java:100; HistoricalDataServiceImpl.java:339",
+   "metrica": "7 repositórios apagados"
+  },
+  {
+   "id": "F1-B3-22",
+   "titulo": "Acumulados só Open-Meteo; CSV sem unidade/fuso",
+   "severidade": "desejavel",
+   "afeta_dissertacao": true,
+   "arquivos": "DataExportServiceImpl.java:188-197,256",
+   "metrica": "5 janelas só de reanálise"
+  },
+  {
+   "id": "F1-B3-23",
+   "titulo": "Duas fórmulas de distância; `acos` sem clamp",
+   "severidade": "desejavel",
+   "afeta_dissertacao": false,
+   "arquivos": "GeoUtils.java:4; SensorDataRepository.java:31-39",
+   "metrica": "2 implementações"
+  },
+  {
+   "id": "F1-B3-24",
+   "titulo": "Janelas de anos inconsistentes",
+   "severidade": "desejavel",
+   "afeta_dissertacao": false,
+   "arquivos": "HistoricalDataServiceImpl.java:61; CivilDefenseServiceImpl.java:231",
+   "metrica": "`years+1` vs `years`"
+  },
+  {
+   "id": "F1-B3-25",
+   "titulo": "`@Async` por auto-chamada sem efeito",
+   "severidade": "desejavel",
+   "afeta_dissertacao": false,
+   "arquivos": "CivilDefenseServiceImpl.java:246",
+   "metrica": "2 chamadas"
+  },
+  {
+   "id": "F1-B3-26",
+   "titulo": "Arquitetura staging→validação→consolidado",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "(proposta, ADR F2-DADOS-05)",
+   "metrica": "3 camadas, 1 `provenanceId`"
+  },
+  {
+   "id": "F1-I2-01",
+   "titulo": "Nove features zeradas na inferência (skew treino/serviço)",
+   "severidade": "critico",
+   "afeta_dissertacao": true,
+   "arquivos": "`AI:app.py:72-81`; `AI:feature_engineering.py:249-262`; `API:dto/FloodPredictionRequestDTO.java:93-125`",
+   "metrica": "9 de 28 features constantes em produção"
+  },
+  {
+   "id": "F1-I2-02",
+   "titulo": "Tarefa é nowcast com rótulo manual instantâneo, sem horizonte H",
+   "severidade": "critico",
+   "afeta_dissertacao": true,
+   "arquivos": "`AI:trainer.py:109`; `AI:config.py:16`; `API:MapiServiceImpl.java:~630-700`",
+   "metrica": "H = 0 (exigido 3 h e 6 h)"
+  },
+  {
+   "id": "F1-I2-03",
+   "titulo": "Scaler antes do split; split posicional sem guarda nem validação",
+   "severidade": "critico",
+   "afeta_dissertacao": true,
+   "arquivos": "`AI:trainer.py:112-118,158-177`",
+   "metrica": "1 vazamento (scaler); 0 conjuntos de validação"
+  },
+  {
+   "id": "F1-I2-04",
+   "titulo": "Sem PR-AUC/Brier/calibração/baselines/desbalanceamento; limiares sem curva",
+   "severidade": "critico",
+   "afeta_dissertacao": true,
+   "arquivos": "`AI:trainer.py:128-130`; `AI:models.py:7-16`; `AI:app.py:164-168`",
+   "metrica": "0 de 4 baselines; 0 de 6 métricas exigidas (só precisão/recall/F1)"
+  },
+  {
+   "id": "F1-I2-05",
+   "titulo": "Artefato sem metadata, binários no git, dependências sem versão",
+   "severidade": "critico",
+   "afeta_dissertacao": true,
+   "arquivos": "`AI:trainer.py:133-137`; `AI:app.py:14-21`; `AI:requirements.txt`",
+   "metrica": "0 de 8 campos de metadata; 13 pacotes sem versão"
+  },
+  {
+   "id": "F1-I2-06",
+   "titulo": "Fallback silencioso para dataset sintético no treino",
+   "severidade": "critico",
+   "afeta_dissertacao": true,
+   "arquivos": "`AI:trainer.py:18-71,96-98`",
+   "metrica": "treino pode usar 200 linhas sintéticas sem aviso"
+  },
+  {
+   "id": "F1-I2-07",
+   "titulo": "Front exibe falha/ausência como \"Baixo\" verde, \"0%\" e marcador vermelho",
+   "severidade": "critico",
+   "afeta_dissertacao": false,
+   "arquivos": "`FRONT:FloodPointDetailCard.tsx:80-86`; `FRONT:FloodPointPopup.tsx:33-40,98`; `FRONT:MapView.tsx:389-394,671-684`",
+   "metrica": "3 componentes, 3 tratamentos distintos de UNKNOWN"
+  },
+  {
+   "id": "F1-I2-08",
+   "titulo": "Backend: sem timeout, 201 em falha, prob. 0.0, imputação 0.0 silenciosa",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "`API:FloodPredictionServiceImpl.java:20-24,48-60`; `API:MapiServiceImpl.java:129-171`; `API:MapiController.java:44-50`",
+   "metrica": "0 timeouts configurados; 3 campos imputados a 0.0"
+  },
+  {
+   "id": "F1-I2-09",
+   "titulo": "Falta de dado na IA: defaults e sentinelas silenciosos, lat/lon ausente vira 500",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "`AI:feature_engineering.py:164-166,248-262,278`; `AI:app.py:94-98,183-185`",
+   "metrica": "18 colunas preenchidas com 0.0; 4 sentinelas"
+  },
+  {
+   "id": "F1-I2-10",
+   "titulo": "Contrato de saída sem modelVersion/topContributors; enum CRITICAL/EXTREME fantasma",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "`AI:app.py:170-175`; `API:dto/FloodPredictionResponseDTO.java:172`; `FRONT:MapView.tsx:390`; `FRONT:FloodPointDetailCard.tsx:191`",
+   "metrica": "2 de 5 campos de saída exigidos presentes; 2 campos fantasma"
+  },
+  {
+   "id": "F1-I2-11",
+   "titulo": "`distance_to_channel` constante; terreno por nome de coluna adivinhado; lat/lon crus",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "`AI:feature_engineering.py:84-98`; `API:V1__baseline_schema.sql:160-161`",
+   "metrica": "1 feature com variância zero"
+  },
+  {
+   "id": "F1-I2-12",
+   "titulo": "LSTM sem ganho demonstrado, janela treino≠inferência, saída sem consumidor",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "`AI:trainer.py:141-203`; `AI:app.py:104-151,178-180`",
+   "metrica": "0 baselines de persistência; window 12 vs min(12, n//10)"
+  },
+  {
+   "id": "F1-I2-13",
+   "titulo": "Banco e TF no caminho de inferência; SQL f-string; reload=True",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "`AI:app.py:118-128`; `AI:main.py:19`; `AI:config.py:21-23`",
+   "metrica": "1 consulta ao banco por requisição"
+  },
+  {
+   "id": "F1-I2-14",
+   "titulo": "Unidades, referência vertical da maré e fuso não declarados",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "`AI:config.py:18`; `AI:feature_engineering.py:265`; `API:dto/FloodPredictionRequestDTO.java:124-125`",
+   "metrica": "limiar 2,0 m sem fonte; 3 unidades indeterminadas"
+  },
+  {
+   "id": "F1-I2-15",
+   "titulo": "Treino desconectado do CSV oficial de export",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "`AI:trainer.py:73-100,109`; `API:DataExportServiceImpl.java:256`",
+   "metrica": "KeyError com o CSV do export; 0 colunas coincidentes"
+  },
+  {
+   "id": "F1-I2-16",
+   "titulo": "README desatualizado (Edge, MQTT, quatro componentes, payload)",
+   "severidade": "desejavel",
+   "afeta_dissertacao": false,
+   "arquivos": "`AI:README.md:10-11,30-33,43,65-66,104-106,113-127`",
+   "metrica": "12 linhas/blocos desatualizados"
+  },
+  {
+   "id": "F1-I2-17",
+   "titulo": "Código morto, aliases duplicados e dependências sem uso",
+   "severidade": "desejavel",
+   "afeta_dissertacao": false,
+   "arquivos": "`AI:feature_engineering.py:195-228`; `AI:data_engineering.py:12-36`; `AI:requirements.txt`",
+   "metrica": "4 funções legadas e 2 pacotes sem uso"
+  },
+  {
+   "id": "F1-F2-01",
+   "titulo": "Tipos TS escritos à mão, sem geração do OpenAPI; zod cobre só `/api/pontos`",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "`types/flood.ts`, `types/common.ts`, `types/sensor.ts`, `schemas/floodPointResponse.schema.ts:13-52`",
+   "metrica": "1 de ~12 endpoints com schema; 0 geradores no `package.json`"
+  },
+  {
+   "id": "F1-F2-02",
+   "titulo": "`validateFloodPoint` descarta o parse; `riskLevel` é `z.string()`",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "`schemas/floodPointResponse.schema.ts:18,54-63`, `types/flood.ts:58`",
+   "metrica": "0 enums de risco tipados"
+  },
+  {
+   "id": "F1-F2-03",
+   "titulo": "Tipo e schema discordam (`estimatedTimeToEvent`, anuláveis do `UnifiedDataDTO`)",
+   "severidade": "desejavel",
+   "afeta_dissertacao": false,
+   "arquivos": "`types/flood.ts:56-61`, `schema.ts:19`, `types/common.ts:73-89`",
+   "metrica": "—"
+  },
+  {
+   "id": "F1-F2-04",
+   "titulo": "UNKNOWN: vermelho no marcador, cinza no popup, verde \"Baixo\" no card; sem estado de erro de API; \"Sistemas Online\" fixo",
+   "severidade": "critico",
+   "afeta_dissertacao": true,
+   "arquivos": "`MapView.tsx:389-394,443-444,671-684`, `FloodPointPopup.tsx:34-40`, `FloodPointDetailCard.tsx:80-85`, `useMapData.ts:22-27`",
+   "metrica": "3 tratamentos distintos; ≥4 cópias do mapeamento; 0 telas de erro"
+  },
+  {
+   "id": "F1-F2-05",
+   "titulo": "Polling sem abort, sem pausa em aba oculta, sobreposição possível",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "`useMapData.ts:12-36`",
+   "metrica": "30 s fixos; 2 requests/ciclo"
+  },
+  {
+   "id": "F1-F2-06",
+   "titulo": "Leitura dispara POST de predição (auditoria + IA) a cada clique/seleção; fan-out N+1; busca em contêiner de 110 linhas",
+   "severidade": "critico",
+   "afeta_dissertacao": true,
+   "arquivos": "`MapView.tsx:145-257`, `useMapInteractions.ts:34-96`, `flood.service.ts:41-63`",
+   "metrica": "1–2 POST por interação; N chamadas `sensors/{id}/latest` sem teto"
+  },
+  {
+   "id": "F1-F2-07",
+   "titulo": "Sensores e pontos são marcadores DOM com animação infinita; `MapClusterLayer` não usado",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "`MapView.tsx:603-726`, `ui/map.tsx:1746`",
+   "metrica": "1 nó+portal por item; `animate-ping` em todo ponto"
+  },
+  {
+   "id": "F1-F2-08",
+   "titulo": "`MapView` com 13 `useState`, 1.106 linhas, callbacks sem `useCallback`, sem memo nos marcadores",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "`MapView.tsx:128-140,259-354,477-496,603-605`",
+   "metrica": "1.106 linhas; 28 valores no retorno do hook"
+  },
+  {
+   "id": "F1-F2-09",
+   "titulo": "Botões e ícones sem rótulo; marcadores e modais sem teclado/`role=\"dialog\"`; botão \"Configurações\" morto",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "`MapView.tsx:460,548,598,796,925`, `ui/map.tsx:435-441`",
+   "metrica": "0 `aria-label` em 31 botões"
+  },
+  {
+   "id": "F1-F2-10",
+   "titulo": "Contraste e fontes pequenas: ícone branco sobre LOW/MEDIUM/HIGH < 3:1; texto zinc-500/600 < 4,5:1; 125 usos de `text-[7–10px]`",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "`MapView.tsx:672-684`, `FloodPointPopup.tsx`, `theme.css`",
+   "metrica": "LOW 2,54:1; MEDIUM 2,15:1; HIGH 2,80:1; zinc-600 2,57:1; UNKNOWN fundo 1,91:1"
+  },
+  {
+   "id": "F1-F2-11",
+   "titulo": "Inutilizável em 390 px: sidebar oculto sem substituto; painel `left-[416px] w-[420px]`; popup `w-[360px]`",
+   "severidade": "importante",
+   "afeta_dissertacao": false,
+   "arquivos": "`MapView.tsx:472,782,1078`, `FloodPointPopup.tsx:45`",
+   "metrica": "416+420 = 836 px mínimos"
+  },
+  {
+   "id": "F1-F2-12",
+   "titulo": "Sem modo projeção (1920 px+): fontes 8–11 px, sem alto contraste; só tema escuro",
+   "severidade": "desejavel",
+   "afeta_dissertacao": false,
+   "arquivos": "`MapView.tsx:506`, `theme.css`, vários",
+   "metrica": "65 usos de 8–9 px"
+  },
+  {
+   "id": "F1-F2-13",
+   "titulo": "Painel por ponto sem causa provável, lâmina, cota, horizonte da previsão; sem legenda; atual/previsão/histórico não rotulados",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "`FloodPointDetailCard.tsx:209-349`, `types/flood.ts:12-13,56-61`",
+   "metrica": "0 ocorrências de legenda; 4 campos de previsão"
+  },
+  {
+   "id": "F1-F2-14",
+   "titulo": "Base URL relativa em vez de `VITE_API_URL` (diverge de AGENTS.md); documentar ou ADR",
+   "severidade": "desejavel",
+   "afeta_dissertacao": false,
+   "arquivos": "`lib/api.ts:3-9`, `vite.config.ts`, `README.md:77`",
+   "metrica": "—"
+  },
+  {
+   "id": "F1-F2-15",
+   "titulo": "`react-map-gl` sem uso; `shadcn` em `dependencies`",
+   "severidade": "desejavel",
+   "afeta_dissertacao": false,
+   "arquivos": "`package.json`",
+   "metrica": "1 dependência morta"
+  },
+  {
+   "id": "F1-F2-16",
+   "titulo": "Popup aberto não atualiza com o poll (objeto selecionado congelado)",
+   "severidade": "desejavel",
+   "afeta_dissertacao": true,
+   "arquivos": "`useMapInteractions.ts:29-32`",
+   "metrica": "até 30 s+ de dado velho sem aviso"
+  },
+  {
+   "id": "F1-F2-17",
+   "titulo": "`alert()` bloqueante para sucesso/erro",
+   "severidade": "desejavel",
+   "afeta_dissertacao": false,
+   "arquivos": "`MapView.tsx:272,289,294,302,329,345,350`",
+   "metrica": "7 chamadas"
+  },
+  {
+   "id": "F1-F2-18",
+   "titulo": "Bundle do mapa 1,2 MB (314 KB gz); índice de 315 KB (102 KB gz) sem análise",
+   "severidade": "desejavel",
+   "afeta_dissertacao": false,
+   "arquivos": "`dist/assets/MapPage-Cgxpg_1S.js`, `index-DKqBql0-.js`",
+   "metrica": "1.215.244 B; 314.748 B"
+  },
+  {
+   "id": "F1-F2-19",
+   "titulo": "Datas lidas e exibidas em hora local do navegador; sem utilitário `America/Recife`; ADR 0001",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "`utils/sensor.ts:94-125,143-158`, `SensorSidebar.tsx:192`, `FloodPointPopup.tsx:77`, `FloodPointDetailCard.tsx:132,415`, `SensorDetailCard.tsx:90`, `MapView.tsx:266,285`",
+   "metrica": "6 pontos de formatação; erro de 3 h vs. limiares de 20/120 min"
+  },
+  {
+   "id": "F1-F2-20",
+   "titulo": "README desatualizado: \"Edge, AI, API e Front\"; link para branch de feature; estrutura incompleta",
+   "severidade": "desejavel",
+   "afeta_dissertacao": false,
+   "arquivos": "`README.md:95,97,41-66`",
+   "metrica": "1 contradição interna"
+  },
+  {
+   "id": "F1-F2-21",
+   "titulo": "Cobertura de teste mínima; `flood.service.test.ts` removido; sem teste de fuso/risco",
+   "severidade": "importante",
+   "afeta_dissertacao": true,
+   "arquivos": "`src/**/*.test.*`",
+   "metrica": "2 arquivos de teste para 6.804 linhas"
+  }
+ ]
+}

@@ -1,6 +1,6 @@
 # Progresso da revisão multiagente do MAPi
 
-Última execução: 2026-10-10 (2ª) · Fase atual: 1 (quase concluída) · Próxima tarefa: F1-BACK-04
+Última execução: 2026-10-10 (2ª) · Fase atual: 2 (Fase 1 concluída) · Próxima tarefa: F2-DADOS-01
 
 > Local: `projeto-mapi-api/.claude/mapi/PROGRESSO.md`. A pasta-mãe `MAPI/` não é repositório git;
 > o estado oficial fica no repositório orquestrador para ser versionado. Docs transversais
@@ -33,21 +33,21 @@
 | F1-BACK-01 | 1 | Backend | Rápido | Inventário barato do backend | concluido | — | coberto por F0-ARQ-04: 138 arquivos / ~8,9 mil LOC main; 8 testes / 668 LOC |
 | F1-BACK-02 | 1 | Backend | Equilibrado | Leitura dirigida: aderência à arquitetura, jobs/resiliência (APAC 6 h fora), @Transactional, taskExecutor/Hikari, segurança (JWT, CORS, Actuator) | concluido | branch `revisao/fase-0` (relatório) | 2026-10-10 · subagente Sonnet (retomado após o limite de uso) · `docs/revisao/fase-1/F1-BACK-02.md` · 26 achados, 6 críticos; conferidos pelo Arquiteto: 0 timeouts HTTP (o único é a espera do rate limiter), fallback APAC `List.of()` faz falha virar sucesso 0/0, JWT_SECRET padrão público no compose |
 | F1-BACK-03 | 1 | Backend | Equilibrado | Revisão a fundo da ingestão histórica (backfill vs. pipeline, proveniência, lacunas, reamostragem, volume, raio do repair-stations) | concluido | branch `revisao/fase-0` (relatório) | 2026-10-10 · subagente Sonnet · `docs/revisao/fase-1/F1-BACK-03.md` · 26 achados, 6 críticos; conferidos pelo Arquiteto: rótulo circular (`alignFloodEventsToRainPeaks` sobrescreve startTime 00:00 com o pico de chuva) e ANA sem lat/lon fora do export; 5 tratamentos de fuso distintos; weather_data sem unique (reprocessar duplica) |
-| F1-BACK-04 | 1 | Backend | Rápido | Snapshot do OpenAPI (`/v3/api-docs`) versionado em `docs/openapi/` | pendente | | exige subir a API (docker) |
-| F1-BACK-05 | 1 | Backend | Equilibrado | Medidas "antes": cobertura (JaCoCo), p95 por endpoint (k6), N+1 (log Hibernate) | pendente | | sem `mvn` local: usar `./mvnw` |
+| F1-BACK-04 | 1 | Backend | Rápido | Snapshot do OpenAPI (`/v3/api-docs`) versionado em `docs/openapi/` | concluido | 06b4398 | 2026-10-10 · Opus · `docs/openapi/openapi-2026-10-10.json` (45 caminhos, 46 operações, 42 schemas); imagem da API reconstruída porque a de 2026-09-06 não tinha `0554073` |
+| F1-BACK-05 | 1 | Backend | Equilibrado | Medidas "antes": cobertura (JaCoCo), p95 por endpoint (k6), N+1 (log Hibernate) | concluido | 06b4398 + k6 fix 8ec2f5f/54275ea | 2026-10-10 · Opus · `docs/medidas/LINHA-DE-BASE-2026-10-10.md`: cobertura 26,1% linhas / 17,6% ramos (export 0,6%); p95 por endpoint (cache: 0,8–4 ms; export 143 ms com banco quase vazio, não representativo). N+1 não medido (fica para o item 12). Achado: heavy_export do k6 fazia 0 requisições (campo `id_ponto`→`slug`) e o limite passava vazio — corrigido |
 | F1-FRONT-01 | 1 | Frontend | Rápido | Inventário barato do front | concluido | — | coberto por F0-ARQ-04: bundle MapPage 1,22 MB, 0 `any`, MapView 1 106 linhas |
 | F1-FRONT-02 | 1 | Frontend | Equilibrado | Leitura dirigida: estado servidor×UI, re-render do mapa, a11y, 390 px, estado UNKNOWN/erro | concluido | branch `revisao/fase-0` (relatório) | 2026-10-10 · subagente Sonnet · `docs/revisao/fase-1/F1-FRONT-02.md` · 21 achados, 2 críticos: UNKNOWN exibido vermelho/cinza/verde em 3 componentes; cada clique dispara POST de predição (grava auditoria) + N chamadas por sensor |
 | F1-IA-01 | 1 | IA | Rápido | Inventário barato da IA | concluido | — | coberto por F0-ARQ-04: 847 LOC Python, 3 artefatos sem metadata |
 | F1-IA-02 | 1 | IA | Equilibrado | Leitura dirigida do módulo IA e do contrato real de degradação UNKNOWN (backend↔IA↔front) | concluido | branch `revisao/fase-0` (relatório) | 2026-10-10 · subagente Sonnet (parou no limite de uso depois de gravar o relatório completo) · `docs/revisao/fase-1/F1-IA-02.md` · 17 achados, 6 críticos [DISSERTACAO]: 9/28 features zeradas na inferência, H = 0 (nowcast), scaler antes do split, 0/4 baselines, artefato sem metadata, fallback silencioso p/ dataset sintético |
 | F1-QA-01 | 1 | QA | Rápido | Corrigir READMEs do AI/Front (MAPI Edge, MQTT, "quatro componentes") e varrer o resto | concluido | AI bd15c50 (branch `docs/remove-mapi-edge`); front: edição não commitada no README (WIP do Lucas) | 2026-10-10 · Opus · AI: diagrama sem Edge, "três componentes", link do compose → main; front: o WIP do Lucas já corrigia quase tudo, faltava L95 + link (feito). Achado novo: README do front cita enum `CRITICAL`, que o backend não tem → F1-ARQ-01 |
 | F1-QA-02 | 1 | QA | Rápido | Risco Grafana (credencial padrão) e Prometheus sem auth; documentar "só uso local" | concluido | 2fe06c6 (branch `fix/seguranca-local`) | 2026-10-10 · Opus · Postgres 5433 e IA 8000 agora só em 127.0.0.1; `POSTGRES_PASSWORD` por variável; `docs/SEGURANCA-LOCAL.md` com portas, credenciais padrão e riscos que dependem de código; `docker compose config` ok |
-| F1-QA-03 | 1 | QA | Equilibrado | Blindar armadilha do k6 no compose (entrypoint em vez de command) | concluido | c21a38c (branch `fix/k6-remote-write-env`) | 2026-10-10 · Opus · `K6_OUT=experimental-prometheus-rw` no environment, `--out` removido do command; testado em grafana/k6:0.54.0 com argumento arbitrário → `output: Prometheus remote write`; `docker compose config` ok |
+| F1-QA-03 | 1 | QA | Equilibrado | Blindar armadilha do k6 no compose (entrypoint em vez de command) | concluido | c21a38c, 8ec2f5f, 54275ea (branch `fix/k6-remote-write-env`) | 2026-10-10 · Opus · `K6_OUT=experimental-prometheus-rw` no environment, `--out` removido do command; testado em grafana/k6:0.54.0 com argumento arbitrário → `output: Prometheus remote write`; `docker compose config` ok |
 | F1-ARQ-01 | 1 | Arquiteto | Equilibrado | Relatório de consistência entre repos (campos, unidades, fuso, enum de risco, nulos) | concluido | branch `revisao/fase-0` | 2026-10-10 · Opus · `docs/CONSISTENCIA-ENTRE-REPOS.md` · enum (CRITICAL/EXTREME inexistentes; UNKNOWN em 3 cores), contrato de predição, 5 tratamentos de fuso, unidades e nulos, nomes de campo |
 | F1-ARQ-02 | 1 | Arquiteto | Equilibrado + checkpoint Máximo | Diagnóstico e matriz de prioridade | concluido | branch `revisao/fase-0` | 2026-10-10 · Opus (autor) + checkpoint Opus independente · `docs/MATRIZ-PRIORIDADE-FASE-1.md` · 90 achados → 16 itens (7 P0); checkpoint APROVADO com 6 ressalvas, todas aplicadas (novo item 0: snapshot auditável) |
-| F1-ARQ-03 | 1 | Arquiteto | Equilibrado | ADRs das divergências convenção×código (fuso, schema Flyway×TimescaleSetup, H2×Testcontainers, records/MapStruct, domínio sem framework) | em_andamento | ver linha F1-ARQ-03 no histórico | 2026-10-10 · Opus · ADRs 0001–0004 aprovados; agents.md §2.4/§3.1/§6, GEMINI.md, README e skills ajustados · falta: records/MapStruct (desejável, sem ADR ainda) |
+| F1-ARQ-03 | 1 | Arquiteto | Equilibrado | ADRs das divergências convenção×código (fuso, schema Flyway×TimescaleSetup, H2×Testcontainers, records/MapStruct, domínio sem framework) | concluido | d455ae9 | 2026-10-10 · Opus · ADRs 0001–0004 aprovados e convenções ajustadas. Resíduo (DTOs record/MapStruct, desejável) movido para a matriz, item 14, sem ADR por ora |
 | F1-QA-04 | 1 | QA | Rápido | Aviso de descontinuado no projeto-mapi (MAPI Edge) | concluido | projeto-mapi d86a996 (branch `docs/descontinuado`) | 2026-10-10 · Opus · bloco DESCONTINUADO no topo do README |
-| F1-ARQ-04 | 1 | Arquiteto | Rápido | Handoff da Fase 1 | pendente | | |
-| F2-DADOS-00 | 2 | Dados | Rápido | Snapshot auditável do banco atual (pg_dump + SHA-256 + contagem por tabela) antes de qualquer migração | pendente | | matriz item 0 (ressalva 4 do checkpoint) |
+| F1-ARQ-04 | 1 | Arquiteto | Rápido | Handoff da Fase 1 | concluido | branch `revisao/fase-0` | 2026-10-10 · Opus · `docs/HANDOFF-fase-1.md` + `docs/handoff/fase-1.json` (90 achados: 21 críticos, 49 importantes, 20 desejáveis) |
+| F2-DADOS-00 | 2 | Dados | Rápido | Snapshot auditável do banco atual (pg_dump + SHA-256 + contagem por tabela) antes de qualquer migração | concluido | 06b4398 | 2026-10-10 · Opus · dump fora do git em `MAPI/snapshots/`, SHA-256 `3ace3cde…4dedd`, manifesto `docs/snapshots/2026-10-10-pre-revisao.md`. Achado: o banco local não tem o histórico de 5 anos (555 leituras de sensor, 40 de clima, 0 eventos); flood_predictions 25 102 linhas |
 | F2-DADOS-01 | 2 | Dados | Equilibrado | Benchmark e evidência sobre o banco (tamanho das hypertables, compressão, EXPLAIN ANALYZE, volume projetado) | pendente | | |
 | F2-DADOS-02 | 2 | Dados | Equilibrado + checkpoint | ADR PostgreSQL+TimescaleDB+PostGIS × MySQL | pendente | | |
 | F2-DADOS-03 | 2 | Dados | Rápido | Planilha comparativa do banco (xlsx) | pendente | | |
@@ -109,6 +109,7 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | 9 | Rótulo: o CKAN só tem data e o código sobrescreveu a hora dos eventos 00:00 com o pico de chuva (rótulo circular). Posso (a) desativar o realinhamento e (b) reimportar o CKAN preservando a data original? A escolha entre rótulo diário e horizonte 3/6 h fica para a formulação da Fase 4 | 2026-10-10 | matriz itens 1 e 6; qualquer métrica atual é inválida |
 | 10 | `DELETE /api/admin/ingestion/wipe-database` apaga tudo, inclusive usuários. Remover, ou restringir a um profile `dev` com confirmação? (recomendação: restringir ao `dev`) | 2026-10-10 | risco ao dataset e à banca |
 | 11 | A tabela `flood_predictions` (taxa de alerta, auditoria) entra nos resultados da dissertação? Se sim, o item 7 da matriz sobe para P0 | 2026-10-10 | prioridade do item 7 |
+| 12 | O banco local não tem o histórico de 5 anos (só ~4 semanas de setembro, 0 eventos de alagamento). A carga histórica existe em outro banco/máquina? Se não, recomendo **não** rodar `historical-full-sync` agora: o pipeline atual grava fusos misturados e reescreve o rótulo. Carregar só depois dos itens 1–4 da matriz | 2026-10-10 | dataset de treino e medidas de volume da Fase 2 |
 
 ## Medidas antes e depois
 | Métrica | Antes | Depois | Quando | Onde foi medida |
@@ -121,15 +122,20 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | Pontos críticos cadastrados | 5 | | 2026-10-10 | `MapiServiceImpl.java:573-620` (F1-BACK-03) |
 | Volume clima 5 anos × 5 pontos | ~219 mil linhas (~55 MB) | | 2026-10-10 | estimativa F1-BACK-03 §6, premissas a conferir no banco |
 | Timeouts HTTP configurados nos clientes externos | 0 | | 2026-10-10 | grep `timeout` em src/main (F1-B2-01, conferido) |
-| Testes backend (métodos) / em coleta, export, IA | 18 / 0 | | 2026-10-10 | F1-BACK-02 §7 |
+| Testes backend (métodos) / em coleta, export, IA | 20 / 0 (o subagente contou 18 por leitura; o surefire executou 20 — vale o surefire) | | 2026-10-10 | F1-BACK-02 §7 |
 | Tratamentos de fuso distintos nas mesmas colunas | 5 | | 2026-10-10 | F1-BACK-03 tabela de fuso |
 | Features constantes (zeradas) na inferência da IA | 9 de 28 | | 2026-10-10 | F1-IA-02 (F1-I2-01) |
 | Baselines implementados | 0 de 4 | | 2026-10-10 | F1-IA-02 (F1-I2-04) |
 | Tratamentos visuais distintos de UNKNOWN no front | 3 | | 2026-10-10 | F1-FRONT-02 (F1-F2-04) |
 | `aria-label` / botões no front | 0 / 31 | | 2026-10-10 | F1-FRONT-02 (F1-F2-09) |
 | Portas de banco/IA em 0.0.0.0 | 2 | 0 | 2026-10-10 | docker-compose.yml (F1-QA-02, 2fe06c6) |
-| Cobertura de teste backend | não medida | | | F1-BACK-05 |
-| p95 por endpoint | não medido | | | F1-BACK-05 (k6) |
+| Cobertura de teste backend (linhas / ramos) | 26,1% / 17,6% | | 2026-10-10 | JaCoCo 0.8.12, `docs/medidas/jacoco-2026-10-10.csv` |
+| Cobertura do export (`service.export.impl`) | 0,6% | | 2026-10-10 | idem |
+| Testes backend executados | 20 (0 falhas) | | 2026-10-10 | surefire |
+| Linhas no banco local (sensor / clima / eventos / predições) | 555 / 40 / 0 / 25 102 | | 2026-10-10 | snapshot `3ace3cde…` |
+| p95 por endpoint (k6, ramping_load, cache) | 0,8–4,0 ms | | 2026-10-10 | `docs/medidas/LINHA-DE-BASE-2026-10-10.md` |
+| p95 export CSV 30 d (banco quase vazio) | 143,1 ms (n=44) | | 2026-10-10 | idem, rodada 2 — não representativo |
+| Requisições do heavy_export no k6 | 0 (bug de campo) | 44 | 2026-10-10 | idem, rodadas 1 e 2 |
 
 ## Divergências PROGRESSO × código (o código vence)
 | Data | O que se afirmava | O que o código mostra | Correção |
