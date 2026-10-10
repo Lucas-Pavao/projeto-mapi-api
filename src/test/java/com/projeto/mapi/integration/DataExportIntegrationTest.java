@@ -51,7 +51,7 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
 
     @BeforeEach
     void semeia() {
-        when(tideService.getTideHeightAt(anyDouble(), anyDouble(), any(LocalDateTime.class))).thenReturn(1.23);
+        when(tideService.getStoredTideHeightAt(anyDouble(), anyDouble(), any(LocalDateTime.class))).thenReturn(1.23);
         eventRepository.deleteAll();
         sensorRepository.deleteAll();
         weatherRepository.deleteAll();

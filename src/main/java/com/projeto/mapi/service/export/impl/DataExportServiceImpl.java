@@ -168,7 +168,7 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
             // Altura da Maré (Otimizado com cache local na exportação)
             try {
                 Double tide = tideCache.computeIfAbsent(ts, t -> 
-                    tideService.getTideHeightAt(point.getLatitude(), point.getLongitude(), t));
+                    tideService.getStoredTideHeightAt(point.getLatitude(), point.getLongitude(), t));
                 
                 if (tide != null) {
                     tide = Math.round(tide * 100.0) / 100.0;
@@ -268,7 +268,7 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
                 ingestionProps.getRuleVersion(), ingestionProps.getCodeVersion(), data.size(), flagged, prov, terrain.provenance(),
                 MISSING_POLICY, missingCounts(data),
                 List.of("sensores (ANA, APAC, Cemaden): ainda lidos de sensor_data (legado, fuso não verificado)",
-                        "maré: TideService",
+                        "maré: tábua local sincronizada (TideService.getStoredTideHeightAt); sem tábua para o ano a célula fica vazia, sem chamada à API externa",
                         "rótulo legado isFlooded/severity: flood_events (obsoleto); rótulo novo: flood_occurrence"),
                 List.of("isFlooded", "severity"), labelManifest(points, data, start, end));
         return new CsvExport(csv, manifest);

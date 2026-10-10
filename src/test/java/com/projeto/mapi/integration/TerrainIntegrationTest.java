@@ -59,7 +59,7 @@ class TerrainIntegrationTest extends AbstractTimescaleIntegrationTest {
 
     @BeforeEach
     void seed() {
-        when(tideService.getTideHeightAt(anyDouble(), anyDouble(), any(LocalDateTime.class))).thenReturn(1.0);
+        when(tideService.getStoredTideHeightAt(anyDouble(), anyDouble(), any(LocalDateTime.class))).thenReturn(1.0);
         clean();
         point("AV_RECIFE_IBURA", -8.1, -34.95);
         point("CIN_UFPE", -8.05, -34.95);

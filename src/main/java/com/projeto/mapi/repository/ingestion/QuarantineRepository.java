@@ -78,6 +78,20 @@ public class QuarantineRepository {
         });
     }
 
+    /** Fecha as quarentenas abertas de {@code rule_id} para os brutos dados (reprocessamento que passou a aceitá-los). */
+    public int resolveByRawIds(Instant now, String resolution, String ruleId, List<UUID> rawIds) {
+        if (rawIds.isEmpty()) return 0;
+        return jdbc.update(con -> {
+            var ps = con.prepareStatement("UPDATE ingestion_quarantine SET resolved_at = ?, resolution = ? "
+                    + "WHERE resolved_at IS NULL AND rule_id = ? AND raw_id = ANY(?)");
+            ps.setObject(1, OffsetDateTime.ofInstant(now, ZoneOffset.UTC));
+            ps.setString(2, resolution);
+            ps.setString(3, ruleId);
+            ps.setArray(4, con.createArrayOf("uuid", rawIds.toArray()));
+            return ps;
+        });
+    }
+
     private String json(Map<String, Object> detail) {
         try {
             return mapper.writeValueAsString(detail);

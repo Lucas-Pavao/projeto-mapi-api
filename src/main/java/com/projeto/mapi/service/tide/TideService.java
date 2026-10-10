@@ -12,5 +12,7 @@ public interface TideService {
     Page<TideTableResponseDTO> searchTideTablesByHarbor(String harborName, Integer year, Pageable pageable);
     List<String> getAllHarbors(Integer year);
     Double getCurrentTideHeight(double latitude, double longitude);
+    /** Como {@link #getTideHeightAt}, mas só com a tábua local sincronizada: sem tábua para o dia, devolve null. */
+    Double getStoredTideHeightAt(double latitude, double longitude, java.time.LocalDateTime timestamp);
     Double getTideHeightAt(double latitude, double longitude, java.time.LocalDateTime timestamp);
 }
