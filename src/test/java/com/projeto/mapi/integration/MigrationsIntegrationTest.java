@@ -39,4 +39,19 @@ class MigrationsIntegrationTest extends AbstractTimescaleIntegrationTest {
                 "SELECT column_name FROM information_schema.columns WHERE table_name = 'sensor_data'", String.class);
         assertThat(colunas).contains("river_name", "river_pre_alert_level", "river_alert_level", "river_flood_level");
     }
+
+    @Test
+    void v7CriaPostgisEAmostragemDeRasterEm31985Funciona() {
+        // A Fase 3 amostra o MDT do PE3D (EPSG:31985) no banco; isto prova que a extensão raster responde.
+        assertThat(jdbc.queryForList("SELECT extname FROM pg_extension", String.class))
+                .contains("postgis", "postgis_raster");
+        Double valor = jdbc.queryForObject("""
+                SELECT ST_Value(
+                         ST_SetValue(ST_AddBand(ST_MakeEmptyRaster(10, 10, 290000, 9110000, 1, -1, 0, 0, 31985),
+                                                '32BF'::text, -9999, -9999),
+                                     1, 5, 5, 11.11),
+                         1, ST_SetSRID(ST_MakePoint(290004.5, 9109995.5), 31985))
+                """, Double.class);
+        assertThat(valor).isCloseTo(11.11, org.assertj.core.data.Offset.offset(1e-4));
+    }
 }
