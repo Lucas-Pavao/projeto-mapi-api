@@ -28,6 +28,7 @@ import com.projeto.mapi.service.ingestion.occurrence.OccurrenceClassification.St
 import com.projeto.mapi.service.ingestion.occurrence.OccurrenceClassifier;
 import com.projeto.mapi.service.ingestion.occurrence.OccurrenceIngestionService;
 import com.projeto.mapi.service.ingestion.validation.TimestampNormalizer;
+import com.projeto.mapi.service.ingestion.validation.TsUnparseableException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -41,6 +42,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -117,10 +119,12 @@ public class OccurrenceIngestionServiceImpl implements OccurrenceIngestionServic
 
             // 2. geocoding fora da transação, só para ocorrências novas ou cujo bruto mudou
             Map<String, Stored> stored = occurrences.stored(resourceId, new ArrayList<>(byRecord.keySet()));
+            Set<String> inOtherResources = occurrences.knownInOtherResources(resourceId,
+                    new ArrayList<>(byRecord.keySet()));
             Map<String, double[]> coords = new LinkedHashMap<>();
             int geocodeFailed = 0;
             for (Item it : byRecord.values()) {
-                if (it.cls().status() != Status.ACCEPTED) continue;
+                if (it.cls().status() != Status.ACCEPTED || inOtherResources.contains(identity(it))) continue;
                 Stored s = stored.get(it.record().recordId());
                 if (s != null && s.rawHash().equals(it.hash())) continue;
                 Optional<double[]> g = geocode(it.cls());
@@ -131,7 +135,8 @@ public class OccurrenceIngestionServiceImpl implements OccurrenceIngestionServic
 
             // 3. gravação em uma transação
             int[] written = {0};
-            tx.executeWithoutResult(s -> written[0] = persist(runId, packageId, resourceId, byRecord, coords, c));
+            tx.executeWithoutResult(s -> written[0] = persist(runId, packageId, resourceId, byRecord, coords,
+                    inOtherResources, c));
             params.put("excludedByFilter", byRecord.values().stream()
                     .filter(i -> i.cls().status() == Status.EXCLUDED_BY_FILTER).count());
             params.put("occurrencesWritten", written[0]);
@@ -149,13 +154,41 @@ public class OccurrenceIngestionServiceImpl implements OccurrenceIngestionServic
         return runs.findById(runId).orElseThrow();
     }
 
+    /** Tamanho de raw_observation.source_ts_norm (V4). Acima disso o valor não é data: vai à quarentena. */
+    static final int MAX_TS_NORM = 40;
+    static final int MAX_TS_TEXT = 80;
+
     private Item classify(String resourceId, CkanRawRecord r, LabelFilterConfig filter, Instant collectedAt) {
         JsonNode payload = mapper.valueToTree(r.fields());
         String dataText = textOf(r.fields(), "Data");
         String norm = TimestampNormalizer.normalize(dataText);
-        RawRecord raw = new RawRecord(SOURCE, resourceId + "#" + r.recordId(), collectedAt,
-                dataText.length() > 80 ? dataText.substring(0, 80) : dataText, norm, TZ, payload);
-        return new Item(r, raw, Hashing.contentHash(payload), OccurrenceClassifier.classify(r.fields(), filter, TZ));
+        boolean parseable = norm.length() <= MAX_TS_NORM && parses(norm);
+        // O payload guarda o texto original inteiro; as colunas de identidade/auditoria são aparadas para caber
+        // (V4: source_ts_text varchar(80), source_ts_norm varchar(40)). A identidade do bruto já inclui o _id.
+        String text = dataText.length() > MAX_TS_TEXT ? dataText.substring(0, MAX_TS_TEXT) : dataText;
+        String storedNorm = norm.length() > MAX_TS_NORM ? norm.substring(0, MAX_TS_NORM) : norm;
+        RawRecord raw = new RawRecord(SOURCE, resourceId + "#" + r.recordId(), collectedAt, text, storedNorm, TZ, payload);
+        OccurrenceClassification cls = OccurrenceClassifier.classify(r.fields(), filter, TZ);
+        if (!parseable && cls.status() != Status.TS_UNPARSEABLE) {
+            // data ilegível nunca derruba o lote: quarentena TS_UNPARSEABLE, mesmo em registro fora do filtro
+            cls = new OccurrenceClassification(Status.TS_UNPARSEABLE, cls.matchedText(), null, null, null,
+                    cls.address(), cls.neighborhood(), "Data não interpretável (" + dataText.length() + " caracteres)");
+        }
+        return new Item(r, raw, Hashing.contentHash(payload), cls);
+    }
+
+    private static boolean parses(String norm) {
+        try {
+            TimestampNormalizer.toInstant(norm, TZ);
+            return true;
+        } catch (TsUnparseableException e) {
+            return false;
+        }
+    }
+
+    /** Identidade de origem da ocorrência entre recursos: _id do datastore + início do intervalo. */
+    private static String identity(Item it) {
+        return it.record().recordId() + "|" + it.cls().occurredFrom();
     }
 
     private static String textOf(Map<String, Object> fields, String key) {
@@ -177,7 +210,7 @@ public class OccurrenceIngestionServiceImpl implements OccurrenceIngestionServic
     }
 
     private int persist(UUID runId, String packageId, String resourceId, Map<String, Item> byRecord,
-                        Map<String, double[]> coords, RunCounters c) {
+                        Map<String, double[]> coords, Set<String> inOtherResources, RunCounters c) {
         runs.lockSource(SOURCE);
         Instant now = clock.instant().truncatedTo(ChronoUnit.MICROS);
         Map<OriginKey, RawVersion> latest = raws.latestVersions(SOURCE,
@@ -204,6 +237,7 @@ public class OccurrenceIngestionServiceImpl implements OccurrenceIngestionServic
 
         List<QuarantineRepository.Entry> entries = new ArrayList<>();
         int written = 0;
+        int duplicates = 0;
         for (Item it : byRecord.values()) {
             String id = it.record().recordId();
             OccurrenceClassification cls = it.cls();
@@ -213,6 +247,11 @@ public class OccurrenceIngestionServiceImpl implements OccurrenceIngestionServic
                 continue;
             }
             if (cls.status() != Status.ACCEPTED) continue;
+            if (inOtherResources.contains(identity(it))) {
+                // mesma ocorrência já registrada por outro recurso do CKAN (recursos duplicados): uma só vez
+                duplicates++;
+                continue;
+            }
             double[] g = coords.get(id);
             written += occurrences.upsert(new OccurrenceRow(packageId, resourceId, id, it.hash(), runId,
                     cls.address(), cls.occurredFrom(), cls.occurredTo(), cls.precision(), null,
@@ -222,6 +261,7 @@ public class OccurrenceIngestionServiceImpl implements OccurrenceIngestionServic
         quarantine.insertIfAbsent(runId, props.getRuleVersion(), now, entries);
         c.addQuarantined(entries.size());
         c.addValid(written);
+        if (duplicates > 0) log.info("CKAN {}: {} ocorrência(s) já presentes em outro recurso, não regravadas", resourceId, duplicates);
         return written;
     }
 
