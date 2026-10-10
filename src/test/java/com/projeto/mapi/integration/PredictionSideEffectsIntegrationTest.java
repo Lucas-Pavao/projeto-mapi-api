@@ -70,6 +70,7 @@ class PredictionSideEffectsIntegrationTest extends AbstractTimescaleIntegrationT
         when(tabuaMareService.getCurrentTideHeight(anyDouble(), anyDouble())).thenReturn(null);
         eventRepository.deleteAll();
         predictionRepository.deleteAll();
+        limparDependentesDePontos();
         pointRepository.deleteAll();
         pointRepository.save(FloodPoint.builder().slug(SLUG).name("Ponto do contrato")
                 .latitude(-8.05).longitude(-34.88).build());

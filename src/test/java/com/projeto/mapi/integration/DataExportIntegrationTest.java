@@ -55,6 +55,7 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
         eventRepository.deleteAll();
         sensorRepository.deleteAll();
         weatherRepository.deleteAll();
+        limparDependentesDePontos();
         pointRepository.deleteAll();
 
         FloodPoint ponto = pointRepository.save(FloodPoint.builder()

@@ -46,6 +46,23 @@ public abstract class AbstractTimescaleIntegrationTest {
         return DEFAULT_DB_IMAGE;
     }
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private org.springframework.jdbc.core.JdbcTemplate baseJdbc;
+
+    /**
+     * Apaga todas as linhas que referenciam flood_points (descobertas no catálogo, não por lista fixa),
+     * para que um teste que limpa pontos não dependa da ordem de execução: os testes compartilham o
+     * mesmo container e outras suítes (CKAN, terreno, predições) deixam linhas filhas.
+     */
+    protected void limparDependentesDePontos() {
+        java.util.List<String> filhas = baseJdbc.queryForList(
+                "SELECT DISTINCT conrelid::regclass::text FROM pg_constraint "
+                        + "WHERE contype = 'f' AND confrelid = 'flood_points'::regclass", String.class);
+        for (String tabela : filhas) {
+            baseJdbc.execute("DELETE FROM " + tabela);
+        }
+    }
+
     @DynamicPropertySource
     static void datasourceProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", DB::getJdbcUrl);

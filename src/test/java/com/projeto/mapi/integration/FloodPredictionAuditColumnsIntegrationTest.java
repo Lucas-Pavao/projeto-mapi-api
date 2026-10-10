@@ -43,6 +43,7 @@ class FloodPredictionAuditColumnsIntegrationTest extends AbstractTimescaleIntegr
     void limpa() {
         jdbc.execute("DELETE FROM flood_predictions");
         eventRepository.deleteAll();
+        limparDependentesDePontos();
         pointRepository.deleteAll();
         ponto = pointRepository.save(FloodPoint.builder().slug("p-v8").name("Ponto V8")
                 .latitude(-8.05).longitude(-34.88).build());
