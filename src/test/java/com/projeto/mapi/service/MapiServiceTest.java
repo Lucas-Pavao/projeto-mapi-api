@@ -45,6 +45,9 @@ class MapiServiceTest {
     @Mock
     private com.projeto.mapi.repository.FloodPointRepository floodPointRepository;
 
+    @Mock
+    private com.projeto.mapi.service.flood.FloodPredictionHistoryService predictionHistory;
+
     @InjectMocks
     private MapiServiceImpl mapiService;
 
