@@ -36,9 +36,17 @@ public class UnifiedDataDTO {
     // Maré
     private Double tideHeight;
     
-    // Label (IA)
+    // Label LEGADO (flood_events); obsoleto, mantido por compatibilidade (manifesto: deprecatedColumns)
     private Boolean isFlooded;
     private String severity;
+
+    // Rótulo novo (flood_occurrence + occurrence_point_match; MODELAGEM-IA A.3.1). São ALVOS, nunca features.
+    /** horizonte (h) -> 1/0; valor nulo = hora excluída (ver labelExcludedReason). */
+    private java.util.Map<Integer, Integer> labelByHorizon;
+    private Integer labelDay;
+    private String labelExcludedReason;
+    /** ids de flood_occurrence que justificam o rótulo, separados por ';'. */
+    private String occurrenceIds;
 
     // Features Calculadas
     private Double accumulated3h;

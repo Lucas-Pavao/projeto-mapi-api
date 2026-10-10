@@ -10,6 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 
+import com.projeto.mapi.service.export.label.OccurrenceLabeler;
+import com.projeto.mapi.service.export.label.OccurrenceLabeler.Occ;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +33,8 @@ public class DataExportServiceImpl implements DataExportService {
     private final FloodEventRepository floodEventRepository;
     private final TideService tideService;
     private final com.projeto.mapi.service.terrain.TerrainExportColumns terrainColumns;
+    private final com.projeto.mapi.repository.ingestion.OccurrenceRepository occurrenceRepository;
+    private final com.projeto.mapi.config.ExportLabelProperties labelProps;
 
     @Override
     public List<UnifiedDataDTO> exportAllPointsData(int days) {
@@ -146,6 +151,9 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         // Otimização: Cache de maré por hora para evitar chamadas repetidas à API externa se o porto for o mesmo
         java.util.concurrent.ConcurrentHashMap<LocalDateTime, Double> tideCache = new java.util.concurrent.ConcurrentHashMap<>();
 
+        var linkage = labelLinkage();
+        List<Occ> occs = linkage.map(l -> occurrencesOf(point, l)).orElse(List.of());
+
         List<UnifiedDataDTO> result = timeline.entrySet().stream().map(entry -> {
             LocalDateTime ts = entry.getKey();
             UnifiedDataDTO.UnifiedDataDTOBuilder builder = entry.getValue();
@@ -163,7 +171,15 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
                 builder.tideHeight(null);
             }
 
-            // Label de Alagamento (Ground Truth)
+            // Rótulo novo (pipeline): t = fim da hora em UTC; só preenche se há linkage_config vigente
+            if (linkage.isPresent()) {
+                var l = OccurrenceLabeler.label(occs, ts.toInstant(java.time.ZoneOffset.UTC),
+                        labelProps.getHorizonsHours(), labelProps::postEventHours);
+                builder.labelByHorizon(l.byHorizon()).labelDay(l.day())
+                        .labelExcludedReason(l.excludedReason()).occurrenceIds(l.occurrenceIds());
+            }
+
+            // Label LEGADO de Alagamento (flood_events; obsoleto, mantido por compatibilidade)
             // Otimização: Filtra apenas eventos que podem sobrepor o timestamp atual
             boolean flooded = events.stream().anyMatch(e -> isTimeWithinEvent(ts, e));
             builder.isFlooded(flooded);
@@ -181,6 +197,17 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         return result;
     }
 
+
+    /** linkage_config vigente do rótulo: o configurado por id ou o do raio de {@code mapi.ingestion.occurrence-radius-m}. */
+    private java.util.Optional<com.projeto.mapi.repository.ingestion.OccurrenceRepository.LinkageRef> labelLinkage() {
+        return occurrenceRepository.occurrenceLinkage(labelProps.getLinkageConfigId(), ingestionProps.getOccurrenceRadiusM());
+    }
+
+    private List<Occ> occurrencesOf(FloodPoint point,
+            com.projeto.mapi.repository.ingestion.OccurrenceRepository.LinkageRef linkage) {
+        return occurrenceRepository.matchedOccurrences(point.getId(), linkage.id()).stream()
+                .map(o -> new Occ(o.id(), o.from(), o.to(), o.hour())).toList();
+    }
 
     private List<com.projeto.mapi.repository.ingestion.ObservationReadRepository.HourlyCell> weatherCells(
             FloodPoint point, LocalDateTime start, LocalDateTime end) {
@@ -221,8 +248,55 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
                 ingestionProps.getRuleVersion(), ingestionProps.getCodeVersion(), data.size(), flagged, prov, terrain.provenance(),
                 MISSING_POLICY, missingCounts(data),
                 List.of("sensores (ANA, APAC, Cemaden): ainda lidos de sensor_data (legado, fuso não verificado)",
-                        "maré: TideService", "rótulo: flood_events (CKAN ainda não migrado)"));
+                        "maré: TideService",
+                        "rótulo legado isFlooded/severity: flood_events (obsoleto); rótulo novo: flood_occurrence"),
+                List.of("isFlooded", "severity"), labelManifest(points, data, start, end));
         return new CsvExport(csv, manifest);
+    }
+
+    static final String LABEL_POLICY = "Rótulo de flood_occurrence + occurrence_point_match (ADR 0006), não de flood_events. "
+            + "t = fim da hora, UTC. label_h<H> = 1 se há ocorrência HOUR casada com o ponto em (t, t+H]; 0 se não; vazio "
+            + "se a hora está excluída: DAY_EVENT_SAME_DAY (a janela (t, t+H] toca um intervalo DAY do ponto; nunca vira "
+            + "negativo) ou POST_EVENT_WINDOW (ocorrência em (t-G, t]). label_day = 1 se há ocorrência HOUR ou DAY no dia "
+            + "civil America/Recife de t. label_excluded_reason refere-se ao maior horizonte. occurrence_ids = ocorrências "
+            + "que justificam o rótulo (separadas por ';'). Os eventos (agrupamento por G, MODELAGEM-IA A.3.2) não são "
+            + "calculados aqui; o tamanho efetivo da amostra é o número de eventos, não de horas. O rótulo é alvo, nunca "
+            + "feature. Sem linkage_config vigente as colunas label_* saem vazias.";
+
+    private com.projeto.mapi.dto.ExportManifestDTO.LabelManifest labelManifest(List<FloodPoint> points,
+            List<UnifiedDataDTO> data, LocalDateTime start, LocalDateTime end) {
+        var linkage = labelLinkage();
+        Map<String, com.projeto.mapi.dto.ExportManifestDTO.LabelCounts> counts = new java.util.LinkedHashMap<>();
+        Map<Integer, Integer> g = new java.util.LinkedHashMap<>();
+        for (int h : labelProps.getHorizonsHours()) {
+            int pos = 0, neg = 0, exc = 0;
+            for (UnifiedDataDTO d : data) {
+                if (d.getLabelByHorizon() == null) continue;
+                Integer v = d.getLabelByHorizon().get(h);
+                if (v == null) exc++; else if (v == 1) pos++; else neg++;
+            }
+            counts.put("label_h" + h, new com.projeto.mapi.dto.ExportManifestDTO.LabelCounts(pos, neg, exc));
+            g.put(h, labelProps.postEventHours(h));
+        }
+        Map<String, Integer> byReason = new TreeMap<>();
+        int dayPos = 0;
+        for (UnifiedDataDTO d : data) {
+            if (d.getLabelExcludedReason() != null) byReason.merge(d.getLabelExcludedReason(), 1, Integer::sum);
+            if (Integer.valueOf(1).equals(d.getLabelDay())) dayPos++;
+        }
+        java.time.Instant from = start.toInstant(java.time.ZoneOffset.UTC), to = end.toInstant(java.time.ZoneOffset.UTC);
+        int hour = 0, day = 0;
+        if (linkage.isPresent()) {
+            for (FloodPoint p : points) {
+                for (Occ o : occurrencesOf(p, linkage.get())) {
+                    if (o.from().isAfter(to) || !o.to().isAfter(from)) continue;
+                    if (o.hour()) hour++; else day++;
+                }
+            }
+        }
+        return new com.projeto.mapi.dto.ExportManifestDTO.LabelManifest(LABEL_POLICY, labelProps.getHorizonsHours(), g,
+                linkage.map(l -> l.id()).orElse(null), linkage.map(l -> l.radiusM()).orElse(null),
+                linkage.map(l -> l.method()).orElse(null), counts, byReason, dayPos, hour, day);
     }
 
     private static Map<String, Integer> missingCounts(List<UnifiedDataDTO> data) {
@@ -315,7 +389,8 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         StringBuilder csv = new StringBuilder();
         csv.append("floodPointSlug,timestamp,sensorPrecipitation,sensorWaterLevel,sensorSoilHumidity,weatherPrecipitation,weatherTemperature,weatherPressure,weatherCode,tideHeight,accumulated3h,accumulated6h,accumulated12h,accumulated24h,accumulated48h,isFlooded,severity,timestampUtc");
         for (String c : MISSING_COLUMNS) csv.append(',').append(c).append("_missing");
-        csv.append('\n');
+        for (int h : labelProps.getHorizonsHours()) csv.append(",label_h").append(h);
+        csv.append(",label_day,label_excluded_reason,occurrence_ids\n");
 
         for (UnifiedDataDTO d : data) {
             csv.append(String.join(",",
@@ -326,7 +401,10 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
                     cell(d.getAccumulated6h()), cell(d.getAccumulated12h()), cell(d.getAccumulated24h()),
                     cell(d.getAccumulated48h()), cell(d.getIsFlooded()), cell(d.getSeverity()), cell(d.getTimestampUtc())));
             for (Object v : missingValues(d)) csv.append(',').append(v == null ? '1' : '0');
-            csv.append('\n');
+            for (int h : labelProps.getHorizonsHours())
+                csv.append(',').append(d.getLabelByHorizon() == null ? "" : cell(d.getLabelByHorizon().get(h)));
+            csv.append(',').append(cell(d.getLabelDay())).append(',').append(cell(d.getLabelExcludedReason()))
+                    .append(',').append(cell(d.getOccurrenceIds())).append('\n');
         }
         return csv.toString();
     }
