@@ -36,7 +36,7 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
             + "accumulated3h,accumulated6h,accumulated12h,accumulated24h,accumulated48h,isFlooded,severity,"
             + "timestampUtc,sensorPrecipitation_missing,sensorWaterLevel_missing,sensorSoilHumidity_missing,weatherPrecipitation_missing,"
             + "weatherTemperature_missing,weatherPressure_missing,weatherCode_missing,tideHeight_missing,"
-            + "accumulated3h_missing,accumulated6h_missing,accumulated12h_missing,accumulated24h_missing,accumulated48h_missing,label_h6,label_h3,label_day,label_excluded_reason,occurrence_ids";
+            + "accumulated3h_missing,accumulated6h_missing,accumulated12h_missing,accumulated24h_missing,accumulated48h_missing,label_h6,label_h3,label_day,label_excluded_reason,occurrence_ids,soil_moisture_0_7cm,soil_moisture_0_7cm_missing";
 
     @Autowired private DataExportService exportService;
     @Autowired private FloodPointRepository pointRepository;

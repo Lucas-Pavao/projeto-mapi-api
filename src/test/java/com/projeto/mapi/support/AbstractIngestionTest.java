@@ -26,6 +26,7 @@ public abstract class AbstractIngestionTest extends AbstractTimescaleIntegration
     @Autowired protected TestSourceAdapter adapter;
 
     @MockitoBean protected OpenMeteoArchiveClient openMeteo;
+    @MockitoBean protected com.projeto.mapi.service.ingestion.adapter.Era5LandClient era5Land;
 
     @BeforeEach
     void cleanPipeline() {

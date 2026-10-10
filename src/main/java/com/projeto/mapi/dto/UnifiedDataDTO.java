@@ -33,6 +33,9 @@ public class UnifiedDataDTO {
     private Double weatherPressure;
     private Integer weatherCode;
     
+    /** Umidade do solo 0-7 cm, ERA5-Land (m³/m³); latência ~5 dias, só treino (MODELAGEM-IA A.2.3, feature 22). */
+    private Double soilMoisture07cm;
+
     // Maré
     private Double tideHeight;
     

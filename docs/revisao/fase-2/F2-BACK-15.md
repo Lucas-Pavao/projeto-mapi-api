@@ -1,8 +1,7 @@
 # F2-BACK-15 — Adaptadores ERA5-Land (umidade do solo) e Open-Meteo Marine (nível do mar)
 
 - Branch: `feat/pipeline-era5-marine` (a partir de `integracao/fase-2`, e9ccd46). Sem push.
-- Status: **verificação da documentação feita; implementação NÃO feita.** (b) é inviável pela fonte; (a) é viável, mas exige migração nova (proibida sem aprovação). Nenhum código, migração, teste ou export alterado.
-- Pedido de aprovação: autorizar a migração `V10` abaixo para liberar (a).
+- Status: **(a) implementada** (V10 aprovada pelo autor em 2026-10-10, registrada no PROGRESSO.md). **(b) não implementada** (histórico insuficiente, seção 1). Rebase sobre `integracao/fase-2` em 88dd72b.
 
 ## 1. Verificação da documentação (consultada em 2026-10-10 via WebFetch)
 
@@ -61,5 +60,13 @@ Justificativa de agregação: umidade do solo é **estado**, não fluxo: `LAST` 
 4. Export: `soil_moisture_0_7cm` e `soil_moisture_0_7cm_missing` no fim do CSV, sem tocar nas colunas existentes (mudança isolada em `DataExportServiceImpl`, porque `feat/export-rotulo-pipeline` mexe no mesmo arquivo).
 5. Uso em produção: feature 22 não vale em produção (latência de 5 dias); ficar claro no manifesto do export.
 
+## 3b. O que foi feito (a)
+
+- Parâmetro confirmado por chamada real controlada (fora dos testes) em 2026-10-10: `models=era5_land` é aceito e devolve a grade ERA5-Land (lat -8.0, lon -34.899994, `utc_offset_seconds=0`, unidade `m³/m³`); sem `models` a grade devolvida é outra (-8.049, -34.923), ou seja, não é ERA5-Land. Por isso o modelo é forçado.
+- Decisão: fonte separada `OPEN_METEO_ERA5LAND` (chamada própria), para não mudar valores/hashes de `OPEN_METEO_ARCHIVE` já carregados. `V10__era5land_soil_moisture.sql`: 1 linha em `source_registry` (UTC, VERIFIED) e 1 em `variable_catalog` (`soil_moisture_0_7cm`, m³/m³, faixa 0 a 1, PT1H, INSTANT, LAST). Só DML.
+- Código: `Era5LandAdapter`, `Era5LandClient`, `Era5LandHttpClient` (mesmo cliente/timeout `open-meteo-archive`, `timezone=GMT` e `models=era5_land` explícitos, `utc_offset_seconds=0` conferido, hash do corpo), `mapi.ingestion.era5-land-lag-days=6`. Rate limit: a documentação não declara; a coleta é sequencial por ponto.
+- Export: colunas `soil_moisture_0_7cm` e `soil_moisture_0_7cm_missing` no fim do cabeçalho do `generateCsv` (após `occurrence_ids`; as `terrain_*` continuam depois), campo `soilMoisture07cm` no DTO, contagem no manifesto e proveniência (runs) da fonte nova. Colunas existentes inalteradas. Dois testes que fixavam o fim do cabeçalho foram ajustados (`DataExportIntegrationTest.HEADER`, `ExportLabelIntegrationTest`).
+- Testes (`Era5LandIngestionTest`, resposta sintética): T6 borda da hora e janela [from,to), T1 idempotência, valor 1,2 em quarentena `OUT_OF_RANGE`, `utc_offset_seconds` diferente de 0 falha a execução.
+
 ## 4. Medidas
-Nenhum código alterado: linha de base mantida (151 testes, 59,0% de linhas em `integracao/fase-2`, segundo o pedido); `./mvnw clean test` não foi reexecutado por não haver mudança de código.
+`./mvnw -q clean test`: 163 testes, 0 falhas (inclui os 4 novos de ERA5-Land). JaCoCo não foi reexecutado.

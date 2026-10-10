@@ -88,6 +88,8 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         // em UTC. Hora incompleta ou ausente fica sem valor aqui (NULL), sem constante inventada pela view.
         List<com.projeto.mapi.repository.ingestion.ObservationReadRepository.HourlyCell> weatherCells = weatherCells(point, start, end);
         
+        List<com.projeto.mapi.repository.ingestion.ObservationReadRepository.HourlyCell> soilCells = soilCells(point, start, end);
+
         List<FloodEvent> events = floodEventRepository.findByFloodPointId(point.getId());
 
         // 2. Criar Timeline contínua (Hora a Hora)
@@ -145,6 +147,11 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
                 case "weather_code" -> b.weatherCode((int) Math.round(w.value()));
                 default -> { }
             }
+        });
+
+        soilCells.forEach(w -> {
+            UnifiedDataDTO.UnifiedDataDTOBuilder b = timeline.get(LocalDateTime.ofInstant(w.hourEndUtc(), java.time.ZoneOffset.UTC));
+            if (b != null && w.value() != null) b.soilMoisture07cm(w.value());
         });
 
         // 5. Processar e Refinar (Tide + Flood Labels)
@@ -216,6 +223,14 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
                 start.toInstant(java.time.ZoneOffset.UTC), end.toInstant(java.time.ZoneOffset.UTC));
     }
 
+    /** Umidade do solo ERA5-Land (F2-BACK-15); mesma estação (coordenada do ponto) da fonte Open-Meteo archive. */
+    private List<com.projeto.mapi.repository.ingestion.ObservationReadRepository.HourlyCell> soilCells(
+            FloodPoint point, LocalDateTime start, LocalDateTime end) {
+        return observationRead.hourly(com.projeto.mapi.service.ingestion.adapter.Era5LandAdapter.SOURCE,
+                com.projeto.mapi.service.ingestion.adapter.OpenMeteoArchiveAdapter.stationId(point.getLatitude(), point.getLongitude()),
+                start.toInstant(java.time.ZoneOffset.UTC), end.toInstant(java.time.ZoneOffset.UTC));
+    }
+
     @Override
     public CsvExport exportCsv(String slug, int days, LocalDateTime endOverride) {
         boolean all = "all".equals(slug);
@@ -234,6 +249,11 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         for (FloodPoint p : points) {
             for (var cell : weatherCells(p, start, end)) {
                 String key = com.projeto.mapi.service.ingestion.adapter.OpenMeteoArchiveAdapter.SOURCE + "|" + cell.variable();
+                runs.computeIfAbsent(key, k -> new java.util.TreeSet<>()).addAll(cell.runIds());
+                revisions.merge(key, cell.maxRevision(), Math::max);
+            }
+            for (var cell : soilCells(p, start, end)) {
+                String key = com.projeto.mapi.service.ingestion.adapter.Era5LandAdapter.SOURCE + "|" + cell.variable();
                 runs.computeIfAbsent(key, k -> new java.util.TreeSet<>()).addAll(cell.runIds());
                 revisions.merge(key, cell.maxRevision(), Math::max);
             }
@@ -302,9 +322,11 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
     private static Map<String, Integer> missingCounts(List<UnifiedDataDTO> data) {
         Map<String, Integer> out = new java.util.LinkedHashMap<>();
         for (String c : MISSING_COLUMNS) out.put(c, 0);
+        out.put("soil_moisture_0_7cm", 0);
         for (UnifiedDataDTO d : data) {
             Object[] v = missingValues(d);
             for (int i = 0; i < v.length; i++) if (v[i] == null) out.merge(MISSING_COLUMNS[i], 1, Integer::sum);
+            if (d.getSoilMoisture07cm() == null) out.merge("soil_moisture_0_7cm", 1, Integer::sum);
         }
         return out;
     }
@@ -390,7 +412,7 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         csv.append("floodPointSlug,timestamp,sensorPrecipitation,sensorWaterLevel,sensorSoilHumidity,weatherPrecipitation,weatherTemperature,weatherPressure,weatherCode,tideHeight,accumulated3h,accumulated6h,accumulated12h,accumulated24h,accumulated48h,isFlooded,severity,timestampUtc");
         for (String c : MISSING_COLUMNS) csv.append(',').append(c).append("_missing");
         for (int h : labelProps.getHorizonsHours()) csv.append(",label_h").append(h);
-        csv.append(",label_day,label_excluded_reason,occurrence_ids\n");
+        csv.append(",label_day,label_excluded_reason,occurrence_ids,soil_moisture_0_7cm,soil_moisture_0_7cm_missing\n");
 
         for (UnifiedDataDTO d : data) {
             csv.append(String.join(",",
@@ -404,7 +426,9 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
             for (int h : labelProps.getHorizonsHours())
                 csv.append(',').append(d.getLabelByHorizon() == null ? "" : cell(d.getLabelByHorizon().get(h)));
             csv.append(',').append(cell(d.getLabelDay())).append(',').append(cell(d.getLabelExcludedReason()))
-                    .append(',').append(cell(d.getOccurrenceIds())).append('\n');
+                    .append(',').append(cell(d.getOccurrenceIds()))
+                    .append(',').append(cell(d.getSoilMoisture07cm()))
+                    .append(',').append(d.getSoilMoisture07cm() == null ? '1' : '0').append('\n');
         }
         return csv.toString();
     }
