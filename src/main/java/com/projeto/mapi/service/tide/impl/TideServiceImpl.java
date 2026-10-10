@@ -92,7 +92,12 @@ public class TideServiceImpl implements TideService {
         return tideTableRepository.findDistinctHarborNamesByYear(year);
     }
 
+    // F2-BACK-19: getCurrentTideHeight chama getTideHeightAt por auto-invocação (sem passar pelo proxy), então
+    // o @Transactional de getTideHeightAt não valia e as coleções LAZY (geoLocations, months, days, hours)
+    // estouravam LazyInitializationException em todo ciclo de predição. A transação de leitura fica aqui,
+    // no ponto de entrada; o mapeamento das entidades continua LAZY.
     @Override
+    @Transactional(readOnly = true)
     @org.springframework.cache.annotation.Cacheable(value = "tideDataLocal", key = "T(java.lang.Math).round(#latitude * 100) / 100.0 + '-' + T(java.lang.Math).round(#longitude * 100) / 100.0")
     public Double getCurrentTideHeight(double latitude, double longitude) {
         return getTideHeightAt(latitude, longitude, java.time.LocalDateTime.now());
