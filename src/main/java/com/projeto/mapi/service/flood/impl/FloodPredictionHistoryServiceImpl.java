@@ -23,17 +23,14 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Persiste e relê previsões em {@code flood_predictions} SEM migração de schema.
+ * Persiste e relê previsões em {@code flood_predictions} (colunas de auditoria da migração V8).
  *
- * <p>A tabela só tem {@code risk_level}/{@code status}/{@code message}. Por isso o que o contrato
- * precisa e a tabela não tem (versão completa do modelo, horizonte, motivo da degradação, imputações,
- * contribuintes) vai como JSON na coluna {@code message} (TEXT). Linhas antigas, com texto livre,
- * são lidas como legado (ver {@link #toResponse}). Dívida registrada: colunas próprias numa migração
- * futura, com aprovação.
+ * <p>{@code message} guarda só o texto fixo para o operador. Linhas anteriores à V8 (sem
+ * {@code model_version}/{@code degradation_reason}) ainda têm auditoria em JSON na {@code message};
+ * são lidas por {@link #parseLegacyAudit} até envelhecerem.
  *
- * <p>Fuso: a coluna {@code timestamp} é TIMESTAMP sem fuso e as linhas existentes foram escritas com
- * {@code LocalDateTime.now()} (fuso da JVM). Para ler e escrever de forma consistente com elas, a
- * conversão de/para {@link Instant} usa o fuso da JVM; a migração para UTC é a do ADR 0001.
+ * <p>Fuso: a coluna {@code timestamp} é TIMESTAMP sem fuso (linhas escritas com o fuso da JVM);
+ * {@code issued_at} é TIMESTAMPTZ e só existe nas linhas novas. A migração para UTC é a do ADR 0001.
  */
 @Service
 @RequiredArgsConstructor
@@ -47,13 +44,18 @@ public class FloodPredictionHistoryServiceImpl implements FloodPredictionHistory
     private final FeatureCatalog catalog;
     private final ObjectMapper objectMapper;
 
+    static final String MESSAGE_OK = "Previsão gerada pelo modelo.";
+
     @Override
-    public void record(FloodPredictionRequestDTO request, PredictionResult result) {
+    public void record(FloodPredictionRequestDTO request, PredictionResult result, Long floodPointId) {
         try {
             FloodPredictionResponseDTO p = result.response();
             boolean ok = p.riskLevel() != RiskLevel.UNKNOWN;
+            String full = result.auditModelVersion();
             FloodPrediction row = FloodPrediction.builder()
                     .timestamp(toLocal(p.issuedAt()))
+                    .issuedAt(p.issuedAt())
+                    .floodPointId(floodPointId)
                     .stationId(request.getStationId())
                     .latitude(request.getLatitude())
                     .longitude(request.getLongitude())
@@ -67,7 +69,15 @@ public class FloodPredictionHistoryServiceImpl implements FloodPredictionHistory
                     .floodProbability(p.floodProbability())
                     .riskLevel(p.riskLevel().name())
                     .status(ok ? STATUS_SUCCESS : STATUS_FAILED)
-                    .message(objectMapper.writeValueAsString(toAudit(result)))
+                    .message(ok || p.degradationReason() == null ? MESSAGE_OK : p.degradationReason().message())
+                    .modelVersion(p.modelVersion())
+                    .modelVersionFull(full)
+                    .horizonHours(p.horizonHours())
+                    .degradationReason(p.degradationReason() == null ? null : p.degradationReason().name())
+                    .imputedFeatures(p.imputedFeatures().stream()
+                            .map(FloodPredictionResponseDTO.ImputedFeature::featureId).toList())
+                    .topContributors(p.contributors().stream()
+                            .map(c -> new FloodPrediction.Contributor(c.featureId(), c.contribution())).toList())
                     .build();
             repository.save(row);
         } catch (Exception e) {
@@ -76,34 +86,46 @@ public class FloodPredictionHistoryServiceImpl implements FloodPredictionHistory
     }
 
     @Override
-    public Optional<FloodPredictionResponseDTO> findLatest(double latitude, double longitude) {
-        Optional<FloodPrediction> latest =
-                repository.findFirstByLatitudeAndLongitudeOrderByTimestampDesc(latitude, longitude);
+    public Optional<FloodPredictionResponseDTO> findLatest(Long floodPointId, double latitude, double longitude) {
+        Optional<FloodPrediction> latest = floodPointId == null ? Optional.empty()
+                : repository.findFirstByFloodPointIdOrderByTimestampDesc(floodPointId);
+        if (latest.isEmpty()) {
+            latest = repository.findFirstByLatitudeAndLongitudeOrderByTimestampDesc(latitude, longitude);
+        }
         if (latest.isEmpty()) return Optional.empty();
-        Instant lastValid = findLastValidIssuedAt(latitude, longitude).orElse(null);
+        Instant lastValid = findLastValidIssuedAt(floodPointId, latitude, longitude).orElse(null);
         return Optional.of(toResponse(latest.get(), lastValid));
     }
 
     @Override
-    public Optional<Instant> findLastValidIssuedAt(double latitude, double longitude) {
-        return repository
-                .findFirstByLatitudeAndLongitudeAndStatusOrderByTimestampDesc(latitude, longitude, STATUS_SUCCESS)
-                .map(r -> toInstant(r.getTimestamp()));
+    public Optional<Instant> findLastValidIssuedAt(Long floodPointId, double latitude, double longitude) {
+        Optional<FloodPrediction> byPoint = floodPointId == null ? Optional.empty()
+                : repository.findFirstByFloodPointIdAndStatusOrderByTimestampDesc(floodPointId, STATUS_SUCCESS);
+        // Fallback (linhas anteriores à V8, sem flood_point_id): busca antiga por coordenada.
+        Optional<FloodPrediction> row = byPoint.isPresent() ? byPoint
+                : repository.findFirstByLatitudeAndLongitudeAndStatusOrderByTimestampDesc(latitude, longitude, STATUS_SUCCESS);
+        return row.map(this::issuedAtOf);
     }
 
-    private Audit toAudit(PredictionResult result) {
-        FloodPredictionResponseDTO p = result.response();
-        return new Audit(
-                result.auditModelVersion(),
-                p.horizonHours(),
-                p.degradationReason() == null ? null : p.degradationReason().name(),
-                p.imputedFeatures().stream().map(FloodPredictionResponseDTO.ImputedFeature::featureId).toList(),
-                p.contributors().stream().map(c -> new AuditContributor(c.featureId(), c.contribution())).toList());
+    private Instant issuedAtOf(FloodPrediction row) {
+        return row.getIssuedAt() != null ? row.getIssuedAt() : toInstant(row.getTimestamp());
+    }
+
+    /** Auditoria a partir das colunas V8; linha antiga (sem elas) cai no JSON legado da {@code message}. */
+    private Audit auditOf(FloodPrediction row) {
+        if (row.getModelVersionFull() != null || row.getModelVersion() != null || row.getDegradationReason() != null) {
+            return new Audit(row.getModelVersionFull() != null ? row.getModelVersionFull() : row.getModelVersion(),
+                    row.getHorizonHours(), row.getDegradationReason(),
+                    row.getImputedFeatures() == null ? List.of() : row.getImputedFeatures(),
+                    row.getTopContributors() == null ? List.of() : row.getTopContributors().stream()
+                            .map(c -> new AuditContributor(c.featureId(), c.contribution())).toList());
+        }
+        return parseLegacyAudit(row.getMessage());
     }
 
     private FloodPredictionResponseDTO toResponse(FloodPrediction row, Instant lastValid) {
-        Instant issuedAt = toInstant(row.getTimestamp());
-        Audit audit = parseAudit(row.getMessage());
+        Instant issuedAt = issuedAtOf(row);
+        Audit audit = auditOf(row);
         RiskLevel level = RiskLevel.fromColumn(row.getRiskLevel());
         boolean success = STATUS_SUCCESS.equals(row.getStatus()) && level != RiskLevel.UNKNOWN;
 
@@ -140,7 +162,7 @@ public class FloodPredictionHistoryServiceImpl implements FloodPredictionHistory
                 .build();
     }
 
-    private Audit parseAudit(String json) {
+    private Audit parseLegacyAudit(String json) {
         if (json == null || !json.startsWith("{")) return null;
         try {
             return objectMapper.readValue(json, Audit.class);
@@ -157,7 +179,7 @@ public class FloodPredictionHistoryServiceImpl implements FloodPredictionHistory
         return local.atZone(ZoneId.systemDefault()).toInstant();
     }
 
-    /** Conteúdo auditável gravado em {@code flood_predictions.message}. */
+    /** Auditoria lida das colunas V8 ou do JSON legado de {@code message}. */
     @JsonIgnoreProperties(ignoreUnknown = true)
     record Audit(String modelVersion, Integer horizonHours, String degradationReason,
                  List<String> imputedFeatures, List<AuditContributor> contributors) {

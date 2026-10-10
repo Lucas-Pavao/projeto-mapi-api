@@ -22,7 +22,7 @@ class MigrationsIntegrationTest extends AbstractTimescaleIntegrationTest {
     void migrationsAplicadasComSucesso() {
         List<String> versoes = jdbc.queryForList(
                 "SELECT version FROM flyway_schema_history WHERE success = true ORDER BY installed_rank", String.class);
-        assertThat(versoes).contains("1", "2", "3", "4", "5", "6");
+        assertThat(versoes).contains("1", "2", "3", "4", "5", "6", "7", "8");
     }
 
     @Test
