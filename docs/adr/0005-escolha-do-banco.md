@@ -1,6 +1,6 @@
 # 0005 — Escolha do banco: PostgreSQL 16 + TimescaleDB + PostGIS (e imagem fixa)
 
-- Status: proposto
+- Status: **aprovado** (2026-10-10, Lucas, pergunta 20). Troca de imagem executada; ver `docs/snapshots/2026-10-10-troca-de-imagem.md`.
 - Data: 2026-10-10
 - Decisores: Engenheiro de Dados (autor), checkpoint Máximo (pendente), Lucas
 - Tarefa: F2-DADOS-02
@@ -71,7 +71,7 @@ compressão e o cagg valem a pena. Mas o desempenho de consulta e o volume **nã
   1. **[aprovar]** Troca da imagem do serviço `postgres` para `timescale/timescaledb-ha:pg16.15-ts2.30.2`
      (compose e Testcontainers, ADR 0004, com `asCompatibleSubstituteFor("postgres")`). A imagem `-ha` usa PGDATA em
      `/home/postgres/pgdata/data` e usuário `postgres` (uid 1000), então o volume atual não é reaproveitável.
-     Procedimento (nada disto foi executado):
+     Procedimento (executado em 2026-10-10; registro em `docs/snapshots/2026-10-10-troca-de-imagem.md`):
      a. parar a aplicação (`mapi-api`, `mapi-ai`) e deixar só o banco;
      b. `pg_dump -Fc` do `tide_db` e registrar o SHA-256 do arquivo (o snapshot de 2026-10-10 tem 408 355 B e
         `3ace3cde…4dedd`; gerar um dump novo);

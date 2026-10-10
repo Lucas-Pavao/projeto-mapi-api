@@ -31,6 +31,7 @@
 | 2026-10-10 | Rótulo positivo: só "alagamento" (Cobrade); "inundação" fica de fora | 0006 | Lucas |
 | 2026-10-10 | Rótulo diário × horizonte 3/6 h decidido na Fase 4 | — | Lucas |
 | 2026-10-10 | Fuso de ANA, APAC 24h e Cemaden verificado por correlação cruzada com Open-Meteo após a primeira carga (F2-DADOS-07); até lá, quarentena | 0006 | Lucas |
+| 2026-10-10 | ADR 0005 aprovado: PostgreSQL + TimescaleDB + PostGIS (V7); imagem `timescaledb-ha:pg16.15-ts2.30.2` | 0005 | Lucas |
 
 ## Tarefas
 | ID | Fase | Agente | Nível | Tarefa | Status | PR/commit | Resultado em uma linha |
@@ -79,6 +80,8 @@
 | F2-DADOS-07 | 2 | Dados | Equilibrado | Verificar fuso de ANA, APAC 24h e Cemaden por correlação cruzada com Open-Meteo (UTC) após a primeira carga | pendente | | depende de F2-BACK-01 + carga |
 | F2-BACK-09 | 2 | Backend | Equilibrado | Primeira carga histórica (5 anos) pelo pipeline novo + medidas de volume e p95 do export | pendente | | depende de F2-BACK-01, F2-BACK-06 |
 | F2-ARQ-03 | 2 | Arquiteto | Equilibrado | Integrar F2-BACK-04..07 e rodar a suíte completa | concluido | 7ccc0e8 (`integracao/fase-2`) | 2026-10-10 · Opus · 1 conflito trivial resolvido em `HistoricalDataServiceImpl` (serviceProvider removido + cliente com timeout); 49 testes, 0 falhas; cobertura 36,2% linhas / 23,9% ramos; export 74,6% |
+| F2-DADOS-08 | 2 | Dados | Equilibrado | Executar a troca de imagem (ADR 0005, procedimento a–f) | concluido | branch `feat/imagem-timescaledb-ha` | 2026-10-10 · Opus · dump `eac26687…`, restauração na 2.27.2 + UPDATE p/ 2.30.2, contagens idênticas em 17 tabelas, API healthy · 1 incidente de script na 1ª tentativa (só no banco novo), refeito; registro em `docs/snapshots/2026-10-10-troca-de-imagem.md` |
+| F2-BACK-10 | 2 | Backend | Rápido | Testcontainers passar para a imagem `-ha` (pré-requisito da V7 PostGIS) | pendente | | depois de integrar F2-BACK-01/08 |
 | F2-ARQ-01 | 2 | Arquiteto | Rápido | Handoff da Fase 2 | pendente | | |
 | F3-GEO-01 | 3 | Geo | Equilibrado | Processar rasters: unzip, atribuir CRS/nodata, VRT, recorte, COG; medir tamanhos | pendente | | precisa GDAL/rasterio (ausentes localmente → docker) |
 | F3-GEO-02 | 3 | Geo+Dados+Backend | Equilibrado + checkpoint | ADR de onde armazenar o terreno | pendente | | |
@@ -139,7 +142,8 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | 17 | ~~Confirma que a escolha entre rótulo diário e horizonte 3/6 h fica para a formulação da Fase 4 (Máximo)?~~ **respondida 2026-10-10: sim** | 2026-10-10 | — |
 | 18 | ~~Fuso de ANA, APAC meteorologia24h e Cemaden: verificar por correlação cruzada com Open-Meteo (UTC) após a primeira carga (nova tarefa F2-DADOS-07); até lá essas fontes ficam em quarentena. De acordo?~~ **respondida 2026-10-10: sim** | 2026-10-10 | — |
 | 19 | ~~Aprova as migrações aditivas V3–V6 do ADR 0006 (nenhuma apaga dado; V8, que aposentaria `sensor_data`/`weather_data`, terá aprovação própria)?~~ **respondida 2026-10-10: sim** | 2026-10-10 | — |
-| 20 | ADR 0005: aprova manter PostgreSQL + TimescaleDB, adicionar PostGIS (migração V7) e trocar a imagem para `timescale/timescaledb-ha:pg16.15-ts2.30.2` pelo procedimento a–f do ADR (dump com hash, volume novo, restauração, conferência contra o snapshot; o volume antigo fica até aprovação separada)? | 2026-10-10 | Fase 3 (PostGIS) e imagem dos Testcontainers |
+| 20 | ~~ADR 0005: aprova manter PostgreSQL + TimescaleDB, adicionar PostGIS (migração V7) e trocar a imagem para `timescale/timescaledb-ha:pg16.15-ts2.30.2` pelo procedimento a–f do ADR (dump com hash, volume novo, restauração, conferência contra o snapshot; o volume antigo fica até aprovação separada)?~~ **respondida 2026-10-10: sim** | 2026-10-10 | — |
+| 21 | Posso remover o volume antigo `projeto-mapi-api_postgres_data` (imagem antiga)? O conteúdo está no dump `eac26687…` e no volume novo, com contagens conferidas | 2026-10-10 | só ocupa disco |
 
 ## Medidas antes e depois
 | Métrica | Antes | Depois | Quando | Onde foi medida |
