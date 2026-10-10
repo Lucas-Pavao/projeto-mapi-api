@@ -61,7 +61,7 @@ public class DataExportServiceImpl implements DataExportService {
                 .orElseThrow(() -> new com.projeto.mapi.exception.ResourceNotFoundException("Ponto não encontrado: " + slug));
 
         // Define o intervalo de busca
-        LocalDateTime end = (endOverride != null ? endOverride : LocalDateTime.now()).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime end = (endOverride != null ? endOverride : LocalDateTime.now(java.time.ZoneOffset.UTC)).withMinute(0).withSecond(0).withNano(0);
         LocalDateTime start = (days > 0) ? end.minusDays(days) : LocalDateTime.of(2021, 1, 1, 0, 0);
 // --- NOVA LÓGICA ESPACIAL: Busca regional em raio de 3km ---
 log.info("---- Exportando dados regionais (Raio 3km) para o ponto {}", slug);
@@ -177,7 +177,8 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
             return builder.build();
         }).collect(Collectors.toList());
 
-        return fillMissingValues(result);
+        // Sem imputação: ausência fica null (CSV: célula vazia). Rótulo ausente = não alagou (ver MISSING_POLICY).
+        return result;
     }
 
 
@@ -191,7 +192,7 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
     @Override
     public CsvExport exportCsv(String slug, int days, LocalDateTime endOverride) {
         boolean all = "all".equals(slug);
-        LocalDateTime end = (endOverride != null ? endOverride : LocalDateTime.now()).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime end = (endOverride != null ? endOverride : LocalDateTime.now(java.time.ZoneOffset.UTC)).withMinute(0).withSecond(0).withNano(0);
         List<FloodPoint> points = all ? floodPointRepository.findAll()
                 : List.of(floodPointRepository.findBySlug(slug).orElseThrow(() ->
                         new com.projeto.mapi.exception.ResourceNotFoundException("Ponto não encontrado: " + slug)));
@@ -218,9 +219,20 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
                 com.projeto.mapi.service.ingestion.Hashing.sha256(csv), slug,
                 start.toInstant(java.time.ZoneOffset.UTC), end.toInstant(java.time.ZoneOffset.UTC), "UTC",
                 ingestionProps.getRuleVersion(), ingestionProps.getCodeVersion(), data.size(), flagged, prov, terrain.provenance(),
+                MISSING_POLICY, missingCounts(data),
                 List.of("sensores (ANA, APAC, Cemaden): ainda lidos de sensor_data (legado, fuso não verificado)",
                         "maré: TideService", "rótulo: flood_events (CKAN ainda não migrado)"));
         return new CsvExport(csv, manifest);
+    }
+
+    private static Map<String, Integer> missingCounts(List<UnifiedDataDTO> data) {
+        Map<String, Integer> out = new java.util.LinkedHashMap<>();
+        for (String c : MISSING_COLUMNS) out.put(c, 0);
+        for (UnifiedDataDTO d : data) {
+            Object[] v = missingValues(d);
+            for (int i = 0; i < v.length; i++) if (v[i] == null) out.merge(MISSING_COLUMNS[i], 1, Integer::sum);
+        }
+        return out;
     }
 
     @Override
@@ -246,58 +258,23 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         return baseData;
     }
 
+    /** Soma das últimas {@code hours} horas; null se a janela não tem todas as horas ou alguma hora está sem valor. */
     private Double calculateSum(List<UnifiedDataDTO> data, int index, int hours) {
+        if (index + 1 < hours) return null;
         double sum = 0.0;
-        int count = 0;
-        for (int i = index; i >= 0 && count < hours; i--) {
+        for (int i = index; i > index - hours; i--) {
             Double val = data.get(i).getWeatherPrecipitation();
-            sum += (val != null ? val : 0.0);
-            count++;
+            if (val == null) return null;
+            sum += val;
         }
         return Math.round(sum * 100.0) / 100.0;
-    }
-
-    private List<UnifiedDataDTO> fillMissingValues(List<UnifiedDataDTO> data) {
-        if (data.isEmpty()) return data;
-
-        Double lastWeatherP = 0.0;
-        Double lastTemp = 25.0; // Média padrão Recife
-        Double lastPressure = 1013.0; // Padrão atm
-        Integer lastCode = 0;
-        Double lastSoil = 30.0; // Padrão úmido
-        Double lastWater = 0.0;
-
-        for (UnifiedDataDTO d : data) {
-            // Se sensor é null, assume 0 (ausência de chuva detectada)
-            if (d.getSensorPrecipitation() == null) d.setSensorPrecipitation(0.0);
-
-            if (d.getSensorWaterLevel() == null) d.setSensorWaterLevel(lastWater);
-            else lastWater = d.getSensorWaterLevel();
-
-            if (d.getSensorSoilHumidity() == null) d.setSensorSoilHumidity(lastSoil);
-            else lastSoil = d.getSensorSoilHumidity();
-
-            // Se clima é null, assume 0 para chuva e preenche temperatura/pressão com a última leitura conhecida
-            if (d.getWeatherPrecipitation() == null) d.setWeatherPrecipitation(0.0);
-
-            if (d.getWeatherTemperature() == null) d.setWeatherTemperature(lastTemp);
-            else lastTemp = d.getWeatherTemperature();
-
-            if (d.getWeatherPressure() == null) d.setWeatherPressure(lastPressure);
-            else lastPressure = d.getWeatherPressure();
-
-            if (d.getWeatherCode() == null) d.setWeatherCode(lastCode);
-            else lastCode = d.getWeatherCode();
-
-            if (d.getIsFlooded() == null) d.setIsFlooded(false);
-        }
-        return data;
     }
 
     private UnifiedDataDTO.UnifiedDataDTOBuilder createInitialBuilder(String slug, LocalDateTime ts) {
         return UnifiedDataDTO.builder()
                 .floodPointSlug(slug)
                 .timestamp(ts)
+                .timestampUtc(ts.toInstant(java.time.ZoneOffset.UTC))
                 .isFlooded(false)
                 .severity(null);
     }
@@ -311,31 +288,45 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         return (ts.isAfter(eventStart) || ts.isEqual(eventStart)) && (ts.isBefore(eventEnd) || ts.isEqual(eventEnd));
     }
 
+    /** Política de ausência declarada no manifesto (ADR 0006: lacuna = NULL, nunca constante). */
+    public static final String MISSING_POLICY = "Sem imputação. Valor ausente = célula vazia no CSV (null no JSON). "
+            + "Colunas <var>_missing (1 = ausente, 0 = presente) ao fim do cabeçalho. acumuladosNh = vazio se a janela "
+            + "não tem N horas ou alguma hora sem precipitação. isFlooded ausente = false (sem ocorrência registrada "
+            + "no rótulo, não imputação de feature).";
+
+    /** Colunas de valor que podem faltar, na ordem em que os sinalizadores _missing aparecem no cabeçalho. */
+    private static final String[] MISSING_COLUMNS = {"sensorPrecipitation", "sensorWaterLevel", "sensorSoilHumidity",
+            "weatherPrecipitation", "weatherTemperature", "weatherPressure", "weatherCode", "tideHeight",
+            "accumulated3h", "accumulated6h", "accumulated12h", "accumulated24h", "accumulated48h"};
+
+    private static Object[] missingValues(UnifiedDataDTO d) {
+        return new Object[]{d.getSensorPrecipitation(), d.getSensorWaterLevel(), d.getSensorSoilHumidity(),
+                d.getWeatherPrecipitation(), d.getWeatherTemperature(), d.getWeatherPressure(), d.getWeatherCode(),
+                d.getTideHeight(), d.getAccumulated3h(), d.getAccumulated6h(), d.getAccumulated12h(),
+                d.getAccumulated24h(), d.getAccumulated48h()};
+    }
+
+    private static String cell(Object v) {
+        return v == null ? "" : String.valueOf(v);
+    }
+
     @Override
     public String generateCsv(List<UnifiedDataDTO> data) {
         StringBuilder csv = new StringBuilder();
-        csv.append("floodPointSlug,timestamp,sensorPrecipitation,sensorWaterLevel,sensorSoilHumidity,weatherPrecipitation,weatherTemperature,weatherPressure,weatherCode,tideHeight,accumulated3h,accumulated6h,accumulated12h,accumulated24h,accumulated48h,isFlooded,severity\n");
-        
+        csv.append("floodPointSlug,timestamp,sensorPrecipitation,sensorWaterLevel,sensorSoilHumidity,weatherPrecipitation,weatherTemperature,weatherPressure,weatherCode,tideHeight,accumulated3h,accumulated6h,accumulated12h,accumulated24h,accumulated48h,isFlooded,severity,timestampUtc");
+        for (String c : MISSING_COLUMNS) csv.append(',').append(c).append("_missing");
+        csv.append('\n');
+
         for (UnifiedDataDTO d : data) {
-            csv.append(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
-                    d.getFloodPointSlug(),
-                    d.getTimestamp(),
-                    d.getSensorPrecipitation(),
-                    d.getSensorWaterLevel(),
-                    d.getSensorSoilHumidity(),
-                    d.getWeatherPrecipitation(),
-                    d.getWeatherTemperature(),
-                    d.getWeatherPressure(),
-                    d.getWeatherCode(),
-                    d.getTideHeight(),
-                    d.getAccumulated3h(),
-                    d.getAccumulated6h(),
-                    d.getAccumulated12h(),
-                    d.getAccumulated24h(),
-                    d.getAccumulated48h(),
-                    d.getIsFlooded(),
-                    d.getSeverity()
-            ));
+            csv.append(String.join(",",
+                    cell(d.getFloodPointSlug()), cell(d.getTimestamp()),
+                    cell(d.getSensorPrecipitation()), cell(d.getSensorWaterLevel()), cell(d.getSensorSoilHumidity()),
+                    cell(d.getWeatherPrecipitation()), cell(d.getWeatherTemperature()), cell(d.getWeatherPressure()),
+                    cell(d.getWeatherCode()), cell(d.getTideHeight()), cell(d.getAccumulated3h()),
+                    cell(d.getAccumulated6h()), cell(d.getAccumulated12h()), cell(d.getAccumulated24h()),
+                    cell(d.getAccumulated48h()), cell(d.getIsFlooded()), cell(d.getSeverity()), cell(d.getTimestampUtc())));
+            for (Object v : missingValues(d)) csv.append(',').append(v == null ? '1' : '0');
+            csv.append('\n');
         }
         return csv.toString();
     }

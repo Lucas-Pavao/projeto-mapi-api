@@ -29,6 +29,10 @@ public class SensorServiceImpl implements SensorService {
     private final ObjectMapper objectMapper;
     private final com.projeto.mapi.service.tide.TideService tideService;
 
+    // Opcional (injeção por campo): testes unitários constroem o serviço sem o pipeline.
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.projeto.mapi.service.ingestion.live.SensorProvenanceResolver provenance;
+
     @Override
     @Transactional
     @org.springframework.scheduling.annotation.Async("taskExecutor")
@@ -284,7 +288,7 @@ public class SensorServiceImpl implements SensorService {
     @Override
     public SensorResponseDTO getLatestBySensorId(String sensorId) {
         return sensorDataRepository.findFirstBySensorIdOrderByTimestampDesc(sensorId)
-                .map(this::convertToDTO)
+                .map(this::convertWithProvenance)
                 .orElse(null);
     }
 
@@ -298,7 +302,7 @@ public class SensorServiceImpl implements SensorService {
     @Override
     public SensorResponseDTO getLatestByCode(String code) {
         return sensorDataRepository.findFirstByCodeOrderByTimestampDesc(code)
-                .map(this::convertToDTO)
+                .map(this::convertWithProvenance)
                 .orElse(null);
     }
 
@@ -311,6 +315,18 @@ public class SensorServiceImpl implements SensorService {
     public Page<SensorResponseDTO> getFullSensorInventory(Pageable pageable) {
         return sensorDataRepository.findDistinctSensorsWithMetadata(pageable)
                 .map(this::convertToDTO);
+    }
+
+    /**
+     * Leituras "latest": acrescenta provenanceId (run que gravou o envelope no staging bruto, ADR 0006) quando a
+     * fonte já passa pelo pipeline. revision segue nulo: com fuso UNVERIFIED não há observação consolidada.
+     */
+    private SensorResponseDTO convertWithProvenance(SensorData data) {
+        SensorResponseDTO dto = convertToDTO(data);
+        if (provenance != null) {
+            provenance.resolve(data).ifPresent(p -> dto.setProvenanceId(p.runId().toString()));
+        }
+        return dto;
     }
 
     private SensorResponseDTO convertToDTO(SensorData data) {

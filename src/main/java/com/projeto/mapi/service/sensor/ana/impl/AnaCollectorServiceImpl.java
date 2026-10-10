@@ -9,6 +9,7 @@ import com.projeto.mapi.dto.CollectionSummaryDTO;
 import com.projeto.mapi.service.sensor.ana.AnaCollectorService;
 import com.projeto.mapi.service.sensor.ana.AnaDataClient;
 import com.projeto.mapi.service.sensor.SensorService;
+import com.projeto.mapi.service.ingestion.live.LiveSensorStagingService;
 import com.projeto.mapi.util.RmrFilter;
 import com.projeto.mapi.util.SensorValueExtractor;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,7 @@ public class AnaCollectorServiceImpl implements AnaCollectorService {
     private final SensorService sensorService;
     private final ObjectMapper objectMapper;
     private final AppProperties appProperties;
+    private final LiveSensorStagingService staging;
 
     @Override
     public CollectionSummaryDTO collectAll() {
@@ -65,6 +67,7 @@ public class AnaCollectorServiceImpl implements AnaCollectorService {
         String hoje = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         int processed = 0;
         int errors = 0;
+        List<JsonNode> staged = new java.util.ArrayList<>();
 
         for (AnaStationDTO estacao : estacoes) {
             String nomeAmigavel = buildFriendlyName(estacao.name());
@@ -83,6 +86,7 @@ public class AnaCollectorServiceImpl implements AnaCollectorService {
                     }
 
                     sensorService.processSensorMessage(envelope.toString());
+                    staged.add(envelope);
                     processed++;
                 }
             } catch (Exception e) {
@@ -90,6 +94,9 @@ public class AnaCollectorServiceImpl implements AnaCollectorService {
                 log.error("Erro ao coletar estação ANA {} ({}): {}", estacao.code(), nomeAmigavel, e.getMessage());
             }
         }
+
+        // Pipeline novo (ADR 0006): fuso ANA UNVERIFIED => quarentena TZ_UNVERIFIED; não altera o fluxo legado.
+        staging.stage("ANA_SOAP", staged);
 
         // Todas as estações falharam e nada foi processado: a fonte caiu, não "não havia leituras".
         boolean fonteIndisponivel = processed == 0 && errors == estacoes.size();

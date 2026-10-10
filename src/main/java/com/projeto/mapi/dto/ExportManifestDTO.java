@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -22,6 +23,8 @@ public record ExportManifestDTO(
         int rowsWithFlag,
         List<SourceProvenance> provenance,
         com.projeto.mapi.service.terrain.TerrainExportColumns.Provenance terrain,
+        String missingPolicy,
+        Map<String, Integer> missingCounts,
         List<String> sourcesNotMigrated) {
 
     /** run_ids que produziram os valores de uma fonte e variável no período. */

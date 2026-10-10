@@ -6,6 +6,9 @@ import com.projeto.mapi.model.FloodEvent;
 import com.projeto.mapi.service.flood.CivilDefenseService;
 import com.projeto.mapi.service.flood.FloodEventService;
 import com.projeto.mapi.service.geocoding.GeocodingService;
+import com.projeto.mapi.service.ingestion.occurrence.CkanAddress;
+import com.projeto.mapi.service.ingestion.occurrence.CkanRawRecord;
+import com.projeto.mapi.service.ingestion.occurrence.OccurrenceIngestionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
@@ -30,6 +33,7 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
     private final FloodEventService floodEventService;
     private final GeocodingService geocodingService;
     private final ExternalRestClientFactory http;
+    private final OccurrenceIngestionService occurrencePipeline;
 
     // Cliente criado sob demanda e reaproveitado por fonte, com os timeouts de app.http.clients.ckan
     private RestClient restClient() {
@@ -69,6 +73,7 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
         int totalProcessed = 0;
         int totalSaved = 0;
         boolean hasMore = true;
+        List<CkanRawRecord> staged = new java.util.ArrayList<>();
 
         while (hasMore) {
             try {
@@ -90,6 +95,7 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
                 if (rawRecords == null || rawRecords.isEmpty()) break;
 
                 for (Map<String, Object> raw : rawRecords) {
+                    staged.add(new CkanRawRecord(String.valueOf(raw.get("_id")), raw));
                     CkanRecordDTO record = mapRawToDto(raw);
                     if (isRelevant(record)) {
                         if (saveRecord(record)) totalSaved++;
@@ -104,12 +110,14 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
                 hasMore = false;
             }
         }
+        feedPipeline(resourceId, staged);
         return new int[]{totalProcessed, totalSaved};
     }
 
     private int[] processViaCsv(String csvUrl) {
         int totalProcessed = 0;
         int totalSaved = 0;
+        List<CkanRawRecord> staged = new java.util.ArrayList<>();
         try {
             String csvContent = restClient().get().uri(csvUrl).retrieve().body(String.class);
             if (csvContent == null || csvContent.isBlank()) return new int[]{0, 0};
@@ -134,6 +142,7 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
 
                 for (int i = start; i < records.size(); i++) {
                     CkanRecordDTO record = mapCsvToDto(records.get(i), colMap);
+                    staged.add(csvRaw(i, record));
                     if (isRelevant(record)) {
                         if (saveRecord(record)) totalSaved++;
                     }
@@ -143,7 +152,18 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
         } catch (Exception e) {
             log.error("Erro no processamento do CSV {}: {}", csvUrl, e.getMessage());
         }
+        feedPipeline(csvUrl, staged);
         return new int[]{totalProcessed, totalSaved};
+    }
+
+    private CkanRawRecord csvRaw(int row, CkanRecordDTO d) {
+        Map<String, Object> f = new java.util.LinkedHashMap<>();
+        f.put("Data", d.getData());
+        f.put("Ocorrencia", d.getOcorrencia());
+        f.put("Solicitacao", d.getSolicitacao());
+        f.put("Endereco", d.getEndereco());
+        f.put("Bairro", d.getBairro());
+        return new CkanRawRecord("row-" + row, f);
     }
 
     private Map<String, Integer> detectColumnsFromCsv(CSVRecord row) {
@@ -291,22 +311,18 @@ public class CivilDefenseServiceImpl implements CivilDefenseService {
     }
 
     private String sanitizeAddress(String s) {
-        if (s == null) return "";
-        // Remove lixo comum de símbolos que a API do Recife retorna às vezes
-        String clean = s.toLowerCase()
-                .replace("nrte", "norte").replace("av.", "avenida").replace("r.", "rua")
-                .replaceAll("\\(.*?\\)", "")
-                .replaceAll("(\\D+)(\\d+)$", "$1, $2")
-                .replaceAll("[#\\^\\>\\$\\!\\=\\+\\?\\\"\\*\\_\\|\\/\\@\\&\\<\\%\\~\\{\\}\\[\\]\\`\\']+", " ")
-                .trim().replaceAll("^[,\\.\\-\\s]+|[,\\.\\-\\s]+$", "");
+        return CkanAddress.sanitize(s);
+    }
 
-        clean = clean.replaceAll("\\s{2,}", " ");
-        
-        // Se após a limpeza sobrou apenas um ponto, vírgula ou string vazia, descarta
-        if (clean.length() < 3 || clean.matches("^[\\W\\d]+$")) {
-            return "";
+    /** Alimenta o pipeline novo (ADR 0006 seção 6) sem afetar o fluxo legado: falha aqui só é registrada. */
+    private void feedPipeline(String resourceId, List<CkanRawRecord> records) {
+        if (records.isEmpty()) return;
+        try {
+            var run = occurrencePipeline.ingest(null, resourceId, records);
+            log.info(">>> Pipeline CKAN run {}: {} (fetched={}, valid={}, quarantined={})", run.id(), run.status(),
+                    run.fetched(), run.valid(), run.quarantined());
+        } catch (Exception e) {
+            log.error("Pipeline CKAN falhou para {}: {}", resourceId, e.getMessage());
         }
-        
-        return clean;
     }
 }

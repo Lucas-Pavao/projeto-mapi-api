@@ -31,6 +31,13 @@ import java.util.function.Consumer;
 /**
  * Open-Meteo archive (UTC confirmado). Um registro de origem por (coordenada solicitada x hora). A coordenada
  * real da grade vai em station.attrs. O fuso NÃO é convertido aqui: o adaptador declara UTC.
+ *
+ * <p>Convenção de rótulo (verificada em 2026-10-10): https://open-meteo.com/en/docs/historical-weather-api e
+ * https://open-meteo.com/en/docs dizem, na linha de {@code precipitation}: "Total precipitation (rain, showers,
+ * snow) sum of the preceding hour" e "Some variables like precipitation are calculated from the preceding hour
+ * as an average or sum". Logo o rótulo {@code t} é o FIM do intervalo {@code (t-1h, t]}, igual à convenção do
+ * ADR 0006 seção 5 ({@code variable_catalog.interval_convention = END}); nenhum deslocamento é necessário.
+ * Demais variáveis são "instantaneous value for the indicated hour". A doc usa "GMT" como fuso padrão.
  */
 @Component
 @RequiredArgsConstructor

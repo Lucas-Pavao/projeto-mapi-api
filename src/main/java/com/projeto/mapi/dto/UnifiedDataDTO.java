@@ -12,6 +12,15 @@ public class UnifiedDataDTO {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime timestamp;
+
+    /**
+     * Mesmo instante de {@code timestamp}, em ISO-8601 com Z (ADR 0006). O eixo da exportação é UTC e o rótulo é o
+     * FIM da hora (ADR 0006 seção 5); vale para os campos {@code weather*} (observation_hourly_v). Os campos
+     * {@code sensor*} ainda vêm de sensor_data (hora local sem fuso, UNVERIFIED) e são alinhados a este eixo
+     * pela hora "crua": o {@code Z} NÃO atesta o fuso deles. {@code timestamp} segue sem fuso por compatibilidade.
+     */
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private java.time.Instant timestampUtc;
     
     // Sensores Locais
     private Double sensorPrecipitation;
