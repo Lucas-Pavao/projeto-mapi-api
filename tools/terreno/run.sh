@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # MAPi — terreno PE3D: reproduz inventário, mosaico, recortes COG, atributos por ponto e comparação.
 # Uso: tools/terreno/run.sh [etapa ...]   (sem argumentos roda todas)
-# Etapas: altitude inventario vrt cobertura recortes atributos comparar estimativas validar testes (whitebox roda sozinho dentro de atributos e validar)
+# Etapas: altitude inventario vrt cobertura recortes atributos comparar estimativas validar testes cog3857 (whitebox roda sozinho dentro de atributos e validar)
 # Requer: docker, curl. Nunca descompacta os zips (lê por /vsizip). Saídas em ../terreno (fora do git).
 set -euo pipefail
 AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -74,6 +74,30 @@ etapa_whitebox() {   # baixa o binário oficial (hash fixado) para $OUT/whitebox
 }
 etapa_validar() { etapa_whitebox; py validar; }   # Priority-Flood próprio x Whitebox -> validacao_whitebox.csv/json
 etapa_estimativas() { py estimativas; }
+
+# cog3857 (ADR 0008, decisão C1): COG único em EPSG:3857 da cota bruta, vizinho mais próximo, para o front ler por range requests.
+# Recorte = bbox dos pontos de cobertura.csv + 2 km (em EPSG:31985). Saída: $OUT/cog3857/terrain_3857.tif e terrain_manifest.json.
+# Espaço: o driver COG grava um temporário não comprimido (~0,8 GB) além do COG final; exige 1,5 GB livres antes de começar.
+etapa_cog3857() {
+  checa_disco
+  [ -s "$OUT/mosaico.vrt" ] || { echo "ABORTA: rode a etapa vrt antes" >&2; exit 1; }
+  mkdir -p "$OUT/cog3857"
+  local bbox; bbox=$(tail -n +2 "$OUT/cobertura.csv" | awk -F, 'NR==1{xa=xb=$3;ya=yb=$4} {if($3<xa)xa=$3;if($3>xb)xb=$3;if($4<ya)ya=$4;if($4>yb)yb=$4}
+    END{printf "%.3f %.3f %.3f %.3f", xa-2000, ya-2000, xb+2000, yb+2000}')
+  echo "bbox EPSG:31985 (xmin ymin xmax ymax) = $bbox"
+  local t0 t1; t0=$(date +%s.%N)
+  # shellcheck disable=SC2086
+  dk gdalwarp -of COG -t_srs EPSG:3857 -r near -te_srs EPSG:31985 -te $bbox -srcnodata -9999 -dstnodata -9999 \
+    -co COMPRESS=DEFLATE -co PREDICTOR=3 -co BLOCKSIZE=256 -co OVERVIEWS=AUTO -co OVERVIEW_RESAMPLING=NEAREST \
+    -co BIGTIFF=IF_SAFER -co NUM_THREADS=ALL_CPUS -wo NUM_THREADS=ALL_CPUS --config GDAL_CACHEMAX 1024 \
+    /terreno/mosaico.vrt /terreno/cog3857/terrain_3857.tif
+  t1=$(date +%s.%N)
+  local seg; seg=$(awk -v a="$t0" -v b="$t1" 'BEGIN{printf "%.1f", b-a}')
+  dk gdalinfo -json /terreno/cog3857/terrain_3857.tif > "$OUT/cog3857/terrain_gdalinfo.json"
+  local vrt_sha cog_sha; vrt_sha=$(sha256sum "$OUT/mosaico.vrt" | cut -d' ' -f1); cog_sha=$(sha256sum "$OUT/cog3857/terrain_3857.tif" | cut -d' ' -f1)
+  dk python3 -I /tools/terreno/manifesto_cog.py "$vrt_sha" "$cog_sha" "$seg" "$bbox" "$IMG_TAG@$IMG_DIGEST"
+  ls -l "$OUT/cog3857"
+}
 
 ETAPAS=("$@"); [ ${#ETAPAS[@]} -gt 0 ] || ETAPAS=(altitude inventario vrt cobertura recortes atributos comparar estimativas validar testes)
 for e in "${ETAPAS[@]}"; do echo "== $e"; "etapa_$e"; checa_disco >/dev/null; done

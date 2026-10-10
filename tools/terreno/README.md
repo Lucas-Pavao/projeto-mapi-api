@@ -19,6 +19,14 @@ tools/terreno/run.sh            # todas as etapas, incluindo validar e testes; o
 - `pontos_criticos.csv`: os 5 pontos de `MapiServiceImpl.seedPilotData()`. Se o seed mudar, atualize.
 - `terreno.py` roda com `python3 -I`; usa GDAL (osgeo), numpy e a biblioteca padrão.
 
+## COG em EPSG:3857 para o mapa (ADR 0008, C1)
+
+`DADOS=... OUT=... tools/terreno/run.sh cog3857` (precisa da etapa `vrt` feita antes). Gera `OUT/cog3857/terrain_3857.tif`
+(`gdalwarp -of COG -r near`, DEFLATE, PREDICTOR=3, blocos 256, overviews internas por vizinho mais próximo, recorte = bbox dos
+pontos de `cobertura.csv` + 2 km) e `terrain_manifest.json` (hash do VRT, bbox, CRS, resampling, GDAL, overviews, SHA-256 do COG,
+tempo de geração). Aborta com menos de 1,5 GB livres; o driver COG usa um temporário de ~0,8 GB além do COG final (~0,46 GB).
+O `.tif` não vai ao git: copie para `public/terrain/` do front (dev) ou para o volume servido pelo nginx.
+
 ## Hidrologia (fill, D8, área contribuinte)
 
 - Motor padrão: **WhiteboxTools v2.4.0** (binário oficial baixado para `OUT/whitebox/`; o zip é conferido contra
