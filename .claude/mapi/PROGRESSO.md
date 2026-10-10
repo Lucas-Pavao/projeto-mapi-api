@@ -54,21 +54,21 @@
 | F1-QA-04 | 1 | QA | Rápido | Aviso de descontinuado no projeto-mapi (MAPI Edge) | concluido | projeto-mapi d86a996 (branch `docs/descontinuado`) | 2026-10-10 · Opus · bloco DESCONTINUADO no topo do README |
 | F1-ARQ-04 | 1 | Arquiteto | Rápido | Handoff da Fase 1 | concluido | branch `revisao/fase-0` | 2026-10-10 · Opus · `docs/HANDOFF-fase-1.md` + `docs/handoff/fase-1.json` (90 achados: 21 críticos, 49 importantes, 20 desejáveis) |
 | F2-DADOS-00 | 2 | Dados | Rápido | Snapshot auditável do banco atual (pg_dump + SHA-256 + contagem por tabela) antes de qualquer migração | concluido | 06b4398 | 2026-10-10 · Opus · dump fora do git em `MAPI/snapshots/`, SHA-256 `3ace3cde…4dedd`, manifesto `docs/snapshots/2026-10-10-pre-revisao.md`. Achado: o banco local não tem o histórico de 5 anos (555 leituras de sensor, 40 de clima, 0 eventos); flood_predictions 25 102 linhas |
-| F2-DADOS-01 | 2 | Dados | Equilibrado | Benchmark e evidência sobre o banco (tamanho das hypertables, compressão, EXPLAIN ANALYZE, volume projetado) | em_andamento | | 2026-10-10 · subagente Sonnet | `docs/medidas/benchmark-banco-2026-10-10.md` |
-| F2-DADOS-02 | 2 | Dados | Equilibrado + checkpoint | ADR PostgreSQL+TimescaleDB+PostGIS × MySQL | em_andamento | | 2026-10-10 · subagente Sonnet | `docs/adr/0005-escolha-do-banco.md` |
-| F2-DADOS-03 | 2 | Dados | Rápido | Planilha comparativa do banco (xlsx) | em_andamento | | 2026-10-10 · subagente Sonnet | `docs/medidas/comparacao-banco.xlsx` |
-| F2-DADOS-04 | 2 | Dados | Equilibrado | `docs/MODELO-DE-DADOS.md` com diagrama | em_andamento | | 2026-10-10 · subagente Sonnet | `docs/MODELO-DE-DADOS.md` |
-| F2-DADOS-05 | 2 | Dados+Backend | Equilibrado + checkpoint | ADR do pipeline de ingestão (staging → validação → consolidada, idempotência, proveniência) | em_andamento | | 2026-10-10 · subagente Sonnet | `docs/adr/0006-pipeline-de-ingestao.md` |
-| F2-DADOS-06 | 2 | Dados | Equilibrado | Políticas de retenção e compressão | em_andamento | | 2026-10-10 · subagente Sonnet | ADR 0006 §retenção |
+| F2-DADOS-01 | 2 | Dados | Equilibrado | Benchmark e evidência sobre o banco (tamanho das hypertables, compressão, EXPLAIN ANALYZE, volume projetado) | em_andamento | | 2026-10-10 · subagente Sonnet · `docs/medidas/benchmark-banco-2026-10-10.md` |
+| F2-DADOS-02 | 2 | Dados | Equilibrado + checkpoint | ADR PostgreSQL+TimescaleDB+PostGIS × MySQL | em_andamento | | 2026-10-10 · subagente Sonnet · `docs/adr/0005-escolha-do-banco.md` |
+| F2-DADOS-03 | 2 | Dados | Rápido | Planilha comparativa do banco (xlsx) | em_andamento | | 2026-10-10 · subagente Sonnet · `docs/medidas/comparacao-banco.xlsx` |
+| F2-DADOS-04 | 2 | Dados | Equilibrado | `docs/MODELO-DE-DADOS.md` com diagrama | em_andamento | | 2026-10-10 · subagente Sonnet · `docs/MODELO-DE-DADOS.md` |
+| F2-DADOS-05 | 2 | Dados+Backend | Equilibrado + checkpoint | ADR do pipeline de ingestão (staging → validação → consolidada, idempotência, proveniência) | concluido | 800356c | 2026-10-10 · subagente Sonnet + checkpoint Opus · `docs/adr/0006-pipeline-de-ingestao.md` + `docs/INGESTAO.md` · v1 REPROVADA (borda da hora deslocava leitura hh:00; REVALIDATE perdia linha deslocada pelo fuso; A→B→A não voltava ao A; V7/caggs prematuros), v2 APROVADA com 2 ressalvas aplicadas pelo Arquiteto · status proposto até as perguntas 14–19 |
+| F2-DADOS-06 | 2 | Dados | Equilibrado | Políticas de retenção e compressão | concluido | 800356c | 2026-10-10 · ADR 0006 §9: compressão e continuous aggregates **adiados** (5 pontos ≈ 1,5 mi linhas em 5 anos); gatilhos `[sem fonte]`: > 5 GB, p95 export 5 anos > 5 s, ≥ 50 pontos; sem `drop_chunks` |
 | F2-BACK-01 | 2 | Backend | Equilibrado | Implementar ingestão aprovada (migração incremental) | pendente | | exige aprovação de migração |
 | F2-BACK-02 | 2 | Backend | Equilibrado | Identificador de proveniência nas respostas de dado | pendente | | muda contrato: aprovação |
 | F2-BACK-03 | 2 | Backend | Equilibrado | `docs/INGESTAO.md` e `docs/API.md` | pendente | | |
-| F2-BACK-04 | 2 | Backend | Equilibrado | Testcontainers com TimescaleDB (ADR 0004): base de teste de repositório, migração Flyway e export; remover H2 quando verde | em_andamento | | 2026-10-10 · subagente Sonnet | worktree, branch `feat/testcontainers` |
-| F2-BACK-05 | 2 | Backend | Equilibrado | `wipe-database` só no profile `dev` (decisão 2026-10-10) | em_andamento | | 2026-10-10 · subagente Sonnet | worktree, branch `fix/wipe-database-dev` |
-| F2-BACK-06 | 2 | Backend | Equilibrado | Desativar `alignFloodEventsToRainPeaks` e preservar a data original do CKAN, com precisão declarada (decisão 2026-10-10) | em_andamento | | 2026-10-10 · subagente Sonnet | worktree, branch `fix/desativa-realinhamento-rotulo` |
-| F2-BACK-07 | 2 | Backend | Equilibrado | Timeouts em todos os clientes HTTP; fallback que não mascara falha (Retry efetivo); métrica de idade do dado | em_andamento | | 2026-10-10 · subagente Sonnet | worktree, branch `fix/timeouts-e-fallback-honesto` |
-| F2-ARQ-02 | 2 | Arquiteto | Equilibrado | Contrato de predição (OpenAPI + ADR) antes de mudar backend, IA e front (decisão 2026-10-10) | em_andamento | | 2026-10-10 · Opus | `docs/adr/0007-contrato-de-predicao.md` (Arquiteto) |
-| F2-FRONT-01 | 2 | Frontend | Equilibrado | Contrato de predição no front, passo 1 do ADR 0007 (zod tolerante, enum, UNKNOWN neutro único, campos novos opcionais) | em_andamento | | 2026-10-10 · subagente Sonnet · sobre o WIP do Lucas, sem commit; patch próprio separado |
+| F2-BACK-04 | 2 | Backend | Equilibrado | Testcontainers com TimescaleDB (ADR 0004): base de teste de repositório, migração Flyway e export; remover H2 quando verde | em_andamento | | 2026-10-10 · subagente Sonnet · worktree, branch `feat/testcontainers` |
+| F2-BACK-05 | 2 | Backend | Equilibrado | `wipe-database` só no profile `dev` (decisão 2026-10-10) | em_andamento | | 2026-10-10 · subagente Sonnet · worktree, branch `fix/wipe-database-dev` |
+| F2-BACK-06 | 2 | Backend | Equilibrado | Desativar `alignFloodEventsToRainPeaks` e preservar a data original do CKAN, com precisão declarada (decisão 2026-10-10) | em_andamento | | 2026-10-10 · subagente Sonnet · worktree, branch `fix/desativa-realinhamento-rotulo` |
+| F2-BACK-07 | 2 | Backend | Equilibrado | Timeouts em todos os clientes HTTP; fallback que não mascara falha (Retry efetivo); métrica de idade do dado | em_andamento | | 2026-10-10 · subagente Sonnet · worktree, branch `fix/timeouts-e-fallback-honesto` |
+| F2-ARQ-02 | 2 | Arquiteto | Equilibrado | Contrato de predição (OpenAPI + ADR) antes de mudar backend, IA e front (decisão 2026-10-10) | em_andamento | | 2026-10-10 · Opus · `docs/adr/0007-contrato-de-predicao.md` (Arquiteto) |
+| F2-FRONT-01 | 2 | Frontend | Equilibrado | Contrato de predição no front, passo 1 do ADR 0007 (zod tolerante, enum, UNKNOWN neutro único, campos novos opcionais) | concluido | sem commit (WIP do Lucas); patch `scratchpad/F2-FRONT-01.patch` copiado para `docs/revisao/fase-2/F2-FRONT-01.patch` | 2026-10-10 · subagente Sonnet · `docs/revisao/fase-2/F2-FRONT-01.md` · UNKNOWN 3→1 tratamento; mapeamento de risco 4→1 cópia; testes front 5→20; lint 0 erros, tsc limpo · fora: 6 `toLocale*` (F1-F2-19), UI de contributors, contraste da cor neutra |
 | F2-BACK-08 | 2 | Backend | Equilibrado | Contrato de predição no backend, passo 2 do ADR 0007 (enum, null em falha, degradationReason, previsão no ciclo de coleta, GET sem gravar) | pendente | | espera F2-BACK-07 (mesmo arquivo) |
 | F2-ARQ-01 | 2 | Arquiteto | Rápido | Handoff da Fase 2 | pendente | | |
 | F3-GEO-01 | 3 | Geo | Equilibrado | Processar rasters: unzip, atribuir CRS/nodata, VRT, recorte, COG; medir tamanhos | pendente | | precisa GDAL/rasterio (ausentes localmente → docker) |
@@ -124,6 +124,12 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | 11 | ~~A tabela `flood_predictions` (taxa de alerta, auditoria) entra nos resultados da dissertação? Se sim, o item 7 da matriz sobe para P0~~ **respondida 2026-10-10** | 2026-10-10 | — |
 | 12 | ~~O banco local não tem o histórico de 5 anos (só ~4 semanas de setembro, 0 eventos de alagamento). A carga histórica existe em outro banco/máquina? Se não, recomendo **não** rodar `historical-full-sync` agora: o pipeline atual grava fusos misturados e reescreve o rótulo. Carregar só depois dos itens 1–4 da matriz~~ **respondida 2026-10-10** | 2026-10-10 | — |
 | 13 | ~~ADR 0007 (contrato de predição), itens marcados [aprovar]: `issuedAt`/`validUntil`/`horizonHours`; `degradationReason`; `lastValidIssuedAt`; catálogo de rótulos (`contributors`/`imputedFeatures`); `model_version="unversioned"` até a Fase 4; 422 da IA para dado insuficiente; hash fora da resposta; 200 em vez de 201 na degradação; regra de exibição de UNKNOWN; previsão feita pelo ciclo de coleta e GET sem gravar~~ **respondida 2026-10-10: aprovado** | 2026-10-10 | — |
+| 14 | ADR 0006: o que fazer com as ~4 semanas de dado de desenvolvimento? (a) descartar após o snapshot já tirado (recomendação), (b) reinterpretar por fonte, (c) manter como legado fora do dataset | 2026-10-10 | migração do fuso |
+| 15 | ADR 0006: aprova `provenanceId` + `revision` em `SensorResponseDTO`/`WeatherResponseDTO`, timestamps ISO com `Z`, manifesto do export (`/manifest`, cabeçalho `X-Dataset-Id`) e endpoint admin de reprocessamento? | 2026-10-10 | rastreabilidade exposta |
+| 16 | Rótulo: "inundação" (Cobrade) entra junto com "alagamento", ou só alagamento? | 2026-10-10 | definição do rótulo positivo |
+| 17 | Confirma que a escolha entre rótulo diário e horizonte 3/6 h fica para a formulação da Fase 4 (Máximo)? | 2026-10-10 | — |
+| 18 | Fuso de ANA, APAC meteorologia24h e Cemaden: verificar por correlação cruzada com Open-Meteo (UTC) após a primeira carga (nova tarefa F2-DADOS-07); até lá essas fontes ficam em quarentena. De acordo? | 2026-10-10 | 3 fontes fora do dataset |
+| 19 | Aprova as migrações aditivas V3–V6 do ADR 0006 (nenhuma apaga dado; V8, que aposentaria `sensor_data`/`weather_data`, terá aprovação própria)? | 2026-10-10 | F2-BACK-01 não começa |
 
 ## Medidas antes e depois
 | Métrica | Antes | Depois | Quando | Onde foi medida |
@@ -140,7 +146,7 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | Tratamentos de fuso distintos nas mesmas colunas | 5 | | 2026-10-10 | F1-BACK-03 tabela de fuso |
 | Features constantes (zeradas) na inferência da IA | 9 de 28 | | 2026-10-10 | F1-IA-02 (F1-I2-01) |
 | Baselines implementados | 0 de 4 | | 2026-10-10 | F1-IA-02 (F1-I2-04) |
-| Tratamentos visuais distintos de UNKNOWN no front | 3 | | 2026-10-10 | F1-FRONT-02 (F1-F2-04) |
+| Tratamentos visuais distintos de UNKNOWN no front | 3 | 1 (F2-FRONT-01, sem commit) | 2026-10-10 | F1-FRONT-02 (F1-F2-04) |
 | `aria-label` / botões no front | 0 / 31 | | 2026-10-10 | F1-FRONT-02 (F1-F2-09) |
 | Portas de banco/IA em 0.0.0.0 | 2 | 0 | 2026-10-10 | docker-compose.yml (F1-QA-02, 2fe06c6) |
 | Cobertura de teste backend (linhas / ramos) | 26,1% / 17,6% | | 2026-10-10 | JaCoCo 0.8.12, `docs/medidas/jacoco-2026-10-10.csv` |

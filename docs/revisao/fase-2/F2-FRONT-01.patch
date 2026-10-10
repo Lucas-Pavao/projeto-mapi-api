@@ -1,0 +1,598 @@
+diff --color -ruN front-before/src/features/map/components/FloodPointDetailCard.tsx front-after/src/features/map/components/FloodPointDetailCard.tsx
+--- front-before/src/features/map/components/FloodPointDetailCard.tsx	2026-10-10 09:32:56.163895402 -0300
++++ front-after/src/features/map/components/FloodPointDetailCard.tsx	2026-10-10 09:33:47.243168672 -0300
+@@ -24,6 +24,9 @@
+ } from 'lucide-react';
+ import { cn } from '@/lib/utils';
+ import { getSafeFormattedDate } from '../utils/sensor';
++import { getRiskVisual, formatProbability } from '../utils/risk';
++import { formatRecife } from '../utils/datetime';
++import { PredictionUnavailableNotice } from './PredictionUnavailableNotice';
+ import type { FloodPointResponseDTO, PreciseDataResponse, PreciseData } from '../types';
+ 
+ interface FloodPointDetailCardProps {
+@@ -77,15 +80,12 @@
+     return '--';
+   };
+ 
+-  const getRiskStyles = () => {
+-    const level = prediction?.riskLevel;
+-    if (level === 'CRITICAL') return { color: 'text-red-500', border: 'border-red-500/30', bg: 'bg-red-500/5', header: 'bg-red-600/80', label: 'Crítico' };
+-    if (level === 'HIGH') return { color: 'text-orange-500', border: 'border-orange-500/30', bg: 'bg-orange-500/5', header: 'bg-orange-600/80', label: 'Alto' };
+-    if (level === 'MEDIUM') return { color: 'text-amber-500', border: 'border-amber-500/30', bg: 'bg-amber-500/5', header: 'bg-amber-600/80', label: 'Moderado' };
+-    return { color: 'text-emerald-500', border: 'border-emerald-500/30', bg: 'bg-emerald-500/5', header: 'bg-emerald-600/80', label: 'Baixo' };
+-  };
+-
+-  const risk = getRiskStyles();
++  const visual = getRiskVisual(prediction?.riskLevel);
++  const risk = { color: visual.text, border: visual.border, bg: visual.softBg, header: visual.header, label: visual.label };
++  const probability = formatProbability(prediction?.riskLevel, prediction?.floodProbability);
++  const isUnknown = !visual.showsProbability;
++  const issuedAt = formatRecife(prediction?.issuedAt);
++  const validUntil = formatRecife(prediction?.validUntil);
+ 
+   return (
+     <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-500">
+@@ -180,24 +180,33 @@
+                   </div>
+ 
+                   <div className="flex items-baseline gap-6">
+-                    <span className={cn(
+-                      "text-[9rem] font-black tracking-tighter italic leading-none transition-colors duration-1000",
+-                      risk.color
+-                    )}>
+-                      {prediction?.floodProbability != null ? `${(prediction.floodProbability * 100).toFixed(0)}%` : '--'}
+-                    </span>
+-                    <div className="flex flex-col gap-1">
+-                       <span className="text-xl font-black text-zinc-300 uppercase tracking-tighter leading-none italic">Probabilidade</span>
+-                       <span className="text-[11px] font-bold text-zinc-600 uppercase tracking-widest mt-2 border-l-2 border-primary pl-3">Neural Engine v2.4</span>
+-                    </div>
++                    {isUnknown ? (
++                      <PredictionUnavailableNotice prediction={prediction} className="space-y-1 text-lg" />
++                    ) : (
++                      <>
++                        <span className={cn(
++                          "text-[9rem] font-black tracking-tighter italic leading-none transition-colors duration-1000",
++                          risk.color
++                        )}>
++                          {probability ?? '--'}
++                        </span>
++                        <div className="flex flex-col gap-1">
++                           <span className="text-xl font-black text-zinc-300 uppercase tracking-tighter leading-none italic">Probabilidade</span>
++                           {prediction?.modelVersion && (
++                             <span className="text-[11px] font-bold text-zinc-600 uppercase tracking-widest mt-2 border-l-2 border-primary pl-3">Modelo {prediction.modelVersion}</span>
++                           )}
++                           {issuedAt && <span className="text-[11px] text-zinc-500">Emitida em {issuedAt} (Recife)</span>}
++                           {validUntil && <span className="text-[11px] text-zinc-500">Previsão para até {validUntil} (Recife)</span>}
++                        </div>
++                      </>
++                    )}
+                   </div>
+                   
+                   <div className="flex flex-wrap gap-4">
+                     <div className={cn(
+                       "px-6 py-3 rounded-2xl border flex items-center gap-4 transition-all duration-700 shadow-lg",
+                       risk.border,
+-                      risk.header,
+-                      prediction?.riskLevel === 'CRITICAL' && "animate-pulse"
++                      risk.header
+                     )}>
+                       <AlertTriangle className="h-6 w-6 text-white" />
+                       <div>
+@@ -222,9 +231,9 @@
+ 
+                 <div className={cn(
+                   "mt-8 md:mt-0 h-48 w-48 rounded-[3.5rem] flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative z-10 transition-all duration-1000 group-hover:scale-110 group-hover:rotate-6",
+-                  prediction?.riskLevel === 'CRITICAL' ? "bg-red-500" : "bg-[#16161a] border border-white/10"
++                  "bg-[#16161a] border border-white/10"
+                 )}>
+-                  <Zap className={cn("h-24 w-24 transition-colors duration-1000", prediction?.riskLevel === 'CRITICAL' ? "text-white" : "text-primary")} />
++                  <Zap className={cn("h-24 w-24 transition-colors duration-1000", "text-primary")} />
+                   {/* Decorative internal rings */}
+                   <div className="absolute inset-4 border border-white/5 rounded-[2.5rem]" />
+                   <div className="absolute inset-8 border border-white/5 rounded-[2rem] opacity-50" />
+diff --color -ruN front-before/src/features/map/components/FloodPointPopup.tsx front-after/src/features/map/components/FloodPointPopup.tsx
+--- front-before/src/features/map/components/FloodPointPopup.tsx	2026-10-10 09:32:56.161308070 -0300
++++ front-after/src/features/map/components/FloodPointPopup.tsx	2026-10-10 09:33:47.240580904 -0300
+@@ -13,6 +13,8 @@
+ import { cn } from '@/lib/utils';
+ import type { FloodPointResponseDTO, PreciseDataResponse } from '../types';
+ import { getSafeFormattedDate } from '../utils/sensor';
++import { getRiskVisual, formatProbability } from '../utils/risk';
++import { PredictionUnavailableNotice } from './PredictionUnavailableNotice';
+ 
+ interface FloodPointPopupProps {
+   point: FloodPointResponseDTO;
+@@ -30,16 +32,10 @@
+   const prediction = status?.floodPrediction;
+   const precise = status?.preciseData;
+ 
+-  const getRiskStyles = () => {
+-    const level = prediction?.riskLevel;
+-    if (level === 'CRITICAL') return { color: 'bg-red-500', text: 'text-red-400', label: 'Crítico', iconColor: 'text-red-500', shadow: 'shadow-red-500/20' };
+-    if (level === 'HIGH') return { color: 'bg-orange-500', text: 'text-orange-400', label: 'Alto', iconColor: 'text-orange-500', shadow: 'shadow-orange-500/20' };
+-    if (level === 'MEDIUM') return { color: 'bg-amber-500', text: 'text-amber-400', label: 'Moderado', iconColor: 'text-amber-500', shadow: 'shadow-amber-500/20' };
+-    if (level === 'LOW') return { color: 'bg-emerald-500', text: 'text-emerald-400', label: 'Baixo', iconColor: 'text-emerald-500', shadow: 'shadow-emerald-500/20' };
+-    return { color: 'bg-zinc-700', text: 'text-zinc-400', label: 'Em Análise', iconColor: 'text-zinc-500', shadow: 'shadow-black/20' };
+-  };
+-
+-  const risk = getRiskStyles();
++  const visual = getRiskVisual(prediction?.riskLevel);
++  const risk = { color: visual.bg, text: visual.text, label: visual.label, iconColor: visual.text, shadow: visual.shadow };
++  const probability = formatProbability(prediction?.riskLevel, prediction?.floodProbability);
++  const isUnknown = !visual.showsProbability;
+ 
+   return (
+     <div className="bg-[#0c0c0e]/95 backdrop-blur-2xl text-white rounded-[2.5rem] border border-white/10 shadow-[0_40px_80px_rgba(0,0,0,0.7)] overflow-hidden w-[360px] ring-1 ring-white/10 animate-in fade-in zoom-in-95 duration-500">
+@@ -90,21 +86,24 @@
+            <div className="relative z-10 flex items-center justify-between">
+               <div className="space-y-1">
+                  <p className="text-[9px] text-zinc-500 font-black uppercase tracking-[0.3em]">Probabilidade IA</p>
+-                 <div className="flex items-baseline gap-2">
+-                    <span className={cn(
+-                      "text-6xl font-black italic tracking-tighter leading-none transition-colors duration-700",
+-                      risk.iconColor
+-                    )}>
+-                       {prediction?.floodProbability != null ? `${(prediction.floodProbability * 100).toFixed(0)}%` : '--'}
+-                    </span>
+-                 </div>
++                 {isUnknown ? (
++                   <PredictionUnavailableNotice prediction={prediction} className="mt-1 space-y-0.5" />
++                 ) : (
++                   <div className="flex items-baseline gap-2">
++                      <span className={cn(
++                        "text-6xl font-black italic tracking-tighter leading-none transition-colors duration-700",
++                        risk.iconColor
++                      )}>
++                         {probability ?? '--'}
++                      </span>
++                   </div>
++                 )}
+               </div>
+               <div className="flex flex-col items-end gap-2">
+                  <div className={cn(
+                    "px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all duration-700",
+                    risk.color,
+-                   risk.shadow,
+-                   prediction?.riskLevel === 'CRITICAL' && "animate-pulse"
++                   risk.shadow
+                  )}>
+                     <Circle className="h-2 w-2 fill-current" />
+                     {risk.label}
+diff --color -ruN front-before/src/features/map/components/MapView.tsx front-after/src/features/map/components/MapView.tsx
+--- front-before/src/features/map/components/MapView.tsx	2026-10-10 09:32:56.158733667 -0300
++++ front-after/src/features/map/components/MapView.tsx	2026-10-10 09:33:47.245721886 -0300
+@@ -28,6 +28,7 @@
+ import { floodService } from '../services/flood.service';
+ import { mapService } from '../services/map.service';
+ import { getSensorConfig, getDataFreshness, formatApiTimestamp } from '../utils/sensor';
++import { getRiskVisual } from '../utils/risk';
+ import { SensorSidebar } from './SensorSidebar';
+ import { SensorPopup } from './SensorPopup';
+ import { FloodPointPopup } from './FloodPointPopup';
+@@ -387,11 +388,7 @@
+     if (selectedFloodPoint) {
+       // Prioritize the real-time status prediction, fallback to point prediction
+       const riskLevel = floodPointStatus?.floodPrediction?.riskLevel || selectedFloodPoint.floodPrediction?.riskLevel;
+-      if (riskLevel === 'CRITICAL') return '#ef4444'; // red-500
+-      if (riskLevel === 'HIGH') return '#f97316';     // orange-500
+-      if (riskLevel === 'MEDIUM') return '#f59e0b';   // amber-500
+-      if (riskLevel === 'LOW') return '#10b981';      // emerald-500
+-      return '#ef4444'; // Default red for flood points
++      return getRiskVisual(riskLevel).hex;
+     }
+     
+     return "#6366f1";
+@@ -669,19 +666,7 @@
+             
+             // Risk level color mapping
+             const riskLevel = (isSelected && floodPointStatus?.floodPrediction?.riskLevel) || point.floodPrediction?.riskLevel;
+-            const colorClass = 
+-              riskLevel === 'CRITICAL' ? 'bg-red-600' :
+-              riskLevel === 'HIGH' ? 'bg-orange-500' :
+-              riskLevel === 'MEDIUM' ? 'bg-amber-500' :
+-              riskLevel === 'LOW' ? 'bg-emerald-500' : 
+-              'bg-red-600';
+-            
+-            const pingColorClass = 
+-              riskLevel === 'CRITICAL' ? 'bg-red-400' :
+-              riskLevel === 'HIGH' ? 'bg-orange-400' :
+-              riskLevel === 'MEDIUM' ? 'bg-amber-400' :
+-              riskLevel === 'LOW' ? 'bg-emerald-400' : 
+-              'bg-red-400';
++            const { bg: colorClass, ping: pingColorClass } = getRiskVisual(riskLevel);
+ 
+             return (
+               <MapMarker 
+diff --color -ruN front-before/src/features/map/components/PredictionUnavailableNotice.test.tsx front-after/src/features/map/components/PredictionUnavailableNotice.test.tsx
+--- front-before/src/features/map/components/PredictionUnavailableNotice.test.tsx	1969-12-31 21:00:00.000000000 -0300
++++ front-after/src/features/map/components/PredictionUnavailableNotice.test.tsx	2026-10-10 09:33:47.271026280 -0300
+@@ -0,0 +1,24 @@
++import { describe, it, expect, afterEach } from 'vitest';
++import { render, screen, cleanup } from '@testing-library/react';
++import { PredictionUnavailableNotice } from './PredictionUnavailableNotice';
++
++describe('PredictionUnavailableNotice', () => {
++  afterEach(cleanup);
++  it('mostra texto, motivo e última previsão válida, sem porcentagem', () => {
++    const { container } = render(
++      <PredictionUnavailableNotice
++        prediction={{ riskLevel: 'UNKNOWN', floodProbability: 0.0, degradationReason: 'AI_UNAVAILABLE', lastValidIssuedAt: '2026-10-10T15:30:00Z' }}
++      />,
++    );
++    expect(screen.getByText('Previsão indisponível')).toBeInTheDocument();
++    expect(screen.getByText(/fora do ar/)).toBeInTheDocument();
++    expect(screen.getByText(/Última previsão válida: 10\/10\/2026 12:30/)).toBeInTheDocument();
++    expect(container.textContent).not.toMatch(/%/);
++  });
++
++  it('sem motivo → "motivo não informado"; sem lastValidIssuedAt → sem a linha', () => {
++    render(<PredictionUnavailableNotice prediction={{ riskLevel: 'UNKNOWN', floodProbability: null }} />);
++    expect(screen.getByText(/motivo não informado/)).toBeInTheDocument();
++    expect(screen.queryByText(/Última previsão válida/)).toBeNull();
++  });
++});
+diff --color -ruN front-before/src/features/map/components/PredictionUnavailableNotice.tsx front-after/src/features/map/components/PredictionUnavailableNotice.tsx
+--- front-before/src/features/map/components/PredictionUnavailableNotice.tsx	1969-12-31 21:00:00.000000000 -0300
++++ front-after/src/features/map/components/PredictionUnavailableNotice.tsx	2026-10-10 09:33:47.268539231 -0300
+@@ -0,0 +1,19 @@
++import React from 'react';
++import type { FloodPredictionResponseDTO } from '../types';
++import { degradationText } from '../utils/risk';
++import { formatRecife } from '../utils/datetime';
++
++/** Estado neutro de UNKNOWN (ADR 0007 §6): sem cor de risco e sem porcentagem. */
++export const PredictionUnavailableNotice: React.FC<{
++  prediction: FloodPredictionResponseDTO | null | undefined;
++  className?: string;
++}> = ({ prediction, className }) => {
++  const lastValid = formatRecife(prediction?.lastValidIssuedAt);
++  return (
++    <div className={className} role="status">
++      <p className="font-black uppercase tracking-tight text-zinc-300">Previsão indisponível</p>
++      <p className="text-xs text-zinc-400">Motivo: {degradationText(prediction?.degradationReason)}</p>
++      {lastValid && <p className="text-xs text-zinc-400">Última previsão válida: {lastValid}</p>}
++    </div>
++  );
++};
+diff --color -ruN front-before/src/features/map/schemas/floodPointResponse.schema.test.ts front-after/src/features/map/schemas/floodPointResponse.schema.test.ts
+--- front-before/src/features/map/schemas/floodPointResponse.schema.test.ts	2026-10-10 09:32:56.151067790 -0300
++++ front-after/src/features/map/schemas/floodPointResponse.schema.test.ts	2026-10-10 09:33:47.248369302 -0300
+@@ -16,7 +16,7 @@
+     const result = validateFloodPoint(validPoint);
+ 
+     expect(errorSpy).not.toHaveBeenCalled();
+-    expect(result).toBe(validPoint);
++    expect(result).toEqual(validPoint);
+     errorSpy.mockRestore();
+   });
+ 
+diff --color -ruN front-before/src/features/map/schemas/floodPointResponse.schema.ts front-after/src/features/map/schemas/floodPointResponse.schema.ts
+--- front-before/src/features/map/schemas/floodPointResponse.schema.ts	2026-10-10 09:32:56.148305156 -0300
++++ front-after/src/features/map/schemas/floodPointResponse.schema.ts	2026-10-10 09:33:47.250862329 -0300
+@@ -12,15 +12,50 @@
+  * Deliberadamente não é `.strict()`: o objetivo é pegar campos ESSENCIAIS ausentes/com tipo
+  * errado, não rejeitar a resposta inteira porque o backend adicionou um campo novo.
+  */
++export const RISK_LEVELS = ['LOW', 'MEDIUM', 'HIGH', 'UNKNOWN'] as const;
++export const DEGRADATION_REASONS = [
++  'INSUFFICIENT_DATA',
++  'AI_TIMEOUT',
++  'AI_UNAVAILABLE',
++  'AI_ERROR',
++] as const;
++
++/**
++ * ADR 0007 §1 e passo 1 da implantação: enum fechado, mas tolerante. Valor fora do enum
++ * (ex.: 'CRITICAL'/'EXTREME' do backend antigo) vira 'UNKNOWN' e registra console.warn com o
++ * valor recebido, para a coerção não esconder um bug. Remover o `.catch` ao fim da Fase 4.
++ */
++const riskLevelSchema = z.enum(RISK_LEVELS).catch((ctx) => {
++  console.warn('[floodPrediction] riskLevel fora do contrato, tratado como UNKNOWN:', ctx.value);
++  return 'UNKNOWN';
++});
++
++const degradationReasonSchema = z.enum(DEGRADATION_REASONS);
++
+ const floodPredictionSchema = z
+   .object({
+-    floodProbability: z.number(),
+-    riskLevel: z.string(),
++    riskLevel: riskLevelSchema,
++    floodProbability: z.number().nullable(),
+     estimatedTimeToEvent: z.string().nullable().optional(),
+     message: z.string().nullable().optional(),
++    modelVersion: z.string().nullable().optional(),
++    issuedAt: z.string().nullable().optional(),
++    horizonHours: z.number().nullable().optional(),
++    validUntil: z.string().nullable().optional(),
++    degradationReason: degradationReasonSchema.nullable().optional(),
++    lastValidIssuedAt: z.string().nullable().optional(),
++    contributors: z
++      .array(z.object({ featureId: z.string(), label: z.string(), contribution: z.number() }))
++      .optional(),
++    imputedFeatures: z.array(z.object({ featureId: z.string(), label: z.string() })).optional(),
+   })
+   .passthrough();
+ 
++export { floodPredictionSchema };
++export type FloodPrediction = z.infer<typeof floodPredictionSchema>;
++export type RiskLevel = (typeof RISK_LEVELS)[number];
++export type DegradationReason = (typeof DEGRADATION_REASONS)[number];
++
+ const preciseDataSchema = z
+   .object({
+     source: z.string(),
+@@ -46,8 +81,8 @@
+ 
+ /**
+  * Valida um ponto crítico vindo da API. Em caso de divergência de contrato, loga um erro
+- * detalhado (com o que exatamente não bateu) e devolve o dado como veio — não lança exceção,
+- * pra não travar o mapa por causa de um campo secundário fora do formato esperado.
++ * detalhado e devolve o dado como veio (sem lançar, para não travar o mapa). Em caso de
++ * sucesso devolve o resultado do parse (F1-F2-02), com `riskLevel` já normalizado.
+  */
+ export function validateFloodPoint<T>(raw: T): T {
+   const result = floodPointResponseSchema.safeParse(raw);
+@@ -58,6 +93,23 @@
+       'payload recebido:',
+       raw,
+     );
++    return raw;
++  }
++  // passthrough preserva os campos não declarados, então o parse é um superconjunto de T.
++  return result.data as unknown as T;
++}
++
++/** Valida a resposta de POST /api/flood-predictions; em divergência loga e devolve o bruto. */
++export function validateFloodPrediction<T>(raw: T): T {
++  const result = floodPredictionSchema.safeParse(raw);
++  if (!result.success) {
++    console.error(
++      '[floodService] Predição não bate com o contrato esperado:',
++      z.treeifyError(result.error),
++      'payload recebido:',
++      raw,
++    );
++    return raw;
+   }
+-  return raw;
++  return result.data as unknown as T;
+ }
+diff --color -ruN front-before/src/features/map/schemas/floodPrediction.contract.test.ts front-after/src/features/map/schemas/floodPrediction.contract.test.ts
+--- front-before/src/features/map/schemas/floodPrediction.contract.test.ts	1969-12-31 21:00:00.000000000 -0300
++++ front-after/src/features/map/schemas/floodPrediction.contract.test.ts	2026-10-10 09:33:47.266057644 -0300
+@@ -0,0 +1,42 @@
++import { describe, it, expect, vi, afterEach } from 'vitest';
++import { floodPredictionSchema, RISK_LEVELS } from './floodPointResponse.schema';
++
++afterEach(() => vi.restoreAllMocks());
++
++describe('contrato de predição (ADR 0007)', () => {
++  it('aceita o payload ANTIGO (0.0, UNKNOWN, sem campos novos)', () => {
++    const r = floodPredictionSchema.parse({ floodProbability: 0.0, riskLevel: 'UNKNOWN', message: 'x' });
++    expect(r.riskLevel).toBe('UNKNOWN');
++    expect(r.modelVersion).toBeUndefined();
++  });
++
++  it('aceita o payload NOVO (null + degradationReason + contributors)', () => {
++    const r = floodPredictionSchema.parse({
++      riskLevel: 'UNKNOWN',
++      floodProbability: null,
++      degradationReason: 'AI_TIMEOUT',
++      lastValidIssuedAt: '2026-10-10T12:00:00Z',
++      contributors: [{ featureId: 'tide_height_t1', label: 'Maré', contribution: 0.18 }],
++      imputedFeatures: [{ featureId: 'river_level', label: 'Nível do rio' }],
++    });
++    expect(r.floodProbability).toBeNull();
++    expect(r.degradationReason).toBe('AI_TIMEOUT');
++    expect(r.contributors).toHaveLength(1);
++  });
++
++  it("converte 'CRITICAL' em 'UNKNOWN' e registra console.warn com o valor recebido", () => {
++    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
++    const r = floodPredictionSchema.parse({ floodProbability: 0.9, riskLevel: 'CRITICAL' });
++    expect(r.riskLevel).toBe('UNKNOWN');
++    expect(warn).toHaveBeenCalledTimes(1);
++    expect(warn.mock.calls[0]).toContain('CRITICAL');
++  });
++
++  it('não emite warn para valores válidos', () => {
++    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
++    for (const riskLevel of RISK_LEVELS) {
++      floodPredictionSchema.parse({ floodProbability: 0.5, riskLevel });
++    }
++    expect(warn).not.toHaveBeenCalled();
++  });
++});
+diff --color -ruN front-before/src/features/map/services/flood.service.ts front-after/src/features/map/services/flood.service.ts
+--- front-before/src/features/map/services/flood.service.ts	2026-10-10 09:32:56.156177015 -0300
++++ front-after/src/features/map/services/flood.service.ts	2026-10-10 09:33:47.253473428 -0300
+@@ -1,5 +1,5 @@
+ import api from '@/lib/api';
+-import { validateFloodPoint } from '../schemas/floodPointResponse.schema';
++import { validateFloodPoint, validateFloodPrediction } from '../schemas/floodPointResponse.schema';
+ import type {
+   FloodPointResponseDTO,
+   FloodPointRequestDTO,
+@@ -44,7 +44,7 @@
+     const response = await api.post<FloodPredictionResponseDTO>('/api/flood-predictions', null, {
+       params: { latitude, longitude }
+     });
+-    return response.data;
++    return validateFloodPrediction(response.data);
+   },
+ 
+   // Conveniência client-side: busca dado ambiental + predição juntos, pro card de detalhe (clique
+diff --color -ruN front-before/src/features/map/types/flood.ts front-after/src/features/map/types/flood.ts
+--- front-before/src/features/map/types/flood.ts	2026-10-10 09:32:56.153706631 -0300
++++ front-after/src/features/map/types/flood.ts	2026-10-10 09:33:47.256021834 -0300
+@@ -1,3 +1,4 @@
++import type { FloodPrediction } from '../schemas/floodPointResponse.schema';
+ import type { SensorConfigDTO } from './sensor';
+ import type { PreciseData } from './common';
+ 
+@@ -53,12 +54,8 @@
+   source: string;
+ }
+ 
+-export interface FloodPredictionResponseDTO {
+-  floodProbability: number;
+-  riskLevel: string;
+-  estimatedTimeToEvent: string;
+-  message: string;
+-}
++/** Derivado do schema zod (ADR 0007): fonte única do contrato de predição. */
++export type FloodPredictionResponseDTO = FloodPrediction;
+ 
+ export interface FloodScenarioLabelRequestDTO {
+   latitude: number;
+diff --color -ruN front-before/src/features/map/utils/datetime.ts front-after/src/features/map/utils/datetime.ts
+--- front-before/src/features/map/utils/datetime.ts	1969-12-31 21:00:00.000000000 -0300
++++ front-after/src/features/map/utils/datetime.ts	2026-10-10 09:33:47.263654362 -0300
+@@ -0,0 +1,19 @@
++const recifeFormatter = new Intl.DateTimeFormat('pt-BR', {
++  timeZone: 'America/Recife',
++  day: '2-digit',
++  month: '2-digit',
++  year: 'numeric',
++  hour: '2-digit',
++  minute: '2-digit',
++});
++
++/**
++ * Utilitário único de exibição de instantes em America/Recife (ADR 0001/0007).
++ * Aceita ISO-8601 (com `Z` ou offset). Ausente ou inválido → null, nunca "Invalid Date".
++ */
++export function formatRecife(iso: string | null | undefined): string | null {
++  if (!iso) return null;
++  const date = new Date(iso);
++  if (Number.isNaN(date.getTime())) return null;
++  return recifeFormatter.format(date).replace(',', '');
++}
+diff --color -ruN front-before/src/features/map/utils/risk.test.ts front-after/src/features/map/utils/risk.test.ts
+--- front-before/src/features/map/utils/risk.test.ts	1969-12-31 21:00:00.000000000 -0300
++++ front-after/src/features/map/utils/risk.test.ts	2026-10-10 09:33:47.261164928 -0300
+@@ -0,0 +1,54 @@
++import { describe, it, expect } from 'vitest';
++import { RISK_LEVELS } from '../schemas/floodPointResponse.schema';
++import { getRiskVisual, formatProbability, degradationText } from './risk';
++import { formatRecife } from './datetime';
++
++describe('getRiskVisual', () => {
++  it('cobre todos os níveis do enum, com rótulo e cor próprios', () => {
++    const visuals = RISK_LEVELS.map((l) => getRiskVisual(l));
++    expect(new Set(visuals.map((v) => v.hex)).size).toBe(RISK_LEVELS.length);
++    expect(new Set(visuals.map((v) => v.label)).size).toBe(RISK_LEVELS.length);
++  });
++
++  it('UNKNOWN é neutro: cor distinta das de risco e sem porcentagem', () => {
++    const unknown = getRiskVisual('UNKNOWN');
++    for (const l of ['LOW', 'MEDIUM', 'HIGH'] as const) {
++      expect(getRiskVisual(l).hex).not.toBe(unknown.hex);
++      expect(getRiskVisual(l).showsProbability).toBe(true);
++    }
++    expect(unknown.showsProbability).toBe(false);
++    expect(unknown.label).toBe('Previsão indisponível');
++  });
++
++  it('ausente ou valor inesperado em runtime cai no estado neutro', () => {
++    expect(getRiskVisual(undefined)).toEqual(getRiskVisual('UNKNOWN'));
++    expect(getRiskVisual('CRITICAL' as never)).toEqual(getRiskVisual('UNKNOWN'));
++  });
++});
++
++describe('formatProbability', () => {
++  it('formata risco conhecido', () => expect(formatProbability('MEDIUM', 0.42)).toBe('42%'));
++  it('UNKNOWN nunca mostra porcentagem, mesmo com 0.0 do backend antigo', () => {
++    expect(formatProbability('UNKNOWN', 0.0)).toBeNull();
++    expect(formatProbability('UNKNOWN', 0.7)).toBeNull();
++  });
++  it('probabilidade null não renderiza', () => expect(formatProbability('LOW', null)).toBeNull());
++});
++
++describe('degradationText', () => {
++  it('texto fixo por motivo e fallback', () => {
++    expect(degradationText('AI_TIMEOUT')).toMatch(/demorou/);
++    expect(degradationText(null)).toBe('motivo não informado');
++    expect(degradationText(undefined)).toBe('motivo não informado');
++  });
++});
++
++describe('formatRecife', () => {
++  it('converte UTC para America/Recife (UTC-3)', () => {
++    expect(formatRecife('2026-10-10T15:30:00Z')).toBe('10/10/2026 12:30');
++  });
++  it('ausente ou inválido → null', () => {
++    expect(formatRecife(null)).toBeNull();
++    expect(formatRecife('xx')).toBeNull();
++  });
++});
+diff --color -ruN front-before/src/features/map/utils/risk.ts front-after/src/features/map/utils/risk.ts
+--- front-before/src/features/map/utils/risk.ts	1969-12-31 21:00:00.000000000 -0300
++++ front-after/src/features/map/utils/risk.ts	2026-10-10 09:33:47.258681514 -0300
+@@ -0,0 +1,64 @@
++import type { DegradationReason, RiskLevel } from '../schemas/floodPointResponse.schema';
++
++/** Visual de um nível de risco. UNKNOWN usa cinza neutro, fora da paleta de risco. */
++export interface RiskVisual {
++  label: string;
++  /** Cor hex (círculo do mapa). */
++  hex: string;
++  /** Marcador: fundo e anel de pulso. */
++  bg: string;
++  ping: string;
++  /** Texto/ícone, borda, fundo suave e cabeçalho (card de detalhe). */
++  text: string;
++  border: string;
++  softBg: string;
++  header: string;
++  shadow: string;
++  /** false em UNKNOWN: nunca exibir porcentagem. */
++  showsProbability: boolean;
++}
++
++const UNKNOWN_VISUAL: RiskVisual = { label: 'Previsão indisponível', hex: '#71717a', bg: 'bg-zinc-500', ping: 'bg-zinc-400', text: 'text-zinc-400', border: 'border-zinc-500/30', softBg: 'bg-zinc-500/5', header: 'bg-zinc-600/80', shadow: 'shadow-black/20', showsProbability: false };
++
++/** Único mapeamento risco→visual do app. `never` garante exaustividade em compilação. */
++export function getRiskVisual(level: RiskLevel | undefined | null): RiskVisual {
++  const l: RiskLevel = level ?? 'UNKNOWN';
++  switch (l) {
++    case 'HIGH':
++      return { label: 'Alto', hex: '#f97316', bg: 'bg-orange-500', ping: 'bg-orange-400', text: 'text-orange-500', border: 'border-orange-500/30', softBg: 'bg-orange-500/5', header: 'bg-orange-600/80', shadow: 'shadow-orange-500/20', showsProbability: true };
++    case 'MEDIUM':
++      return { label: 'Moderado', hex: '#f59e0b', bg: 'bg-amber-500', ping: 'bg-amber-400', text: 'text-amber-500', border: 'border-amber-500/30', softBg: 'bg-amber-500/5', header: 'bg-amber-600/80', shadow: 'shadow-amber-500/20', showsProbability: true };
++    case 'LOW':
++      return { label: 'Baixo', hex: '#10b981', bg: 'bg-emerald-500', ping: 'bg-emerald-400', text: 'text-emerald-500', border: 'border-emerald-500/30', softBg: 'bg-emerald-500/5', header: 'bg-emerald-600/80', shadow: 'shadow-emerald-500/20', showsProbability: true };
++    case 'UNKNOWN':
++      return UNKNOWN_VISUAL;
++    default: {
++      // Exaustividade em compilação; em runtime, valor inesperado cai no estado neutro.
++      const _exhaustive: never = l;
++      void _exhaustive;
++      return UNKNOWN_VISUAL;
++    }
++  }
++}
++
++const DEGRADATION_TEXT: Record<DegradationReason, string> = {
++  INSUFFICIENT_DATA: 'dados insuficientes para prever',
++  AI_TIMEOUT: 'o modelo demorou demais para responder',
++  AI_UNAVAILABLE: 'o modelo está fora do ar',
++  AI_ERROR: 'erro no modelo de previsão',
++};
++
++/** Texto fixo, em português, por motivo de degradação. Ausente → "motivo não informado". */
++export function degradationText(reason: DegradationReason | null | undefined): string {
++  if (!reason) return 'motivo não informado';
++  return DEGRADATION_TEXT[reason] ?? 'motivo não informado';
++}
++
++/** "42%" ou null. UNKNOWN e probabilidade null nunca geram porcentagem (ADR 0007 §6). */
++export function formatProbability(
++  level: RiskLevel | undefined | null,
++  probability: number | null | undefined,
++): string | null {
++  if (!getRiskVisual(level).showsProbability || probability == null) return null;
++  return `${(probability * 100).toFixed(0)}%`;
++}
