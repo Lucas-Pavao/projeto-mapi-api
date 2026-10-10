@@ -83,11 +83,11 @@
 | F2-DADOS-08 | 2 | Dados | Equilibrado | Executar a troca de imagem (ADR 0005, procedimento a–f) | concluido | branch `feat/imagem-timescaledb-ha` | 2026-10-10 · Opus · dump `eac26687…`, restauração na 2.27.2 + UPDATE p/ 2.30.2, contagens idênticas em 17 tabelas, API healthy · 1 incidente de script na 1ª tentativa (só no banco novo), refeito; registro em `docs/snapshots/2026-10-10-troca-de-imagem.md` |
 | F2-BACK-10 | 2 | Backend | Rápido | Testcontainers passar para a imagem `-ha` (pré-requisito da V7 PostGIS) | concluido | 969bf5b (`integracao/fase-2`) | 2026-10-10 · Opus · `DEFAULT_DB_IMAGE` = `timescale/timescaledb-ha:pg16.15-ts2.30.2`; suíte integrada (F2-BACK-04..08 + segurança + k6 + imagem) 92 testes, 0 falhas, 42,3% linhas / 30,5% ramos |
 | F2-ARQ-01 | 2 | Arquiteto | Rápido | Handoff da Fase 2 | pendente | | |
-| F3-GEO-01 | 3 | Geo | Equilibrado | Processar rasters: unzip, atribuir CRS/nodata, VRT, recorte, COG; medir tamanhos | pendente | | precisa GDAL/rasterio (ausentes localmente → docker) |
+| F3-GEO-01 | 3 | Geo | Equilibrado | Processar rasters: unzip, atribuir CRS/nodata, VRT, recorte, COG; medir tamanhos | em_andamento | | 2026-10-10 · subagente Sonnet · VRT sobre /vsizip (sem descompactar; /home com 4,5 GB livres), CRS 31985 + nodata, recortes COG por ponto, tamanhos para o ADR 0008 |
 | F3-GEO-02 | 3 | Geo+Dados+Backend | Equilibrado + checkpoint | ADR de onde armazenar o terreno | pendente | | |
-| F3-GEO-03 | 3 | Geo | Equilibrado + checkpoint | ADR referência vertical MDT × NR da DHN | pendente | | |
-| F3-GEO-04 | 3 | Geo | Equilibrado | Atributos por ponto e tabela `ponto_terreno` | pendente | | migração: aprovação |
-| F3-GEO-05 | 3 | Geo | Equilibrado | Comparar cota MDT × altitude Open-Meteo | pendente | | |
+| F3-GEO-03 | 3 | Geo | Equilibrado + checkpoint | ADR referência vertical MDT × NR da DHN | em_andamento | | 2026-10-10 · subagente Sonnet · pesquisa web, `docs/adr/0009-referencia-vertical-mdt-mare.md` (proposto) + `docs/extratos/referencia-vertical.md`; checkpoint Máximo depois |
+| F3-GEO-04 | 3 | Geo | Equilibrado | Atributos por ponto e tabela `ponto_terreno` | em_andamento | | 2026-10-10 · subagente Sonnet · atributos em CSV `MAPI/terreno/ponto_terreno.csv` (tabela no banco depende do ADR 0008 + migração) |
+| F3-GEO-05 | 3 | Geo | Equilibrado | Comparar cota MDT × altitude Open-Meteo | em_andamento | | 2026-10-10 · subagente Sonnet · comparação cota MDT × altitudeM atual |
 | F3-GEO-06 | 3 | Geo | Equilibrado | `docs/TERRENO-PE3D.md` | pendente | | |
 | F3-BACK-01 | 3 | Backend | Equilibrado | Endpoint de terreno e colunas no CSV de treino | pendente | | |
 | F3-FRONT-01 | 3 | Frontend | Equilibrado | Camada de terreno no mapa (hipsometria, abaixo da cota de maré) | pendente | | |
@@ -116,7 +116,7 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | ID | O que trava | O que destrava | Desde |
 |---|---|---|---|
 | (resolvido) | Limite semanal de uso derrubou 3 subagentes da F1 | reset do limite; agentes retomados | 2026-10-10 |
-| F3-GEO-01 | GDAL/rasterio ausentes no host | rodar em container (ex.: `ghcr.io/osgeo/gdal`) — sem decisão necessária | 2026-10-10 |
+| (resolvido) F3-GEO-01 | GDAL/rasterio ausentes no host | GDAL em container; leitura direta dos zips | 2026-10-10 |
 | GitHub (todas as tarefas de PR) | `gh` ausente e sem MCP GitHub | instalar `gh` e autenticar, ou o Lucas abre os PRs a partir das branches | 2026-10-10 |
 
 ## Perguntas pendentes para o Lucas
