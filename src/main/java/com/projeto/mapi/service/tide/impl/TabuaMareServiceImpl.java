@@ -79,7 +79,7 @@ public class TabuaMareServiceImpl implements TabuaMareService {
     // Um mesmo (porto, mês, dia) é consultado uma vez por HORA dentro de getTideHeightAt quando
     // chamado em laço por exportUnifiedDataWithAccumulated (ex: /api/environmental-data, /api/pontos/{slug}).
     // Sem cache, isso gerava até 24 chamadas HTTP idênticas à API externa por dia exportado.
-    @org.springframework.cache.annotation.Cacheable(value = "tideTableDaily", key = "#harbor + '-' + #month + '-' + #days")
+    @org.springframework.cache.annotation.Cacheable(value = "tideTableDaily", key = "#harbor + '-' + #month + '-' + #days", unless = "#result == null || #result.error != null")
     @RateLimiter(name = "tabuaMare")
     @Retry(name = "tabuaMare")
     @CircuitBreaker(name = "tabuaMare", fallbackMethod = "getTideTableFallback")
@@ -97,7 +97,7 @@ public class TabuaMareServiceImpl implements TabuaMareService {
     @Override
     // O porto mais próximo só depende da coordenada, não do horário; cachear evita repetir a
     // mesma busca de porto a cada hora do laço em getTideHeightAt/exportUnifiedDataWithAccumulated.
-    @org.springframework.cache.annotation.Cacheable(value = "tideNearestHarbor", key = "#latLng")
+    @org.springframework.cache.annotation.Cacheable(value = "tideNearestHarbor", key = "#latLng", unless = "#result == null || #result.error != null")
     @RateLimiter(name = "tabuaMare")
     @Retry(name = "tabuaMare")
     @CircuitBreaker(name = "tabuaMare", fallbackMethod = "getNearestHarborFallback")
@@ -136,7 +136,7 @@ public class TabuaMareServiceImpl implements TabuaMareService {
 
     @Override
     public Double getTideHeightAt(double latitude, double longitude, java.time.LocalDateTime timestamp) {
-        log.info("TabuaMare: Buscando maré para Lat: {}, Lon: {} para a data: {}", latitude, longitude, timestamp);
+        log.debug("TabuaMare: Buscando maré para Lat: {}, Lon: {} para a data: {}", latitude, longitude, timestamp);
         try {
             // Arredonda a ~11km (1 casa decimal) antes de montar a chave de cache do porto mais
             // próximo: portos são pontos esparsos, então leituras de sensores próximas (mesma
@@ -178,7 +178,7 @@ public class TabuaMareServiceImpl implements TabuaMareService {
                     harborId = state + String.format("%02d", Integer.parseInt(harborId));
                 }
                 
-                log.info("TabuaMare: Porto identificado: {}", harborId);
+                log.debug("TabuaMare: Porto identificado: {}", harborId);
                 
                 int month = timestamp.getMonthValue();
                 int day = timestamp.getDayOfMonth();

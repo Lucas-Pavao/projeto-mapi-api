@@ -45,7 +45,7 @@ class ExportLabelIntegrationTest extends AbstractIngestionTest {
 
     @BeforeEach
     void seed() {
-        when(tide.getTideHeightAt(anyDouble(), anyDouble(), any(LocalDateTime.class))).thenReturn(1.0);
+        when(tide.getStoredTideHeightAt(anyDouble(), anyDouble(), any(LocalDateTime.class))).thenReturn(1.0);
         limparDependentesDePontos();
         jdbc.execute("DELETE FROM occurrence_point_match");
         jdbc.execute("DELETE FROM flood_occurrence");
