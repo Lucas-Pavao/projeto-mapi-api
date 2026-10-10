@@ -15,4 +15,10 @@ public interface FloodPredictionRepository extends JpaRepository<FloodPrediction
     /** Última previsão {@code SUCCESS} da coordenada: fonte de {@code lastValidIssuedAt}. */
     Optional<FloodPrediction> findFirstByLatitudeAndLongitudeAndStatusOrderByTimestampDesc(
             Double latitude, Double longitude, String status);
+
+    /** Última previsão do ponto (qualquer status), pela coluna {@code flood_point_id}. */
+    Optional<FloodPrediction> findFirstByFloodPointIdOrderByTimestampDesc(Long floodPointId);
+
+    /** Última previsão {@code SUCCESS} do ponto: fonte de {@code lastValidIssuedAt}. */
+    Optional<FloodPrediction> findFirstByFloodPointIdAndStatusOrderByTimestampDesc(Long floodPointId, String status);
 }

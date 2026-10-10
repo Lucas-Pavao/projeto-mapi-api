@@ -5,6 +5,8 @@
 -- `issued_at` NÃO é preenchida a partir de `timestamp`: esta é TIMESTAMP sem fuso e o fuso em que as
 -- linhas antigas foram escritas é incerto (LocalDateTime.now() da JVM); converter inventaria um instante.
 -- Só gravações novas preenchem `issued_at` (instante UTC real da previsão).
+-- `top_contributors` (jsonb, [{featureId, contribution}]) também é nova: sem ela os contribuintes, que
+-- estavam no JSON de `message`, se perderiam ao deixar de gravar JSON ali.
 ALTER TABLE flood_predictions
     ADD COLUMN model_version      TEXT,
     ADD COLUMN model_version_full TEXT,
@@ -13,6 +15,7 @@ ALTER TABLE flood_predictions
         CONSTRAINT chk_flood_predictions_degradation_reason
         CHECK (degradation_reason IN ('INSUFFICIENT_DATA', 'AI_TIMEOUT', 'AI_UNAVAILABLE', 'AI_ERROR')),
     ADD COLUMN imputed_features   JSONB DEFAULT '[]'::jsonb,
+    ADD COLUMN top_contributors   JSONB,
     ADD COLUMN flood_point_id     BIGINT,
     ADD COLUMN issued_at          TIMESTAMPTZ;
 

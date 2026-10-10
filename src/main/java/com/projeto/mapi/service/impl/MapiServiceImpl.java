@@ -102,7 +102,7 @@ public class MapiServiceImpl implements MapiService {
     @Override
     public com.projeto.mapi.dto.FloodPredictionResponseDTO createFloodPrediction(double latitude, double longitude) {
         MapiResponseDTO environmentalData = getEnvironmentalData(latitude, longitude);
-        return predictAndStore(environmentalData.getPreciseData(), environmentalData.getNearestSensor(), latitude, longitude);
+        return predictAndStore(null, environmentalData.getPreciseData(), environmentalData.getNearestSensor(), latitude, longitude);
     }
 
     // Leitura pura (ADR 0007 §7): dado ambiental + ÚLTIMA previsão gravada do ponto. Não chama a IA
@@ -110,8 +110,12 @@ public class MapiServiceImpl implements MapiService {
     // (refreshPredictionsForActivePoints).
     @Override
     public MapiResponseDTO getPreciseData(double latitude, double longitude) {
+        return getPreciseData(null, latitude, longitude);
+    }
+
+    private MapiResponseDTO getPreciseData(Long floodPointId, double latitude, double longitude) {
         MapiResponseDTO environmentalData = getEnvironmentalData(latitude, longitude);
-        environmentalData.setFloodPrediction(predictionHistory.findLatest(latitude, longitude).orElse(null));
+        environmentalData.setFloodPrediction(predictionHistory.findLatest(floodPointId, latitude, longitude).orElse(null));
         return environmentalData;
     }
 
@@ -123,7 +127,7 @@ public class MapiServiceImpl implements MapiService {
         for (FloodPoint point : floodPointRepository.findByActiveTrue()) {
             try {
                 MapiResponseDTO env = getEnvironmentalData(point.getLatitude(), point.getLongitude());
-                predictAndStore(env.getPreciseData(), env.getNearestSensor(), point.getLatitude(), point.getLongitude());
+                predictAndStore(point.getId(), env.getPreciseData(), env.getNearestSensor(), point.getLatitude(), point.getLongitude());
                 done++;
             } catch (Exception e) {
                 log.error("Falha ao atualizar a previsão do ponto {}: {}", point.getSlug(), e.getMessage());
@@ -137,7 +141,7 @@ public class MapiServiceImpl implements MapiService {
     // flood_predictions. Único ponto de escrita de previsões: usado pelo POST /api/flood-predictions
     // e pelo passo agendado do ciclo de coleta.
     private com.projeto.mapi.dto.FloodPredictionResponseDTO predictAndStore(
-            MapiResponseDTO.PreciseData preciseData, SensorResponseDTO nearestSensor, double latitude, double longitude) {
+            Long floodPointId, MapiResponseDTO.PreciseData preciseData, SensorResponseDTO nearestSensor, double latitude, double longitude) {
         try {
             // Acumulados reais do ponto (regional, raio de 3 km), calculados em determinePreciseData.
             // Onde falta dado o payload leva 0.0; cada 0.0 imputado é DECLARADO em imputedFeatures
@@ -167,12 +171,12 @@ public class MapiServiceImpl implements MapiService {
                     .build();
 
             com.projeto.mapi.service.flood.PredictionResult result = floodPredictionService.predict(predictionRequest, imputed);
-            predictionHistory.record(predictionRequest, result);
+            predictionHistory.record(predictionRequest, result, floodPointId);
 
             com.projeto.mapi.dto.FloodPredictionResponseDTO prediction = result.response();
             if (prediction.lastValidIssuedAt() == null) {
                 prediction = prediction.toBuilder()
-                        .lastValidIssuedAt(predictionHistory.findLastValidIssuedAt(latitude, longitude).orElse(null))
+                        .lastValidIssuedAt(predictionHistory.findLastValidIssuedAt(floodPointId, latitude, longitude).orElse(null))
                         .build();
             }
             return prediction;
@@ -409,12 +413,12 @@ public class MapiServiceImpl implements MapiService {
                 .tideUnit("m");
 
         if (includeLiveData) {
-            MapiResponseDTO liveData = getPreciseData(fp.getLatitude(), fp.getLongitude());
+            MapiResponseDTO liveData = getPreciseData(fp.getId(), fp.getLatitude(), fp.getLongitude());
             builder.liveData(liveData.getPreciseData());
             builder.floodPrediction(liveData.getFloodPrediction());
         } else {
             // Lista de pontos: também devolve a última previsão gravada (sem chamar a IA).
-            builder.floodPrediction(predictionHistory.findLatest(fp.getLatitude(), fp.getLongitude()).orElse(null));
+            builder.floodPrediction(predictionHistory.findLatest(fp.getId(), fp.getLatitude(), fp.getLongitude()).orElse(null));
         }
 
         return builder.build();
