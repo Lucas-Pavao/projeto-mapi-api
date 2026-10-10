@@ -102,7 +102,7 @@
 | F3-GEO-06 | 3 | Geo | Equilibrado | `docs/TERRENO-PE3D.md` | concluido | idem | 2026-10-10 · `docs/TERRENO-PE3D.md` (procedimento, cobertura, atributos, sensibilidade da área contribuinte, limitações) |
 | F3-BACK-01 | 3 | Backend | Equilibrado | Endpoint de terreno e colunas no CSV de treino | concluido | `feat/terreno-backend` (worktree agent-a5aea…), integrado em 218b35a | 2026-10-10 · subagente Sonnet · V9 (`terrain_run`, `point_terrain`, `point_terrain_curve`); carga idempotente `POST /api/admin/terrain/runs` (mesmo conteúdo = mesmo run); `GET /api/pontos/{slug}/terrain` (200 OK/NO_DATA, 404; aviso fixo do ADR 0009; provenanceId); export com 5 colunas `terrain_*` + `terrain {runId, vrtSha256}` no manifesto · desvios aceitos pelo Arquiteto: `m3_per_cm` nulo no nível 0; hash de entrada em `parameters->>'inputSha256'` com índice único · integrado: 138 testes, 0 falhas, 56,1% linhas / 40,1% ramos |
 | F3-FRONT-01 | 3 | Frontend | Equilibrado | Camada de terreno no mapa (hipsometria, abaixo da cota de maré) | pendente | | |
-| F3-GEO-07 | 3 | Geo | Equilibrado | Validar a hidrologia (fill/D8/acumulação) do `terreno.py` contra uma ferramenta de referência (WhiteboxTools em container) e testes unitários; definir regra de snap documentada | em_andamento | | 2026-10-10 · subagente Sonnet · worktree, branch `test/hidrologia-terreno` |
+| F3-GEO-07 | 3 | Geo | Equilibrado | Validar a hidrologia (fill/D8/acumulação) do `terreno.py` contra uma ferramenta de referência (WhiteboxTools em container) e testes unitários; definir regra de snap documentada | concluido | `test/hidrologia-terreno` (6 commits, worktree agent-af366…) | 2026-10-10 · subagente Sonnet · WhiteboxTools v2.4.0 (zip SHA-256 370493b5…): fill/depressão idênticos nos 4 pontos; D8 próprio tinha bug (53–55% de concordância, pego pelo teste do plano inclinado), corrigido → 97–99,5%; área contribuinte diverge em planos criados pelo fill (21–29% da janela) → pipeline passou a usar Whitebox (próprio fica como verificação, `MOTOR=proprio`); regra de snap: maior acumulação ≤ 10 m (premissa, sensibilidade documentada) · novas áreas: Ibura 208 (era 573 046), CIn 82 378, Derby 62, Imbiribeira 10 103 m² · `ponto_terreno.csv` SHA-256 114ddd32… idêntico em 2 execuções · terreno carregado com valores antigos precisa de nova carga (`POST /api/admin/terrain/runs`) |
 | F3-ARQ-02 | 3 | Arquiteto | Rápido | Redigir os pedidos institucionais (CHM/DHN F-41, IBGE RN/NMM, PE3D relatório) | concluido | ver commit "pedidos" | 2026-10-10 · Opus · `docs/pedidos/` (3 rascunhos + README); envio pelo Lucas |
 | F3-ARQ-01 | 3 | Arquiteto | Rápido | Handoff da Fase 3 | pendente | | |
 | F4-IA-01 | 4 | IA | Máximo | Formulação da tarefa, features e baselines (A.1–A.3) | concluido | ver commit "MODELAGEM-IA" | 2026-10-10 · subagente Opus (Máximo) · `docs/MODELAGEM-IA.md` A.1–A.3 · decisão: tarefa horária H = 6 h (principal) e 3 h, treino/teste só com eventos HOUR, horas de dias com evento DAY excluídas (nunca negativas), DAY testa no nível do dia; regra de troca fixada antes de treinar: < 20 eventos HOUR no teste → tarefa diária com corte 06:00 (±0,22 no IC 95% do recall); modelo único multiponto · 38 features: 25 disponíveis, 6 dependem da quarentena de fuso, 3 do ADR 0009, 4 de dado não coletado · 12 decisões para o autor (pergunta 25) |
@@ -113,7 +113,7 @@
 | F4-IA-06 | 4 | IA | Rápido | Tabela comparativa de algoritmos (xlsx) | pendente | | |
 | F4-IA-07 | 4 | IA | Rápido | Deck pptx da disciplina | pendente | | |
 | F4-FRONT-01 | 4 | Frontend | Equilibrado | Painel por ponto, legenda para Defesa Civil, estado UNKNOWN; screenshots antes/depois | pendente | | |
-| F4-FRONT-01a | 4 | Frontend | Equilibrado | Acessibilidade, responsividade (390 px e projeção), estados de erro/vazio, legenda para a Defesa Civil | em_andamento | | 2026-10-10 · subagente Sonnet · sobre o WIP do Lucas, patch separado; skill `frontend-design` indisponível na sessão (registrado); sem Playwright para screenshots |
+| F4-FRONT-01a | 4 | Frontend | Equilibrado | Acessibilidade, responsividade (390 px e projeção), estados de erro/vazio, legenda para a Defesa Civil | concluido | sem commit (WIP do Lucas); patch `docs/revisao/fase-4/F4-FRONT-01a.patch` (31 arquivos) | 2026-10-10 · subagente Sonnet · erro/vazio com indicador real e "Tentar de novo"; 9 `alert()` → avisos aria-live; botões só-ícone sem nome 8 → 0; 4 modais com foco preso; contraste das cores de risco 2,15–2,80 → 3,19–4,83:1 + ícone/borda; legenda permanente; largura mínima 836 → ~360 px; menor fonte 7 → 12 px (15 px ≥ 1920) · conferido pelo Arquiteto: tsc limpo, 52 testes, lint 0 erros · **sem verificação visual** (extensão do Chrome não conectada, sem Playwright) |
 | F4-IA-08 | 4 | IA | Equilibrado | Remover `fillna(0.0)` de `prepare_scenario_features` (imputação silenciosa do lado do ML); tratamento de ausente declarado conforme `<var>_missing` do export | pendente | | risco apontado em F2-BACK-12 |
 | F4-ARQ-01 | 4 | Arquiteto | Rápido | Handoff da Fase 4 | pendente | | |
 | F5-QA-01 | 5 | QA | Rápido | `docs/FONTES-E-LICENCAS.md` | concluido | ver commit "FONTES-E-LICENCAS" | 2026-10-10 · subagente Haiku · `docs/FONTES-E-LICENCAS.md` · termo localizado em 8/11 fontes; pendentes: PE3D, ANA (API), APAC, DHN/CHM (403), termo da API TabuaMare · restrições: Open-Meteo gratuito só não comercial; CARTO exige chave própria; Nominatim 1 req/s; CKAN pode conter endereços (LGPD) |
@@ -134,6 +134,7 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | (resolvido) F3-GEO-01 | GDAL/rasterio ausentes no host | GDAL em container; leitura direta dos zips | 2026-10-10 |
 | GitHub (todas as tarefas de PR) | `gh` ausente e sem MCP GitHub | instalar `gh` e autenticar, ou o Lucas abre os PRs a partir das branches | 2026-10-10 |
 | F3-PED-01 | Δ (NR↔datum do MDT) não fechado | respostas do CHM/DHN, IBGE e PE3D aos pedidos em `docs/pedidos/` (envio pelo Lucas) | 2026-10-10 |
+| F4-FRONT-01a (visual) | Verificação visual e screenshots antes/depois (390 px, 1920 px) | conectar a extensão Claude in Chrome (ou instalar Playwright) | 2026-10-10 |
 
 ## Perguntas pendentes para o Lucas
 | # | Pergunta | Desde | Impacto se não responder |
@@ -181,10 +182,14 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | Features constantes (zeradas) na inferência da IA | 9 de 28 | | 2026-10-10 | F1-IA-02 (F1-I2-01) |
 | Baselines implementados | 0 de 4 | | 2026-10-10 | F1-IA-02 (F1-I2-04) |
 | Tratamentos visuais distintos de UNKNOWN no front | 3 | 1 (F2-FRONT-01, sem commit) | 2026-10-10 | F1-FRONT-02 (F1-F2-04) |
-| `aria-label` / botões no front | 0 / 31 | | 2026-10-10 | F1-FRONT-02 (F1-F2-09) |
+| `aria-label` / botões no front | 0 / 31 | botões só-ícone sem nome: 8 → 0 (F4-FRONT-01a, sem commit) | 2026-10-10 | F1-FRONT-02 (F1-F2-09) |
 | Gravações em `flood_predictions` por GET | 1 | 0 | 2026-10-10 | teste Testcontainers (F2-BACK-08) |
 | Pontos críticos com cota do MDT | 0/5 | 4/5 | 2026-10-10 | `tools/terreno/run.sh` (F3-GEO-01/04) |
 | Diferença MDT − altitude Open-Meteo (média / máx módulo) | — | −2,82 m / 5,42 m | 2026-10-10 | F3-GEO-05 |
+| Testes do front | 5 | 52 (F2-FRONT-01 + F4-FRONT-01a, sem commit) | 2026-10-10 | `npm test` |
+| Contraste mínimo das cores de risco (branco sobre a cor) | 2,15:1 | 3,19:1 | 2026-10-10 | F4-FRONT-01a |
+| Largura mínima utilizável do front | 836 px | ~360 px | 2026-10-10 | F4-FRONT-01a (por código, sem verificação visual) |
+| Concordância D8 do terreno com WhiteboxTools | 53–55% | 97–99,5% (motor trocado para Whitebox) | 2026-10-10 | F3-GEO-07 |
 | Portas de banco/IA em 0.0.0.0 | 2 | 0 | 2026-10-10 | docker-compose.yml (F1-QA-02, 2fe06c6) |
 | Cobertura de teste backend (linhas / ramos) | 26,1% / 17,6% | 59,0% / 43,0% (integracao/fase-2 e9ccd46) | 2026-10-10 | JaCoCo 0.8.12, `docs/medidas/jacoco-2026-10-10.csv` |
 | Cobertura do export (`service.export.impl`) | 0,6% | 74,6% (integracao/fase-2, 7ccc0e8) | 2026-10-10 | idem |
