@@ -20,8 +20,11 @@ import org.testcontainers.utility.DockerImageName;
 @ActiveProfiles({"test", "testcontainers"})
 public abstract class AbstractTimescaleIntegrationTest {
 
-    /** Tag fixa (não "latest") para o teste ser reproduzível; mesma família pg16 do docker-compose. */
-    public static final String DEFAULT_DB_IMAGE = "timescale/timescaledb:2.17.2-pg16";
+    /**
+     * Mesma imagem fixa do docker-compose (ADR 0005): PG 16.15 + TimescaleDB 2.30.2 + PostGIS 3.6.4.
+     * Precisa ter PostGIS para a migração V7 rodar nos testes. É grande (4,38 GB): no CI, cachear a imagem.
+     */
+    public static final String DEFAULT_DB_IMAGE = "timescale/timescaledb-ha:pg16.15-ts2.30.2";
 
     private static final String IMAGE = resolveImage();
 
