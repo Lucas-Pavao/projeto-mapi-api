@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # MAPi — terreno PE3D: reproduz inventário, mosaico, recortes COG, atributos por ponto e comparação.
 # Uso: tools/terreno/run.sh [etapa ...]   (sem argumentos roda todas)
-# Etapas: altitude inventario vrt cobertura recortes atributos comparar estimativas
+# Etapas: altitude inventario vrt cobertura recortes atributos comparar estimativas validar testes (whitebox roda sozinho dentro de atributos e validar)
 # Requer: docker, curl. Nunca descompacta os zips (lê por /vsizip). Saídas em ../terreno (fora do git).
 set -euo pipefail
 AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -53,9 +53,8 @@ etapa_recortes() {   # COG 1 km x 1 km por ponto coberto (projwin alinhado à gr
   done
   du -sb "$OUT/recortes"/*.tif | tee "$OUT/recortes_tamanhos_bytes.txt"
 }
-etapa_atributos() { checa_disco; py atributos; }
+etapa_atributos() { checa_disco; etapa_whitebox; py atributos; }
 etapa_comparar() { py comparar; }
-etapa_janelas() { py janelas; }   # janelas de 2 km (+anel nodata) em validacao/, entrada do Whitebox
 etapa_testes() {   # pytest (pure-python, baixado e fixado por versão em $OUT/pylibs) no mesmo container GDAL
   [ -d "$OUT/pylibs/pytest" ] || dk python3 -I /tools/terreno/baixa_pytest.py /terreno/pylibs
   docker run --rm -u "$(id -u):$(id -g)" -e PYTHONPATH=/terreno/pylibs -e PYTHONDONTWRITEBYTECODE=1 \
@@ -63,7 +62,7 @@ etapa_testes() {   # pytest (pure-python, baixado e fixado por versão em $OUT/p
     python3 -m pytest -p no:cacheprovider -q /tools/terreno/tests
 }
 WBT_ZIP_SHA256="370493b569aaf84977fde95921f96d4a39c1820a2d36d907da9d53772295f440"   # WhiteboxTools v2.4.0 linux amd64
-etapa_whitebox() {   # baixa o binário oficial (hash fixado) para $OUT/whitebox e roda Fill/D8Pointer/D8FlowAccumulation por janela
+etapa_whitebox() {   # baixa o binário oficial (hash fixado) para $OUT/whitebox; o terreno.py o executa por janela
   local W="$OUT/whitebox"; mkdir -p "$W"
   if [ ! -x "$W/WBT/whitebox_tools" ]; then
     curl -sL -m 600 -o "$W/wbt.zip" https://www.whiteboxgeo.com/WBT_Linux/WhiteboxTools_linux_amd64.zip
@@ -72,19 +71,10 @@ etapa_whitebox() {   # baixa o binário oficial (hash fixado) para $OUT/whitebox
     mv "$W/WhiteboxTools_linux_amd64/WBT" "$W/WBT"; rm -rf "$W/WhiteboxTools_linux_amd64" "$W/wbt.zip"; chmod +x "$W/WBT/whitebox_tools"
   fi
   "$W/WBT/whitebox_tools" --version | head -1 | tee "$W/versao.txt"; sha256sum "$W/WBT/whitebox_tools" | tee "$W/binario.sha256"
-  local j s
-  for j in "$OUT"/validacao/janela_*.tif; do
-    s=$(basename "$j" .tif); s=${s#janela_}
-    "$W/WBT/whitebox_tools" --wd="$OUT/validacao" -r=FillDepressions --dem="janela_$s.tif" -o="wbt_fill_$s.tif" >/dev/null            # fill exato (sem gradiente nos planos)
-    "$W/WBT/whitebox_tools" --wd="$OUT/validacao" -r=FillDepressions --dem="janela_$s.tif" -o="wbt_fillfix_$s.tif" --fix_flats >/dev/null  # planos com gradiente: só para o D8
-    "$W/WBT/whitebox_tools" --wd="$OUT/validacao" -r=D8Pointer --dem="wbt_fillfix_$s.tif" -o="wbt_ptr_$s.tif" >/dev/null
-    "$W/WBT/whitebox_tools" --wd="$OUT/validacao" -r=D8FlowAccumulation -i="wbt_ptr_$s.tif" -o="wbt_acc_$s.tif" --pntr --out_type=cells >/dev/null
-    echo "whitebox $s ok"
-  done
 }
-etapa_validar() { py validar; }   # compara Priority-Flood próprio x Whitebox -> validacao_whitebox.csv/json
+etapa_validar() { etapa_whitebox; py validar; }   # Priority-Flood próprio x Whitebox -> validacao_whitebox.csv/json
 etapa_estimativas() { py estimativas; }
 
-ETAPAS=("$@"); [ ${#ETAPAS[@]} -gt 0 ] || ETAPAS=(altitude inventario vrt cobertura recortes atributos comparar estimativas)
+ETAPAS=("$@"); [ ${#ETAPAS[@]} -gt 0 ] || ETAPAS=(altitude inventario vrt cobertura recortes atributos comparar estimativas validar testes)
 for e in "${ETAPAS[@]}"; do echo "== $e"; "etapa_$e"; checa_disco >/dev/null; done
 echo "OK. Saídas em $OUT ($(du -sh "$OUT" | cut -f1))"

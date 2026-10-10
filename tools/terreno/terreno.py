@@ -34,7 +34,8 @@ PARAMS = dict(
     raio_fundo_curva_m=50,         # fundo = menor cota da bacia a <= 50 m do ponto
     raios_snap_sensibilidade_m=[0, 5, 10, 20],
     vizinhanca="D8 (8 vizinhos)",
-    fill="Priority-Flood (Barnes et al. 2014) sem epsilon; planos drenam pela árvore de descoberta",
+    motor_hidrologia="WhiteboxTools v2.4.0: FillDepressions (exato) para a profundidade; FillDepressions --fix_flats -> D8Pointer -> D8FlowAccumulation (cells) para a área. MOTOR=proprio usa Priority-Flood + D8 próprios (sem download)",
+    regra_snap="pixel de maior acumulação a <= 10 m do ponto (centros de pixel, só válidos); empate: menor distância, depois menor (linha, coluna)",
 )
 
 
@@ -271,6 +272,84 @@ def hidrologia_d8(arr, nd=ND):
     return fill, par.tolist(), ordem, acumulacao(par.tolist(), ordem, arr.size)
 
 
+# ---------------------------------------------------------------- motor de referência: WhiteboxTools
+WBT = f"{OUT}/whitebox/WBT/whitebox_tools"
+# código do ponteiro D8 do WhiteboxTools -> (dy, dx): 1=NE 2=E 4=SE 8=S 16=SW 32=W 64=NW 128=N
+WBT_DIR = {1: (-1, 1), 2: (0, 1), 4: (1, 1), 8: (1, 0), 16: (1, -1), 32: (0, -1), 64: (-1, -1), 128: (-1, 0)}
+
+
+def executa_whitebox(slug, arr, gtw, breach=False):
+    """Roda o WhiteboxTools na janela (arr: com anel nodata; o Whitebox recebe a janela n x n, sem o anel, e portanto a
+    borda da grade é a borda da janela). Passos: FillDepressions (exato) e FillDepressions --fix_flats (só para o
+    D8Pointer, que precisa de gradiente nos planos), D8Pointer, D8FlowAccumulation --out_type=cells. Com breach=True
+    usa BreachDepressionsLeastCost (--dist=500 --fill) no lugar do fill. Retorna dict de arrays com o anel
+    restaurado: fill (exato; None em breach), ptr, acc. Arquivos temporários em OUT/validacao são apagados."""
+    import subprocess
+    if not os.path.exists(WBT):
+        raise SystemExit(f"WhiteboxTools não encontrado em {WBT}; rode: tools/terreno/run.sh whitebox")
+    wd = f"{OUT}/validacao"; os.makedirs(wd, exist_ok=True)
+    n = arr.shape[0] - 2
+    gtn = (gtw[0] + gtw[1], gtw[1], 0, gtw[3] + gtw[5], 0, gtw[5])
+    f_in = f"{wd}/janela_{slug}.tif"
+    # DEFLATE sem predictor: o leitor de GeoTIFF do Whitebox não aceita PREDICTOR=3
+    o = gdal.GetDriverByName("GTiff").Create(f_in, n, n, 1, gdal.GDT_Float32, ["COMPRESS=DEFLATE"])
+    o.SetGeoTransform(gtn); o.SetProjection(srs31985().ExportToWkt())
+    bb = o.GetRasterBand(1); bb.SetNoDataValue(ND); bb.WriteArray(arr[1:-1, 1:-1].astype(np.float32)); o.FlushCache(); o = None
+
+    def wb(*args):
+        subprocess.run([WBT, f"--wd={wd}", *args], check=True, stdout=subprocess.DEVNULL)
+
+    nome = lambda t: f"wbt_{t}_{slug}.tif"
+    if breach:
+        wb("-r=BreachDepressionsLeastCost", f"--dem={os.path.basename(f_in)}", f"-o={nome('fillfix')}", "--dist=500", "--fill")
+    else:
+        wb("-r=FillDepressions", f"--dem={os.path.basename(f_in)}", f"-o={nome('fill')}")
+        wb("-r=FillDepressions", f"--dem={os.path.basename(f_in)}", f"-o={nome('fillfix')}", "--fix_flats")
+    wb("-r=D8Pointer", f"--dem={nome('fillfix')}", f"-o={nome('ptr')}")
+    wb("-r=D8FlowAccumulation", f"-i={nome('ptr')}", f"-o={nome('acc')}", "--pntr", "--out_type=cells")
+    res = {}
+    for t in (["ptr", "acc"] if breach else ["fill", "ptr", "acc"]):
+        d = gdal.Open(f"{wd}/{nome(t)}"); res[t] = d.GetRasterBand(1).ReadAsArray().astype(np.float64); d = None
+    res.setdefault("fill", None)
+    for t in ("fill", "fillfix", "ptr", "acc"):
+        for f in (f"{wd}/{nome(t)}",):
+            if os.path.exists(f): os.remove(f)
+    os.remove(f_in)
+    valido = arr != ND
+    for t in ("fill", "ptr", "acc"):
+        if res[t] is not None:
+            res[t] = np.pad(res[t], 1, constant_values=ND if t == "fill" else 0)
+    res["fill"] = None if res["fill"] is None else np.where(valido, res["fill"], ND)
+    res["acc"] = np.where(valido, res["acc"], 0)
+    res["ptr"] = np.where(valido, res["ptr"], 0)
+    return res
+
+
+def par_do_whitebox(ptr, valido):
+    """Ponteiro D8 do Whitebox (array com anel) -> par (índice flat da célula a jusante; -1 = saída/pit/escoa para
+    fora ou para nodata; -2 = nodata)."""
+    H, W = ptr.shape
+    par = np.full(ptr.shape, -1, dtype=np.int64)
+    idx = np.arange(ptr.size, dtype=np.int64).reshape(ptr.shape)
+    for cod, (dy, dx) in WBT_DIR.items():
+        par = np.where(ptr == cod, idx + dy * W + dx, par)
+    par = par.ravel(); v = valido.ravel()
+    par = np.where(v & (par >= 0) & ~v[np.clip(par, 0, par.size - 1)], -1, par)   # aponta para nodata = saída
+    return np.where(v, par, -2)
+
+
+def hidrologia(arr, gtw, slug):
+    """Hidrologia da janela conforme o motor escolhido (env MOTOR: 'whitebox' = padrão, 'proprio' = Priority-Flood + D8
+    próprios, sem download). Retorna (fill 2D, par list, ordem list, acc 2D inteiro)."""
+    motor = os.environ.get("MOTOR", "whitebox")
+    if motor == "proprio":
+        fill, par, ordem, acc = hidrologia_d8(arr)
+        return fill, par, ordem, np.array(acc).reshape(arr.shape)
+    w = executa_whitebox(slug, arr, gtw)
+    par = par_do_whitebox(w["ptr"], arr != ND)
+    return w["fill"], par.tolist(), ordem_topologica(par), np.rint(w["acc"]).astype(np.int64)
+
+
 def acumulacao(par, ordem, N):
     acc = [1] * N
     for i in reversed(ordem):
@@ -378,10 +457,9 @@ def cmd_atributos():
             r[f"declividade_max_pct_{w_}m"] = round(float(np.nanmax(sl[m])), 3)
             r[f"n_pixels_declividade_{w_}m"] = int(m.sum())
         # hidrologia
-        print(p["slug"], "priority-flood...", flush=True)
-        fill, par, ordem = priority_flood(arr, ND)
+        print(p["slug"], "hidrologia (motor:", os.environ.get("MOTOR", "whitebox") + ")...", flush=True)
+        fill, par, ordem, acc = hidrologia(arr, gtw, p["slug"])
         N = arr.size
-        acc = np.array(acumulacao(par, ordem, N)).reshape(arr.shape)
         # profundidade da depressão
         pl = int(c["lin"]) - yo + 1; pc = int(c["col"]) - xo + 1
         prof = fill[pl, pc] - arr[pl, pc]
@@ -389,16 +467,15 @@ def cmd_atributos():
         r["profundidade_depressao_m"] = round(float(prof), 3)
         r["profundidade_depressao_max_raio5m"] = round(float((fill - arr)[m5].max()), 3)
         r["fill_no_ponto_m"] = round(float(fill[pl, pc]), 3)
-        # área contribuinte: pixel de maior acumulação em raio de snap
-        msn = (dist <= PARAMS["raio_snap_acumulacao_m"]) & valido
-        aa = np.where(msn, acc, -1)
-        ei, ej = np.unravel_index(int(np.argmax(aa)), aa.shape)
-        r["area_contribuinte_m2"] = int(acc[ei, ej] * gt[1] * abs(gt[5]))
-        r["area_contribuinte_pixel_do_ponto_m2"] = int(acc[pl, pc] * gt[1] * abs(gt[5]))
+        # área contribuinte: regra de snap = pixel de maior acumulação a <= raio_snap_acumulacao_m (ver maximo_no_raio)
+        apx = gt[1] * abs(gt[5])
+        amax, ei, ej = maximo_no_raio(acc, valido, dist, PARAMS["raio_snap_acumulacao_m"], pl, pc)
+        r["area_contribuinte_m2"] = int(round(amax * apx))
+        r["area_contribuinte_pixel_do_ponto_m2"] = int(round(acc[pl, pc] * apx))
         for rs in PARAMS["raios_snap_sensibilidade_m"]:
-            aa_ = np.where((dist <= max(rs, 0.5)) & valido, acc, -1)
-            r[f"area_contribuinte_m2_snap{rs}m"] = int(aa_.max() * gt[1] * abs(gt[5]))
+            r[f"area_contribuinte_m2_snap{rs}m"] = int(round(maximo_no_raio(acc, valido, dist, rs, pl, pc)[0] * apx))
         r["snap_dist_m"] = round(float(dist[ei, ej]), 1)
+        r["snap_em_area_preenchida"] = bool(fill[ei, ej] - arr[ei, ej] > 0.001)   # exutório num plano criado pelo fill: roteamento incerto
         r["exutorio_x_utm"] = round(float(X[ej]), 1); r["exutorio_y_utm"] = round(float(Y[ei]), 1)
         r["exutorio_cota_m"] = round(float(arr[ei, ej]), 3)
         bacia = bacia_do_exutorio(par, ordem, N, ei * (n + 2) + ej).reshape(arr.shape)
@@ -444,13 +521,16 @@ def cmd_atributos():
         voo="PE3D 2016 (MDT 1 m)", crs="EPSG:31985 (SIRGAS 2000 / UTM 25S)", cota="ortométrica (datum vertical do MDT); NÃO comparável à maré (NR/DHN) sem ADR de referência vertical",
         nodata=ND, parametros=PARAMS,
         software=dict(gdal=gdal.__version__, numpy=np.__version__, python=sys.version.split()[0],
-                      imagem=os.environ.get("GDAL_IMAGE", "desconhecida")),
+                      imagem=os.environ.get("GDAL_IMAGE", "desconhecida"),
+                      whitebox=(open(f"{OUT}/whitebox/versao.txt").read().strip() if os.path.exists(f"{OUT}/whitebox/versao.txt") else None),
+                      whitebox_sha256_binario=(open(f"{OUT}/whitebox/binario.sha256").read().split()[0] if os.path.exists(f"{OUT}/whitebox/binario.sha256") else None),
+                      motor_hidrologia=os.environ.get("MOTOR", "whitebox")),
         folhas=[r["folha"] for r in csv.DictReader(open(f"{OUT}/inventario.csv", encoding="utf-8"))],
         colunas=cols,
         definicoes=dict(
             cota_rua_m="mediana do MDT nos pixels (válidos) cujo centro está a <= raio do ponto; colunas _raio3m e _raio5m",
             declividade_media_pct="média de gdaldem slope -p (Horn, computeEdges=False) nos pixels dentro de janela quadrada de lado 50 m / 100 m centrada no ponto",
-            area_contribuinte_m2="acumulação D8 (nº de células x 1 m²) sobre o fill Priority-Flood da janela; pixel de maior acumulação em raio de snap de 10 m",
+            area_contribuinte_m2="acumulação D8 do WhiteboxTools (nº de células x área do pixel) sobre o DEM preenchido da janela; valor do pixel de maior acumulação a <= 10 m do ponto (regra de snap em docs/TERRENO-PE3D.md, seção 5.1)",
             profundidade_depressao_m="fill - MDT no pixel que contém o ponto",
             bacia="células cujo caminho D8 passa pelo exutório; fundo = célula de menor cota da bacia a <= 50 m do ponto",
             curva_cota_volume="V(z) = soma (z - cota) das células da bacia conectadas (8-vizinhos, caminho com cota < z) ao fundo; z = fundo + k*5 cm, k=0..40; m3_por_cm = dV/(5 cm)",
@@ -458,37 +538,27 @@ def cmd_atributos():
     json.dump(meta, open(f"{OUT}/ponto_terreno.meta.json", "w"), indent=2, ensure_ascii=False)
 
 
-# ---------------------------------------------------------------- janelas p/ validação
-def cmd_janelas():
-    """Grava a janela de hidrologia (2 km + anel de 1 px nodata) de cada ponto coberto em
-    validacao/janela_<slug>.tif (Float32, EPSG:31985), a entrada idêntica à do Priority-Flood para o WhiteboxTools."""
-    os.makedirs(f"{OUT}/validacao", exist_ok=True)
-    ds, gt = vrt_info(); b = ds.GetRasterBand(1); Wm, Hm = ds.RasterXSize, ds.RasterYSize
-    cob = {r["slug"]: r for r in csv.DictReader(open(f"{OUT}/cobertura.csv", encoding="utf-8"))}
-    for p in le_pontos():
-        if cob[p["slug"]]["pixel_valido"] != "True": continue
-        n, xo, yo, arr, gtw = le_janela(b, gt, p, Wm, Hm)
-        gtn = (gtw[0] + gtw[1], gtw[1], 0, gtw[3] + gtw[5], 0, gtw[5])      # sem o anel: a borda da grade é a saída, como no Priority-Flood
-        o = gdal.GetDriverByName("GTiff").Create(f"{OUT}/validacao/janela_{p['slug']}.tif", n, n, 1, gdal.GDT_Float32,
-                                                 ["COMPRESS=DEFLATE"])
-        o.SetGeoTransform(gtn); o.SetProjection(srs31985().ExportToWkt())
-        bb = o.GetRasterBand(1); bb.SetNoDataValue(ND); bb.WriteArray(arr[1:-1, 1:-1].astype(np.float32)); o.FlushCache(); o = None
-        print("janela", p["slug"], n, flush=True)
-
-
 # ---------------------------------------------------------------- validação x WhiteboxTools
 def hidro_arvore(arr):
-    """Método legado: acumulação sobre a árvore de descoberta do Priority-Flood. Retorna (fill, acc 2D)."""
+    """Método legado: acumulação sobre a árvore de descoberta do Priority-Flood. Retorna (fill, acc 2D, par 2D)."""
     fill, par, ordem = priority_flood(arr, ND)
-    return fill, np.array(acumulacao(par, ordem, arr.size)).reshape(arr.shape)
+    return fill, np.array(acumulacao(par, ordem, arr.size)).reshape(arr.shape), np.array(par).reshape(arr.shape)
 
 
-METODOS = {"arvore_pf": hidro_arvore}
+def hidro_d8(arr):
+    """Método próprio atual: Priority-Flood + D8 de máxima declividade. Retorna (fill, acc 2D, par 2D)."""
+    fill, par, ordem, acc = hidrologia_d8(arr)
+    return fill, np.array(acc).reshape(arr.shape), np.array(par).reshape(arr.shape)
+
+
+METODOS_PROPRIOS = {"arvore_pf": hidro_arvore, "d8_pf": hidro_d8}
+BORDA_PX = 300   # fill do Whitebox sobe células de borda (não as trata como saída); estatísticas "internas" ignoram 300 px
 
 
 def maximo_no_raio(acc, valido, dist, raio, pl, pc):
-    """Pixel de maior acumulação a <= raio do ponto (raio 0 = só o pixel que contém o ponto). Desempate: menor
-    distância ao ponto e depois menor (linha, coluna), para ser determinístico. Retorna (acc, linha, coluna)."""
+    """REGRA DE SNAP. Pixel de maior acumulação a <= raio (m) do ponto, centros de pixel, só pixels válidos.
+    raio 0 = o pixel que contém o ponto. Desempate: menor distância ao ponto, depois menor (linha, coluna), para a saída
+    ser determinística. Retorna (acc, linha, coluna)."""
     if raio <= 0:
         return int(acc[pl, pc]), pl, pc
     m = (dist <= raio) & valido
@@ -500,52 +570,62 @@ def maximo_no_raio(acc, valido, dist, raio, pl, pc):
 
 
 def cmd_validar():
-    """Compara a hidrologia própria com a do WhiteboxTools (FillDepressions --fix_flats, D8Pointer, D8FlowAccumulation)
-    nas janelas de 2 km de validacao/. Saídas: validacao_whitebox.csv e validacao_whitebox.json."""
-    ds, gt = vrt_info()
+    """Compara a hidrologia própria (Priority-Flood + árvore; Priority-Flood + D8) e o Whitebox com breaching com a do
+    WhiteboxTools de referência (FillDepressions, D8Pointer, D8FlowAccumulation) nas janelas de 2 km.
+    Saídas: validacao_whitebox.csv e validacao_whitebox.json."""
+    ds, gt = vrt_info(); b = ds.GetRasterBand(1); Wm, Hm = ds.RasterXSize, ds.RasterYSize
     cob = {r["slug"]: r for r in csv.DictReader(open(f"{OUT}/cobertura.csv", encoding="utf-8"))}
     rows = []
     for p in le_pontos():
         c = cob[p["slug"]]
         if c["pixel_valido"] != "True": continue
         s = p["slug"]
-        def le(nome):
-            o = gdal.Open(f"{OUT}/validacao/{nome}_{s}.tif"); return o.GetRasterBand(1).ReadAsArray().astype(np.float64), o.GetGeoTransform()
-        arr, gtn = le("janela"); wfill, _ = le("wbt_fill"); wacc, _ = le("wbt_acc")
-        arr = np.pad(arr, 1, constant_values=ND); wfill = np.pad(wfill, 1, constant_values=ND); wacc = np.pad(wacc, 1, constant_values=0)
-        gtw = (gtn[0] - gtn[1], gtn[1], 0, gtn[3] - gtn[5], 0, gtn[5])
+        n, xo, yo, arr, gtw = le_janela(b, gt, p, Wm, Hm)
         valido = arr != ND
-        wfill = np.where(valido, wfill, ND); wacc = np.where(valido, wacc, 0)
-        n = arr.shape[0] - 2
-        xo = int(round((gtw[0] - gt[0]) / gt[1])) + 1; yo = int(round((gtw[3] - gt[3]) / gt[5])) + 1
         pl = int(c["lin"]) - yo + 1; pc = int(c["col"]) - xo + 1
         X = gtw[0] + (np.arange(n + 2) + 0.5) * gtw[1]; Y = gtw[3] + (np.arange(n + 2) + 0.5) * gtw[5]
         XX, YY = np.meshgrid(X, Y); dist = np.hypot(XX - p["x"], YY - p["y"])
-        for nome, fn in METODOS.items():
-            fill, acc = fn(arr)
+        interno = np.zeros(arr.shape, bool); interno[BORDA_PX + 1:-BORDA_PX - 1, BORDA_PX + 1:-BORDA_PX - 1] = True
+        print(s, "whitebox...", flush=True)
+        W_ = executa_whitebox(s, arr, gtw); B_ = executa_whitebox(s, arr, gtw, breach=True)
+        wfill, wacc = W_["fill"], W_["acc"]
+        pw = par_do_whitebox(W_["ptr"], valido)
+        cands = {nome: fn(arr) for nome, fn in METODOS_PROPRIOS.items()}
+        cands["whitebox_breach"] = (None, B_["acc"], par_do_whitebox(B_["ptr"], valido).reshape(arr.shape))
+        for nome, (fill, acc, par) in cands.items():
             r = dict(slug=s, metodo=nome)
-            r["prof_depressao_propria_m"] = round(float(fill[pl, pc] - arr[pl, pc]), 4)
             r["prof_depressao_whitebox_m"] = round(float(wfill[pl, pc] - arr[pl, pc]), 4)
-            dif = np.abs(np.where(valido, fill - wfill, 0))
-            r["fill_dif_max_m"] = round(float(dif.max()), 4)
-            r["fill_celulas_dif_gt_1cm"] = int((dif > 0.01).sum())
-            r["celulas_preenchidas_proprio"] = int(((fill - arr > 0.001) & valido).sum())
             r["celulas_preenchidas_whitebox"] = int(((wfill - arr > 0.001) & valido).sum())
-            la = np.log10(np.maximum(acc[valido], 1)); lw = np.log10(np.maximum(wacc[valido], 1))
-            r["log10_acc_correlacao_janela"] = round(float(np.corrcoef(la, lw)[0, 1]), 5)
-            r["celulas_acc_ge_1000_proprio"] = int((acc[valido] >= 1000).sum())
-            r["celulas_acc_ge_1000_whitebox"] = int((wacc[valido] >= 1000).sum())
+            if fill is not None:
+                r["prof_depressao_metodo_m"] = round(float(fill[pl, pc] - arr[pl, pc]), 4)
+                dif = np.abs(np.where(valido, fill - wfill, 0))
+                r["fill_dif_max_janela_m"] = round(float(dif.max()), 4)
+                r["fill_dif_max_interno_m"] = round(float(dif[interno].max()), 4)
+                r["fill_celulas_dif_gt_1cm_interno"] = int((dif[interno] > 0.01).sum())
+                r["celulas_preenchidas_metodo"] = int(((fill - arr > 0.001) & valido).sum())
+            sel = valido & interno
+            r["log10_acc_correlacao_interna"] = round(float(np.corrcoef(np.log10(np.maximum(acc[sel], 1)), np.log10(np.maximum(wacc[sel], 1)))[0, 1]), 5)
+            r["celulas_acc_ge_1000_metodo"] = int((acc[sel] >= 1000).sum())
+            r["celulas_acc_ge_1000_whitebox"] = int((wacc[sel] >= 1000).sum())
+            pp = par.ravel(); pwr = pw.ravel()
+            if fill is not None:     # concordância de direção fora de planos (célula com vizinho estritamente mais baixo no fill do método)
+                fl = fill.ravel()
+                it = sel.ravel() & (pp >= 0) & (pwr >= 0)
+                npl = it & (fl - fl[np.where(pp >= 0, pp, 0)] > 0)
+                r["celulas_nao_plano"] = int(npl.sum())
+                r["direcao_concordancia_nao_plano_pct"] = round(100 * float((pp[npl] == pwr[npl]).mean()), 3)
             for rs in PARAMS["raios_snap_sensibilidade_m"]:
                 a1, l1, c1 = maximo_no_raio(acc, valido, dist, rs, pl, pc)
                 a2, l2, c2 = maximo_no_raio(wacc, valido, dist, rs, pl, pc)
-                r[f"acc_snap{rs}m_proprio"] = a1; r[f"acc_snap{rs}m_whitebox"] = a2
+                r[f"acc_snap{rs}m_metodo"] = a1; r[f"acc_snap{rs}m_whitebox"] = a2
                 r[f"acc_snap{rs}m_dif_abs"] = a1 - a2
                 r[f"acc_snap{rs}m_dif_rel_pct"] = round(100 * (a1 - a2) / max(a2, 1), 2)
                 r[f"acc_snap{rs}m_mesmo_pixel"] = (l1, c1) == (l2, c2)
                 r[f"acc_snap{rs}m_dist_pixels_m"] = round(float(math.hypot(l1 - l2, c1 - c2)), 1)
             rows.append(r)
-            print({k: r[k] for k in ("slug", "metodo", "prof_depressao_propria_m", "prof_depressao_whitebox_m", "fill_dif_max_m",
-                                     "log10_acc_correlacao_janela", "acc_snap10m_proprio", "acc_snap10m_whitebox")}, flush=True)
+            print({k: r.get(k) for k in ("slug", "metodo", "prof_depressao_metodo_m", "prof_depressao_whitebox_m", "fill_dif_max_interno_m",
+                                         "direcao_concordancia_nao_plano_pct", "log10_acc_correlacao_interna",
+                                         "acc_snap10m_metodo", "acc_snap10m_whitebox")}, flush=True)
     cols = []
     for r in rows:
         for k in r:
@@ -553,8 +633,10 @@ def cmd_validar():
     write_csv(f"{OUT}/validacao_whitebox.csv", rows, cols)
     wbt_v = open(f"{OUT}/whitebox/versao.txt").read().strip() if os.path.exists(f"{OUT}/whitebox/versao.txt") else ""
     wbt_h = open(f"{OUT}/whitebox/binario.sha256").read().split()[0] if os.path.exists(f"{OUT}/whitebox/binario.sha256") else ""
-    json.dump(dict(whitebox=wbt_v, sha256_binario_whitebox=wbt_h, ferramentas="FillDepressions --fix_flats; D8Pointer; D8FlowAccumulation --pntr --out_type=cells",
-                   raios_snap_m=PARAMS["raios_snap_sensibilidade_m"], linhas=rows),
+    json.dump(dict(whitebox=wbt_v, sha256_binario_whitebox=wbt_h,
+                   ferramentas="FillDepressions; FillDepressions --fix_flats -> D8Pointer; D8FlowAccumulation --pntr --out_type=cells; "
+                               "breach: BreachDepressionsLeastCost --dist=500 --fill",
+                   raios_snap_m=PARAMS["raios_snap_sensibilidade_m"], borda_ignorada_px=BORDA_PX, linhas=rows),
               open(f"{OUT}/validacao_whitebox.json", "w"), indent=1, ensure_ascii=False)
 
 
@@ -624,4 +706,4 @@ def cmd_estimativas():
 
 if __name__ == "__main__":
     {"inventario": cmd_inventario, "cobertura": cmd_cobertura, "atributos": cmd_atributos,
-     "comparar": cmd_comparar, "janelas": cmd_janelas, "validar": cmd_validar, "estimativas": cmd_estimativas}[sys.argv[1]]()
+     "comparar": cmd_comparar, "validar": cmd_validar, "estimativas": cmd_estimativas}[sys.argv[1]]()
