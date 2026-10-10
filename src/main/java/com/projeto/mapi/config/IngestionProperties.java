@@ -33,6 +33,9 @@ public class IngestionProperties {
     /** Atraso (dias) até o qual o archive costuma ter dados; o fim da janela é limitado a hoje - atraso. */
     private int openMeteoArchiveLagDays = 2;
 
+    /** Atraso (dias) do ERA5-Land: "Daily with 5 days delay" (Open-Meteo, 2026-10-10) + 1 de folga. */
+    private int era5LandLagDays = 6;
+
     /** Raio (m) do vínculo ocorrência-ponto quando não há linkage_config gravado. Padrão 500 m: decisão do autor, pergunta 25, 2026-10-10
      * (o config de 3 km da V6 permanece, sem apagar casamentos antigos). */
     private double occurrenceRadiusM = 500.0;
