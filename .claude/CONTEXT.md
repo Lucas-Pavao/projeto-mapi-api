@@ -45,3 +45,10 @@ hypertables, EXPLAIN — nenhum container do banco estava rodando.
   engano um volume vazio (removido em 2026-10-10 após conferir 0 tabelas).
 - Banco local agora tem V1–V10 e a primeira carga (snapshot pré-migração `35dccf45…`).
 - CKAN é 100% precisão DAY → regra prévia troca a tarefa principal para a diária (corte 06:00).
+
+## Acréscimo 2026-10-10 (fim das Fases 2 e 3)
+- Ler só: `docs/HANDOFF-fase-2.md`, `docs/HANDOFF-fase-3.md`, `docs/handoff/fase-{2,3}.json`,
+  `docs/MODELAGEM-IA.md` e `docs/MEMO-ESCASSEZ-DE-ROTULO.md`.
+- Integração: `integracao/fase-2` @ e27755b (worktree no scratchpad `wt-integ`), V1–V13, 218 testes.
+- Bloqueio central: pergunta 28 (F1 físico+emulador × F2 rótulo ampliado). Sem ela, a Fase 4 não começa.
+- Autorização durável do Lucas para implementar/decidir no escopo; registrar tudo aqui e no PROGRESSO.
