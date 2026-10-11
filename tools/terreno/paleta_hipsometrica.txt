@@ -1,0 +1,11 @@
+# Paleta hipsometrica do MAPi (gdaldem color-relief; interpolacao linear em RGB). Cota do MDT em metros, datum nao confirmado (ADR 0009).
+# FONTE UNICA: o front repete estes valores em src/features/map/utils/terrain.ts (TERRAIN_COLOR_STOPS); mudou aqui, mude la e regenere os tiles.
+# Acima de 20 m a cor satura (a legenda diz "20+"). Abaixo de 0 m usa a primeira cor. nodata (-9999) fica transparente.
+0 246 208 77 255
+2 249 160 63 255
+4 242 107 56 255
+6 217 63 91 255
+9 168 50 125 255
+13 106 44 145 255
+20 46 42 122 255
+nv 0 0 0 0
