@@ -145,6 +145,7 @@
 | F5-REV-01 | 5 | Revisor | Máximo | `docs/REVISAO-CRITICA.md` | concluido | f403674 | 2026-10-10 · subagente Opus (Máximo) · `docs/REVISAO-CRITICA.md` · 25 contestações (5 críticas, 14 importantes, 6 desejáveis; 14 afetam a dissertação) · tratadas de imediato: RC-01 (dump pós-carga 24aa31ce…), RC-02 (push das branches), RC-04 (texto do handoff corrigido), RC-05 (opção G no memorando) · ressalva do próprio revisor: mesma família de modelo dos checkpoints, não substitui o orientador |
 | F5-ACAD-01 | 5 | Acadêmico | Máximo | `docs/PRONTIDAO-ACADEMICA.md` | pendente | | |
 | F5-REV-02 | 5 | Arquiteto | Equilibrado | Responder as demais contestações da REVISAO-CRITICA (RC-03 riskLevel sem origem/codeVersion "unknown"; medidas antes/depois não comparáveis; ADR 0005 sem ST_* no código; ArchUnit ausente; checkpoints sem pareceres guardados etc.) | pendente | | |
+| F5-OPS-02 | 5 | Arquiteto | Rápido | Enviar ao GitHub as branches por tema (RC-02) | bloqueado | `integracao/fase-2` enviada (2026-10-10) | 2026-10-10 · Opus · a `integracao/fase-2` (todo o código integrado, 80 commits) está no remoto; o envio em lote das outras 24 branches por tema foi negado pelo controle de permissões do Claude Code — depende do Lucas (rodar o push ou liberar a permissão) |
 | F5-ARQ-01 | 5 | Arquiteto | Máximo | `docs/ARQUITETURA.md` ×3 e `docs/ROADMAP-REVISAO.md` | pendente | | |
 | F5-ARQ-02 | 5 | Arquiteto | Máximo | `docs/RELATORIO-REVISAO.md` e PRs finais | pendente | | |
 
@@ -163,6 +164,7 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | F4-PED-01 | Limiares MEDIUM/HIGH | resposta da Defesa Civil ao pedido 04 (envio pelo Lucas) | 2026-10-10 |
 | F4-PED-02 | Baseline da rede de Petri | export da Petri pelo autor no formato da MODELAGEM-IA A.3.8 | 2026-10-10 |
 | (resolvido) F2-BACK-15 | Umidade do solo ERA5-Land no pipeline | V10 aprovada pela autorização durável | 2026-10-10 |
+| F5-OPS-02 | 24 branches por tema só locais | o Lucas rodar `! git push origin --all` no projeto-mapi-api (ou liberar a permissão de push) | 2026-10-10 |
 
 ## Perguntas pendentes para o Lucas
 | # | Pergunta | Desde | Impacto se não responder |
