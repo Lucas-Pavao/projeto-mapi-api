@@ -450,6 +450,22 @@ Itens de engenharia e de integridade de método, que não mudam a pergunta da di
 
 Ficam com o autor (e, onde indicado, com o orientador): 1, 2, 3, 4, 5, 6, 10, 11, 13, 14.
 
+
+## 6. Opção acrescentada após a revisão crítica (RC-05, 2026-10-10)
+
+A REVISAO-CRITICA aponta que a recomendação F1 traz o argumento "aproveita o que é próprio do autor" (viés de
+salvar o trabalho feito) e que parametrizar o modelo físico sem olhar rótulos pode ser inviável: a área
+contribuinte do Ibura varia de 4 a 10 880 m² com o raio de snap, e galeria e soleira não têm fonte. Fica
+acrescentada, para decisão do autor e do orientador, a opção:
+
+- **(G) Dissertação de dados auditáveis + resultado negativo honesto:** a contribuição principal passa a ser o
+  pipeline rastreável (proveniência, fuso verificado, maré oficial reconstruída, terreno reprodutível) e a
+  demonstração quantitativa de que o rótulo público disponível (18 dias/5 anos, nível de bairro) não sustenta um
+  classificador nem uma validação de modelo físico por ponto, com o que seria necessário (n mínimo, resolução) para
+  que sustentasse. Baixo risco de banca se bem enquadrada; não exige parâmetros sem fonte.
+
+Ela deve ser comparada a F1 e F2 sem o critério "aproveitamento do trabalho feito".
+
 ---
 
 ## Apêndice A — Contas binomiais
