@@ -179,6 +179,14 @@ Propriedade verificada por teste (seção 10, T1/T5): rodar o mesmo `[t0, t1]` d
 | CKAN Recife | `America/Recife` | data sem hora: intervalo `[00:00, 24:00)` local, precisão `DAY`; com hora: instante, precisão `HOUR` | decidido |
 | Relógio do sistema | `UTC` | `Clock` injetado e `Instant.now()`; proibido `LocalDateTime.now()` na ingestão | ADR 0001 |
 
+**Resultado da verificação (F2-DADOS-07, 2026-10-10; `docs/revisao/fase-2/F2-DADOS-07.md`; critério pré-fixado no commit 5b01ee2):**
+
+| Fonte | Resultado | Evidência | Estado |
+|---|---|---|---|
+| CEMADEN (espelho APAC, endpoint `/cemaden/`) | `America/Recife` (UTC−3) | teste do relógio: 328 leituras ao vivo, 47 estações, atraso mediano 3,8 min; −3 h foi a única das 13 hipóteses viável | **VERIFIED** (V13 + REVALIDATE: 8 099 observações, 0 em quarentena). O Cemaden direto (`resources.cemaden.gov.br`) rotula em UTC (1 amostra) — a regra vale só para o espelho APAC |
+| ANA_SOAP | **reprovada no critério** | correlação com Open-Meteo em 4 estações, 555 737 linhas brutas 2021–2026: argmax em −4 h nas 4 (fisicamente implausível), margem sobre −3 h ≤ 0,009; UTC rejeitado nas 4. Teste do relógio pós-hoc (7 estações) coerente com −3 h, mas abaixo do poder mínimo | **continua `UNVERIFIED` (quarentena)**. Decisão do Arquiteto: não aplicar −3 h por ser escolha posterior ao resultado; reabrir com novo teste pré-fixado sobre leituras ao vivo acumuladas (≥ 200) |
+| APAC_METEO24H | sem poder | o endpoint só devolve ~24 h; 11 leituras de 2 estações (mínimo 200/20) | continua `UNVERIFIED` |
+
 `UNVERIFIED` é um estado de primeira classe: força a verificação antes de a fonte entrar na série consolidada, em vez de herdar um palpite. O bruto dessas fontes é guardado desde já; quando a verificação sair, `REVALIDATE` consolida o que ficou em quarentena.
 
 **Dados de desenvolvimento existentes (555 leituras de sensor, 40 de clima, 2026-09-05 a 2026-10-01; fonte: snapshot).** Opções, para o autor escolher:
