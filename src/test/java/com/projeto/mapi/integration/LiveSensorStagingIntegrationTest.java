@@ -47,19 +47,24 @@ class LiveSensorStagingIntegrationTest extends AbstractIngestionTest {
     }
 
     @Test
-    void t9_fusoUnverifiedVaiParaQuarentenaENenhumaObservacaoEhConsolidada() throws Exception {
+    void t9_fusoNaoVerificadoVaiParaQuarentena_eCemadenVerificadoConsolida() throws Exception {
         assertThat(staging.stage("ANA_SOAP", List.of(ana()))).isEqualTo(1);
         assertThat(staging.stage("CEMADEN", List.of(cemaden()))).isEqualTo(1);
         assertThat(staging.stage("APAC_METEO24H", List.of(meteo()))).isEqualTo(1);
 
         assertThat(count("SELECT count(*) FROM raw_observation")).isEqualTo(3);
         assertThat(count("SELECT count(DISTINCT source) FROM raw_observation")).isEqualTo(3);
-        assertThat(count("SELECT count(*) FROM raw_observation WHERE source_tz = 'UNVERIFIED'")).isEqualTo(3);
+        // ANA e APAC meteorologia24h seguem UNVERIFIED (F2-DADOS-07 não as aprovou): quarentena TZ_UNVERIFIED
+        assertThat(count("SELECT count(*) FROM raw_observation WHERE source_tz = 'UNVERIFIED'")).isEqualTo(2);
         assertThat(count("SELECT count(*) FROM ingestion_quarantine WHERE reason = 'TZ_UNVERIFIED' AND resolved_at IS NULL"))
-                .isEqualTo(3);
-        assertThat(count("SELECT count(*) FROM observation")).isZero();
+                .isEqualTo(2);
+        assertThat(count("SELECT count(*) FROM observation WHERE source IN ('ANA_SOAP', 'APAC_METEO24H')")).isZero();
+        // CEMADEN foi verificado (V13, UTC-3): 11:10 local = 14:10Z, consolidado sem quarentena
+        assertThat(count("SELECT count(*) FROM raw_observation WHERE source = 'CEMADEN' AND source_tz = 'America/Recife'")).isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT ts_utc FROM observation WHERE source = 'CEMADEN' AND variable = 'precipitation'",
+                java.sql.Timestamp.class).toInstant()).isEqualTo(java.time.Instant.parse("2026-10-10T14:10:00Z"));
         assertThat(count("SELECT count(*) FROM ingestion_run WHERE kind = 'LIVE' AND status = 'OK' AND quarantined = 1"))
-                .isEqualTo(3);
+                .isEqualTo(2);
     }
 
     @Test
@@ -87,14 +92,20 @@ class LiveSensorStagingIntegrationTest extends AbstractIngestionTest {
 
     @Test
     void depoisDeVerificarOFusoORevalidateConsolidaOBruto() throws Exception {
-        staging.stage("CEMADEN", List.of(cemaden()));
+        // volta ao estado anterior à V13 para reproduzir o caminho real: bruto em quarentena e depois REVALIDATE
+        setTz("ANA_SOAP", "UNVERIFIED", "UNVERIFIED");
+        // só chuva: o nível da ANA vem sem unidade (cm) e fica fora da faixa em m do catálogo, assunto à parte do fuso
+        staging.stage("ANA_SOAP", List.of(mapper.readTree("""
+                {"codigo":"39187998","Data_Hora_Medicao":"2026-10-10 11:00:00","Chuva_Adotada":"2,5"}""")));
         assertThat(count("SELECT count(*) FROM observation")).isZero();
-        // F2-DADOS-07 (simulada): fuso verificado => REVALIDATE do bruto, sem rebuscar na fonte
-        setTz("CEMADEN", "UTC", "DECLARED");
-        var run = revalidate("CEMADEN", java.time.Instant.parse("2026-10-10T00:00:00Z"), java.time.Instant.parse("2026-10-11T00:00:00Z"));
+        assertThat(count("SELECT count(*) FROM ingestion_quarantine WHERE resolved_at IS NULL")).isEqualTo(1);
+        // fuso verificado => REVALIDATE do bruto, sem rebuscar na fonte (11:00 UTC-3 = 14:00Z)
+        setTz("ANA_SOAP", "America/Recife", "VERIFIED");
+        var run = revalidate("ANA_SOAP", java.time.Instant.parse("2026-10-10T00:00:00Z"), java.time.Instant.parse("2026-10-11T00:00:00Z"));
         assertThat(run.status()).isEqualTo("OK");
-        assertThat(count("SELECT count(*) FROM observation WHERE source = 'CEMADEN' AND variable = 'precipitation'")).isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT ts_utc FROM observation WHERE source = 'ANA_SOAP' AND variable = 'precipitation'",
+                java.sql.Timestamp.class).toInstant()).isEqualTo(java.time.Instant.parse("2026-10-10T14:00:00Z"));
         assertThat(count("SELECT count(*) FROM ingestion_quarantine WHERE resolved_at IS NULL")).isZero();
-        setTz("CEMADEN", "UNVERIFIED", "UNVERIFIED");
+        setTz("ANA_SOAP", "UNVERIFIED", "UNVERIFIED");
     }
 }

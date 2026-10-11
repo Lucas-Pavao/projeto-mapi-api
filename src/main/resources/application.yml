@@ -77,8 +77,9 @@ app:
       # 30s evita contar como falha um login lento porém válido.
       ana:
         read-timeout: 30s
+      # Série de 15 min de um mês inteiro (~1 MB de XML) pelo serviço legado (F2-DADOS-07).
       ana-historical:
-        read-timeout: 30s
+        read-timeout: 120s
       # TabuaMare já é limitada por rate limiter (15/min); resposta é JSON pequeno.
       tabua-mare:
         read-timeout: 10s
