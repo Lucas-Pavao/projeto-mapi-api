@@ -52,6 +52,8 @@
 | 2026-10-11 | Limiar primário da regra de chuva = IDF publicada (TR 2 anos, 60 min; 47–55 mm/h), independente dos rótulos; estudo de congresso 2016–2025 só como verificação (sobrepõe rótulos) | — (PRE-REGISTRO) | Arquiteto (autorizado) |
 | 2026-10-11 | **Rede de Petri fora do escopo atual** (não está pronta): H3, H4, M2 e emulador retirados da avaliação por emenda pré-junção; voltam só por novo pré-registro | — (PRE-REGISTRO, emenda) | Lucas |
 | 2026-10-11 | Etapa 2 autorizada (pergunta 30); reavaliação do fuso da ANA autorizada. Se a ANA passar, a análise com pluviômetro é uma 2ª análise pré-registrada, declarada como posterior à junção da 1ª, com os mesmos parâmetros congelados | — | Lucas / Arquiteto |
+| 2026-10-11 | Lucas aprovou todos os itens da tabela de pendências. Exceção mantida pelo Arquiteto: os 5 pedidos institucionais não são enviados em nome do autor (exigem dados e envio dele) | — | Lucas |
+| 2026-10-11 | Front: WIP do Lucas + patches de agentes preservados no commit 25640e2 da branch `wip/preservacao-2026-10-11` (enviada ao GitHub); branches temporárias `worktree-agent-*` removidas do remoto (16) | — | Arquiteto (aprovado) |
 
 ## Tarefas
 | ID | Fase | Agente | Nível | Tarefa | Status | PR/commit | Resultado em uma linha |
