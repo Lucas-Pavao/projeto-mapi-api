@@ -1,6 +1,11 @@
 package com.projeto.mapi.config;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.info.GitProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,8 +20,38 @@ public class IngestionProperties {
     /** Versão do conjunto de regras de validação gravada em cada observação e quarentena. */
     private String ruleVersion = "2026.10.2";
 
-    /** Commit do backend (variável de build GIT_COMMIT); "unknown" quando não informado. */
-    private String codeVersion = "unknown";
+    /** Fallback explícito (nunca silencioso) quando o build não trouxe git.properties nem override. */
+    public static final String NO_GIT = "unknown-build-without-git";
+
+    /**
+     * Override manual de {@code mapi.ingestion.code-version}. Normalmente vazio: a versão vem do
+     * {@code git.properties} gerado no build (ver {@link #getCodeVersion()}).
+     */
+    private String codeVersion;
+
+    @Setter(AccessLevel.NONE)
+    @Getter(AccessLevel.NONE)
+    private GitProperties gitProperties;
+
+    @Autowired(required = false)
+    void injectGitProperties(GitProperties gitProperties) {
+        this.gitProperties = gitProperties;
+    }
+
+    /**
+     * Versão do código em uso: override explícito, senão o commit completo do {@code git.properties}
+     * (sufixo {@code -dirty} se havia alterações não commitadas no build), senão {@link #NO_GIT}.
+     */
+    public String getCodeVersion() {
+        if (codeVersion != null && !codeVersion.isBlank()) {
+            return codeVersion;
+        }
+        if (gitProperties != null && gitProperties.getCommitId() != null && !gitProperties.getCommitId().isBlank()) {
+            boolean dirty = "true".equalsIgnoreCase(gitProperties.get("dirty"));
+            return gitProperties.getCommitId() + (dirty ? "-dirty" : "");
+        }
+        return NO_GIT;
+    }
 
     /** Valores sentinela de "sem dado" reprovados como SENTINEL ([sem fonte]: convenção comum de agências). */
     private List<Double> sentinels = List.of(-9999.0, -999.0);

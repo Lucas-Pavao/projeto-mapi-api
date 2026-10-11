@@ -144,6 +144,12 @@
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.tngtech.archunit</groupId>
+			<artifactId>archunit-junit5</artifactId>
+			<version>1.4.1</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -158,6 +164,30 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<!-- Rastreabilidade (RC-03): gera target/classes/git.properties com commit, estado sujo/limpo e data do build.
+				     O Spring Boot expõe em /actuator/info e IngestionProperties usa em codeVersion (manifesto do export,
+				     ingestion_run). Sem .git (build em Docker) o plugin não falha: o Dockerfile grava o git.properties
+				     a partir do build-arg GIT_COMMIT. -->
+				<groupId>io.github.git-commit-id</groupId>
+				<artifactId>git-commit-id-maven-plugin</artifactId>
+				<version>9.0.1</version>
+				<configuration>
+					<generateGitPropertiesFile>true</generateGitPropertiesFile>
+					<generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+					<useNativeGit>true</useNativeGit>
+					<failOnNoGitDirectory>false</failOnNoGitDirectory>
+					<failOnUnableToExtractRepoInfo>false</failOnUnableToExtractRepoInfo>
+					<includeOnlyProperties>
+						<includeOnlyProperty>^git.branch$</includeOnlyProperty>
+						<includeOnlyProperty>^git.commit.id$</includeOnlyProperty>
+						<includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
+						<includeOnlyProperty>^git.commit.time$</includeOnlyProperty>
+						<includeOnlyProperty>^git.dirty$</includeOnlyProperty>
+						<includeOnlyProperty>^git.build.time$</includeOnlyProperty>
+					</includeOnlyProperties>
 				</configuration>
 			</plugin>
 			<plugin>

@@ -142,6 +142,8 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
         assertThat(export.manifest().datasetId()).isEqualTo(com.projeto.mapi.service.ingestion.Hashing.sha256(export.csv()));
         assertThat(export.manifest().timezone()).isEqualTo("UTC");
         assertThat(export.manifest().missingPolicy()).contains("Sem imputação").contains("_missing");
+        // RC-03: a versão do código vem do arquivo de build com o commit; nunca "unknown" quando ele existe.
+        assertThat(export.manifest().codeVersion()).isNotBlank().doesNotStartWith("unknown");
         assertThat(export.manifest().missingCounts().get("weatherTemperature")).isEqualTo(24);
         assertThat(export.manifest().provenance()).anySatisfy(p -> {
             assertThat(p.variable()).isEqualTo("precipitation");
