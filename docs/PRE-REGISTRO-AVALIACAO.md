@@ -4,6 +4,7 @@
 - Desenho: `docs/MODELAGEM-IA.md` §0–11 (abaixo, "MODELAGEM"). Parâmetros: `docs/PARAMETROS-MODELO-FISICO.md` (abaixo,
   "PARAMETROS").
 - **Commit do pré-registro:** `77e41dea4533a05288d53c4e0140a6a3ba1512f9` (2026-10-11, branch `revisao/fase-0`). Qualquer alteração posterior é **emenda**, registrada na seção de emendas com data e motivo, e só vale se feita antes da etapa de junção com os rótulos.
+- **Escores cegos da etapa 1 (congelados antes da junção):** `avaliacao-f1/escores_cegos.csv` SHA-256 `4615d416e788729a7e5d5b34b1e4df8abff84cfc7e84a79860f14ed2e826b1a5` (1 371 dias, 49 356 linhas; código `projeto-mapi-ai` feat/avaliacao-f1 f6ddacf; 2 execuções idênticas).
 - **Confirmação do autor:** solicitada em 2026-10-11 (pergunta 30 do PROGRESSO.md); a etapa 2 (junção com rótulos) só roda depois dela.
 - **SHA-256 deste arquivo no commit:** `[preencher]`
 - **Confirmação do autor (Lucas) das escolhas da §2 e da §4:** `[ ] confirmado em ____ ` (exigida pela REVISAO-CRITICA,
@@ -321,3 +322,5 @@ tipo já está aplicado em `flood_occurrence` ou precisa de junção com `label_
 
 | Data | Emenda | Motivo | Antes da junção com rótulos? |
 |---|---|---|---|
+| 2026-10-11 | Fonte e valores da normal mensal de chuva de B2 (§4.2, linha "Normal mensal", antes `[a obter]`): INMET, Normais Climatológicas 1991–2020, estação 82900 Recife (Curado), https://portal.inmet.gov.br/uploads/normais/Normal-Climatologica-PREC.xlsx, acessado em 2026-10-11 (SHA-256 do xlsx `903ba7d9…8c19`). mm/mês, jan a dez: 106,6; 127,0; 197,2; 268,9; 317,1; 390,5; 314,8; 186,7; 93,3; 52,8; 39,0; 61,6 (ano 2155,5). Escore de B2 no dia = normal do mês local do dia. Desbloqueia H1 | O protocolo não trazia fonte (§10, item 2). Série 1991–2020, sem sobreposição com o teste; escolha feita sem olhar rótulos nem escores (F4-IA-13, etapa 1 cega) | sim — antes da junção |
+| 2026-10-11 | Convenções de implementação da etapa 1 (sem mudar §4.2): (a) a razão `R(p,d)` com `f = 0` usa `f = 1` no denominador, porque a razão é indefinida; (b) B3-24h = máximo no dia local da soma móvel das 24 h anteriores, depois máximo nos 4 pontos; (c) M1-ef, B3-ef, M1-pluv e B1 não são calculados na etapa 1: M1-ef/B3-ef exigem ≥ 1 ano de horas comuns com pluviômetro (não existe: o banco só tem Cemaden de 2026-10-09 em diante, sem horas comuns com o archive) ou o backfill 1991–2020; B1 depende da taxa de positivos (constante, não altera AUC); (d) a umidade do solo ERA5-Land não entra em M1a nem nas baselines | Fechar lacunas de especificação antes dos escores; nada disso usa rótulo | sim — antes da junção |
