@@ -210,6 +210,11 @@ services:
         VITE_MAP_STYLE_LIGHT: ${VITE_MAP_STYLE_LIGHT:-https://basemaps.cartocdn.com/gl/positron-gl-style/style.json}
         VITE_MAP_STYLE_DARK: ${VITE_MAP_STYLE_DARK:-https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json}
     container_name: mapi-front
+    # Tiles da camada de terreno (ADR 0008): o .pmtiles (≈ 21 MB) fica fora da imagem (.dockerignore) e
+    # é servido pelo nginx em /terrain/ a partir deste volume somente leitura. Gerar com
+    # tools/terreno/run.sh tiles e copiar para ../projeto-mapi-front/public/terrain/.
+    volumes:
+      - ../projeto-mapi-front/public/terrain:/usr/share/nginx/terrain:ro
     ports:
       - "3000:80"
     healthcheck:
