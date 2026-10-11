@@ -254,3 +254,5 @@ terceiros.
   supervisionada com novo pré-registro.
 
 > **Errata (2026-10-11):** este documento dizia "30 variantes" de M1; são **24** (central + 23), conferido no `resultado_etapa2.json`. Conclusões inalteradas.
+
+> **Atualização (2026-10-11, F4-FRONT-01c):** a faixa de área contribuinte por raio de snap já vem na API (`diagnostics.contributingAreaBySnapM2`) e agora aparece no cartão de terreno do painel; o item correspondente do §3 está resolvido.
