@@ -89,7 +89,7 @@ public class MapiResponseDTO {
     }
 
     @Data
-    @Builder
+    @Builder(toBuilder = true)
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Aggregates {
@@ -97,6 +97,9 @@ public class MapiResponseDTO {
         private Double rain6h;
         private Double rain12h;
         private Double rain24h;
+        // Origem dos acumulados de chuva: OPEN_METEO_ARCHIVE (grade horária do pipeline) ou
+        // OPEN_METEO_FORECAST (últimas 24 h do forecast, quando a grade não cobre a hora atual).
+        private String rainSource;
         private Double maxRiverLevel24h;
         private Double avgTemperature24h;
     }

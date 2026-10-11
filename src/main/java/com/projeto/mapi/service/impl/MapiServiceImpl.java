@@ -509,6 +509,8 @@ public class MapiServiceImpl implements MapiService {
         builder.waveDirection(waveDirection);
         builder.wavePeriod(wavePeriod);
 
+        MapiResponseDTO.Aggregates archiveAggregates = null;
+
         // --- LÓGICA REGIONAL: Agregar dados de sensores num raio de 3km ---
         if (nearbySensors != null && !nearbySensors.isEmpty()) {
             builder.source("MIXED (Regional Aggregation)");
@@ -535,13 +537,14 @@ public class MapiServiceImpl implements MapiService {
             // aqui em vez de repetir a busca do ponto e a exportação de histórico.
             if (nearestPointHistory != null && !nearestPointHistory.isEmpty()) {
                 com.projeto.mapi.dto.UnifiedDataDTO last = nearestPointHistory.get(nearestPointHistory.size() - 1);
-                builder.historicalAggregates(MapiResponseDTO.Aggregates.builder()
+                archiveAggregates = MapiResponseDTO.Aggregates.builder()
                         .rain3h(last.getAccumulated3h())
                         .rain6h(last.getAccumulated6h())
                         .rain12h(last.getAccumulated12h())
                         .rain24h(last.getAccumulated24h())
+                        .rainSource(RAIN_SOURCE_ARCHIVE)
                         .maxRiverLevel24h(last.getSensorWaterLevel()) // Simplificado para o nível regional atual
-                        .build());
+                        .build();
             }
 
             // Pega o MÁXIMO de precipitação da região por segurança
@@ -599,7 +602,36 @@ public class MapiServiceImpl implements MapiService {
             builder.message("Dados baseados em Open-Meteo. Nenhum sensor regional encontrado num raio de 3km.");
         }
 
+        builder.historicalAggregates(withLiveRain(archiveAggregates, weather));
         return builder.build();
+    }
+
+    static final String RAIN_SOURCE_ARCHIVE = "OPEN_METEO_ARCHIVE";
+    static final String RAIN_SOURCE_FORECAST = "OPEN_METEO_FORECAST";
+
+    // A grade horária da reanálise (OPEN_METEO_ARCHIVE) fica dias atrás da hora atual, então ao vivo os acumulados
+    // vinham nulos e a previsão os imputava como 0,0. Quando a grade não tem a chuva de 24 h, os quatro acumulados
+    // passam a vir juntos das últimas 24 h do Open-Meteo forecast, com a origem declarada em rainSource.
+    private static MapiResponseDTO.Aggregates withLiveRain(MapiResponseDTO.Aggregates archive, WeatherResponseDTO weather) {
+        if (archive != null && archive.getRain24h() != null) return archive;
+        if (weather == null || weather.hourly() == null || weather.current() == null || weather.current().time() == null) {
+            return archive;
+        }
+        LocalDateTime now;
+        try {
+            now = LocalDateTime.parse(weather.current().time());
+        } catch (RuntimeException e) {
+            return archive;
+        }
+        Double r24 = com.projeto.mapi.service.weather.RecentRainAccumulator.sumLastHours(weather.hourly(), now, 24);
+        if (r24 == null) return archive;
+        MapiResponseDTO.Aggregates.AggregatesBuilder b = archive != null ? archive.toBuilder() : MapiResponseDTO.Aggregates.builder();
+        return b.rain3h(com.projeto.mapi.service.weather.RecentRainAccumulator.sumLastHours(weather.hourly(), now, 3))
+                .rain6h(com.projeto.mapi.service.weather.RecentRainAccumulator.sumLastHours(weather.hourly(), now, 6))
+                .rain12h(com.projeto.mapi.service.weather.RecentRainAccumulator.sumLastHours(weather.hourly(), now, 12))
+                .rain24h(r24)
+                .rainSource(RAIN_SOURCE_FORECAST)
+                .build();
     }
 
     @Override

@@ -45,6 +45,11 @@ public class WeatherServiceImpl implements WeatherService {
                         .queryParam("latitude", latitude)
                         .queryParam("longitude", longitude)
                         .queryParam("current", "temperature_2m,relative_humidity_2m,apparent_temperature,surface_pressure,weather_code,is_day,precipitation,wind_speed_10m,shortwave_radiation")
+                        // Chuva horária das últimas 24 h: alimenta os acumulados ao vivo quando a grade da
+                        // reanálise (OPEN_METEO_ARCHIVE, defasada em dias) não cobre a hora atual.
+                        .queryParam("hourly", "precipitation")
+                        .queryParam("past_hours", 24)
+                        .queryParam("forecast_hours", 1)
                         .queryParam("timezone", "auto")
                         .build())
                 .retrieve()
