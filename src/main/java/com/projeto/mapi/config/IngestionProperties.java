@@ -13,7 +13,7 @@ import java.util.List;
 public class IngestionProperties {
 
     /** Versão do conjunto de regras de validação gravada em cada observação e quarentena. */
-    private String ruleVersion = "2026.10.1";
+    private String ruleVersion = "2026.10.2";
 
     /** Commit do backend (variável de build GIT_COMMIT); "unknown" quando não informado. */
     private String codeVersion = "unknown";

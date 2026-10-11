@@ -17,13 +17,13 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Fonte CEMADEN (pelo espelho da APAC, endpoint {@code cemaden}): fuso UNVERIFIED (quarentena TZ_UNVERIFIED até
- * F2-DADOS-07).
+ * Fonte CEMADEN (pelo espelho da APAC, endpoint {@code cemaden}): fuso America/Recife (UTC-3), verificado em
+ * F2-DADOS-07 pelo teste do relógio (V13).
  *
  * <p>O endpoint só devolve uma janela rolante de ~24 h (medido em 2026-10-10: 8.088 itens de 09/10 20:45 a 10/10
  * 20:40, 334 estações); não existe consulta por intervalo sem credencial. Por isso a "carga" é o instantâneo
  * completo da janela, com todas as leituras (o coletor ao vivo guarda só a última por estação). {@code [from, to)}
- * não é aplicado: sem fuso verificado não há como converter o rótulo em instante.
+ * não é aplicado: o endpoint não aceita intervalo.
  */
 @Component
 @RequiredArgsConstructor
@@ -42,9 +42,15 @@ public class CemadenAdapter extends SensorEnvelopeAdapter {
         return SOURCE;
     }
 
+    /** Fuso verificado em F2-DADOS-07 (teste B, UTC-3): o bruto novo já nasce com o fuso declarado. */
+    @Override
+    public String declaredTz() {
+        return "America/Recife";
+    }
+
     @Override
     public String parserVersion() {
-        return "apac-cemaden/2";
+        return "apac-cemaden/3";
     }
 
     @Override
