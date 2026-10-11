@@ -125,3 +125,15 @@ operador precisa ver. O `POST` explícito continua existindo para cenários. Ela
 ## Condições que reabririam a decisão
 Necessidade de um quarto nível de risco com protocolo próprio da Defesa Civil: ele entra no enum por
 este ADR, não por código.
+
+## Emenda 1 (2026-10-11) — estado de validação do modelo (REVISAO-CRITICA RC-03)
+
+- Contexto: o `riskLevel` exibido no painel vem de artefatos sem metadata (`model_version = "unversioned"`), e a
+  avaliação pré-registrada F1 (`docs/RESULTADOS-AVALIACAO-F1.md`) foi inconclusiva. Exibir a classe como previsão
+  confiável não se sustenta em banca.
+- Decisão: `FloodPredictionResponseDTO` ganha `modelValidationStatus: NOT_VALIDATED | VALIDATED` (padrão
+  `NOT_VALIDATED`; só vira `VALIDATED` por ADR que cite uma avaliação pré-registrada positiva). A IA pode enviar
+  `model_validation_status`; ausente = `NOT_VALIDATED`. O front, com `NOT_VALIDATED`, mostra "Previsão
+  experimental — modelo não validado" junto da classe, e a legenda explica o significado.
+- Compatibilidade: campo novo e opcional; o front tolera a ausência (trata como `NOT_VALIDATED`).
+- Decisor: Arquiteto, pela autorização durável do Lucas.

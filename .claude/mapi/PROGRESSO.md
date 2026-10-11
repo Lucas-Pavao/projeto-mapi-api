@@ -54,6 +54,7 @@
 | 2026-10-11 | Etapa 2 autorizada (pergunta 30); reavaliação do fuso da ANA autorizada. Se a ANA passar, a análise com pluviômetro é uma 2ª análise pré-registrada, declarada como posterior à junção da 1ª, com os mesmos parâmetros congelados | — | Lucas / Arquiteto |
 | 2026-10-11 | Lucas aprovou todos os itens da tabela de pendências. Exceção mantida pelo Arquiteto: os 5 pedidos institucionais não são enviados em nome do autor (exigem dados e envio dele) | — | Lucas |
 | 2026-10-11 | Front: WIP do Lucas + patches de agentes preservados no commit 25640e2 da branch `wip/preservacao-2026-10-11` (enviada ao GitHub); branches temporárias `worktree-agent-*` removidas do remoto (16) | — | Arquiteto (aprovado) |
+| 2026-10-11 | ADR 0007, emenda 1: `modelValidationStatus` (NOT_VALIDATED por padrão) na resposta de predição; front mostra "Previsão experimental — modelo não validado" (RC-03) | 0007 | Arquiteto (autorizado) |
 
 ## Tarefas
 | ID | Fase | Agente | Nível | Tarefa | Status | PR/commit | Resultado em uma linha |
