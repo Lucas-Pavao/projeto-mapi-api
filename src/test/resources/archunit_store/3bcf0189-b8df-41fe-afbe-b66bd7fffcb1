@@ -1,0 +1,8 @@
+com.projeto.mapi.service.auth.RefreshTokenService.createRefreshToken(java.lang.String) retorna com.projeto.mapi.model.RefreshToken
+com.projeto.mapi.service.auth.RefreshTokenService.findByToken(java.lang.String) retorna com.projeto.mapi.model.RefreshToken
+com.projeto.mapi.service.auth.RefreshTokenService.verifyExpiration(com.projeto.mapi.model.RefreshToken) retorna com.projeto.mapi.model.RefreshToken
+com.projeto.mapi.service.auth.impl.RefreshTokenServiceImpl.createRefreshToken(java.lang.String) retorna com.projeto.mapi.model.RefreshToken
+com.projeto.mapi.service.auth.impl.RefreshTokenServiceImpl.findByToken(java.lang.String) retorna com.projeto.mapi.model.RefreshToken
+com.projeto.mapi.service.auth.impl.RefreshTokenServiceImpl.verifyExpiration(com.projeto.mapi.model.RefreshToken) retorna com.projeto.mapi.model.RefreshToken
+com.projeto.mapi.service.sensor.SensorService.getFloodPointsCache() retorna com.projeto.mapi.model.FloodPoint
+com.projeto.mapi.service.sensor.impl.SensorServiceImpl.getFloodPointsCache() retorna com.projeto.mapi.model.FloodPoint
