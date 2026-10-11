@@ -3,6 +3,7 @@ package com.projeto.mapi.integration;
 import com.projeto.mapi.dto.CurrentWeatherDTO;
 import com.projeto.mapi.dto.FloodPredictionRequestDTO;
 import com.projeto.mapi.dto.FloodPredictionResponseDTO;
+import com.projeto.mapi.dto.HourlyPrecipitationDTO;
 import com.projeto.mapi.dto.RiskLevel;
 import com.projeto.mapi.dto.WeatherResponseDTO;
 import com.projeto.mapi.model.DayData;
@@ -138,5 +139,32 @@ class PredictionCycleTideIntegrationTest extends AbstractTimescaleIntegrationTes
         assertThat(r.getWaveHeight()).isEqualTo(1.12);
         assertThat(r.getWavePeriod()).isEqualTo(6.65);
         assertThat(r.getWaveDirection()).isEqualTo(111.0);
+    }
+
+    @Test
+    void semGradeDaReanaliseOsAcumuladosVemDoForecastENaoSaoImputados() {
+        java.time.LocalDateTime inicio = java.time.LocalDateTime.parse("2026-10-10T20:00");
+        List<String> horas = new java.util.ArrayList<>();
+        List<Double> chuva = new java.util.ArrayList<>();
+        for (int i = 0; i < 25; i++) { horas.add(inicio.plusHours(i).toString()); chuva.add(i >= 22 ? 2.0 : 0.5); }
+        when(weatherService.getWeatherData(anyDouble(), anyDouble())).thenReturn(new WeatherResponseDTO(
+                -8.06, -34.87, 0.1, 4.0,
+                new CurrentWeatherDTO("2026-10-11T20:15", 26.7, 60.0, 29.1, 1013.9, 1, 0, 0.0, 10.3, 0.0),
+                new HourlyPrecipitationDTO(horas, chuva)));
+        Instant t = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+        when(floodPredictionService.predict(any(FloodPredictionRequestDTO.class), anyCollection()))
+                .thenReturn(new PredictionResult(FloodPredictionResponseDTO.builder()
+                        .riskLevel(RiskLevel.LOW).floodProbability(0.1).modelVersion("m").issuedAt(t).build(), "m+x"));
+
+        mapiService.refreshPredictionsForActivePoints();
+
+        ArgumentCaptor<FloodPredictionRequestDTO> req = ArgumentCaptor.forClass(FloodPredictionRequestDTO.class);
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Collection<String>> imputed = ArgumentCaptor.forClass(Collection.class);
+        verify(floodPredictionService).predict(req.capture(), imputed.capture());
+        // Horas fechadas até 20:15: 20:00 (2,0), 19:00 (2,0), 18:00 (2,0) e 21 horas de 0,5 antes.
+        assertThat(req.getValue().getRainfall3hAccumulated()).isEqualTo(6.0);
+        assertThat(req.getValue().getRainfall24hAccumulated()).isEqualTo(6.0 + 21 * 0.5);
+        assertThat(imputed.getValue()).doesNotContain("rainfall_3h_accumulated", "rainfall_24h_accumulated");
     }
 }

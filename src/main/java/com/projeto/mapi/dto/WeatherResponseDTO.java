@@ -13,10 +13,16 @@ public record WeatherResponseDTO(
     double elevation,
     @JsonProperty("current") CurrentWeatherDTO current,
     String provenanceId,
-    Integer revision
+    Integer revision,
+    @JsonProperty("hourly") HourlyPrecipitationDTO hourly
 ) {
     public WeatherResponseDTO(double latitude, double longitude, double generationTimeMs, double elevation,
                               CurrentWeatherDTO current) {
-        this(latitude, longitude, generationTimeMs, elevation, current, null, null);
+        this(latitude, longitude, generationTimeMs, elevation, current, null, null, null);
+    }
+
+    public WeatherResponseDTO(double latitude, double longitude, double generationTimeMs, double elevation,
+                              CurrentWeatherDTO current, HourlyPrecipitationDTO hourly) {
+        this(latitude, longitude, generationTimeMs, elevation, current, null, null, hourly);
     }
 }
