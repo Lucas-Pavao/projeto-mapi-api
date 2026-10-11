@@ -89,9 +89,9 @@ class AnaChuvaHorariaIntegrationTest extends AbstractIngestionTest {
         assertThat(h12.get("incomplete")).isEqualTo(false);
         assertThat(hour("2026-10-01T11:00:00Z").get("n_readings")).isEqualTo(1); // só a das 08:00 local
 
-        // lacuna: 3 de 4 leituras => NULL e incompleta, nunca preenchida
+        // lacuna (falta 09:30): a leitura seguinte (09:45) tambem sai pela regra pos-lacuna => 2 de 4 => NULL e incompleta
         Map<String, Object> h13 = hour("2026-10-01T13:00:00Z");
-        assertThat(h13.get("n_readings")).isEqualTo(3);
+        assertThat(h13.get("n_readings")).isEqualTo(2);
         assertThat(h13.get("value")).isNull();
         assertThat(h13.get("incomplete")).isEqualTo(true);
 
