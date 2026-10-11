@@ -1,6 +1,6 @@
 # Progresso da revisão multiagente do MAPi
 
-Última execução: 2026-10-11 · Fase atual: 4 (F1 escolhido) · Próxima tarefa: F4-IA-10 / F4-IA-11 / F4-IA-12 (paralelo)
+Última execução: 2026-10-11 · **Revisão concluída** (Fases 0–5) · tudo na `main` · Próxima ação: pendências de informação (`docs/PENDENCIAS-DE-INFORMACAO.md`) e roadmap (`docs/ROADMAP-REVISAO.md`)
 
 > Local: `projeto-mapi-api/.claude/mapi/PROGRESSO.md`. A pasta-mãe `MAPI/` não é repositório git;
 > o estado oficial fica no repositório orquestrador para ser versionado. Docs transversais
@@ -58,6 +58,7 @@
 | 2026-10-11 | Ramos da IA (`feat/avaliacao-f1`, `fix/contrato-ia`, `feat/model-version-unversioned`, `docs/remove-mapi-edge`), `projeto-mapi` `docs/descontinuado` e `revisao/fase-0`/`integracao/fase-2` enviados ao GitHub | — | Arquiteto (aprovado) |
 | 2026-10-11 | ANA sai da quarentena (UTC−3 verificado por critério pré-fixado com dados novos); um agente por vez no banco (incidente: banco parado durante sessão alheia) | 0006 | Arquiteto (autorizado) |
 | 2026-10-11 | 2ª análise (pluviômetro ANA) **não testada**: portão do pré-registro reprovado (C2d); desvio pós-hoc não aceito | — (PRE-REGISTRO-ANALISE-2, emenda) | Arquiteto (autorizado) |
+| 2026-10-11 | Fusão final na `main` dos 4 repositórios (PRs por tema + integração), a pedido do autor; inclui commits do autor que estavam em branches dele (IA: cenarios já na main via #4; front: hardening-audit via #13 + WIP preservado) | — | Lucas |
 
 ## Tarefas
 | ID | Fase | Agente | Nível | Tarefa | Status | PR/commit | Resultado em uma linha |
@@ -175,7 +176,8 @@
 | F4-FRONT-01c | 4 | Frontend | Equilibrado | Rastreabilidade no painel: "Acumulado Chuva (24h)" mostra 3 grandezas → rótulo pela grandeza e fonte reais; maré "m sobre o NR da DHN"; área contribuinte com faixa de snap | concluido | front `wip/preservacao-2026-10-11` 237a5be (no GitHub) | 2026-10-11 · subagente Sonnet · chuva com grandeza e fonte reais (sem "24 h" quando não há 24 h); maré "m (NR da DHN)" com tooltip (ADR 0009); cartão de terreno com cota, área e faixa do snap (já exposta pela API) · 89 testes |
 | F5-OPS-03 | 5 | Dados | Rápido | Cópia dos dumps e dos escores fora da máquina (/home 96% ocupado) | bloqueado | | destino a definir pelo Lucas (pergunta 31) |
 | F5-ARQ-01 | 5 | Arquiteto | Máximo | `docs/ARQUITETURA.md` ×3 e `docs/ROADMAP-REVISAO.md` | concluido | ver commit "consolidação" | 2026-10-11 · subagente Opus (Máximo) · `docs/arquitetura/{api,ai,front}.md` + `docs/ROADMAP-REVISAO.md` · achados novos para o roadmap: `JWT_SECRET` padrão no compose, H2 no pom, `MapiServiceImpl` 775→798 e `MapView` 1 106→1 168 linhas sem divisão |
-| F5-ARQ-02 | 5 | Arquiteto | Máximo | `docs/RELATORIO-REVISAO.md` e PRs finais | em_andamento |  | 2026-10-11 · `docs/RELATORIO-REVISAO.md` e `docs/PENDENCIAS-DE-INFORMACAO.md` (15 itens) prontos (subagente Opus); PRs por tema e fusão na main em andamento pelo Arquiteto |
+| F5-ARQ-03 | 5 | Arquiteto | Rápido | Handoff da Fase 5 e fechamento | concluido | ver PR "fechamento" | 2026-10-11 · Opus · `docs/HANDOFF-fase-5.md` |
+| F5-ARQ-02 | 5 | Arquiteto | Máximo | `docs/RELATORIO-REVISAO.md` e PRs finais | concluido | api #21–#47 (temas), #48 (integração), #49 (docs), #50 (compose terreno); ai #5–#9; front #14–#15; projeto-mapi-sensores #12 | 2026-10-11 · Opus · tudo fundido na `main` dos 4 repositórios; suíte na main combinada: api 240 testes, ia 8 + reprodução congelada idêntica (27 testes), front 89 testes + build ok · repositórios locais em `main` · pilha subida a partir da main (API healthy, front 200, Flyway V15) · achado ao subir: tiles do terreno 404 no nginx → corrigido no #50 · `/actuator/info` não exposto (registrado) |
 
 \* Nível: toda a Fase 0 rodou numa única sessão Opus (Máximo), acima do nível previsto. Motivo: o
 prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado conforme a regra
