@@ -46,31 +46,42 @@ public class DataExportController {
     }
 
     @GetMapping("/ia-dataset/{slug}/csv")
-    @Operation(summary = "Exporta dataset unificado em formato CSV")
+    @Operation(summary = "Exporta dataset unificado em CSV; X-Dataset-Id = SHA-256 do CSV (ver /manifest)")
     public ResponseEntity<String> getUnifiedDataCsv(
             @PathVariable String slug,
-            @RequestParam(defaultValue = "30") int days) {
-        
-        List<UnifiedDataDTO> data = dataExportService.exportUnifiedDataWithAccumulated(slug, days);
-        String csv = dataExportService.generateCsv(data);
-
+            @RequestParam(defaultValue = "30") int days,
+            @RequestParam(required = false) java.time.Instant to) {
+        var export = dataExportService.exportCsv(slug, days, toUtc(to));
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=dataset_" + slug + ".csv")
+                .header("X-Dataset-Id", export.manifest().datasetId())
                 .contentType(MediaType.parseMediaType("text/csv"))
-                .body(csv);
+                .body(export.csv());
+    }
+
+    @GetMapping("/ia-dataset/{slug}/manifest")
+    @Operation(summary = "Manifesto do dataset: hash do CSV, período, versões e run_ids por fonte/variável")
+    public ResponseEntity<com.projeto.mapi.dto.ExportManifestDTO> getManifest(
+            @PathVariable String slug,
+            @RequestParam(defaultValue = "30") int days,
+            @RequestParam(required = false) java.time.Instant to) {
+        return ResponseEntity.ok(dataExportService.exportCsv(slug, days, toUtc(to)).manifest());
     }
 
     @GetMapping("/ia-dataset/all/csv")
     @Operation(summary = "Exporta dataset unificado de TODOS os pontos em formato CSV único")
     public ResponseEntity<String> getAllPointsDataCsv(
-            @RequestParam(defaultValue = "0") int days) {
-
-        List<UnifiedDataDTO> allData = dataExportService.exportAllPointsDataWithAccumulated(days);
-        String csv = dataExportService.generateCsv(allData);
-
+            @RequestParam(defaultValue = "0") int days,
+            @RequestParam(required = false) java.time.Instant to) {
+        var export = dataExportService.exportCsv("all", days, toUtc(to));
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=dataset_full_history.csv")
+                .header("X-Dataset-Id", export.manifest().datasetId())
                 .contentType(MediaType.parseMediaType("text/csv"))
-                .body(csv);
+                .body(export.csv());
+    }
+
+    private static java.time.LocalDateTime toUtc(java.time.Instant to) {
+        return to == null ? null : java.time.LocalDateTime.ofInstant(to, java.time.ZoneOffset.UTC);
     }
 }

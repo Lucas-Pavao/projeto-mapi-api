@@ -92,7 +92,12 @@ public class TideServiceImpl implements TideService {
         return tideTableRepository.findDistinctHarborNamesByYear(year);
     }
 
+    // F2-BACK-19: getCurrentTideHeight chama getTideHeightAt por auto-invocação (sem passar pelo proxy), então
+    // o @Transactional de getTideHeightAt não valia e as coleções LAZY (geoLocations, months, days, hours)
+    // estouravam LazyInitializationException em todo ciclo de predição. A transação de leitura fica aqui,
+    // no ponto de entrada; o mapeamento das entidades continua LAZY.
     @Override
+    @Transactional(readOnly = true)
     @org.springframework.cache.annotation.Cacheable(value = "tideDataLocal", key = "T(java.lang.Math).round(#latitude * 100) / 100.0 + '-' + T(java.lang.Math).round(#longitude * 100) / 100.0")
     public Double getCurrentTideHeight(double latitude, double longitude) {
         return getTideHeightAt(latitude, longitude, java.time.LocalDateTime.now());
@@ -101,15 +106,26 @@ public class TideServiceImpl implements TideService {
     @Override
     @Transactional
     public Double getTideHeightAt(double latitude, double longitude, java.time.LocalDateTime timestamp) {
-        log.info("Buscando altura da maré para lat: {}, lon: {} em {}", latitude, longitude, timestamp);
+        return tideAt(latitude, longitude, timestamp, true);
+    }
+
+    /** F2-BACK-17: só a tábua local; nunca chama a API externa (export reprodutível e sem 1.800 chamadas HTTP). */
+    @Override
+    @Transactional(readOnly = true)
+    public Double getStoredTideHeightAt(double latitude, double longitude, java.time.LocalDateTime timestamp) {
+        return tideAt(latitude, longitude, timestamp, false);
+    }
+
+    private Double tideAt(double latitude, double longitude, java.time.LocalDateTime timestamp, boolean external) {
+        log.debug("Buscando altura da maré para lat: {}, lon: {} em {}", latitude, longitude, timestamp);
         
         int year = timestamp.getYear();
         
         // 1. Buscar todas as tabelas do ano
         List<TideTable> tables = tideTableRepository.findAllByYear(year);
         if (tables.isEmpty()) {
-            log.info("Nenhuma tabela local para o ano {}. Buscando via TabuaMare API.", year);
-            return tabuaMareService.getTideHeightAt(latitude, longitude, timestamp);
+            log.debug("Nenhuma tabela local para o ano {}. Buscando via TabuaMare API.", year);
+            return external ? tabuaMareService.getTideHeightAt(latitude, longitude, timestamp) : null;
         }
 
         // 2. Encontrar o porto mais próximo
@@ -151,8 +167,8 @@ public class TideServiceImpl implements TideService {
             return interpolated;
         }
 
-        log.info("Dado local não encontrado. Buscando maré via TabuaMare API para lat: {}, lon: {} em {}", latitude, longitude, timestamp);
-        return tabuaMareService.getTideHeightAt(latitude, longitude, timestamp);
+        log.debug("Dado local não encontrado. Buscando maré via TabuaMare API para lat: {}, lon: {} em {}", latitude, longitude, timestamp);
+        return external ? tabuaMareService.getTideHeightAt(latitude, longitude, timestamp) : null;
     }
 
     private Double interpolateLevel(List<HourData> sortedHours, java.time.LocalDateTime timestamp) {

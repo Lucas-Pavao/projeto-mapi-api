@@ -1,7 +1,7 @@
 package com.projeto.mapi.service.sensor;
 
 public interface HistoricalDataService {
-    // Sincronização TOTAL: clima + ANA + APAC + Defesa Civil + alinhamento de eventos.
+    // Sincronização TOTAL: clima + ANA + APAC + Defesa Civil (sem realinhar horários dos eventos).
     void ingestHistoricalData(int years);
 
     // Só clima (Open-Meteo) para todos os pontos — antes o endpoint "/historical-weather" dizia
@@ -15,7 +15,6 @@ public interface HistoricalDataService {
     void ingestApacHistoricalRainfall(String stationCode, int year);
     void ingestCivilDefenseData(int years);
     void ingestCivilDefenseLastYears(int years);
-    void alignFloodEventsToRainPeaks();
     java.util.List<com.projeto.mapi.dto.DataHealthReportDTO> checkDataIntegrity();
     void repairStationMappings();
     void wipeDatabase();

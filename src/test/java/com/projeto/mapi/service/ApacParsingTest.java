@@ -27,7 +27,8 @@ public class ApacParsingTest {
     public void setup() {
         sensorDataRepository = mock(SensorDataRepository.class);
         floodPointRepository = mock(FloodPointRepository.class);
-        apacService = new ApacHistoricalServiceImpl(sensorDataRepository, floodPointRepository);
+        apacService = new ApacHistoricalServiceImpl(sensorDataRepository, floodPointRepository,
+                new com.projeto.mapi.config.ExternalRestClientFactory(new com.projeto.mapi.config.HttpTimeoutProperties()));
     }
 
     @Test

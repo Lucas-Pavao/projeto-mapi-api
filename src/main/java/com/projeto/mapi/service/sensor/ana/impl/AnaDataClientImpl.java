@@ -1,10 +1,12 @@
 package com.projeto.mapi.service.sensor.ana.impl;
 
+import com.projeto.mapi.config.ExternalRestClientFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.projeto.mapi.config.AppProperties;
 import com.projeto.mapi.dto.AnaStationDTO;
+import com.projeto.mapi.exception.SourceUnavailableException;
 import com.projeto.mapi.service.sensor.ana.AnaDataClient;
 import com.projeto.mapi.util.GeoUtils;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -57,20 +59,21 @@ public class AnaDataClientImpl implements AnaDataClient {
     private volatile List<AnaStationDTO> discoveredStationsCache = List.of();
     private volatile Instant discoveryCacheExpiresAt = Instant.EPOCH;
 
-    public AnaDataClientImpl(RestClient.Builder restClientBuilder, AppProperties appProperties, ObjectMapper objectMapper) {
-        this.restClient = restClientBuilder.build();
+    public AnaDataClientImpl(ExternalRestClientFactory http, AppProperties appProperties, ObjectMapper objectMapper) {
+        this.restClient = http.builder("ana").build();
         this.config = appProperties.getAna();
         this.objectMapper = objectMapper;
     }
 
     @Override
     @Retry(name = "anaData")
-    @CircuitBreaker(name = "anaData", fallbackMethod = "fetchStationMeasurementsFallback")
+    // Sem fallbackMethod de propósito (ver ApacScrapeClientImpl): falha tem que subir para o @Retry e
+    // para o coletor, não virar uma lista vazia que parece "estação sem leituras".
+    @CircuitBreaker(name = "anaData")
     public List<JsonNode> fetchStationMeasurements(String stationCode, String searchDate) {
         String token = ensureToken();
         if (token == null) {
-            log.warn("Sem token ANA válido; abortando coleta da estação {}", stationCode);
-            return List.of();
+            throw new SourceUnavailableException("Sem token ANA válido; coleta da estação " + stationCode + " abortada");
         }
 
         try {
@@ -106,11 +109,6 @@ public class AnaDataClientImpl implements AnaDataClient {
             tokenExpiresAt = Instant.EPOCH;
             throw e;
         }
-    }
-
-    private List<JsonNode> fetchStationMeasurementsFallback(String stationCode, String searchDate, Throwable t) {
-        log.warn("Falha ao coletar dados ANA da estação {}: {} — {}", stationCode, t.getClass().getSimpleName(), t.getMessage());
-        return List.of();
     }
 
     private JsonNode fetchInventory(String stationCode, String token) {
@@ -227,7 +225,14 @@ public class AnaDataClientImpl implements AnaDataClient {
         return descobertas;
     }
 
+    // Este fallback devolve a lista de ESTAÇÕES (cadastro, quase estático) já descoberta antes — não
+    // são leituras, então reaproveitá-la não esconde falta de dado. Sem lista anterior, a falha
+    // sobe (o coletor marca "fonte indisponível") em vez de virar "0 estações descobertas".
     private List<AnaStationDTO> discoverStationsFallback(Throwable t) {
+        if (discoveredStationsCache.isEmpty()) {
+            if (t instanceof RuntimeException re) throw re;
+            throw new SourceUnavailableException("Descoberta de estações ANA falhou: " + t.getMessage(), t);
+        }
         log.warn("Falha na descoberta de estações ANA: {} — {}. Usando última lista conhecida ({} estações).",
                 t.getClass().getSimpleName(), t.getMessage(), discoveredStationsCache.size());
         return discoveredStationsCache;
@@ -271,7 +276,7 @@ public class AnaDataClientImpl implements AnaDataClient {
             }
         } catch (Exception e) {
             log.error("Erro ao parsear XML de descoberta de estações ANA: {}", e.getMessage());
-            return List.of();
+            throw new SourceUnavailableException("XML de descoberta de estações ANA inválido", e);
         }
         return new ArrayList<>(porCodigo.values());
     }

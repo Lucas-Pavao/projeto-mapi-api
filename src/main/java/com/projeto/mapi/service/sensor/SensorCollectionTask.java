@@ -5,7 +5,7 @@ import com.projeto.mapi.service.sensor.ana.AnaCollectorService;
 import com.projeto.mapi.service.sensor.apac.ApacCollectorService;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
-import lombok.RequiredArgsConstructor;
+import com.projeto.mapi.service.flood.PredictionCycleRunner;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,13 +20,31 @@ import java.util.function.Supplier;
  * pelo mesmo pipeline de negócio de sempre (SensorService.processSensorMessage).
  */
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class SensorCollectionTask {
 
     private final AnaCollectorService anaCollectorService;
     private final ApacCollectorService apacCollectorService;
     private final MeterRegistry meterRegistry;
+    private final CollectorFreshness freshness;
+    private final PredictionCycleRunner predictionRunner;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    public SensorCollectionTask(AnaCollectorService anaCollectorService, ApacCollectorService apacCollectorService,
+                                MeterRegistry meterRegistry, CollectorFreshness freshness,
+                                PredictionCycleRunner predictionRunner) {
+        this.anaCollectorService = anaCollectorService;
+        this.apacCollectorService = apacCollectorService;
+        this.meterRegistry = meterRegistry;
+        this.freshness = freshness;
+        this.predictionRunner = predictionRunner;
+    }
+
+    /** Sem passo de predição (usado só em testes dos ciclos de coleta). */
+    public SensorCollectionTask(AnaCollectorService anaCollectorService, ApacCollectorService apacCollectorService,
+                                MeterRegistry meterRegistry, CollectorFreshness freshness) {
+        this(anaCollectorService, apacCollectorService, meterRegistry, freshness, null);
+    }
 
     @Scheduled(fixedRateString = "${app.ana.fixed-rate-ms:900000}",
             initialDelayString = "${app.ana.initial-delay-ms:15000}")
@@ -60,8 +78,16 @@ public class SensorCollectionTask {
             CollectionSummaryDTO summary = action.get();
             meterRegistry.counter("mapi.collector.records.processed", "source", source).increment(summary.processed());
             meterRegistry.counter("mapi.collector.records.errors", "source", source).increment(summary.errors());
-            log.info("<< Coleta [{}] concluída: processados={} erros={} tempo={}ms",
-                    label, summary.processed(), summary.errors(), System.currentTimeMillis() - start);
+            if (summary.sourceUnavailable()) {
+                // Fonte fora do ar não é "ciclo com 0 leituras": conta à parte (alertável) e não
+                // renova a idade do último dado.
+                outcome = "source_unavailable";
+                meterRegistry.counter("mapi.collector.source.unavailable", "source", source).increment();
+            } else if (summary.processed() > 0) {
+                freshness.markSuccess(source);
+            }
+            log.info("<< Coleta [{}] concluída: processados={} erros={} fonteIndisponivel={} tempo={}ms",
+                    label, summary.processed(), summary.errors(), summary.sourceUnavailable(), System.currentTimeMillis() - start);
         } catch (Exception e) {
             outcome = "failure";
             meterRegistry.counter("mapi.collector.failures", "source", source).increment();
@@ -74,6 +100,11 @@ public class SensorCollectionTask {
                     .publishPercentileHistogram()
                     .register(meterRegistry));
             MDC.remove("requestId");
+            // ADR 0007 §7: ao fim de cada ciclo, o passo de predição vai para o taskExecutor (não
+            // bloqueia o agendador). Roda mesmo com a fonte fora: a previsão usa o dado já gravado.
+            if (predictionRunner != null) {
+                predictionRunner.triggerAfterCycle(source);
+            }
         }
     }
 }

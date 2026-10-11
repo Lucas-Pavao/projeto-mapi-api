@@ -1,5 +1,6 @@
 package com.projeto.mapi.service.sensor.ana.impl;
 
+import com.projeto.mapi.config.ExternalRestClientFactory;
 import com.projeto.mapi.model.FloodPoint;
 import com.projeto.mapi.model.SensorData;
 import com.projeto.mapi.repository.FloodPointRepository;
@@ -18,6 +19,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,9 +31,12 @@ public class AnaHistoricalServiceImpl implements AnaHistoricalService {
 
     private final SensorDataRepository sensorDataRepository;
     private final FloodPointRepository floodPointRepository;
-    private final RestClient restClient = RestClient.builder()
-            .baseUrl("http://telemetriaws1.ana.gov.br/ServiceANA.asmx")
-            .build();
+    private final ExternalRestClientFactory http;
+
+    // Cliente criado sob demanda e reaproveitado por fonte, com os timeouts de app.http.clients.ana-historical
+    private RestClient restClient() {
+        return http.client("ana-historical", "http://telemetriaws1.ana.gov.br/ServiceANA.asmx", Map.of());
+    }
 
     @Override
     public void ingestHistoricalSensorData(String stationCode, int years) {
@@ -49,7 +54,7 @@ public class AnaHistoricalServiceImpl implements AnaHistoricalService {
             log.info("Buscando levas da ANA para estação {} (Ano {}): {} a {}", stationCode, (now.getYear() - i), startDateStr, endDateStr);
 
             try {
-                String xml = restClient.get()
+                String xml = restClient().get()
                         .uri(uriBuilder -> uriBuilder
                                 .path("/DadosHidrometereologicos")
                                 .queryParam("codEstacao", stationCode)

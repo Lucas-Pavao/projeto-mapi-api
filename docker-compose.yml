@@ -1,15 +1,19 @@
 services:
   postgres:
-    image: timescale/timescaledb:latest-pg16
+    # Imagem fixa com TimescaleDB + PostGIS (ADR 0005): PG 16.15, TimescaleDB 2.30.2, PostGIS 3.6.4.
+    # A imagem -ha guarda os dados em /home/postgres/pgdata (não em /var/lib/postgresql/data), por isso
+    # usa o volume postgres_ha_data. O volume antigo foi removido em 2026-10-10 com aprovação (dumps em MAPI/snapshots/).
+    image: timescale/timescaledb-ha:pg16.15-ts2.30.2
     container_name: mapi-db
     environment:
       - POSTGRES_DB=tide_db
       - POSTGRES_USER=mapi_user
-      - POSTGRES_PASSWORD=mapi123
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-mapi123}
     ports:
-      - "5433:5432"
+      # Só localhost: o banco não deve ficar acessível na rede (senha padrão de dev).
+      - "127.0.0.1:5433:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_ha_data:/home/postgres/pgdata
       # Schema agora é gerenciado pelo Flyway (src/main/resources/db/migration), aplicado pelo
       # próprio mapi-api ao subir — não pelo init-script do Postgres. Ver V1__baseline_schema.sql.
     healthcheck:
@@ -27,21 +31,28 @@ services:
       - DB_PORT=5432
       - DB_NAME=tide_db
       - DB_USER=mapi_user
-      - DB_PASS=mapi123
+      - DB_PASS=${POSTGRES_PASSWORD:-mapi123}
       - API_URL=http://mapi-api:8080
     ports:
-      - "8000:8000"
+      # Só localhost: a API chama a IA pela rede interna do compose (mapi-ai:8000).
+      - "127.0.0.1:8000:8000"
     depends_on:
       postgres:
         condition: service_healthy
 
   mapi-api:
-    build: .
+    build:
+      context: .
+      args:
+        # Versão do código no build (RC-03); sem export, vira "unknown-build-without-git" (explícito).
+        GIT_COMMIT: ${GIT_COMMIT:-unknown-build-without-git}
+        GIT_DIRTY: ${GIT_DIRTY:-unknown}
+        GIT_BRANCH: ${GIT_BRANCH:-unknown}
     container_name: mapi-api
     environment:
       - POSTGRES_URL=jdbc:postgresql://postgres:5432/tide_db
       - POSTGRES_USER=mapi_user
-      - POSTGRES_PASSWORD=mapi123
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-mapi123}
       - AI_API_URL=http://mapi-ai:8000
       - APP_LOG_LEVEL=${APP_LOG_LEVEL:-INFO}
       - LOG_PATH=/app/logs
@@ -142,14 +153,15 @@ services:
     container_name: mapi-k6
     # Não participa do "docker compose up" normal — só roda sob demanda com:
     #   docker compose --profile loadtest run --rm k6
-    # NÃO acrescente "run /scripts/stress-test.js" depois de "k6" nesse comando: qualquer
-    # argumento passado a "docker compose run <serviço> <args>" substitui INTEIRAMENTE o
-    # "command:" abaixo, derrubando o "--out experimental-prometheus-rw" e fazendo o teste
-    # rodar sem enviar nenhuma métrica pro Prometheus (bug real já visto: 0 amostras recebidas
-    # via remote-write). Pra sobrescrever BASE_URL/etc., use "-e VAR=valor" antes do nome do
-    # serviço, nunca argumentos de comando.
+    # O output de remote-write é ligado por K6_OUT (variável de ambiente), não por "--out" no
+    # "command:". Assim, argumentos passados a "docker compose run k6 <args>" (que substituem o
+    # "command:" inteiro) não derrubam mais o envio de métricas — antes isso causava 0 amostras
+    # recebidas via remote-write. Ex.: "docker compose --profile loadtest run --rm k6 run
+    # /scripts/spike-demo.js" também envia métricas. Só um "--out" explícito na linha de comando
+    # sobrescreve o K6_OUT (precedência CLI > env do k6).
     profiles: ["loadtest"]
     environment:
+      - K6_OUT=experimental-prometheus-rw
       - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
       # Sem isso o output prometheus-rw manda um histograma nativo (bom, mas mais chato de
       # gráfico simples no Grafana); com trend-stats definido ele também expõe os agregados
@@ -157,7 +169,7 @@ services:
       - K6_PROMETHEUS_RW_TREND_STATS=p(95),p(99),avg,min,max
     volumes:
       - ./loadtest:/scripts:ro
-    command: ["run", "--out", "experimental-prometheus-rw", "/scripts/stress-test.js"]
+    command: ["run", "/scripts/stress-test.js"]
     depends_on:
       mapi-api:
         condition: service_healthy
@@ -170,17 +182,17 @@ services:
     # Variante do "k6" acima pra demonstração em aula: roda loadtest/spike-demo.js, que sobe e
     # desce VUs em degraus bruscos (picos de 120/180/220 em segundos, intercalados com vales até
     # 0) pra gerar variação visível nos dashboards ao vivo, em vez da rampa suave e realista do
-    # stress-test.js. Serviço separado (não argumento do "k6") pelo mesmo motivo do comentário
-    # acima: "docker compose run <serviço> <args>" substitui o "command:" inteiro e derrubaria o
-    # "--out experimental-prometheus-rw".
+    # stress-test.js. Mantido como serviço próprio por conveniência na aula; com K6_OUT, rodar
+    # "k6 run /scripts/spike-demo.js" pelo serviço "k6" daria o mesmo resultado.
     #   docker compose --profile loadtest run --rm k6-spike
     profiles: ["loadtest"]
     environment:
+      - K6_OUT=experimental-prometheus-rw
       - K6_PROMETHEUS_RW_SERVER_URL=http://prometheus:9090/api/v1/write
       - K6_PROMETHEUS_RW_TREND_STATS=p(95),p(99),avg,min,max
     volumes:
       - ./loadtest:/scripts:ro
-    command: ["run", "--out", "experimental-prometheus-rw", "/scripts/spike-demo.js"]
+    command: ["run", "/scripts/spike-demo.js"]
     depends_on:
       mapi-api:
         condition: service_healthy
@@ -257,7 +269,7 @@ services:
         echo "================================================================"
 
 volumes:
-  postgres_data:
+  postgres_ha_data:
   api_logs:
   prometheus_data:
   grafana_data:

@@ -1,5 +1,6 @@
 package com.projeto.mapi.service.sensor.apac.impl;
 
+import com.projeto.mapi.config.ExternalRestClientFactory;
 import com.projeto.mapi.model.FloodPoint;
 import com.projeto.mapi.model.SensorData;
 import com.projeto.mapi.repository.FloodPointRepository;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -32,11 +34,14 @@ public class ApacHistoricalServiceImpl implements ApacHistoricalService {
 
     private final SensorDataRepository sensorDataRepository;
     private final FloodPointRepository floodPointRepository;
-    private final RestClient restClient = RestClient.builder()
-            .baseUrl("http://dados.apac.pe.gov.br:41120")
-            .defaultHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36")
-            .defaultHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8")
-            .build();
+    private final ExternalRestClientFactory http;
+
+    // Cliente criado sob demanda e reaproveitado, com os timeouts de app.http.clients.apac-historical
+    private RestClient restClient() {
+        return http.client("apac-historical", "http://dados.apac.pe.gov.br:41120", Map.of(
+                "User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36",
+                "Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8"));
+    }
 
     private List<FloodPoint> floodPointsCache;
 
@@ -90,7 +95,7 @@ public class ApacHistoricalServiceImpl implements ApacHistoricalService {
         formData.add("dataFinal", end);
 
         try {
-            String response = restClient.post()
+            String response = restClient().post()
                     .uri("/boletins/historico-pluviometrico/diario.php")
                     .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                     .body(formData)

@@ -1,0 +1,8 @@
+#
+#Sun Oct 11 00:37:47 GMT-03:00 2026
+methods\ that\ are\ declared\ in\ classes\ that\ reside\ in\ a\ package\ '..controller..'\ and\ are\ public\ should\ n\u00E3o\ retornar\ tipo\ de\ ..model..=0bf2dfc6-1da5-4476-9c1e-7cba322f9054
+methods\ that\ are\ declared\ in\ classes\ that\ reside\ in\ a\ package\ '..service..'\ and\ are\ public\ should\ n\u00E3o\ retornar\ tipo\ de\ ..model..=3bcf0189-b8df-41fe-afbe-b66bd7fffcb1
+no\ classes\ that\ reside\ in\ a\ package\ '..controller..'\ should\ depend\ on\ classes\ that\ reside\ in\ a\ package\ '..repository..'=089033f6-8e91-462d-a9d8-cf48be2b0c33
+no\ classes\ that\ reside\ in\ a\ package\ '..dto..'\ should\ depend\ on\ classes\ that\ reside\ in\ a\ package\ '..model..'=531175d5-594e-4155-8b12-868608c7f154
+no\ classes\ that\ reside\ in\ a\ package\ '..model..'\ should\ depend\ on\ classes\ that\ reside\ in\ any\ package\ ['..controller..',\ '..dto..']=4a3a884d-ef47-4b8a-bdd6-1a2452111657
+no\ classes\ that\ reside\ in\ a\ package\ '..service..'\ should\ depend\ on\ classes\ that\ reside\ in\ a\ package\ '..controller..'=98cc07fa-5a45-4aa4-a4b9-e91ade824da1

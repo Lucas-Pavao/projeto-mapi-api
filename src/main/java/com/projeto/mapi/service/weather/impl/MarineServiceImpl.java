@@ -1,5 +1,6 @@
 package com.projeto.mapi.service.weather.impl;
 
+import com.projeto.mapi.config.ExternalRestClientFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.projeto.mapi.config.AppProperties;
 import com.projeto.mapi.service.weather.MarineService;
@@ -17,8 +18,8 @@ public class MarineServiceImpl implements MarineService {
     private final RestClient restClient;
     private final MarineService self;
 
-    public MarineServiceImpl(RestClient.Builder restClientBuilder, AppProperties appProperties, @Lazy MarineService self) {
-        this.restClient = restClientBuilder
+    public MarineServiceImpl(ExternalRestClientFactory http, AppProperties appProperties, @Lazy MarineService self) {
+        this.restClient = http.builder("open-meteo")
                 .baseUrl(appProperties.getMarine().getApiUrl())
                 .build();
         this.self = self;

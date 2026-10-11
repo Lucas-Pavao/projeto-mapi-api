@@ -134,7 +134,12 @@ export function setup() {
   // Slugs reais dos pontos cadastrados, usados pelo cenário heavy_export — evita hardcoded/mock
   // que quebraria assim que os pontos de monitoramento mudassem.
   const pontosRes = http.get(`${BASE_URL}/api/pontos`, authHeaders);
-  const slugs = pontosRes.status === 200 ? pontosRes.json().map((p) => p.id_ponto).filter(Boolean) : [];
+  // Campo "slug" (antes "id_ponto", renomeado em 0554073). Sem slug o heavy_export não faz nenhuma
+  // requisição e o threshold dele passa sem nenhuma amostra; por isso o setup falha alto.
+  const slugs = pontosRes.status === 200 ? pontosRes.json().map((p) => p.slug).filter(Boolean) : [];
+  if (slugs.length === 0) {
+    throw new Error(`setup: nenhum slug em /api/pontos (status ${pontosRes.status}); heavy_export não mediria nada`);
+  }
 
   return { token, sensorIds, slugs };
 }

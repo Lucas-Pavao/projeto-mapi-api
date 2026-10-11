@@ -50,6 +50,49 @@ app:
     api-url: ${WEATHER_API_URL:https://api.open-meteo.com/v1}
   ai:
     api-url: ${AI_API_URL:http://localhost:8000}
+  # Timeouts dos clientes HTTP das fontes externas (ver HttpTimeoutProperties/ExternalRestClientFactory).
+  # Sem eles, uma fonte que aceita a conexão e não responde prende a thread indefinidamente. A
+  # conexão é curta (5s) porque um servidor saudável aceita TCP em milissegundos — se não aceitou
+  # em 5s, esperar mais só atrasa o Retry/CircuitBreaker. A leitura padrão (15s) cobre as APIs
+  # JSON/HTML pequenas; as fontes abaixo sobrescrevem só o que precisa. Todos os valores podem
+  # ser sobrescritos por env (SPRING_APPLICATION_JSON ou APP_HTTP_CLIENTS_<FONTE>_READ_TIMEOUT).
+  http:
+    default-connect-timeout: 5s
+    default-read-timeout: 15s
+    clients:
+      # A requisição do usuário (/api/mapi) fica bloqueada esperando a predição: melhor devolver
+      # "IA indisponível" (tratado pelo chamador) em 8s do que prender a thread e o usuário por 15s+.
+      ai:
+        connect-timeout: 2s
+        read-timeout: 8s
+      # APAC/Cemaden (scraping do mesmo host): o endpoint devolve ~8.700 itens por chamada e já
+      # foi visto lento; 15s do padrão basta para o ciclo agendado. Cemaden é coletado pelo
+      # cliente "apac" (mesmo host, endpoint /cemaden/), por isso não tem entrada própria.
+      apac:
+        read-timeout: 20s
+      # Histórico APAC/ANA baixa tabelas HTML de períodos longos: respostas maiores e mais lentas.
+      apac-historical:
+        read-timeout: 30s
+      # Autenticação da ANA chegou a levar ~30s quando funcionava (ver AnaDataClientImpl.ensureToken);
+      # 30s evita contar como falha um login lento porém válido.
+      ana:
+        read-timeout: 30s
+      # Série de 15 min de um mês inteiro (~1 MB de XML) pelo serviço legado (F2-DADOS-07).
+      ana-historical:
+        read-timeout: 120s
+      # TabuaMare já é limitada por rate limiter (15/min); resposta é JSON pequeno.
+      tabua-mare:
+        read-timeout: 10s
+      # Open-Meteo: previsão/marinho são JSON pequeno (padrão). O arquivo histórico traz um ano de
+      # séries horárias (~8.760 pontos x 7 variáveis) numa só resposta.
+      open-meteo-archive:
+        read-timeout: 60s
+      # Nominatim aplica throttling de 1 req/s e é só geocodificação pontual.
+      nominatim:
+        read-timeout: 10s
+      # CKAN do Recife: CSVs completos da Defesa Civil (vários MB) e datastore paginado.
+      ckan:
+        read-timeout: 60s
   # Coleta interna de dados hidrometeorológicos reais (substitui o antigo fluxo MQTT vindo do
   # projeto Python "projeto-mapi"). A API agora busca esses dados diretamente, em jobs agendados
   # (ver SensorCollectionTask), em vez de depender de um processo externo publicando via broker.
@@ -185,6 +228,10 @@ management:
       show-details: when-authorized
       probes:
         enabled: true
+  info:
+    # /actuator/info mostra commit completo, branch, dirty e data do build (git.properties; RC-03).
+    git:
+      mode: full
   metrics:
     tags:
       application: ${spring.application.name}

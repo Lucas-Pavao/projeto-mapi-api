@@ -48,6 +48,7 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/health/**", "/actuator/info", "/actuator/prometheus").permitAll()
                 .requestMatchers("/actuator/**").hasAuthority(Role.ADMIN.name())
                 .requestMatchers("/api/admin/ingestion/**").hasAuthority(Role.ADMIN.name())
+                .requestMatchers("/api/admin/terrain/**").hasAuthority(Role.ADMIN.name())
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
