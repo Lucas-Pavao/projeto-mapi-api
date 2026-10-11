@@ -36,6 +36,12 @@ public class UnifiedDataDTO {
     /** Umidade do solo 0-7 cm, ERA5-Land (m³/m³); latência ~5 dias, só treino (MODELAGEM-IA A.2.3, feature 22). */
     private Double soilMoisture07cm;
 
+    /**
+     * Chuva horária (mm) do pluviômetro ANA mais próximo do ponto (F2-DADOS-11): soma das leituras de 15 min em
+     * {@code (t-1h, t]}; vazio se a hora tem menos de 4 leituras válidas. Estação a dezenas de km do ponto.
+     */
+    private Double anaPrecipitation;
+
     // Maré prevista (tábua DHN, Porto do Recife; m acima do NR da DHN, NR_DHN_pe02). tideHeight = altura em t.
     private Double tideHeight;
     /** Features de maré (MODELAGEM-IA A.2.2): a maré prevista é exceção declarada de "futuro" (publicada antes). */

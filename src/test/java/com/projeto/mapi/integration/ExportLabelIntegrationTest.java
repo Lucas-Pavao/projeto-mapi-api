@@ -187,7 +187,7 @@ class ExportLabelIntegrationTest extends AbstractIngestionTest {
                 .containsExactly("label_h6", "label_h3", "label_day", "label_excluded_reason", "occurrence_ids");
         // nenhuma coluna de feature (antes do bloco de rótulo) carrega rótulo/ocorrência; as terrain_* vêm depois
         cols.subList(0, firstLabel).forEach(c -> assertThat(c.toLowerCase()).doesNotContain("label").doesNotContain("occurrence"));
-        cols.subList(firstLabel + 5, cols.size()).forEach(c -> assertThat(c).matches("terrain_.*|soil_moisture_0_7cm(_missing)?|tide_.*"));
+        cols.subList(firstLabel + 5, cols.size()).forEach(c -> assertThat(c).matches("terrain_.*|soil_moisture_0_7cm(_missing)?|tide_.*|ana_precipitation(_missing)?"));
         // coluna antiga segue no CSV, marcada como obsoleta no manifesto
         assertThat(cols).contains("isFlooded", "severity");
         assertThat(result.manifest().deprecatedColumns()).containsExactly("isFlooded", "severity");
