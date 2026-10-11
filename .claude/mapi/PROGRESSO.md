@@ -174,8 +174,8 @@
 | F5-ACAD-04 | 5 | Docs | Rápido | Pedido 06: cadastro de microdrenagem/soleiras à EMLURB/URB Recife (via LAI) | concluido | ver commit "GLOSSARIO v2" | 2026-10-11 · subagente Haiku · `docs/pedidos/06-lai-emlurb-cadastro-microdrenagem.md` (4 pontos, raio 300 m, traçado/diâmetros/cotas de fundo/soleiras/referencial vertical) — envio pelo Lucas; confirmar o órgão destinatário no formulário |
 | F4-FRONT-01c | 4 | Frontend | Equilibrado | Rastreabilidade no painel: "Acumulado Chuva (24h)" mostra 3 grandezas → rótulo pela grandeza e fonte reais; maré "m sobre o NR da DHN"; área contribuinte com faixa de snap | concluido | front `wip/preservacao-2026-10-11` 237a5be (no GitHub) | 2026-10-11 · subagente Sonnet · chuva com grandeza e fonte reais (sem "24 h" quando não há 24 h); maré "m (NR da DHN)" com tooltip (ADR 0009); cartão de terreno com cota, área e faixa do snap (já exposta pela API) · 89 testes |
 | F5-OPS-03 | 5 | Dados | Rápido | Cópia dos dumps e dos escores fora da máquina (/home 96% ocupado) | bloqueado | | destino a definir pelo Lucas (pergunta 31) |
-| F5-ARQ-01 | 5 | Arquiteto | Máximo | `docs/ARQUITETURA.md` ×3 e `docs/ROADMAP-REVISAO.md` | pendente | | |
-| F5-ARQ-02 | 5 | Arquiteto | Máximo | `docs/RELATORIO-REVISAO.md` e PRs finais | pendente | | |
+| F5-ARQ-01 | 5 | Arquiteto | Máximo | `docs/ARQUITETURA.md` ×3 e `docs/ROADMAP-REVISAO.md` | concluido | ver commit "consolidação" | 2026-10-11 · subagente Opus (Máximo) · `docs/arquitetura/{api,ai,front}.md` + `docs/ROADMAP-REVISAO.md` · achados novos para o roadmap: `JWT_SECRET` padrão no compose, H2 no pom, `MapiServiceImpl` 775→798 e `MapView` 1 106→1 168 linhas sem divisão |
+| F5-ARQ-02 | 5 | Arquiteto | Máximo | `docs/RELATORIO-REVISAO.md` e PRs finais | em_andamento |  | 2026-10-11 · `docs/RELATORIO-REVISAO.md` e `docs/PENDENCIAS-DE-INFORMACAO.md` (15 itens) prontos (subagente Opus); PRs por tema e fusão na main em andamento pelo Arquiteto |
 
 \* Nível: toda a Fase 0 rodou numa única sessão Opus (Máximo), acima do nível previsto. Motivo: o
 prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado conforme a regra
