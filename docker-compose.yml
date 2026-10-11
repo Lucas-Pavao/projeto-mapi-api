@@ -75,9 +75,13 @@ services:
       # (loga aviso e não quebra a aplicação).
       - ANA_IDENTIFICADOR=${ANA_IDENTIFICADOR:-}
       - ANA_SENHA=${ANA_SENHA:-}
+      # Atributos de terreno por ponto (ADR 0008): POST /api/admin/terrain/runs lê ponto_terreno.csv,
+      # ponto_terreno.meta.json e curva_cota_volume.csv deste diretório (saída de tools/terreno/run.sh).
+      - MAPI_TERRAIN_DIR=/terreno
     ports:
       - "8080:8080"
     volumes:
+      - ../terreno:/terreno:ro
       - api_logs:/app/logs
     healthcheck:
       # 9404, não 8080: com management.server.port setado (application.yml), o Actuator migra
