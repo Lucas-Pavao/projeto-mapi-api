@@ -48,7 +48,7 @@ O banco de dados não é um repositório relacional comum; ele utiliza as capaci
 
 3. **Consultas Nativas (Native Queries):** Para buscar médias móveis, agrupamentos de tempo (ex: `time_bucket('1 hour', time)`) ou dados analíticos para predição, prefira escrever queries nativas usando as funções do TimescaleDB no repositório (`@Query(value = "...", nativeQuery = true)`).
 
-4. **Schema via Flyway (ADR 0003):** Toda modificação estrutural é uma nova migração `src/main/resources/db/migration/V<n>__descricao.sql`. O `TimescaleSetup.sql` é só referência histórica e não deve ser editado. Migração precisa de aprovação antes de ser aplicada.
+4. **Schema via Flyway (ADR 0003):** Toda modificação estrutural é uma nova migração `src/main/resources/db/migration/V<n>__descricao.sql`. O antigo `TimescaleSetup.sql` foi removido (histórico na tag `revisao-completa-2026-10-11`). Migração precisa de aprovação antes de ser aplicada.
 
 ---
 

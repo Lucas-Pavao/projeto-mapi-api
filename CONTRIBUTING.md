@@ -67,4 +67,4 @@ docker compose -p projeto-mapi-api up -d postgres
 - Glossário: `docs/GLOSSARIO.md`
 - Fontes e licenças: `docs/FONTES-E-LICENCAS.md`
 - Checklist de release: `docs/CHECKLIST-RELEASE.md`
-- Handoffs de fase: `docs/HANDOFF-fase-N.md`
+- Handoffs e achados das fases da revisão: removidos da árvore em 2026-10-11; estão na tag `revisao-completa-2026-10-11`

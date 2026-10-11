@@ -66,7 +66,6 @@ projeto-mapi-api/
 ├── Dockerfile                   # Build multi-stage otimizado para Java 21
 ├── GEMINI.md                    # Dicionário de convenções e regras de ouro
 ├── pom.xml                      # Gestão de dependências Maven
-├── TimescaleSetup.sql           # Referência histórica; o schema é gerido pelo Flyway (ADR 0003)
 ├── observability/               # Stack de monitoramento (Prometheus + Grafana)
 │   ├── prometheus/prometheus.yml        # Scrape config (alvo: mapi-api:9404/actuator/prometheus)
 │   └── grafana/

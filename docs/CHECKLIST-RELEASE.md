@@ -7,7 +7,7 @@
 
 ## Estado do branch antes de usar
 
-Verificado em 2026-10-11 no branch `feat/fuso-ana-reteste`. Os itens marcados com **[F5-REV-02a]** dependem do trabalho do branch `fix/rastreabilidade-build` (`docs/revisao/fase-5/F5-REV-02a.md`), que ainda não está neste branch:
+Verificado em 2026-10-11 no branch `feat/fuso-ana-reteste`. Os itens marcados com **[F5-REV-02a]** dependem do trabalho do branch `fix/rastreabilidade-build` (achado F5-REV-02a, na tag `revisao-completa-2026-10-11`; esse branch já foi fundido na `main`), que ainda não está neste branch:
 
 - não há `ArchitectureTest` nem `CodeVersionTest` em `src/test`;
 - o `pom.xml` não declara `git-commit-id-maven-plugin`, `archunit-junit5` nem `jacoco-maven-plugin`;
@@ -136,7 +136,7 @@ Antes de rodar qualquer migração ou carga sobre dado real:
 ## 11. Documentação de fase
 
 - [ ] `.claude/mapi/PROGRESSO.md` atualizado: versão, commit, testes, cobertura, decisões tomadas, pendências.
-- [ ] Handoff da fase atualizado (`docs/HANDOFF-fase-N.md`, até uma página) e `docs/handoff/fase-N.json` com `achados[]`.
+- [ ] Decisões e pendências da entrega registradas em `.claude/mapi/PROGRESSO.md` (os handoffs da revisão estão na tag `revisao-completa-2026-10-11`).
 - [ ] ADR novo para cada decisão de arquitetura, dado ou contrato tomada na release (ver `CONTRIBUTING.md`).
 - [ ] Pré-registro e documentos congelados não foram editados sem emenda registrada.
 
