@@ -27,6 +27,9 @@ public class IngestionProperties {
     /** Folga (dias) ao redor de [t0,t1) na pré-seleção textual do REVALIDATE; o filtro exato é por instante. */
     private int revalidateMarginDays = 3;
 
+    /** Base da API de previsão do Open-Meteo (usada só pela verificação de fuso, para as últimas horas, com {@code past_days}). */
+    private String openMeteoForecastUrl = "https://api.open-meteo.com/v1";
+
     /** Base da API de arquivo do Open-Meteo. */
     private String openMeteoArchiveUrl = "https://archive-api.open-meteo.com/v1";
 
