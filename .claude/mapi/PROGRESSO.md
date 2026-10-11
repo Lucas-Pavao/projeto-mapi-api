@@ -158,7 +158,7 @@
 | F5-ACAD-01 | 5 | Acadêmico | Máximo | `docs/PRONTIDAO-ACADEMICA.md` | pendente | | |
 | F5-REV-02a | 5 | Backend | Equilibrado | codeVersion do build no manifesto/ingestion_run + ArchUnit (RC-03 parte técnica, ADR 0002) | concluido | `fix/rastreabilidade-build` (3 commits), integrado em 706aadf | 2026-10-11 · subagente Sonnet · git-commit-id 9.0.1 → commit completo (+`-dirty`), fallback explícito `unknown-build-without-git`; Docker recebe GIT_COMMIT/GIT_DIRTY/GIT_BRANCH por build-arg; `/actuator/info` mostra o commit · ATENÇÃO: dentro de git worktree o plugin lê o repositório principal (commit errado) — build de medição/release deve sair de clone comum ou do Docker com build-args · ArchUnit 1.4.1: 4 regras do ADR 0002 com 0 violações; 2 regras congeladas (dto→model: enum Severity; service expondo entidade: 8 métodos, RefreshToken e FloodPoint) · integrado: 228 testes, 64,5% linhas / 51,1% ramos |
 | F5-REV-02 | 5 | Arquiteto | Equilibrado | Responder as demais contestações da REVISAO-CRITICA (RC-03 riskLevel sem origem/codeVersion "unknown"; medidas antes/depois não comparáveis; ADR 0005 sem ST_* no código; ArchUnit ausente; checkpoints sem pareceres guardados etc.) | em_andamento | | 2026-10-11 · F5-REV-02a (subagente Sonnet, branch `fix/rastreabilidade-build`): codeVersion do build no manifesto + ArchUnit com violações congeladas; demais RC na sequência |
-| F5-OPS-02 | 5 | Arquiteto | Rápido | Enviar ao GitHub as branches por tema (RC-02) | bloqueado | `integracao/fase-2` enviada (2026-10-10) | 2026-10-10 · Opus · a `integracao/fase-2` (todo o código integrado, 80 commits) está no remoto; o envio em lote das outras 24 branches por tema foi negado pelo controle de permissões do Claude Code — depende do Lucas (rodar o push ou liberar a permissão) |
+| F5-OPS-02 | 5 | Arquiteto | Rápido | Enviar ao GitHub as branches por tema (RC-02) | concluido | `git push origin --all` pelo Lucas (2026-10-11) | 2026-10-11 · RC-02 resolvida: todas as branches da revisão (inclusive `revisao/fase-0` com a documentação) no GitHub · efeito colateral: 22 branches temporárias `worktree-agent-*` também subiram (limpeza remota só a pedido do Lucas); `feature/automatic-pdf-download` publicada e `feat/tide-and-marine-multi-source-integration` atualizada (be6f213→84e7874), ambas do Lucas |
 | F5-ARQ-01 | 5 | Arquiteto | Máximo | `docs/ARQUITETURA.md` ×3 e `docs/ROADMAP-REVISAO.md` | pendente | | |
 | F5-ARQ-02 | 5 | Arquiteto | Máximo | `docs/RELATORIO-REVISAO.md` e PRs finais | pendente | | |
 
@@ -177,7 +177,7 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | F4-PED-01 | Limiares MEDIUM/HIGH | resposta da Defesa Civil ao pedido 04 (envio pelo Lucas) | 2026-10-10 |
 | (fora do escopo) F4-PED-02 | Rede de Petri | retirada do escopo atual pelo autor (2026-10-11) | 2026-10-10 |
 | (resolvido) F2-BACK-15 | Umidade do solo ERA5-Land no pipeline | V10 aprovada pela autorização durável | 2026-10-10 |
-| F5-OPS-02 | 24 branches por tema só locais | o Lucas rodar `! git push origin --all` no projeto-mapi-api (ou liberar a permissão de push) | 2026-10-10 |
+| (resolvido) F5-OPS-02 | branches só locais | push feito pelo Lucas em 2026-10-11 | 2026-10-10 |
 | F4-PED-03 | Registros de alagamento com hora e endereço | resposta ao pedido LAI 05 (envio pelo Lucas) | 2026-10-11 |
 
 ## Perguntas pendentes para o Lucas
