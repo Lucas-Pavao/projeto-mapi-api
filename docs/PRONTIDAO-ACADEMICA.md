@@ -132,7 +132,7 @@ mecanismo, não de evidência. Isso precisa ser declarado no texto.
 | R5 | 2022-07-12 (P_extra; posto percentil 0,07) | Forçante baixa num dia registrado | Escore igual ao congelado. Pega mudança de modelo de reanálise na entrada |
 | R6 | 2023-06-27 e 2023-06-30 | Junção em episódio (≤ 3 dias) | O código de episódios devolve 13 episódios em P_principal e 17 nos 18 dias |
 | R7 | 2023-02-22 (sem registro; `S > 0` e alerta em `f = 0,2`) | Lembra que N é "sem registro", não "não alagou" | Escore igual ao congelado. O nome do caso no teste diz "sem registro" |
-| R8 | Primeiro dia de 2025 com 0 mm nas 24 h dos 4 pontos (regra fixa de escolha; período de desenvolvimento, sem rótulo) | Invariante física | `S = 0`, `R = 0` e nenhum alerta em todas as 30 variantes. A variante `f = 0` só armazena |
+| R8 | Primeiro dia de 2025 com 0 mm nas 24 h dos 4 pontos (regra fixa de escolha; período de desenvolvimento, sem rótulo) | Invariante física | `S = 0`, `R = 0` e nenhum alerta em todas as 24 variantes. A variante `f = 0` só armazena |
 
 Ainda não existe nenhum caso de **"não alagou" documentado.** O CKAN só registra atendimentos, e a ausência de registro não
 é evidência (PRE-REGISTRO §2.2). O caso entra quando o pedido LAI 05 trouxer vistoria com "sem alagamento" e data/hora, ou
@@ -252,3 +252,5 @@ terceiros.
 - RC-16 confirmada do lado do Open-Meteo, com efeito no máximo diário.
 - Um pedido LAI que traga dias disjuntos suficientes (≥ 43 dias com local; MEMO §3.2), o que reabriria a pergunta
   supervisionada com novo pré-registro.
+
+> **Errata (2026-10-11):** este documento dizia "30 variantes" de M1; são **24** (central + 23), conferido no `resultado_etapa2.json`. Conclusões inalteradas.
