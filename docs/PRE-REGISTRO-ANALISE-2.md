@@ -292,3 +292,4 @@ flowchart TD
 | Data | Emenda | Motivo | Antes do commit dos escores da etapa 1b? |
 |---|---|---|---|
 | — | — | — | — |
+| 2026-10-11 | **Portão §2.1 NÃO satisfeito → 2ª análise classificada "não testada (portão reprovado)".** A F2-DADOS-11 verificou a semântica da janela (incremento de 15 min, carimbo no fim; norma ANA 2012 §4.2b), mas o critério pré-fixado C2d reprovou na leitura literal (estação 39167000, 2024: 781 mm contra piso de 800 mm). Aceitar o desvio depois de ver o número seria escolha pós-hoc. Incompatibilidade adicional: a série horária exige 4/4 leituras e este protocolo diz 3/4. A análise não foi executada; reabrir exige novo pré-registro com critério de plausibilidade com fonte | Decisão do Arquiteto (autorização durável), coerente com F2-DADOS-07/10 | sim — nada foi executado |
