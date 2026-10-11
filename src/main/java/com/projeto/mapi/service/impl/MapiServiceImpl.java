@@ -166,6 +166,15 @@ public class MapiServiceImpl implements MapiService {
                     .rainfall24hAccumulated(acc24h)
                     .tideLevel(tide)
                     .riverLevel(river)
+                    .windSpeed(preciseData.getWindSpeed())
+                    .temperature(preciseData.getTemperature())
+                    .apparentTemperature(preciseData.getApparentTemperature())
+                    .humidity(preciseData.getHumidity())
+                    .pressure(preciseData.getPressure())
+                    .waveHeight(preciseData.getWaveHeight())
+                    .wavePeriod(preciseData.getWavePeriod())
+                    .waveDirection(preciseData.getWaveDirection())
+                    .solarRadiation(preciseData.getSolarRadiation())
                     .nearbySensors(toAiSensorReadings(preciseData.getLatestReadings()))
                     .timestamp(LocalDateTime.now())
                     .build();
@@ -461,6 +470,7 @@ public class MapiServiceImpl implements MapiService {
         if (weather != null && weather.current() != null) {
             builder.precipitation(weather.current().precipitation());
             builder.temperature(weather.current().temperature());
+            builder.apparentTemperature(weather.current().apparentTemperature());
             builder.humidity((double) weather.current().humidity());
             builder.pressure(weather.current().surfacePressure());
             builder.windSpeed(weather.current().windSpeed());

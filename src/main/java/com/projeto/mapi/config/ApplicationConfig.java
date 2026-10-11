@@ -51,6 +51,10 @@ public class ApplicationConfig {
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
+        // Este bean substitui o ObjectMapper do Spring Boot, que já vinha com datas em texto. Sem esta
+        // linha, Instant sai como número de época (1791758539.0) e o front, que espera ISO-8601 com Z
+        // (ADR 0007 §5), rejeita issuedAt/validUntil/lastValidIssuedAt.
+        mapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return mapper;
     }
 

@@ -60,6 +60,7 @@ public class MapiResponseDTO {
         // Dados Consolidados (Máximos/Médias Instantâneos)
         private Double precipitation;
         private Double temperature;
+        private Double apparentTemperature;
         private Double humidity;
         private Double pressure;
         private Double windSpeed;

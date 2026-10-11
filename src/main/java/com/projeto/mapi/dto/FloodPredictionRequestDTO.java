@@ -40,6 +40,32 @@ public class FloodPredictionRequestDTO {
     @JsonProperty("river_level")
     private Double riverLevel;
 
+    // Variáveis meteorológicas e de onda exigidas pela IA na inferência. Ausente = null: a IA responde
+    // 422 com missing_features (ADR 0007 §3); o backend não imputa estes campos.
+    @JsonProperty("wind_speed")
+    private Double windSpeed;
+
+    private Double temperature;
+
+    @JsonProperty("apparent_temperature")
+    private Double apparentTemperature;
+
+    private Double humidity;
+
+    private Double pressure;
+
+    @JsonProperty("wave_height")
+    private Double waveHeight;
+
+    @JsonProperty("wave_period")
+    private Double wavePeriod;
+
+    @JsonProperty("wave_direction")
+    private Double waveDirection;
+
+    @JsonProperty("solar_radiation")
+    private Double solarRadiation;
+
     @JsonProperty("nearby_sensors")
     private java.util.List<SensorReadingDTO> nearbySensors;
 
