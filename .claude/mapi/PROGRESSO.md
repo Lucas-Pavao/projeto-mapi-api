@@ -59,6 +59,7 @@
 | 2026-10-11 | ANA sai da quarentena (UTC−3 verificado por critério pré-fixado com dados novos); um agente por vez no banco (incidente: banco parado durante sessão alheia) | 0006 | Arquiteto (autorizado) |
 | 2026-10-11 | 2ª análise (pluviômetro ANA) **não testada**: portão do pré-registro reprovado (C2d); desvio pós-hoc não aceito | — (PRE-REGISTRO-ANALISE-2, emenda) | Arquiteto (autorizado) |
 | 2026-10-11 | Fusão final na `main` dos 4 repositórios (PRs por tema + integração), a pedido do autor; inclui commits do autor que estavam em branches dele (IA: cenarios já na main via #4; front: hardening-audit via #13 + WIP preservado) | — | Lucas |
+| 2026-10-11 | **Refluxo de maré fora do escopo da dissertação**: não se espera o viés MDT↔SGB (pedido 03 / nivelamento de campo). Sistema e modelo seguem só com cotas relativas; Δ = +0,821 m entra no texto como resultado e o refluxo como limitação/trabalho futuro; análise de sensibilidade exploratória (Δ e cenário de viés +0,4 m) é opcional | 0009 (emenda 2) | Lucas |
 
 ## Tarefas
 | ID | Fase | Agente | Nível | Tarefa | Status | PR/commit | Resultado em uma linha |
@@ -179,7 +180,7 @@
 | F5-ARQ-03 | 5 | Arquiteto | Rápido | Handoff da Fase 5 e fechamento | concluido | ver PR "fechamento" | 2026-10-11 · Opus · `docs/HANDOFF-fase-5.md` |
 | F5-ARQ-02 | 5 | Arquiteto | Máximo | `docs/RELATORIO-REVISAO.md` e PRs finais | concluido | api #21–#47 (temas), #48 (integração), #49 (docs), #50 (compose terreno); ai #5–#9; front #14–#15; projeto-mapi-sensores #12 | 2026-10-11 · Opus · tudo fundido na `main` dos 4 repositórios; suíte na main combinada: api 240 testes, ia 8 + reprodução congelada idêntica (27 testes), front 89 testes + build ok · repositórios locais em `main` · pilha subida a partir da main (API healthy, front 200, Flyway V15) · achado ao subir: tiles do terreno 404 no nginx → corrigido no #50 · `/actuator/info` não exposto (registrado) |
 | F3-GEO-08 | 3 | Geo+Arquiteto | Equilibrado + checkpoint | Processar a F-41 do Porto do Recife (entregue pelo Lucas) e fechar Δ pela cadeia D − E | concluido | `docs/f41-referencia-vertical` | 2026-10-11 · Opus · F-41 v1/2010 (SHA-256 73f53922…): RN-2603F a 3,619 m sobre o NR, Z0 = 128,2 cm (41 dias de 1997) confirma `mean_level`; BDG 2603F = 2,7977 m (Imbituba, σ 0,089) → **Δ = +0,821 m** (faixa 0,72–0,92; checagem 393T +0,715, marco não encontrado) · MDT × 14 RRNN em terra: mediana −0,36 m, dp 0,56 → altura elipsoidal descartada (N = −5,74 m), viés do MDT não medido → regra C mantida, exceção exploratória rotulada · `docs/extratos/f41-porto-recife.md`, `scripts/referencia-vertical/`, PDFs em `MAPI/fontes/` (fora do git, termo da DHN não localizado) · checkpoint Máximo (Opus independente): APROVADO COM 6 RESSALVAS, todas aplicadas |
-| F3-GEO-09 | 3 | Geo | Equilibrado | Checar o datum do MDT pela lâmina d'água do porto: MDT sobre a água × maré da tábua no instante do voo de 2016, convertida com Δ | bloqueado | — | 2026-10-11 · ressalva 5 do checkpoint da emenda 1 do ADR 0009 · falta data e hora do voo (pedido 03) |
+| F3-GEO-09 | 3 | Geo | Equilibrado | Checar o datum do MDT pela lâmina d'água do porto: MDT sobre a água × maré da tábua no instante do voo de 2016, convertida com Δ | descartado | — | 2026-10-11 · ressalva 5 do checkpoint da emenda 1 do ADR 0009 · falta data e hora do voo (pedido 03) · descartado 2026-10-11: refluxo de maré fora do escopo (decisão do Lucas) |
 
 \* Nível: toda a Fase 0 rodou numa única sessão Opus (Máximo), acima do nível previsto. Motivo: o
 prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado conforme a regra
@@ -191,7 +192,7 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | (resolvido) | Limite semanal de uso derrubou 3 subagentes da F1 | reset do limite; agentes retomados | 2026-10-10 |
 | (resolvido) F3-GEO-01 | GDAL/rasterio ausentes no host | GDAL em container; leitura direta dos zips | 2026-10-10 |
 | (resolvido) GitHub | `gh` ausente | `gh` configurado pelo Lucas | 2026-10-10 |
-| F3-PED-01 | Δ (NR↔datum do MDT): **NR↔SGB fechado** em 2026-10-11 (Δ = +0,821 m, F3-GEO-08); falta o viés MDT↔SGB | relatório do PE3D (pedido 03) + ponto de controle no terreno nu junto à RN 2603F/RN1-DHN; pedido 02 virou opcional; pedido 01 só para a reutilização das tábuas | 2026-10-10 |
+| (fora do escopo) F3-PED-01 | Viés MDT↔SGB (último elo para comparar maré × cota da rua) | refluxo de maré retirado do escopo pelo autor em 2026-10-11 (ADR 0009, emenda 2); reabre se o pedido 03 for respondido | 2026-10-10 |
 | (resolvido) F4-FRONT-01a (visual) | Verificação visual | extensão Claude in Chrome conectada; Playwright em uso no F3-FRONT-01 | 2026-10-10 |
 | F4-PED-01 | Limiares MEDIUM/HIGH | resposta da Defesa Civil ao pedido 04 (envio pelo Lucas) | 2026-10-10 |
 | (fora do escopo) F4-PED-02 | Rede de Petri | retirada do escopo atual pelo autor (2026-10-11) | 2026-10-10 |

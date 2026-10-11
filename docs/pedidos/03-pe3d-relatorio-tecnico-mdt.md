@@ -1,4 +1,6 @@
-> Atualizado em 2026-10-11 (ADR 0009, emenda 1): este passou a ser o pedido que trava a comparação maré × terreno.
+> Opcional desde 2026-10-11 (ADR 0009, emenda 2): o refluxo de maré saiu do escopo; o pedido só importa pelo termo de uso
+> (publicar a camada de terreno) ou se o refluxo voltar.
+> Antes (emenda 1): este passou a ser o pedido que trava a comparação maré × terreno.
 > Foram acrescentados o horário do voo e o hgeoHNOR2020.
 
 **Para:** Governo do Estado de Pernambuco — Programa Pernambuco Tridimensional (PE3D) / [secretaria responsável]
