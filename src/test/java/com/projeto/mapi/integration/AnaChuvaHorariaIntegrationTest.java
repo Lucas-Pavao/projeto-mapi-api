@@ -49,6 +49,9 @@ class AnaChuvaHorariaIntegrationTest extends AbstractIngestionTest {
                 // hora que termina 14:00Z: quatro leituras zero => 0,0 válido (distinto de ausência)
                 + row("2026-10-01 10:15:00", "0.00") + row("2026-10-01 10:30:00", "0.00")
                 + row("2026-10-01 10:45:00", "0.00") + row("2026-10-01 11:00:00", "0.00")
+                // hora que termina 16:00Z: a leitura das 12:15 vem 1 h 15 min depois da anterior (lacuna): fora da soma
+                + row("2026-10-01 12:15:00", "30.00") + row("2026-10-01 12:30:00", "0.20")
+                + row("2026-10-01 12:45:00", "0.20") + row("2026-10-01 13:00:00", "0.20")
                 + "</DocumentElement></diffgr:diffgram></DataTable>";
     }
 
@@ -91,6 +94,12 @@ class AnaChuvaHorariaIntegrationTest extends AbstractIngestionTest {
         assertThat(h13.get("n_readings")).isEqualTo(3);
         assertThat(h13.get("value")).isNull();
         assertThat(h13.get("incomplete")).isEqualTo(true);
+
+        // leitura depois de lacuna (30 mm) não entra: sobram 3 de 4 => NULL; a leitura continua gravada
+        Map<String, Object> h16 = hour("2026-10-01T16:00:00Z");
+        assertThat(h16.get("n_readings")).isEqualTo(3);
+        assertThat(h16.get("value")).isNull();
+        assertThat(count("SELECT count(*) FROM observation WHERE value = 30.0 AND variable = 'precipitation'")).isEqualTo(1);
 
         // zero medido é valor, não ausência
         Map<String, Object> h14 = hour("2026-10-01T14:00:00Z");
