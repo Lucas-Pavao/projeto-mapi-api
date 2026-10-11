@@ -88,6 +88,7 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         List<com.projeto.mapi.repository.ingestion.ObservationReadRepository.HourlyCell> weatherCells = weatherCells(point, start, end);
         
         List<com.projeto.mapi.repository.ingestion.ObservationReadRepository.HourlyCell> soilCells = soilCells(point, start, end);
+        List<com.projeto.mapi.repository.ingestion.ObservationReadRepository.HourlyCell> anaCells = anaCells(point, start, end);
 
         List<FloodEvent> events = floodEventRepository.findByFloodPointId(point.getId());
 
@@ -146,6 +147,11 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
                 case "weather_code" -> b.weatherCode((int) Math.round(w.value()));
                 default -> { }
             }
+        });
+
+        anaCells.forEach(w -> {
+            UnifiedDataDTO.UnifiedDataDTOBuilder b = timeline.get(LocalDateTime.ofInstant(w.hourEndUtc(), java.time.ZoneOffset.UTC));
+            if (b != null && w.value() != null && "precipitation".equals(w.variable())) b.anaPrecipitation(w.value());
         });
 
         soilCells.forEach(w -> {
@@ -221,6 +227,17 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
                 start.toInstant(java.time.ZoneOffset.UTC), end.toInstant(java.time.ZoneOffset.UTC));
     }
 
+    /** Pluviômetro ANA mais próximo do ponto (F2-DADOS-11), com chuva horária PT15M; sem estação = lista vazia. */
+    private List<com.projeto.mapi.repository.ingestion.ObservationReadRepository.HourlyCell> anaCells(
+            FloodPoint point, LocalDateTime start, LocalDateTime end) {
+        return observationRead.nearestStation(ANA_SOURCE, "precipitation", "PT15M", point.getLatitude(), point.getLongitude())
+                .map(st -> observationRead.hourly(ANA_SOURCE, st.stationId(),
+                        start.toInstant(java.time.ZoneOffset.UTC), end.toInstant(java.time.ZoneOffset.UTC)))
+                .orElse(List.of());
+    }
+
+    private static final String ANA_SOURCE = com.projeto.mapi.service.ingestion.adapter.AnaSoapAdapter.SOURCE;
+
     /** Altura da maré prevista nas horas cheias UTC (grade horária do pipeline; hora sem valor = ausente). */
     private Map<java.time.Instant, Double> tideHourly(java.time.Instant from, java.time.Instant to) {
         Map<java.time.Instant, Double> m = new java.util.HashMap<>();
@@ -263,6 +280,11 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
                 runs.computeIfAbsent(key, k -> new java.util.TreeSet<>()).addAll(cell.runIds());
                 revisions.merge(key, cell.maxRevision(), Math::max);
             }
+            for (var cell : anaCells(p, start, end)) {
+                String key = ANA_SOURCE + "|" + cell.variable();
+                runs.computeIfAbsent(key, k -> new java.util.TreeSet<>()).addAll(cell.runIds());
+                revisions.merge(key, cell.maxRevision(), Math::max);
+            }
             for (var cell : soilCells(p, start, end)) {
                 String key = com.projeto.mapi.service.ingestion.adapter.Era5LandAdapter.SOURCE + "|" + cell.variable();
                 runs.computeIfAbsent(key, k -> new java.util.TreeSet<>()).addAll(cell.runIds());
@@ -286,7 +308,8 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
                 MISSING_POLICY, missingCounts(data),
                 List.of("sensores (ANA, APAC, Cemaden): ainda lidos de sensor_data (legado, fuso não verificado)",
                         "maré: pipeline (TIDE_PE02_HOURLY a partir de TABUAMARE_PE02/DHN_TABUA_PE02), alturas em NR_DHN_pe02",
-                        "rótulo legado isFlooded/severity: flood_events (obsoleto); rótulo novo: flood_occurrence"),
+                        "rótulo legado isFlooded/severity: flood_events (obsoleto); rótulo novo: flood_occurrence",
+                        "ana_precipitation: soma de leituras de 15 min do pluviômetro ANA_SOAP mais próximo do ponto (a dezenas de km; não é chuva no ponto), rótulo = fim da hora UTC; hora com menos de 4 leituras, ou com leitura depois de lacuna, fica vazia (F2-DADOS-11)"),
                 List.of("isFlooded", "severity"), labelManifest(points, data, start, end),
                 new com.projeto.mapi.dto.ExportManifestDTO.TideManifest(
                         com.projeto.mapi.service.ingestion.adapter.tide.TideConstants.VERTICAL_REFERENCE,
@@ -346,6 +369,7 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         Map<String, Integer> out = new java.util.LinkedHashMap<>();
         for (String c : MISSING_COLUMNS) out.put(c, 0);
         out.put("soil_moisture_0_7cm", 0);
+        out.put("ana_precipitation", 0);
         for (String c : TIDE_COLUMNS) out.put(c, 0);
         for (UnifiedDataDTO d : data) {
             Object[] tv = tideValues(d);
@@ -353,6 +377,7 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
             Object[] v = missingValues(d);
             for (int i = 0; i < v.length; i++) if (v[i] == null) out.merge(MISSING_COLUMNS[i], 1, Integer::sum);
             if (d.getSoilMoisture07cm() == null) out.merge("soil_moisture_0_7cm", 1, Integer::sum);
+            if (d.getAnaPrecipitation() == null) out.merge("ana_precipitation", 1, Integer::sum);
         }
         return out;
     }
@@ -464,6 +489,7 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         // Maré prevista (F2-BACK-14): colunas novas no FIM, cada uma com sua _missing; tideHeight (acima) é a altura em t.
         for (String c : TIDE_COLUMNS) csv.append(',').append(c);
         for (String c : TIDE_COLUMNS) csv.append(',').append(c).append("_missing");
+        csv.append(",ana_precipitation,ana_precipitation_missing"); // F2-DADOS-11, sempre ao fim
         csv.append('\n');
 
         for (UnifiedDataDTO d : data) {
@@ -484,6 +510,7 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
             Object[] tide = tideValues(d);
             for (Object v : tide) csv.append(',').append(cell(v));
             for (Object v : tide) csv.append(',').append(v == null ? '1' : '0');
+            csv.append(',').append(cell(d.getAnaPrecipitation())).append(',').append(d.getAnaPrecipitation() == null ? '1' : '0');
             csv.append('\n');
         }
         return csv.toString();

@@ -21,7 +21,29 @@ public class ObservationReadRepository {
     /** Extremo vigente da maré prevista; {@code qualifier} = PREAMAR ou BAIXA_MAR (pode ser nulo se ambíguo). */
     public record TideExtremeRow(Instant tsUtc, double level, String qualifier, String source) {}
 
+    /** Estação mais próxima (haversine, m) de uma fonte que tem a variável na grade horária PT15M. */
+    public record NearestStation(String stationId, double distanceM) {}
+
     private final JdbcTemplate jdbc;
+
+    /**
+     * Estação da fonte mais próxima da coordenada entre as que têm {@code variable} em {@code resolution}; empate
+     * resolvido pelo código. Vazio se nenhuma tem a variável (F2-DADOS-11: chuva ANA no export).
+     */
+    public java.util.Optional<NearestStation> nearestStation(String source, String variable, String resolution,
+                                                              double lat, double lon) {
+        return jdbc.query("""
+                SELECT s.station_id,
+                       2 * 6371000 * asin(sqrt(power(sin(radians(s.lat - ?) / 2), 2)
+                         + cos(radians(?)) * cos(radians(s.lat)) * power(sin(radians(s.lon - ?) / 2), 2))) AS d
+                FROM station s
+                WHERE s.source = ? AND s.lat IS NOT NULL AND s.lon IS NOT NULL
+                  AND EXISTS (SELECT 1 FROM observation_current o WHERE o.source = s.source
+                              AND o.station_id = s.station_id AND o.variable = ? AND o.resolution = ?)
+                ORDER BY d, s.station_id LIMIT 1
+                """, (rs, i) -> new NearestStation(rs.getString("station_id"), rs.getDouble("d")),
+                lat, lat, lon, source, variable, resolution).stream().findFirst();
+    }
 
     /**
      * Extremos vigentes (ACTIVE) da maré prevista no Porto do Recife em {@code [fromUtc, toUtc)}. Se as duas fontes

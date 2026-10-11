@@ -95,15 +95,30 @@ class AnaSoapAdapterTest {
     }
 
     @Test
-    void extraiChuvaComJanelaNaoVerificada() {
+    void extraiChuvaDoLegadoComoIncrementoDe15MinSemQualificador() {
         AnaSoapAdapter a = adapter(Set.of());
         List<FetchedBatch> batches = new ArrayList<>();
         a.fetch(Instant.parse("2025-06-01T00:00:00Z"), Instant.parse("2025-07-01T00:00:00Z"), batches::add);
 
         List<DraftValue> v = a.extract(batches.get(0).records().get(0));
-        assertThat(v).anySatisfy(d -> {
-            assertThat(d.variable()).isEqualTo("precipitation");
+        assertThat(v).filteredOn(d -> d.variable().equals("precipitation")).singleElement().satisfies(d -> {
             assertThat(d.value()).isEqualTo(0.4);
+            assertThat(d.resolution()).isEqualTo("PT15M");
+            assertThat(d.qualifier()).isNull();
+        });
+    }
+
+    @Test
+    void chuvaDeEnvelopeDeOutraOrigemContinuaSemJanelaVerificada() {
+        AnaSoapAdapter a = adapter(Set.of());
+        com.fasterxml.jackson.databind.node.ObjectNode env = new ObjectMapper().createObjectNode();
+        env.put("codigo", "39187800");
+        env.put("Data_Hora_Medicao", "2026-10-10 12:00:00");
+        env.put("Chuva_Adotada", "1.2");
+        env.put("origem", "Hidro-WebService");
+        List<DraftValue> v = a.extract(a.toRaw(env, Instant.parse("2026-10-10T16:00:00Z")));
+        assertThat(v).singleElement().satisfies(d -> {
+            assertThat(d.resolution()).isEqualTo("EVENT");
             assertThat(d.qualifier()).isEqualTo("WINDOW_UNVERIFIED");
         });
     }

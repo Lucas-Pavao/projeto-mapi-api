@@ -41,7 +41,7 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
             + "tide_hours_to_next_high,tide_range_day_m,tide_rising,tide_slope_m_h,"
             + "tide_height_t1_missing,tide_height_t2_missing,tide_height_t3_missing,tide_height_t4_missing,"
             + "tide_height_t5_missing,tide_height_t6_missing,tide_max_next_6h_missing,tide_hours_to_next_high_missing,"
-            + "tide_range_day_m_missing,tide_rising_missing,tide_slope_m_h_missing";
+            + "tide_range_day_m_missing,tide_rising_missing,tide_slope_m_h_missing,ana_precipitation,ana_precipitation_missing";
 
     @Autowired private DataExportService exportService;
     @Autowired private FloodPointRepository pointRepository;
@@ -93,6 +93,18 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
                     + " ?, ?, ?::timestamptz, ?, 'h', 'test', 'v', 'x')", "-8.0500,-34.8800", v[0], hora.toString(), v[2], v[1],
                     hora.minusSeconds(3600).toString(), run);
         }
+        // chuva ANA (F2-DADOS-11): pluviômetro mais próximo, 4 leituras de 15 min (0,5 mm) na hora que termina em `hora`
+        jdbc.update("INSERT INTO station (source, station_id, name, lat, lon) VALUES ('ANA_SOAP', 'ANA-PERTO', 'perto', -8.10, -34.90),"
+                + " ('ANA_SOAP', 'ANA-LONGE', 'longe', -7.50, -35.50)");
+        for (String st : new String[] {"ANA-PERTO", "ANA-LONGE"}) {
+            for (int k = 0; k < 4; k++) {
+                java.time.Instant t = hora.minusSeconds(900L * k);
+                jdbc.update("INSERT INTO observation (source, station_id, variable, resolution, ts_utc, value, unit, interval_start_utc,"
+                        + " run_id, raw_hash, rule_version, value_hash, origin_ts_norm) VALUES ('ANA_SOAP', ?, 'precipitation', 'PT15M',"
+                        + " ?::timestamptz, ?, 'mm', ?::timestamptz, ?, 'h', 'test', 'v', 'x')", st, t.toString(),
+                        st.equals("ANA-PERTO") ? 0.5 : 9.0, t.minusSeconds(900).toString(), run);
+            }
+        }
         eventRepository.save(FloodEvent.builder().floodPoint(ponto)
                 .startTime(agora.minusHours(2)).endTime(agora.minusHours(2)).build());
     }
@@ -131,6 +143,18 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
             assertThat(d.getTideRising()).isNull();
             assertThat(d.getTideHoursToNextHigh()).isNull();
         });
+    }
+
+    @Test
+    void chuvaAnaVemDoPluviometroMaisProximoEFicaVaziaFora() {
+        List<UnifiedDataDTO> dados = exportService.exportUnifiedDataWithAccumulated("ponto-teste", 1);
+        assertThat(dados).filteredOn(d -> d.getAnaPrecipitation() != null).singleElement()
+                .satisfies(d -> assertThat(d.getAnaPrecipitation()).isEqualTo(2.0)); // 4 x 0,5 mm; a estação distante (9 mm) não entra
+        String[] linhas = exportService.generateCsv(dados).split("\n");
+        String[] cab = linhas[0].split(",");
+        assertThat(cab[cab.length - 2]).isEqualTo("ana_precipitation");
+        assertThat(cab[cab.length - 1]).isEqualTo("ana_precipitation_missing");
+        assertThat(java.util.Arrays.stream(linhas).skip(1).filter(l -> l.endsWith(",1")).count()).isEqualTo(24);
     }
 
     @Test
