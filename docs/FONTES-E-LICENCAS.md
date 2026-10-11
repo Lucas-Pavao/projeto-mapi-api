@@ -107,6 +107,11 @@
   - As tábuas impressas são vendidas pela EMGEPRON ou por comércio eletrônico de cartas náuticas.
   - O CHM pede que navegantes enviem informações para correção das tábuas.
 - Restrição: não localizada. Para uso público e comercial, é preciso confirmar com o CHM.
+- **Ficha F-41 do Porto do Recife (versão 1/2010)**, obtida pelo Lucas em 2026-10-11 (SHA-256 73f53922…). É usada só
+  pelos números citados em `docs/extratos/f41-porto-recife.md`, e o PDF fica fora do repositório (`MAPI/fontes/dhn/`)
+  enquanto o termo da DHN não for localizado. Citação: Marinha do Brasil, DHN/CHM, F-41 — Porto do Recife, estação 30645, v1/2010.
+- **IBGE, BDG**: os relatórios das RN 2603F e 393T (e mais 17 RRNN do Recife) são dados públicos do IBGE, com citação.
+  As cópias estão em `MAPI/fontes/ibge-bdg/`.
 
 - **Uso no MAPi para 2021–2025 (F2-BACK-14, 2026-10-10):** a API TabuaMare só serve o ano corrente, então o histórico
   2021–2025 do Porto do Recife (carta 902, estação pe02) foi extraído diretamente dos **PDFs oficiais das Tábuas das

@@ -1,6 +1,6 @@
 # Progresso da revisão multiagente do MAPi
 
-Última execução: 2026-10-11 · **Revisão concluída** (Fases 0–5) · tudo na `main` · Próxima ação: pendências de informação (`docs/PENDENCIAS-DE-INFORMACAO.md`) e roadmap (`docs/ROADMAP-REVISAO.md`)
+Última execução: 2026-10-11 · **Revisão concluída** (Fases 0–5) · tudo na `main` · pós-revisão: F-41 processada (F3-GEO-08, ADR 0009 emenda 1) · Próxima ação: pendências de informação (`docs/PENDENCIAS-DE-INFORMACAO.md`) e roadmap (`docs/ROADMAP-REVISAO.md`)
 
 > Local: `projeto-mapi-api/.claude/mapi/PROGRESSO.md`. A pasta-mãe `MAPI/` não é repositório git;
 > o estado oficial fica no repositório orquestrador para ser versionado. Docs transversais
@@ -178,6 +178,8 @@
 | F5-ARQ-01 | 5 | Arquiteto | Máximo | `docs/ARQUITETURA.md` ×3 e `docs/ROADMAP-REVISAO.md` | concluido | ver commit "consolidação" | 2026-10-11 · subagente Opus (Máximo) · `docs/arquitetura/{api,ai,front}.md` + `docs/ROADMAP-REVISAO.md` · achados novos para o roadmap: `JWT_SECRET` padrão no compose, H2 no pom, `MapiServiceImpl` 775→798 e `MapView` 1 106→1 168 linhas sem divisão |
 | F5-ARQ-03 | 5 | Arquiteto | Rápido | Handoff da Fase 5 e fechamento | concluido | ver PR "fechamento" | 2026-10-11 · Opus · `docs/HANDOFF-fase-5.md` |
 | F5-ARQ-02 | 5 | Arquiteto | Máximo | `docs/RELATORIO-REVISAO.md` e PRs finais | concluido | api #21–#47 (temas), #48 (integração), #49 (docs), #50 (compose terreno); ai #5–#9; front #14–#15; projeto-mapi-sensores #12 | 2026-10-11 · Opus · tudo fundido na `main` dos 4 repositórios; suíte na main combinada: api 240 testes, ia 8 + reprodução congelada idêntica (27 testes), front 89 testes + build ok · repositórios locais em `main` · pilha subida a partir da main (API healthy, front 200, Flyway V15) · achado ao subir: tiles do terreno 404 no nginx → corrigido no #50 · `/actuator/info` não exposto (registrado) |
+| F3-GEO-08 | 3 | Geo+Arquiteto | Equilibrado + checkpoint | Processar a F-41 do Porto do Recife (entregue pelo Lucas) e fechar Δ pela cadeia D − E | concluido | `docs/f41-referencia-vertical` | 2026-10-11 · Opus · F-41 v1/2010 (SHA-256 73f53922…): RN-2603F a 3,619 m sobre o NR, Z0 = 128,2 cm (41 dias de 1997) confirma `mean_level`; BDG 2603F = 2,7977 m (Imbituba, σ 0,089) → **Δ = +0,821 m** (faixa 0,72–0,92; checagem 393T +0,715, marco não encontrado) · MDT × 14 RRNN em terra: mediana −0,36 m, dp 0,56 → altura elipsoidal descartada (N = −5,74 m), viés do MDT não medido → regra C mantida, exceção exploratória rotulada · `docs/extratos/f41-porto-recife.md`, `scripts/referencia-vertical/`, PDFs em `MAPI/fontes/` (fora do git, termo da DHN não localizado) · checkpoint Máximo (Opus independente): APROVADO COM 6 RESSALVAS, todas aplicadas |
+| F3-GEO-09 | 3 | Geo | Equilibrado | Checar o datum do MDT pela lâmina d'água do porto: MDT sobre a água × maré da tábua no instante do voo de 2016, convertida com Δ | bloqueado | — | 2026-10-11 · ressalva 5 do checkpoint da emenda 1 do ADR 0009 · falta data e hora do voo (pedido 03) |
 
 \* Nível: toda a Fase 0 rodou numa única sessão Opus (Máximo), acima do nível previsto. Motivo: o
 prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado conforme a regra
@@ -189,7 +191,7 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | (resolvido) | Limite semanal de uso derrubou 3 subagentes da F1 | reset do limite; agentes retomados | 2026-10-10 |
 | (resolvido) F3-GEO-01 | GDAL/rasterio ausentes no host | GDAL em container; leitura direta dos zips | 2026-10-10 |
 | (resolvido) GitHub | `gh` ausente | `gh` configurado pelo Lucas | 2026-10-10 |
-| F3-PED-01 | Δ (NR↔datum do MDT) não fechado | respostas do CHM/DHN, IBGE e PE3D aos pedidos em `docs/pedidos/` (envio pelo Lucas) | 2026-10-10 |
+| F3-PED-01 | Δ (NR↔datum do MDT): **NR↔SGB fechado** em 2026-10-11 (Δ = +0,821 m, F3-GEO-08); falta o viés MDT↔SGB | relatório do PE3D (pedido 03) + ponto de controle no terreno nu junto à RN 2603F/RN1-DHN; pedido 02 virou opcional; pedido 01 só para a reutilização das tábuas | 2026-10-10 |
 | (resolvido) F4-FRONT-01a (visual) | Verificação visual | extensão Claude in Chrome conectada; Playwright em uso no F3-FRONT-01 | 2026-10-10 |
 | F4-PED-01 | Limiares MEDIUM/HIGH | resposta da Defesa Civil ao pedido 04 (envio pelo Lucas) | 2026-10-10 |
 | (fora do escopo) F4-PED-02 | Rede de Petri | retirada do escopo atual pelo autor (2026-10-11) | 2026-10-10 |
@@ -243,6 +245,7 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | Ocorrências de `any` no front | 0 | | 2026-10-10 | `grep -rn ': any\|as any' src` |
 | Pontos críticos cadastrados | 5 | | 2026-10-10 | `MapiServiceImpl.java:573-620` (F1-BACK-03) |
 | Volume clima 5 anos × 5 pontos | ~219 mil linhas (~55 MB) | | 2026-10-10 | estimativa F1-BACK-03 §6, premissas a conferir no banco |
+| Δ NR↔SGB (ADR 0009) | +1,04 ± 0,3 m (estimativa gráfica, não aprovada) | +0,821 m, σ 0,089 m (F-41 + BDG 2603F) | 2026-10-11 | `docs/extratos/f41-porto-recife.md` §4 |
 | Timeouts HTTP configurados nos clientes externos | 0 | todos os clientes (F2-BACK-07) | 2026-10-10 | grep `timeout` em src/main (F1-B2-01, conferido) |
 | Testes backend (métodos) / em coleta, export, IA | 20 / 0 (o subagente contou 18 por leitura; o surefire executou 20 — vale o surefire) | | 2026-10-10 | F1-BACK-02 §7 |
 | Tratamentos de fuso distintos nas mesmas colunas | 5 | 0 na série consolidada (cada fonte com `source_tz` declarado; não verificadas ficam em quarentena) | 2026-10-10 | F1-BACK-03 tabela de fuso |
@@ -287,3 +290,5 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | 2026-10-10 | PROGRESSO registrava cobertura de 53,5% em `a472922` (integração do pipeline + V7) | rerodado no mesmo commit: 2 153/4 224 linhas = **51,0%**; a medida anterior não é reprodutível (provável artefato de execução) | substituída pelos números reprodutíveis: 51,0% em a472922 e 51,1% em ca1cb91 (2 rodadas idênticas) |
 | 2026-10-10 | F2-ARQ-02 marcado "em_andamento" | ADR 0007 aprovado e implementado (F2-FRONT-01, F2-BACK-08) | linha corrigida para concluido |
 | 2026-10-11 | RESULTADOS-AVALIACAO-F1, INTERPRETACAO-F1 e PROGRESSO diziam "30 variantes" de M1 | `resultado_etapa2.json` e `escores_cegos.csv` têm 24 (central + 23) | errata nos dois documentos; conclusão inalterada |
+| 2026-10-11 | ADR 0009 e extrato `referencia-vertical.md` §7 atribuíam o NMM de 1,28 m à série de 1978–1986 | a F-41 atribui o Z0 = 128,2 cm a 41 dias de 1997 (27/07 a 05/09) | emenda 1 do ADR 0009; o extrato antigo fica como estava (registro histórico) |
+| 2026-10-11 | Figura 3 do IBGE (leitura visual): NMM do Recife ≈ +0,14 m sobre Imbituba | F-41 + BDG 2603F: NMM de 1997 = +0,46 m sobre Imbituba | divergência de 0,32 m registrada, sem causa verificada; não afeta Δ (o NR é plano fixo) |

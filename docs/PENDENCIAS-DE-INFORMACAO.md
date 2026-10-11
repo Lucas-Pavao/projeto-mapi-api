@@ -29,9 +29,9 @@ prorrogáveis por mais 10 (pedidos 05 e 06).
 
 | # | O que falta | Com quem | Pedido | O que trava | Prioridade |
 |---|---|---|---|---|---|
-| 1 | Ficha F-41 da estação do Porto do Recife e autorização para reutilizar as tábuas | CHM/DHN (Marinha) | 01 | Δ entre maré e terreno; publicar a maré derivada | alta |
-| 2 | Altitude da RN do marégrafo e nível médio do mar no SGB | IBGE, Coordenação de Geodésia | 02 | Δ entre maré e terreno | alta |
-| 3 | Relatório técnico do MDT (datum, geoide, precisão) e termo de uso | Governo de PE (PE3D / APAC) | 03 | Δ; publicar a camada de terreno | alta |
+| 1 | ~~Ficha F-41~~ (obtida em 2026-10-11) · autorização para reutilizar as tábuas | CHM/DHN (Marinha) | 01 | Publicar a maré derivada | média |
+| 2 | ~~Altitude da RN do marégrafo~~ (BDG, RN 2603F) · confirmação e NMM no SGB | IBGE, Coordenação de Geodésia | 02 | Nada bloqueante; só confirma Δ | baixa (opcional) |
+| 3 | Relatório técnico do MDT (datum, geoide, precisão) e termo de uso | Governo de PE (PE3D / APAC) | 03 | Viés MDT↔SGB (último elo do Δ); publicar a camada de terreno | **alta: bloqueio principal do refluxo** |
 | 4 | Quantos falsos alarmes por mês a Defesa Civil tolera | Defesa Civil do Recife | 04 | Limiares de Moderado e Alto | média |
 | 5 | Registros de alagamento com data, hora e endereço | Defesa Civil do Recife, via LAI | 05 | Validação com mais casos e com hora | alta |
 | 6 | Cadastro da microdrenagem nos 4 pontos | EMLURB / URB Recife, via LAI | 06 | Capacidade da galeria e soleira com fonte | média |
@@ -48,6 +48,11 @@ prorrogáveis por mais 10 (pedidos 05 e 06).
 ## 3. Pedidos redigidos
 
 ### 3.1 Ficha F-41 e reutilização das tábuas de maré (pedido 01)
+
+> **Atualização 2026-10-11:** o Lucas obteve a F-41 (versão 1/2010). Ela dá a RN-2603F a 3,619 m sobre o NR e o
+> Z0 = 128,2 cm. Com o BDG (2603F = 2,7977 m em Imbituba), Δ = +0,821 m (σ 0,089 m), registrado na emenda 1 do ADR 0009
+> e em `docs/extratos/f41-porto-recife.md`. **Do pedido 01 resta só a pergunta sobre reutilizar as tábuas**; o texto do
+> pedido foi reduzido a isso. O texto abaixo fica como registro do pedido original.
 
 - **O que falta:** a ficha F-41 da estação maregráfica do Porto do Recife, com as referências de nível (RN) e a altura de
   cada uma acima do Nível de Redução (NR); o nível médio do mar acima do NR e o período que o originou (a tábua indica
@@ -72,6 +77,10 @@ prorrogáveis por mais 10 (pedidos 05 e 06).
 
 ### 3.2 RN do marégrafo e nível médio do mar no SGB (pedido 02)
 
+> **Atualização 2026-10-11:** o item E veio do próprio BDG (RN 2603F, citada na F-41). O pedido 02 virou **opcional**:
+> serve para o IBGE confirmar que a 2603F e a 393T são as RN da F-41 e para dar o NMM do Recife no SGB, porque a F-41 e
+> o BDG dão +0,46 m e a Figura 3 dava +0,14 m. Δ não depende dessa resposta.
+
 - **O que falta:** a altitude, no Sistema Geodésico Brasileiro (Datum Imbituba, REALT 2018), da RN ligada ao marégrafo do
   Porto do Recife; o nível médio do mar local referido ao SGB; qualquer nivelamento que ligue o NR da DHN ao SGB.
 - **Com quem:** IBGE, Diretoria de Geociências, Coordenação de Geodésia (CGED), atendimento do Banco de Dados Geodésicos.
@@ -85,6 +94,12 @@ prorrogáveis por mais 10 (pedidos 05 e 06).
 - **Primeiro passo:** preencher e enviar ao atendimento do IBGE (canal "Fale com o IBGE" ou e-mail da CGED).
 
 ### 3.3 Relatório técnico do MDT e termo de uso do PE3D (pedido 03)
+
+> **Atualização 2026-10-11: este é agora o bloqueio principal do refluxo de maré.** Com Δ fechado, falta saber se o MDT
+> está no SGB sem viés. A comparação com 14 RRNN do IBGE em terra descartou a altura elipsoidal, porque a diferença ficou
+> em decímetros, e não em −5,7 m. O viés, porém, não foi medido: a mediana deu −0,36 m e o desvio-padrão 0,56 m
+> (ADR 0009, emenda 1). O pedido 03 pode ser substituído por um ponto de controle de campo: um nivelamento curto a partir
+> da RN 2603F até o chão ao lado, ou GNSS com MAPGEO, comparado com o MDT no mesmo pixel.
 
 - **O que falta:** o datum vertical das cotas do MDT de 2016 (altitude ortométrica em Imbituba? qual realização? ou altura
   elipsoidal?), o modelo geoidal usado (MAPGEO2010 ou 2015), a precisão vertical, as datas de voo das folhas do Recife e o
