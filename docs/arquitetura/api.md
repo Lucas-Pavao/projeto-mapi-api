@@ -5,7 +5,7 @@
   `feat/terreno-cog3857` em `013cd36`). No momento desta escrita, `main..integracao/fase-2` tinha 108 commits
   (`git rev-list --count`, 2026-10-11). A fusão em `main`, por PRs por tema, está prevista para 2026-10-11 (orquestrador).
 - Fontes: `.claude/mapi/PROGRESSO.md` (tarefas e tabela "Medidas antes e depois"), ADRs 0001–0009,
-  `docs/HANDOFF-fase-{0..3}.md`, `docs/API.md`, `docs/INGESTAO.md`, `docs/MODELO-DE-DADOS.md`.
+  handoffs das fases 0–3 (na tag `revisao-completa-2026-10-11`), `docs/API.md`, `docs/INGESTAO.md`, `docs/MODELO-DE-DADOS.md`.
 - Números que medi nesta tarefa estão marcados "(medido em F5-ARQ-01)", com o comando.
 
 ## 1. Visão atual
@@ -24,7 +24,7 @@ O método é diferente da "soma por pacote" da Fase 0 (RC-22), então a compara�
 | Peça | O que faz | Decisão | Origem |
 |---|---|---|---|
 | Banco | PostgreSQL 16.15 + TimescaleDB 2.30.2 + PostGIS 3.6.4, imagem fixa `timescale/timescaledb-ha:pg16.15-ts2.30.2` | ADR 0005 | PROGRESSO, F2-DADOS-08 |
-| Schema | Só Flyway, V1 a V15. O `TimescaleSetup.sql` ficou como histórico | ADR 0003 | `git ls-tree integracao/fase-2` |
+| Schema | Só Flyway, V1 a V15. O `TimescaleSetup.sql` foi removido (histórico na tag) | ADR 0003 | `git ls-tree integracao/fase-2` |
 | Fuso | Todo instante em UTC (`timestamptz`). Cada fonte declara `source_tz`; fonte sem fuso verificado fica em quarentena | ADR 0001, ADR 0006 | PROGRESSO, F2-BACK-01 |
 | Pipeline de ingestão | `raw_observation` (bruto, só acrescenta) → validação → `ingestion_quarantine` ou `observation` (upsert versionado, `observation_revision`) → `observation_hourly_v` | ADR 0006 | `docs/INGESTAO.md` |
 | Adaptadores no pipeline | Open-Meteo archive, ERA5-Land, CKAN (ocorrências), ANA (SOAP), APAC 24h, Cemaden, TabuaMare (API), tábuas DHN em CSV, maré horária interpolada | ADR 0006 | PROGRESSO, F2-BACK-12/14/15 |

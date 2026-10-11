@@ -3,7 +3,7 @@
 O `docker-compose.yml` deste repositório é **só para desenvolvimento e demonstração local**. Ele
 traz credenciais padrão conhecidas. Não use em servidor acessível pela rede sem antes trocar o que
 está na tabela 2. Tarefa F1-QA-02, 2026-10-10. Achados de origem: F1-B2-12, F1-B2-13, F1-B2-14 e
-F1-B3-21 em `docs/revisao/fase-1/`.
+F1-B3-21 (achados da fase 1, na tag `revisao-completa-2026-10-11`).
 
 ## 1. Exposição de portas
 
