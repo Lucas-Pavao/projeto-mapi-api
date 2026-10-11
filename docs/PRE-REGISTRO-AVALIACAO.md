@@ -3,7 +3,8 @@
 - Tarefa: F4-IA-10 · Data: 2026-10-11 · Autor: Agente 3 (nível Máximo) · Versão 1
 - Desenho: `docs/MODELAGEM-IA.md` §0–11 (abaixo, "MODELAGEM"). Parâmetros: `docs/PARAMETROS-MODELO-FISICO.md` (abaixo,
   "PARAMETROS").
-- **Commit do pré-registro:** `[preencher pelo orquestrador ao commitar: SHA do commit que contém esta versão]`
+- **Commit do pré-registro:** `77e41dea4533a05288d53c4e0140a6a3ba1512f9` (2026-10-11, branch `revisao/fase-0`). Qualquer alteração posterior é **emenda**, registrada na seção de emendas com data e motivo, e só vale se feita antes da etapa de junção com os rótulos.
+- **Confirmação do autor:** solicitada em 2026-10-11 (pergunta 30 do PROGRESSO.md); a etapa 2 (junção com rótulos) só roda depois dela.
 - **SHA-256 deste arquivo no commit:** `[preencher]`
 - **Confirmação do autor (Lucas) das escolhas da §2 e da §4:** `[ ] confirmado em ____ ` (exigida pela REVISAO-CRITICA,
   RC-25)
@@ -315,3 +316,8 @@ GROUP BY 1 ORDER BY 1;
 A saída esperada é a tabela da §2.1 (18 linhas). Se a consulta devolver outra lista, a execução para e a diferença é
 registrada na §8 antes de prosseguir. Isso é conferência do rótulo, não do desempenho. Conferir no banco se o filtro de
 tipo já está aplicado em `flood_occurrence` ou precisa de junção com `label_filter` `[a verificar no passo 7 da §10]`.
+
+## Emendas
+
+| Data | Emenda | Motivo | Antes da junção com rótulos? |
+|---|---|---|---|
