@@ -117,6 +117,64 @@ Eventos de alagamento de **maré em dia sem chuva** no CKAN (chuva 24 h ≈ 0 na
 - Mudança do porto de referência da TabuaMare (hoje `pe02`, Porto do Recife; Suape `pe03` tem NMM 1,27 m e DHN/SUAPE como instituições diferentes).
 - Evidência no CKAN de que o refluxo de maré ocorre com folga estimada acima da incerteza.
 
+## Emenda 1 (2026-10-11) — Δ fechado pela F-41 e pelo BDG (F3-GEO-08)
+
+- Contexto: o Lucas obteve a F-41 do Porto do Recife (versão 1/2010). Ela liga as RN da DHN a duas RRNN do IBGE, e o BDG
+  publica a altitude dessas RRNN. A cadeia D − E da Figura 4 do IBGE fecha com fonte primária. Dados e contas:
+  `docs/extratos/f41-porto-recife.md`.
+- **Δ = +0,821 m** pela RN 2603F: D = 3,619 m acima do NR (F-41), E = 2,7977 m de altitude normal em Imbituba
+  (BDG, REALT 2018). Logo h_NR = −0,821 m. Essa opção A substitui a estimativa de trabalho de +1,04 ± 0,3 m, que
+  continha o valor novo.
+- Incerteza de Δ: σ = 0,089 m, a sigma de altitude da 2603F no BDG, que domina o nivelamento da DHN (centímetros).
+  Checagem pela RN 393T: Δ = +0,715 m. A diferença de 0,107 m **não** é dispersão estatística: a sigma de 0,089 m é
+  absoluta (REALT) e quase comum às duas RRNN, que ficam a ~500 m. Os desníveis 393T−2603F discordam: 0,916 m pelo IBGE
+  e 0,809 m pela DHN. Para um nivelamento, isso é inconsistência grosseira: marco perturbado ou outra chapa. Isso
+  reforça a escolha da 2603F. A 393T está como marco não encontrado desde 2006 e foi nivelada em 1987. Faixa de sensibilidade adotada: **0,72 a 0,92 m** (Δ ± 0,10 m), que cobre as duas RRNN.
+- NMM: `mean_level` = 1,28 m é o Z0 = 128,2 cm da F-41, agora confirmado. A F-41 tira o Z0 de 41 dias de 1997, não da
+  série de 1978–1986. Δ não depende do Z0, porque o NR é um plano fixo, preso à régua. O NMM de 1997 no SGB fica em
+  +0,46 m e a Figura 3 do IBGE dava +0,14 m. A diferença de 0,32 m fica registrada como divergência, sem explicação
+  verificada: as candidatas são o REALT 2018 contra ajustamentos antigos, a época de cada nível e o fato de serem só 41 dias.
+- Época: a DHN nivelou em 1997 e 2001, e o IBGE nivelou a 2603F em 2005, num cais sobre aterro. Um recalque entre as
+  épocas entraria em Δ sem aparecer na sigma. Não há medida dele; fica como fonte de incerteza não quantificada.
+- Datum do MDT, que é a ressalva 1 deste ADR:
+  - **Altura elipsoidal fica descartada.** A ondulação no porto é de −5,74 m (EGM2008) e o MDT difere das RRNN em terra
+    por decímetros.
+  - O viés do MDT em relação ao SGB **não está medido**. Em 14 RRNN em terra, MDT − IBGE tem mediana −0,36 m e
+    desvio-padrão 0,56 m; na RN1-DHN deu −0,41 m. O sinal negativo é esperado, porque a chapa fica acima do terreno nu,
+    e as coordenadas do BDG erram em dezenas de metros.
+  - A RN1-DHN está "cravada no chão", então é o ponto mais próximo do terreno nu e o seu −0,41 m pesa mais que o das
+    chapas em coluna. Premissa: a coordenada dela está em WGS-84/SIRGAS 2000, porque o cabeçalho da F-41 diz WGS-84 e o
+    rastreio foi feito em 2001. A ficha não declara isso para a RN1. Se a coordenada estivesse em SAD69, o ponto se
+    deslocaria ~50 m.
+  - Duas causas diferentes estão misturadas no viés: o modelo geoidal usado pelo PE3D (MAPGEO2010, MAPGEO2015 e
+    hgeoHNOR2020 podem diferir por decímetros) e erro próprio do LiDAR. A diferença entre altitude normal e ortométrica
+    é de milímetros ao nível do mar no Recife e foi desprezada.
+- Decisão:
+  1. Δ = +0,821 m (σ 0,089 m; faixa 0,72–0,92 m) fica **aprovado como o desnível NR↔SGB** e é o valor a usar quando a
+     conversão `cota_NR = H + Δ` for liberada. Ele vai para a tabela de parâmetros (não para constante no código), com
+     fonte e data.
+  2. **A regra C continua valendo** para comparações absolutas entre o MDT e a maré, porque o viés MDT↔SGB não está
+     medido. O que destrava é uma destas duas coisas: o relatório do PE3D declarando o datum (pedido 03) com uma checagem
+     de campo; ou um ponto de controle no terreno nu ao lado da 2603F ou da RN1-DHN (nivelamento a partir da RN, ou GNSS
+     com MAPGEO), comparado com o MDT no mesmo pixel.
+  3. Fica permitido, só para análise exploratória e com o rótulo "Δ provisório, viés do MDT não medido", calcular
+     `cota_NR` com Δ e reportar a folga com a incerteza somada (Δ ± 0,10 m; MDT ± 0,25 m de especificação). A
+     indicação de viés é assimétrica (−0,36 a −0,41 m), então todo resultado exploratório traz também o **cenário de
+     viés**: H corrigido em +0,4 m. Nada disso entra em regra do sistema, em feature do modelo nem em camada pública.
+- Exemplo com o Δ novo: rua a H = 2,00 m dá cota_NR = 2,82 m; a preamar de 2,45 m deixa folga de 0,37 m. Com a faixa de
+  Δ, a folga vai de 0,27 a 0,47 m. Somando a especificação do MDT (± 0,25 m), vai de 0,02 a 0,72 m, e esse resultado
+  ainda não decide nada. No cenário de viés (H + 0,4 m), a folga é de 0,77 m.
+- Checagem independente proposta, sem custo de campo (tarefa F3-GEO-09, pendente):
+  - O MDT dá 0,4–0,5 m sobre a água do porto.
+  - Com a data e a hora do voo de 2016 sobre o cais, a maré da tábua naquele instante, convertida para o SGB com Δ,
+    tem de bater com esse valor.
+  - Erro esperado: decímetros, por causa do resíduo meteorológico e de o LiDAR retornar mal na água.
+  - A data e a hora do voo entram no pedido 03.
+- Pedidos: o 01 fica **atendido na parte da F-41**; resta a reutilização das tábuas. O 02 passa a ser **opcional**: o
+  item E veio do BDG e o pedido só serviria para confirmar a 2603F e a 393T e para pedir o NMM. O 03 (datum do PE3D)
+  passa a ser **o bloqueio principal**.
+- Decisor: Agente 5 e Arquiteto, pela autorização durável do Lucas. Checkpoint Máximo (subagente Opus independente, 2026-10-11): **APROVADO COM 6 RESSALVAS**, todas aplicadas nesta emenda (inconsistência 393T × 2603F não é dispersão; premissa do datum da RN1; geoide × viés; cenário assimétrico; checagem pela lâmina d'água; recalque entre épocas).
+
 ## Fontes
 
-Ver `docs/extratos/referencia-vertical.md` (acessos em 2026-10-10): IBGE, relacao_dvsgb_nr_zh.pdf; IBGE, 10anos.pdf; TabuaMare/DHN `pe02`; IBGE BDG RN 393Y; PSMSL estação 556; Fuchs et al. (2021), IHR; Lins (2018), UFPE; Cirilo et al., ABRHidro.
+Ver `docs/extratos/f41-porto-recife.md` (F-41 e BDG 2603F/393T, acesso em 2026-10-11) e `docs/extratos/referencia-vertical.md` (acessos em 2026-10-10): IBGE, relacao_dvsgb_nr_zh.pdf; IBGE, 10anos.pdf; TabuaMare/DHN `pe02`; IBGE BDG RN 393Y; PSMSL estação 556; Fuchs et al. (2021), IHR; Lins (2018), UFPE; Cirilo et al., ABRHidro.

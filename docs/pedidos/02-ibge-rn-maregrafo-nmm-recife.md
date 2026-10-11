@@ -1,3 +1,9 @@
+> **Opcional desde 2026-10-11.** A F-41 liga o NR às RN 2603F e 393T do IBGE, e o BDG publica a altitude delas
+> (2,7977 m e 3,7135 m). Δ fechou sem este pedido (ADR 0009, emenda 1). Se for enviar, troque os itens 1 e 3 por:
+> "confirmar que as RN 2603F e 393T do BDG são as RN citadas na F-41 da DHN (versão 1/2010) e se há nivelamento mais
+> recente entre elas". O item 2 (NMM local no SGB) continua útil, porque a F-41 com o BDG dá +0,46 m e a Figura 3 da
+> nota técnica dá cerca de +0,14 m.
+
 **Para:** IBGE — Diretoria de Geociências, Coordenação de Geodésia (CGED) / atendimento do Banco de Dados Geodésicos
 **Assunto:** Altitude da RN do marégrafo do Porto do Recife e Nível Médio do Mar local no SGB — pesquisa acadêmica
 
