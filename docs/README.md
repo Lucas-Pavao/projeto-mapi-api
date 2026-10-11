@@ -37,11 +37,13 @@ Comece por `VISAO-GERAL.md`. O estado da revisão e as decisões ficam em `../.c
 | `MEMO-ESCASSEZ-DE-ROTULO.md`, `PARAMETROS-MODELO-FISICO.md`, `MODELAGEM-IA.md` | Método e parâmetros |
 | `REVISAO-CRITICA.md`, `PRONTIDAO-ACADEMICA.md`, `RELATORIO-REVISAO.md` | Contestação, prontidão para a banca e relatório final da revisão |
 | `apresentacao/MAPi-disciplina.pptx` | Deck da disciplina |
+| `planilhas/comparacao-modelos-f1.xlsx` | Tabela comparativa dos modelos e baselines da 1ª análise (AUC, IC, alertas), com sensibilidade e origem |
+| `planilhas/comparacao-banco.xlsx` | Critérios e benchmark TimescaleDB+PostGIS × MySQL (ADR 0005) |
 
 ## Histórico da revisão
 
 Os handoffs das fases 0–5, os achados por fase (`revisao/fase-*`), as screenshots, a matriz de prioridade, o relatório
-de consistência entre repositórios, as medidas de linha de base e o `TimescaleSetup.sql` saíram da árvore em 2026-10-11.
+de consistência entre repositórios, as medidas de linha de base (as duas planilhas voltaram para `planilhas/`) e o `TimescaleSetup.sql` saíram da árvore em 2026-10-11.
 Continuam no git, na tag **`revisao-completa-2026-10-11`**:
 
 ```
