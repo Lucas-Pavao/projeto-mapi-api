@@ -33,3 +33,6 @@ build/
 ### VS Code ###
 .vscode/
 .env
+
+# Gerado no build do Docker a partir de GIT_COMMIT (o plugin gera em target/classes)
+src/main/resources/git.properties

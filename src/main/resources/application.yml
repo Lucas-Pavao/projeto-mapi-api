@@ -228,6 +228,10 @@ management:
       show-details: when-authorized
       probes:
         enabled: true
+  info:
+    # /actuator/info mostra commit completo, branch, dirty e data do build (git.properties; RC-03).
+    git:
+      mode: full
   metrics:
     tags:
       application: ${spring.application.name}
