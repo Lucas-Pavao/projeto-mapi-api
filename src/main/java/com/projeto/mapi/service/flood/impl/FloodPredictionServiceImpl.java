@@ -7,6 +7,7 @@ import com.projeto.mapi.dto.DegradationReason;
 import com.projeto.mapi.dto.FloodPredictionRequestDTO;
 import com.projeto.mapi.dto.FloodPredictionResponseDTO;
 import com.projeto.mapi.dto.FloodPredictionResponseDTO.Contributor;
+import com.projeto.mapi.dto.ModelValidationStatus;
 import com.projeto.mapi.dto.RiskLevel;
 import com.projeto.mapi.service.flood.FeatureCatalog;
 import com.projeto.mapi.service.flood.FloodPredictionService;
@@ -164,6 +165,12 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
         String semanticVersion = plus >= 0 ? fullVersion.substring(0, plus) : fullVersion;
         log.info("Predição recebida (estação {}): modelo completo={} risco={}", station, fullVersion, level);
 
+        ModelValidationStatus validation = ModelValidationStatus.fromAi(ai.modelValidationStatus);
+        if (ai.modelValidationStatus != null && validation == ModelValidationStatus.NOT_VALIDATED
+                && !ModelValidationStatus.NOT_VALIDATED.name().equalsIgnoreCase(ai.modelValidationStatus.trim())) {
+            log.warn("IA enviou model_validation_status={} (estação {}); mantido NOT_VALIDATED (sem ADR de validação)",
+                    ai.modelValidationStatus, station);
+        }
         Instant validUntil = ai.horizonHours == null ? null : issuedAt.plus(ai.horizonHours, ChronoUnit.HOURS);
         FloodPredictionResponseDTO response = FloodPredictionResponseDTO.builder()
                 .riskLevel(level)
@@ -175,6 +182,7 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
                 .lastValidIssuedAt(issuedAt)
                 .contributors(contributors)
                 .imputedFeatures(catalog.imputed(imputedIds))
+                .modelValidationStatus(validation)
                 .build();
 
         // Cinto e suspensório: o que sai daqui nunca viola o §2.
@@ -209,6 +217,9 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
 
         @JsonProperty("model_version")
         private String modelVersion;
+
+        @JsonProperty("model_validation_status")
+        private String modelValidationStatus;
 
         @JsonProperty("horizon_hours")
         private Integer horizonHours;

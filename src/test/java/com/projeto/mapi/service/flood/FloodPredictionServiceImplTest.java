@@ -3,6 +3,7 @@ package com.projeto.mapi.service.flood;
 import com.projeto.mapi.dto.DegradationReason;
 import com.projeto.mapi.dto.FloodPredictionRequestDTO;
 import com.projeto.mapi.dto.FloodPredictionResponseDTO;
+import com.projeto.mapi.dto.ModelValidationStatus;
 import com.projeto.mapi.dto.RiskLevel;
 import com.projeto.mapi.service.flood.impl.FloodPredictionServiceImpl;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
@@ -115,6 +116,42 @@ class FloodPredictionServiceImplTest {
     void riscoDaIaEmMinusculasEAceito() {
         iaResponde("{\"flood_probability\":0.9,\"risk_level\":\"high\",\"model_version\":\"v1\"}");
         assertThat(predizEConfere().riskLevel()).isEqualTo(RiskLevel.HIGH);
+    }
+
+    // ---- ADR 0007 Emenda 1: modelValidationStatus ----
+
+    @Test
+    void validationStatusAusenteViraNotValidated() {
+        iaResponde("{\"flood_probability\":0.1,\"risk_level\":\"LOW\",\"model_version\":\"unversioned\"}");
+        assertThat(predizEConfere().modelValidationStatus()).isEqualTo(ModelValidationStatus.NOT_VALIDATED);
+    }
+
+    @Test
+    void validationStatusNotValidatedDaIaEPropagado() {
+        iaResponde("{\"flood_probability\":0.1,\"risk_level\":\"LOW\",\"model_version\":\"unversioned\","
+                + "\"model_validation_status\":\"NOT_VALIDATED\"}");
+        assertThat(predizEConfere().modelValidationStatus()).isEqualTo(ModelValidationStatus.NOT_VALIDATED);
+    }
+
+    @Test
+    void validatedDaIaERebaixadoSemAdr() {
+        iaResponde("{\"flood_probability\":0.1,\"risk_level\":\"LOW\",\"model_version\":\"v1\","
+                + "\"model_validation_status\":\"VALIDATED\"}");
+        assertThat(predizEConfere().modelValidationStatus()).isEqualTo(ModelValidationStatus.NOT_VALIDATED);
+    }
+
+    @Test
+    void validationStatusDesconhecidoViraNotValidated() {
+        iaResponde("{\"flood_probability\":0.1,\"risk_level\":\"LOW\",\"model_version\":\"v1\","
+                + "\"model_validation_status\":\"???\"}");
+        assertThat(predizEConfere().modelValidationStatus()).isEqualTo(ModelValidationStatus.NOT_VALIDATED);
+    }
+
+    @Test
+    void unknownTambemTemNotValidated() {
+        server.expect(requestTo(URL)).andRespond(withStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+                .contentType(MediaType.APPLICATION_JSON).body("{}"));
+        assertThat(predizEConfere().modelValidationStatus()).isEqualTo(ModelValidationStatus.NOT_VALIDATED);
     }
 
     // ---- §4: mapeamento de falha ----

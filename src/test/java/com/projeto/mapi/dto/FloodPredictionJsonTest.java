@@ -42,6 +42,14 @@ class FloodPredictionJsonTest {
     }
 
     @Test
+    void modelValidationStatusSerializaComPadraoNotValidated() throws Exception {
+        var dto = FloodPredictionResponseDTO.builder().riskLevel(RiskLevel.LOW).floodProbability(0.1)
+                .modelVersion("unversioned").issuedAt(Instant.parse("2026-10-10T12:00:00Z")).build();
+        JsonNode json = mapper.readTree(mapper.writeValueAsString(dto));
+        assertThat(json.get("modelValidationStatus").asText()).isEqualTo("NOT_VALIDATED");
+    }
+
+    @Test
     void unknownSerializaProbabilidadeNulaECamposDeDegradacao() throws Exception {
         var dto = FloodPredictionResponseDTO.builder()
                 .riskLevel(RiskLevel.UNKNOWN).issuedAt(Instant.parse("2026-10-10T12:00:00Z"))

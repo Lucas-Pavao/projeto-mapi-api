@@ -12,6 +12,9 @@ import java.util.List;
  *
  * <p>As regras de coerência (§2) são conferidas por {@code PredictionCoherence}. Todo instante é UTC e
  * serializa em ISO-8601 com "Z"; é truncado em segundos para a resposta ficar estável.
+ *
+ * <p>{@code modelValidationStatus} (Emenda 1 do ADR 0007) é sempre preenchido e vale {@code NOT_VALIDATED}
+ * por padrão; {@code VALIDATED} só com ADR que cite avaliação pré-registrada positiva (ver {@link ModelValidationStatus}).
  */
 @Builder(toBuilder = true)
 public record FloodPredictionResponseDTO(
@@ -26,9 +29,11 @@ public record FloodPredictionResponseDTO(
         List<Contributor> contributors,
         List<ImputedFeature> imputedFeatures,
         @Deprecated String estimatedTimeToEvent,
-        String message) {
+        String message,
+        ModelValidationStatus modelValidationStatus) {
 
     public FloodPredictionResponseDTO {
+        modelValidationStatus = modelValidationStatus == null ? ModelValidationStatus.NOT_VALIDATED : modelValidationStatus;
         issuedAt = truncate(issuedAt);
         validUntil = truncate(validUntil);
         lastValidIssuedAt = truncate(lastValidIssuedAt);
