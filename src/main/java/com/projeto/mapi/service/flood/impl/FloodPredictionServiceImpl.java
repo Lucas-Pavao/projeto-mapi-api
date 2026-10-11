@@ -81,7 +81,10 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
             }
             return toResult(ai, now, imputedFeatureIds, request.getStationId());
         } catch (HttpClientErrorException e) {
-            if (e.getStatusCode().value() == HttpStatus.UNPROCESSABLE_ENTITY.value()) {
+            // Só o 422 do contrato (com missing_features) é dado insuficiente. O 422 de validação do FastAPI
+            // (payload fora do esquema, ex.: campo nulo) é erro de integração e vira AI_ERROR.
+            if (e.getStatusCode().value() == HttpStatus.UNPROCESSABLE_ENTITY.value()
+                    && e.getResponseBodyAsString().contains("\"missing_features\"")) {
                 log.warn("IA respondeu 422 (dado insuficiente) para a estação {}: {}",
                         request.getStationId(), e.getResponseBodyAsString());
                 return unknown(DegradationReason.INSUFFICIENT_DATA, now, imputedFeatureIds);

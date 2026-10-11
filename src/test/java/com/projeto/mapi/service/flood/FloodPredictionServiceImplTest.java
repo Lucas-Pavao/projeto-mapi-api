@@ -165,6 +165,14 @@ class FloodPredictionServiceImplTest {
     }
 
     @Test
+    void http422DeValidacaoDoEsquemaViraAiError() {
+        server.expect(requestTo(URL)).andRespond(
+                withStatus(HttpStatus.UNPROCESSABLE_ENTITY).contentType(MediaType.APPLICATION_JSON)
+                        .body("{\"detail\":[{\"type\":\"string_type\",\"loc\":[\"body\",\"nearby_sensors\",0,\"unit\"],\"msg\":\"" + SEGREDO + "\"}]}"));
+        assertUnknown(predizEConfere(), DegradationReason.AI_ERROR);
+    }
+
+    @Test
     void timeoutDeLeituraViraAiTimeout() {
         server.expect(requestTo(URL)).andRespond(withException(new HttpTimeoutException(SEGREDO)));
         assertUnknown(predizEConfere(), DegradationReason.AI_TIMEOUT);
