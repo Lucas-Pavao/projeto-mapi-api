@@ -12,14 +12,14 @@ IMG_TAG="ghcr.io/osgeo/gdal:ubuntu-small-3.10.0"
 IMG_DIGEST="sha256:383e17c221d48031c5ac4fe7500d95adccb05d719a9685542c1e8d2d84ef50e0"
 IMG="ghcr.io/osgeo/gdal@${IMG_DIGEST}"
 MIN_LIVRE_KB=$((1500*1024))                               # aborta se /home < 1,5 GB livres
-TETO_KB=$((1024*1024))                                    # teto de 1 GB para as saídas
+TETO_KB=$(( ${TETO_MB:-1024} * 1024 ))                     # teto das saídas (padrão 1 GB; TETO_MB sobrescreve)
 
 checa_disco() {
   local livre; livre=$(df --output=avail -k "$OUT" | tail -1)
   df -h /home / | cat
   [ "$livre" -ge "$MIN_LIVRE_KB" ] || { echo "ABORTA: menos de 1,5 GB livres" >&2; exit 1; }
   local usado; usado=$(du -sk "$OUT" | cut -f1)
-  [ "$usado" -le "$TETO_KB" ] || { echo "ABORTA: saídas passam de 1 GB" >&2; exit 1; }
+  [ "$usado" -le "$TETO_KB" ] || { echo "ABORTA: saídas passam do teto (TETO_MB)" >&2; exit 1; }
 }
 mkdir -p "$OUT/recortes"
 checa_disco
@@ -75,6 +75,19 @@ etapa_whitebox() {   # baixa o binário oficial (hash fixado) para $OUT/whitebox
 etapa_validar() { etapa_whitebox; py validar; }   # Priority-Flood próprio x Whitebox -> validacao_whitebox.csv/json
 etapa_estimativas() { py estimativas; }
 
+# Recorte do terreno em EPSG:31985 (xmin ymin xmax ymax). BBOX_MODE=pontos (padrão histórico): bbox dos pontos de
+# cobertura.csv + 2 km. BBOX_MODE=mosaico: extensão inteira do mosaico.vrt (todas as folhas baixadas), para a camada
+# cobrir o Recife todo e não só a faixa em volta dos pontos.
+BBOX_MODE="${BBOX_MODE:-pontos}"
+bbox_recorte() {
+  if [ "$BBOX_MODE" = mosaico ]; then
+    dk gdalinfo -json /terreno/mosaico.vrt | python3 -c 'import sys,json; c=json.load(sys.stdin)["cornerCoordinates"]; print("%.3f %.3f %.3f %.3f" % (c["lowerLeft"][0], c["lowerLeft"][1], c["upperRight"][0], c["upperRight"][1]))'
+  else
+    tail -n +2 "$OUT/cobertura.csv" | awk -F, 'NR==1{xa=xb=$3;ya=yb=$4} {if($3<xa)xa=$3;if($3>xb)xb=$3;if($4<ya)ya=$4;if($4>yb)yb=$4}
+      END{printf "%.3f %.3f %.3f %.3f", xa-2000, ya-2000, xb+2000, yb+2000}'
+  fi
+}
+
 # cog3857 (ADR 0008, decisão C1): COG único em EPSG:3857 da cota bruta, vizinho mais próximo, para o front ler por range requests.
 # Recorte = bbox dos pontos de cobertura.csv + 2 km (em EPSG:31985). Saída: $OUT/cog3857/terrain_3857.tif e terrain_manifest.json.
 # Espaço: o driver COG grava um temporário não comprimido (~0,8 GB) além do COG final; exige 1,5 GB livres antes de começar.
@@ -82,9 +95,9 @@ etapa_cog3857() {
   checa_disco
   [ -s "$OUT/mosaico.vrt" ] || { echo "ABORTA: rode a etapa vrt antes" >&2; exit 1; }
   mkdir -p "$OUT/cog3857"
-  local bbox; bbox=$(tail -n +2 "$OUT/cobertura.csv" | awk -F, 'NR==1{xa=xb=$3;ya=yb=$4} {if($3<xa)xa=$3;if($3>xb)xb=$3;if($4<ya)ya=$4;if($4>yb)yb=$4}
-    END{printf "%.3f %.3f %.3f %.3f", xa-2000, ya-2000, xb+2000, yb+2000}')
+  local bbox; bbox=$(bbox_recorte)
   echo "bbox EPSG:31985 (xmin ymin xmax ymax) = $bbox"
+  rm -f "$OUT/cog3857/terrain_3857.tif"   # o driver COG não abre arquivo existente para atualizar
   local t0 t1; t0=$(date +%s.%N)
   # shellcheck disable=SC2086
   dk gdalwarp -of COG -t_srs EPSG:3857 -r near -te_srs EPSG:31985 -te $bbox -srcnodata -9999 -dstnodata -9999 \
@@ -104,9 +117,9 @@ etapa_cog3857() {
 # Intermediarios (RGBA, MBTiles) sao apagados ao fim; fica tiles/terrain_hypsometry.pmtiles + terrain_manifest.json. Exige 1,5 GB livres.
 PMTILES_VER="1.31.2"
 PMTILES_TGZ_SHA256="3ed7dbf4ec2e6dfe5e25b6f70d1ffc932729f93c86db353bf514dd71010a312f"   # go-pmtiles_1.31.2_Linux_x86_64.tar.gz (BSD-3-Clause)
-# Variantes (F3-FRONT-03), por ambiente: TILE_FORMAT=PNG|PNG8|WEBP (padrao PNG), TILE_QUALITY (WEBP, padrao 90), ZOOM_MAX (padrao 17; o MBTiles nasce no zoom nativo 17 e z > ZOOM_MAX e cortado),
+# Variantes (F3-FRONT-03), por ambiente: ZOOM_MIN (padrao 12), BBOX_MODE (ver bbox_recorte), TILE_FORMAT=PNG|PNG8|WEBP (padrao PNG), TILE_QUALITY (WEBP, padrao 90), ZOOM_MAX (padrao 17; o MBTiles nasce no zoom nativo 17 e z > ZOOM_MAX e cortado),
 # TILES_VARIANT (sufixo da pasta de saida: vazio = tiles/; "webp-z16" = tiles-webp-z16/). Sem variaveis, o resultado e o de F3-FRONT-02.
-ZOOM_MIN=12; ZOOM_MAX="${ZOOM_MAX:-17}"; TILE_FORMAT="${TILE_FORMAT:-PNG}"; TILE_QUALITY="${TILE_QUALITY:-90}"; TILES_VARIANT="${TILES_VARIANT:-}"
+ZOOM_MIN="${ZOOM_MIN:-12}"; ZOOM_MAX="${ZOOM_MAX:-17}"; TILE_FORMAT="${TILE_FORMAT:-PNG}"; TILE_QUALITY="${TILE_QUALITY:-90}"; TILES_VARIANT="${TILES_VARIANT:-}"
 etapa_tiles() {
   checa_disco
   [ -s "$OUT/cog3857/terrain_3857.tif" ] || { echo "ABORTA: rode a etapa cog3857 antes" >&2; exit 1; }
@@ -117,8 +130,7 @@ etapa_tiles() {
     tar -xzf "$P/p.tgz" -C "$P" pmtiles LICENSE && rm "$P/p.tgz"
   fi
   local pms; pms=$(sha256sum "$P/pmtiles" | cut -d' ' -f1)
-  local bbox; bbox=$(tail -n +2 "$OUT/cobertura.csv" | awk -F, 'NR==1{xa=xb=$3;ya=yb=$4} {if($3<xa)xa=$3;if($3>xb)xb=$3;if($4<ya)ya=$4;if($4>yb)yb=$4}
-    END{printf "%.3f %.3f %.3f %.3f", xa-2000, ya-2000, xb+2000, yb+2000}')
+  local bbox; bbox=$(bbox_recorte)
   local T="$OUT/$TD"; rm -f "$T/_rgba.tif" "$T/_z.mbtiles" "$T/terrain_hypsometry.pmtiles"
   local TQ=(); if [ "$TILE_FORMAT" = WEBP ]; then TQ=(-co QUALITY="$TILE_QUALITY"); fi
   local t0 t1; t0=$(date +%s.%N)
@@ -128,7 +140,9 @@ etapa_tiles() {
   dk gdal_translate -of MBTiles -co TILE_FORMAT=$TILE_FORMAT ${TQ[@]+"${TQ[@]}"} -co MINZOOM=17 -co MAXZOOM=17 -co RESAMPLING=NEAREST \
     /terreno/$TD/_rgba.tif /terreno/$TD/_z.mbtiles
   rm -f "$T/_rgba.tif"
-  dk gdaladdo -r average /terreno/$TD/_z.mbtiles 2 4 8 16 32
+  # Fatores de redução do zoom nativo 17 até ZOOM_MIN (12 -> 2..32; 10 -> 2..128).
+  local niveis=(); local f=2; for ((z=16; z>=ZOOM_MIN; z--)); do niveis+=("$f"); f=$((f*2)); done
+  dk gdaladdo -r average /terreno/$TD/_z.mbtiles "${niveis[@]}"
   dk python3 -I /tools/terreno/cortaz.py /terreno/$TD/_z.mbtiles $ZOOM_MIN $ZOOM_MAX
   "$P/pmtiles" convert "$T/_z.mbtiles" "$T/terrain_hypsometry.pmtiles"
   t1=$(date +%s.%N)
