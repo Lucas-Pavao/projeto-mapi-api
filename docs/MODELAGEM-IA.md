@@ -1,5 +1,7 @@
 # Modelagem do MAPi (F1): modelo físico-estocástico, verificação diária e papel do ML
 
+> **Escopo atual (2026-10-11, decisão do autor):** a rede de Petri e o emulador de ML não fazem parte da avaliação em curso (a Petri ainda não está pronta). As seções sobre Petri/emulador descrevem trabalho futuro e só entram por novo pré-registro. A avaliação em curso testa o modelo do balde contra os baselines (H1, H2).
+
 - Tarefa: F4-IA-10 · Data: 2026-10-11 · Autor: Agente 3 (nível Máximo, desenho de pesquisa) · Revisão pendente: Lucas e orientador
 - Status: **proposta**, amarrada ao protocolo `docs/PRE-REGISTRO-AVALIACAO.md`. Nenhum modelo foi rodado nos dias
   rotulados e nenhum desempenho foi olhado. Só documentação: nada mudou em código, banco ou export.
