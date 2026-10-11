@@ -9,8 +9,8 @@
   (lido com `git show`, sem executar).
 - Escopo: só o balde (M1) e as baselines B2 e B3. A rede de Petri, o emulador, H3 e H4 estão fora (PRE-REGISTRO-1,
   emenda 3).
-- **Commit do pré-registro:** `[preencher pelo orquestrador: hash completo, data, branch]`
-- **SHA-256 deste arquivo no commit:** `[preencher pelo orquestrador]`
+- **Commit do pré-registro:** `2b9352cc4bfdf6a746b8cc4e9746be2e87d9b6bd` (2026-10-11, `revisao/fase-0`)
+- **SHA-256 deste arquivo no commit:** `21beddaba6e0fac98ea40eb2781bac164d2c11a966bac6745f91902c856fc581`
 - **Commit da F2-DADOS-11 que verificou a janela (portão da §2.1):** `[preencher]`
 - **Escores da etapa 1b (SHA-256, commitado antes da etapa 2):** `[preencher]`
 - **Confirmação do autor (Lucas):** `[ ] confirmado em ____`
