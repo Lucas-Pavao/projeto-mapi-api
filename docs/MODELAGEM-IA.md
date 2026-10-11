@@ -385,6 +385,75 @@ EMLURB/SESAN; entram como faixa até chegarem), polígonos de bairro (só Q3).
    seção). Se chegar antes do commit, `f` e a soleira ganham fonte; se chegar depois, só por emenda antes da junção.
 6. `riskLevel` em produção: vem de M1/M2 sem calibração ou fica suspenso (MEMO, pergunta 14, ainda em aberto).
 
+## Exemplo real do dataset de entrada
+
+Recorte do export real do ponto `AGAMENON_DERBY` (F4-IA-05, 2026-10-11). Arquivo fora do git: `MAPI/exports/AGAMENON_DERBY_mare-pipeline_2021-10-02_2026-10-01.csv` e `.manifest.json` (gerados em 2026-10-10 pelo `GET /api/export/ia-dataset/{slug}/csv` e `/manifest`, API.md §2.6 e §3.2). Os números abaixo vêm do manifesto e de contagens diretas no CSV; nada foi imputado.
+
+| Item | Valor | Origem |
+|---|---|---|
+| Granularidade | horária, `timestampUtc` = fim da hora, UTC | manifesto `timezone`, `label.policy` |
+| Período | 2021-10-02T00:00Z a 2026-10-01T00:00Z | manifesto `periodFrom`, `periodTo` |
+| Linhas | 43 801 (mais o cabeçalho) | manifesto `rows`; `wc -l` = 43 802 |
+| `datasetId` | `8f3e27029d87d719cce3979a43b1f2db302fe392952151fde043f6d0ec455b37` = SHA-256 do CSV | manifesto; `sha256sum` conferido |
+| Versões | `ruleVersion` 2026.10.1; `codeVersion` `unknown` | manifesto |
+| Terreno | `terrain_run_id` 1; VRT SHA-256 `d63e3b12…8070` (`d63e3b123507631b276eb98a1d247d3337655e50d4456168b61b582dc5408070`) | manifesto `terrain` |
+| Rótulo | ADR 0006: `flood_occurrence` + `occurrence_point_match`, `linkageConfigId` 3, raio 500 m, `NEAREST_WITHIN_RADIUS`; `isFlooded` e `severity` são legados (`deprecatedColumns`) | manifesto `label` |
+
+**Fontes (manifesto `provenance`).** O manifesto lista `runIds` (UUID do `ingestion_run`, o `provenanceId` do ADR 0006) por fonte e variável, sem `provenanceId` por linha:
+
+| Fonte | Variáveis | `runIds` (`maxRevision` 1) |
+|---|---|---|
+| `OPEN_METEO_ARCHIVE` | precipitation, temperature, pressure, humidity, wind_speed, solar_radiation, weather_code | 5 execuções: `a5a771a0-c048-4dd1-8eb2-46149915980d`, `bf7b542b-26c6-4653-bd6b-6b986ff8dc3e`, `c9bf24f8-d01d-49dd-8c6c-9951e707aa3a`, `5f046dc6-fbae-4989-a006-e19ca27c5b0f`, `6c88d797-3b61-497f-b5d9-4ce62cff40ba` |
+| `OPEN_METEO_ERA5LAND` | soil_moisture_0_7cm | 5 execuções: `9fe9b2ab-b350-4f10-8552-c60a7b59ea78`, `a8d78d65-46dc-44e4-b931-bea0f275a7cb`, `aab3619a-5c29-4d4b-9fe5-cacb701085c6`, `415d1f6e-f01d-40be-a775-51f582226dad`, `668d4910-d996-4880-a50a-f7e49a909172` |
+| `TIDE_PE02_HOURLY` | tide_height_hourly (DHN, Porto do Recife, pe02, interpolação por cosseno entre extremos; referência vertical `NR_DHN_pe02`, não convertida ao datum do MDT, ADR 0009) | 1 execução: `acce70da-2203-42d1-b58d-e5f84df2246a` |
+| Terreno PE3D | `terrain_*` | `terrain.runId` 1 |
+| Sensores ANA, APAC, Cemaden | `sensor*` | ainda lidos de `sensor_data` (legado, fuso não verificado; manifesto `sourcesNotMigrated`) |
+
+**Colunas, com unidade** (cada variável com ausência possível tem uma `<var>_missing`: 1 = ausente, 0 = presente; célula vazia = ausente):
+
+| Grupo | Colunas | Unidade / valores |
+|---|---|---|
+| Identificação | `floodPointSlug`, `timestamp` (hora local ingênua, redundante), `timestampUtc` | texto, ISO 8601 |
+| Sensores (legado) | `sensorPrecipitation`, `sensorWaterLevel`, `sensorSoilHumidity` | unidade do sensor de origem, `[sem fonte]` no manifesto; 43 786, 43 801 e 43 801 linhas ausentes |
+| Tempo (Open-Meteo) | `weatherPrecipitation` (mm na hora), `weatherTemperature` (°C), `weatherPressure` (hPa), `weatherCode` (código WMO) | 1 linha ausente cada |
+| Acumulados | `accumulated3h`, `6h`, `12h`, `24h`, `48h` | mm; vazio se a janela não tem N horas (3, 6, 12, 24 e 48 linhas ausentes) |
+| Maré | `tideHeight` (m, NR DHN), `tide_height_t1`…`t6` (m, prevista em t+1…t+6 h), `tide_max_next_6h` (m), `tide_hours_to_next_high` (h), `tide_range_day_m` (m, máx. − mín. dos extremos do dia em America/Recife), `tide_rising` (0/1; vazio se derivada nula, 449 linhas), `tide_slope_m_h` (m/h) | 0 ausentes, exceto `tide_rising`. A maré futura é exceção declarada de "futuro" (tábua publicada antes; seção A.2.2 do Histórico) |
+| Solo | `soil_moisture_0_7cm` | m³/m³ (ERA5-Land, camada 0–7 cm); 1 ausente |
+| Terreno (constantes do ponto) | `terrain_run_id`, `terrain_street_elevation_m` (m, MDT), `terrain_mean_slope_pct` (%), `terrain_depression_depth_m` (m), `terrain_contributing_area_m2` (m²) | iguais em todas as linhas do ponto |
+| Rótulo (alvo, nunca feature) | `label_h6`, `label_h3`, `label_day`, `label_excluded_reason`, `occurrence_ids`; legados `isFlooded`, `severity` | 0/1; vazio = hora excluída |
+
+**Rótulos (manifesto `label.counts`).**
+
+| Rótulo | Positivos | Negativos | Excluídos | Motivo das exclusões |
+|---|---|---|---|---|
+| `label_h6` (6 h) | 0 | 43 729 | 72 | `DAY_EVENT_SAME_DAY` 60 + `POST_EVENT_WINDOW` 12 (motivo refere-se ao maior horizonte) |
+| `label_h3` (3 h) | 0 | 43 741 | 60 | |
+| `label_day` | 48 linhas-hora em dias com ocorrência (`dayLabelPositives`) | 43 753 | 0 | `occurrencesHour` 0, `occurrencesDay` 2 |
+
+Não há positivo horário neste ponto: as 2 ocorrências casadas são de precisão DIA e nunca viram negativo (por isso as 60 horas excluídas). Por isso o recorte de exemplo abaixo só tem horas negativas. As 48 linhas de `label_day` são horas, não eventos: o tamanho efetivo da amostra é o número de eventos (A.3.2). Para o contexto do rótulo diário e dos 18 positivos da avaliação F1, ver `PRE-REGISTRO-AVALIACAO.md` §2.1.
+
+**Cinco linhas de exemplo.** Escolha sem olhar rótulo: entre as 82 horas em que o dia UTC inteiro tem `weatherPrecipitation` = 0, `accumulated48h` = 0 e `soil_moisture_0_7cm` e `tide_rising` presentes, sorteadas 5 com `random.seed(2026)` e ordenadas no tempo. As colunas `accumulated*` e `weatherPrecipitation` valem 0,0 nas cinco; `sensor*` ausentes (`_missing` = 1) e `isFlooded` = false nas cinco; todos os demais `_missing` valem 0. Valores de `terrain_*` iguais nas cinco: `terrain_run_id` 1, cota 2,58 m, declividade 4,404 %, profundidade da depressão 0,0 m, área contribuinte 62,0 m².
+
+| Coluna | 2023-11-25T13Z | 2023-11-25T15Z | 2026-07-13T15Z | 2026-08-15T22Z | 2026-08-15T23Z |
+|---|---|---|---|---|---|
+| `weatherTemperature` (°C) | 29,5 | 29,4 | 29,1 | 25,7 | 25,8 |
+| `weatherPressure` (hPa) | 1013,9 | 1012,9 | 1013,7 | 1015,5 | 1016,1 |
+| `weatherCode` | 1 | 1 | 3 | 3 | 3 |
+| `tideHeight` (m) | 0,62 | 1,60 | 1,12 | 2,11 | 1,73 |
+| `tide_height_t1` (m) | 1,08 | 2,04 | 1,64 | 1,73 | 1,24 |
+| `tide_height_t6` (m) | 1,98 | 1,02 | 1,48 | 0,38 | 0,74 |
+| `tide_max_next_6h` (m) | 2,28 | 2,28 | 2,25 | 1,73 | 1,24 |
+| `tide_hours_to_next_high` (h) | 4,4 | 2,4 | 3,27 | 11,2 | 10,2 |
+| `tide_range_day_m` (m) | 2,1 | 2,1 | 2,1 | 2,33 | 2,33 |
+| `tide_rising` / `tide_rising_missing` | 1 / 0 | 1 / 0 | 1 / 0 | 0 / 0 | 0 / 0 |
+| `tide_slope_m_h` | 0,37 | 0,48 | 0,5 | −0,27 | −0,44 |
+| `soil_moisture_0_7cm` (m³/m³) / `_missing` | 0,173 / 0 | 0,171 / 0 | 0,394 / 0 | 0,378 / 0 | 0,378 / 0 |
+| `sensorPrecipitation` / `_missing` | vazio / 1 | vazio / 1 | vazio / 1 | vazio / 1 | vazio / 1 |
+| `label_h6`, `label_h3`, `label_day` | 0, 0, 0 | 0, 0, 0 | 0, 0, 0 | 0, 0, 0 | 0, 0, 0 |
+
+Leitura: a primeira linha do arquivo (2021-10-02T00Z) mostra o caso de ausência esperado do início da série: `accumulated*` vazios com `_missing` = 1 por falta de janela. Os `terrain_*` não variam no tempo; entram como contexto do ponto, não como sinal horário.
+
+
 ---
 
 ## Histórico: formulação supervisionada (abandonada em 2026-10-11, motivo: MEMO)

@@ -74,7 +74,7 @@ O ΔAUC é exatamente 0 por construção, não por acaso: com `S ≡ 0`, M1a ord
 
 ## 6. Robustez na faixa de sensibilidade (§6.3)
 
-As 30 variantes de M1 (central, 5 níveis de `f` incluindo 0, curva ±30%, snap 5/20 m, 8 cantos, mais `C`, `i_T` e `h_crit` nos extremos) dão **o mesmo AUC (0,891) e o mesmo ΔAUC de H1 (+0,113; IC [−0,010; +0,252]) e de H2 (0; [0; 0])**. Todas caem em "inconclusivo" em H1. Nenhuma variante é escolhida como melhor.
+As 24 variantes de M1 (central, 5 níveis de `f` incluindo 0, curva ±30%, snap 5/20 m, 8 cantos, mais `C`, `i_T` e `h_crit` nos extremos) dão **o mesmo AUC (0,891) e o mesmo ΔAUC de H1 (+0,113; IC [−0,010; +0,252]) e de H2 (0; [0; 0])**. Todas caem em "inconclusivo" em H1. Nenhuma variante é escolhida como melhor.
 
 Por que não variam: só `f = 0,2` (e os cantos com `f = 0,2`) e `f = 0` produzem `S > 0`. Em `f = 0,2` os dias com `S > 0` em 2023–2024 são 2023-02-06, 2023-02-22, 2024-03-09 e 2024-06-15; eles já são os quatro primeiros pela razão `R`, então a ordenação por `S` antes de `R` não os move em relação aos demais, e o AUC não muda. Em `f = 0`, `S` é constante e a ordenação volta a `R`.
 
@@ -102,7 +102,7 @@ Caso degenerado do protocolo: escores constantes dariam AUC = 0,5 por empate (to
 
 - **McNemar exato M1a × B3:** nos positivos, discordantes 0 e 0, p = 1,0; em N, 0 e 0, p = 1,0. Nenhuma informação.
 - **P_extra:** nenhum dos 4 dias de 2021–2022 é alertado por M1a nem por B3 (0/4). Posto percentil do escore (fração de N abaixo, empates 0,5), idêntico para M1a e B3: 2021-05-13 = 0,96; 2022-05-28 = 1,00; 2022-07-08 = 0,87; 2022-07-12 = 0,07. B2: 0,89 / 0,89 / 0,81 / 0,81.
-- **AUC contra 0,5, todos os escores (14 × 689):** M1a, B3 (e variantes de limiar, que compartilham o escore) 0,891 [0,747; 0,970]; B3-24h 0,891 [0,735; 0,976]; B2 0,777 [0,641; 0,890]; as 30 variantes de M1 0,891. Todos os IC excluem 0,5. Atenção: B3 e M1 têm o mesmo escore, então não são 30 evidências independentes.
+- **AUC contra 0,5, todos os escores (14 × 689):** M1a, B3 (e variantes de limiar, que compartilham o escore) 0,891 [0,747; 0,970]; B3-24h 0,891 [0,735; 0,976]; B2 0,777 [0,641; 0,890]; as 24 variantes de M1 0,891. Todos os IC excluem 0,5. Atenção: B3 e M1 têm o mesmo escore, então não são 30 evidências independentes.
 - **Análise com 18 positivos (14 + 4 de 2021–2022, 17 episódios; secundária):** M1a, B3 e as variantes (exceto `f = 0`) 0,854 [0,704; 0,962]; `f = 0` 0,800 [0,625; 0,946]; B3-24h 0,872 [0,730; 0,974]; B2 0,795 [0,680; 0,889]. O dia 2022-07-12 (posto 0,07) puxa o AUC para baixo: chuva horária máxima baixa na reanálise.
 - Não executadas porque o pré-registro as condiciona a insumos que não existem: M1-ef/B3-ef, M1-pluv, forçante alternativa, Q3 por bairro (sem polígonos oficiais), estudo de caso por ponto (não é métrica) e a verificação de consistência com Fonseca Neto et al. (B3-50 não alerta em nenhum dia, ao contrário do que a literatura relata para pluviômetro, porque a forçante é de reanálise).
 
@@ -128,3 +128,5 @@ Itens a seguir não estão no pré-registro como testes e não são evidência d
 ## 11. Reprodutibilidade
 
 `python -m avaliacao.avaliar_h1_h2 escores_cegos.csv rotulos_apendice_b.csv saida.json` (numpy 1.26.4, pandas 2.2.3; venv da F4-IA-13). Determinístico (semente 20261011). Consulta e lista de rótulos: `avaliacao/dados/rotulos_apendice_b.{sql,csv}`.
+
+> **Errata (2026-10-11):** versões anteriores deste documento diziam "30 variantes" de M1. O `resultado_etapa2.json` e o `escores_cegos.csv` têm **24** (central + 23: C 0,70/0,95; i_T 50,3/68,7; h_crit 10/30 cm; f 0,0–0,8; curva ±30%; snap 5/20 m; 8 cantos). A classificação (inconclusivo em toda a faixa) não muda. Divergência apontada em F4-IA-06.

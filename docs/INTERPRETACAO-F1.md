@@ -49,7 +49,7 @@ Três qualificações, todas exigidas pelo próprio protocolo:
 2. **H2 não foi testada, e não "deu zero".** O ΔAUC exatamente 0 é identidade algébrica: com `S ≡ 0`, M1a e B3 ordenam os
    dias do mesmo jeito (RESULTADOS §5). Esse desfecho estava previsto por escrito antes da junção (MODELAGEM §2.4;
    PRE-REGISTRO §7: "inconclusivo ou degenerado em H2").
-3. **A faixa de sensibilidade não muda nada.** As 30 variantes de M1 dão o mesmo AUC (0,891) e o mesmo ΔAUC. O motivo é que
+3. **A faixa de sensibilidade não muda nada.** As 24 variantes de M1 dão o mesmo AUC (0,891) e o mesmo ΔAUC. O motivo é que
    só `f = 0,2` e `f = 0` produzem `S > 0`, e em nenhum dos dois casos a ordenação muda (RESULTADOS §6). Isso **não** é
    robustez do modelo. É sinal de que os parâmetros não chegaram a atuar.
 
@@ -212,7 +212,7 @@ Se uma forçante pontual fizer o balde transbordar, o resultado passa a depender
 2. **Bootstrap com 13 clusters é aproximado** (RESULTADOS §10, item 8). Com tão poucos clusters, a cobertura real do IC
    percentil pode ficar abaixo dos 95% nominais `[sem fonte no repositório; afirmação geral de método]`. Por isso a leitura
    "no limite" de H1 não deve ser forçada em nenhuma direção.
-3. **As 30 variantes não são 30 evidências.** Elas compartilham o escore `R` (RESULTADOS §8).
+3. **As 24 variantes não são 30 evidências.** Elas compartilham o escore `R` (RESULTADOS §8).
 4. **Positivos e não rotulados:** `AUC_medido = (1 − θ) · AUC_real + θ · 0,5` se os não registrados se parecerem com os
    registrados (conservador). Se o registro depender da intensidade da chuva, o viés favorece escores de chuva
    (PRE-REGISTRO §2.2). O sentido do viés aqui é desconhecido.
@@ -392,3 +392,5 @@ junção da 1ª**, com os **mesmos parâmetros congelados** (PROGRESSO, decisão
 - Confirmação de que o deslocamento horário (RC-16) está no Open-Meteo, com efeito mensurável no máximo diário.
 - O modelo de reanálise do archive se revelar diferente entre períodos (PRE-REGISTRO §10, item 5).
 - Revogação, pelo autor ou pelo orientador, das decisões de desenho da RC-25 (conjunto de teste, limiar de B3).
+
+> **Errata (2026-10-11):** versões anteriores deste documento diziam "30 variantes" de M1. O `resultado_etapa2.json` e o `escores_cegos.csv` têm **24** (central + 23: C 0,70/0,95; i_T 50,3/68,7; h_crit 10/30 cm; f 0,0–0,8; curva ±30%; snap 5/20 m; 8 cantos). A classificação (inconclusivo em toda a faixa) não muda. Divergência apontada em F4-IA-06.
