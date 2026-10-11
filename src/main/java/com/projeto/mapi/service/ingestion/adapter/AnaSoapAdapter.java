@@ -49,6 +49,8 @@ import java.util.function.Consumer;
 public class AnaSoapAdapter extends SensorEnvelopeAdapter {
 
     public static final String SOURCE = "ANA_SOAP";
+    /** Janela da leitura de chuva do legado (F2-DADOS-11): incremento do intervalo de 15 min que termina no carimbo. */
+    static final String RAIN_RESOLUTION = "PT15M";
     static final String ORIGEM_LEGADO = "ServiceANA.DadosHidrometeorologicos";
     private static final java.util.regex.Pattern CODE = java.util.regex.Pattern.compile("\\d{8}");
 
@@ -81,6 +83,10 @@ public class AnaSoapAdapter extends SensorEnvelopeAdapter {
         for (DraftValue d : super.extract(record)) {
             if (legado && "water_level".equals(d.variable()) && d.value() != null) {
                 out.add(new DraftValue(d.variable(), d.resolution(), d.value() / 100.0, d.unit(), null));
+            } else if (legado && "precipitation".equals(d.variable())) {
+                // F2-DADOS-11: incremento (mm) da janela de 15 min que termina no carimbo (norma ANA 2012 4.2(b) +
+                // consistência do bruto). O envelope do coletor ao vivo segue EVENT/WINDOW_UNVERIFIED.
+                out.add(new DraftValue(d.variable(), RAIN_RESOLUTION, d.value(), d.unit(), null));
             } else {
                 out.add(d);
             }
@@ -90,7 +96,7 @@ public class AnaSoapAdapter extends SensorEnvelopeAdapter {
 
     @Override
     public String parserVersion() {
-        return "ana-soap/3";
+        return "ana-soap/4";
     }
 
     /** Estações da carga: lista configurada mais os pluviômetros de 8 dígitos ligados aos pontos. */
