@@ -7,7 +7,6 @@ import com.projeto.mapi.repository.FloodPointRepository;
 import com.projeto.mapi.service.ingestion.adapter.AnaLegacyClient;
 import com.projeto.mapi.service.ingestion.adapter.AnaSoapAdapter;
 import com.projeto.mapi.service.ingestion.validation.TimestampNormalizer;
-import com.projeto.mapi.service.ingestion.validation.TzUnverifiedException;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
@@ -23,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/** Carga histórica da ANA: o bruto sai com o rótulo original e fuso UNVERIFIED; o fuso não é convertido no adaptador. */
+/** Carga histórica da ANA: o bruto sai com o rótulo original e fuso America/Recife (F2-DADOS-10); o fuso não é convertido no adaptador. */
 class AnaSoapAdapterTest {
 
     private static final String SERIES = """
@@ -85,13 +84,14 @@ class AnaSoapAdapterTest {
         assertThat(r.stationId()).isEqualTo("39187800");
         assertThat(r.sourceTsText()).isEqualTo("2025-06-30 23:45:00");
         assertThat(r.sourceTsNorm()).isEqualTo("2025-06-30T23:45");
-        assertThat(r.sourceTz()).isEqualTo("UNVERIFIED");
+        assertThat(r.sourceTz()).isEqualTo("America/Recife");
         assertThat(r.payload().path("Chuva_Adotada").asText()).isEqualTo("0.40");
         assertThat(batches.get(0).records().get(1).payload().has("Cota_Adotada")).isFalse();
         assertThat(batches.get(0).stations()).hasSize(1);
         assertThat(batches.get(0).stations().get(0).name()).isEqualTo("SÃO LOURENÇO DA MATA II");
-        assertThatThrownBy(() -> TimestampNormalizer.toInstant(r.sourceTsNorm(), r.sourceTz()))
-                .isInstanceOf(TzUnverifiedException.class);
+        // 23:45 em UTC-3 = 02:45 UTC do dia seguinte
+        assertThat(TimestampNormalizer.toInstant(r.sourceTsNorm(), r.sourceTz()))
+                .isEqualTo(Instant.parse("2025-07-01T02:45:00Z"));
     }
 
     @Test
@@ -105,6 +105,36 @@ class AnaSoapAdapterTest {
             assertThat(d.variable()).isEqualTo("precipitation");
             assertThat(d.value()).isEqualTo(0.4);
             assertThat(d.qualifier()).isEqualTo("WINDOW_UNVERIFIED");
+        });
+    }
+
+    @Test
+    void nivelDoLegadoEmCentimetrosViraMetros() {
+        AnaSoapAdapter a = adapter(Set.of());
+        List<FetchedBatch> batches = new ArrayList<>();
+        a.fetch(Instant.parse("2025-06-01T00:00:00Z"), Instant.parse("2025-07-01T00:00:00Z"), batches::add);
+
+        List<DraftValue> v = a.extract(batches.get(0).records().get(0));
+        assertThat(v).filteredOn(d -> d.variable().equals("water_level")).singleElement().satisfies(d -> {
+            assertThat(d.value()).isCloseTo(2.39, org.assertj.core.data.Offset.offset(1e-9)); // payload: 239.00 cm
+            assertThat(d.qualifier()).isNull();
+        });
+        // o bruto guarda o número como a ANA entregou
+        assertThat(batches.get(0).records().get(0).payload().path("Cota_Adotada").asText()).isEqualTo("239.00");
+    }
+
+    @Test
+    void nivelDeEnvelopeDeOutraOrigemNaoEConvertido() {
+        AnaSoapAdapter a = adapter(Set.of());
+        com.fasterxml.jackson.databind.node.ObjectNode env = new ObjectMapper().createObjectNode();
+        env.put("codigo", "39187800");
+        env.put("Data_Hora_Medicao", "2026-10-10 12:00:00");
+        env.put("Cota_Adotada", "239.00");
+        env.put("origem", "Hidro-WebService");
+        List<DraftValue> v = a.extract(a.toRaw(env, Instant.parse("2026-10-10T16:00:00Z")));
+        assertThat(v).singleElement().satisfies(d -> {
+            assertThat(d.value()).isEqualTo(239.0);
+            assertThat(d.qualifier()).isEqualTo("UNIT_UNVERIFIED");
         });
     }
 

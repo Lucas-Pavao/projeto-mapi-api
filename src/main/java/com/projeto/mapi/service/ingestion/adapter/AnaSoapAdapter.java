@@ -6,6 +6,7 @@ import com.projeto.mapi.config.IngestionProperties;
 import com.projeto.mapi.exception.SourceUnavailableException;
 import com.projeto.mapi.model.FloodPoint;
 import com.projeto.mapi.repository.FloodPointRepository;
+import com.projeto.mapi.service.ingestion.DraftValue;
 import com.projeto.mapi.service.ingestion.FetchedBatch;
 import com.projeto.mapi.service.ingestion.Hashing;
 import com.projeto.mapi.service.ingestion.RawRecord;
@@ -32,7 +33,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 /**
- * Fonte ANA_SOAP: fuso UNVERIFIED (quarentena TZ_UNVERIFIED até F2-DADOS-07).
+ * Fonte ANA_SOAP: fuso UTC-3 verificado em F2-DADOS-10 (antes: UNVERIFIED, quarentena TZ_UNVERIFIED).
  *
  * <p>Ao vivo, o coletor empurra envelopes ({@link SensorEnvelopeAdapter}). Para a carga histórica, este adaptador
  * lê o serviço legado público da ANA (sem credencial) {@code DadosHidrometeorologicos} por estação e mês, e grava
@@ -48,6 +49,7 @@ import java.util.function.Consumer;
 public class AnaSoapAdapter extends SensorEnvelopeAdapter {
 
     public static final String SOURCE = "ANA_SOAP";
+    static final String ORIGEM_LEGADO = "ServiceANA.DadosHidrometeorologicos";
     private static final java.util.regex.Pattern CODE = java.util.regex.Pattern.compile("\\d{8}");
 
     private final AnaLegacyClient client;
@@ -61,9 +63,34 @@ public class AnaSoapAdapter extends SensorEnvelopeAdapter {
         return SOURCE;
     }
 
+    /** Rótulo do legado em UTC-3 (F2-DADOS-10, ver {@code V14__tz_verification_ana.sql}). */
+    @Override
+    public String declaredTz() {
+        return "America/Recife";
+    }
+
+    /**
+     * O legado entrega {@code Nivel} em centímetros (ex.: 239,00 = 2,39 m); o catálogo de {@code water_level} é em
+     * metros. O bruto guarda o número como veio; a conversão é daqui (e o qualificador {@code UNIT_UNVERIFIED} sai,
+     * pois a unidade deste endpoint é conhecida). Envelopes de outra origem (coletor ao vivo) não são convertidos.
+     */
+    @Override
+    public List<DraftValue> extract(RawRecord record) {
+        boolean legado = ORIGEM_LEGADO.equals(record.payload().path("origem").asText());
+        List<DraftValue> out = new ArrayList<>();
+        for (DraftValue d : super.extract(record)) {
+            if (legado && "water_level".equals(d.variable()) && d.value() != null) {
+                out.add(new DraftValue(d.variable(), d.resolution(), d.value() / 100.0, d.unit(), null));
+            } else {
+                out.add(d);
+            }
+        }
+        return out;
+    }
+
     @Override
     public String parserVersion() {
-        return "ana-soap/2";
+        return "ana-soap/3";
     }
 
     /** Estações da carga: lista configurada mais os pluviômetros de 8 dígitos ligados aos pontos. */
@@ -141,7 +168,7 @@ public class AnaSoapAdapter extends SensorEnvelopeAdapter {
             putIfPresent(env, "Chuva_Adotada", text(e, "Chuva"));
             putIfPresent(env, "Cota_Adotada", text(e, "Nivel"));
             putIfPresent(env, "Vazao", text(e, "Vazao"));
-            env.put("origem", "ServiceANA.DadosHidrometeorologicos");
+            env.put("origem", ORIGEM_LEGADO);
             out.add(toRaw(env, collectedAt));
         }
         return out;

@@ -54,15 +54,18 @@ class LiveSensorStagingIntegrationTest extends AbstractIngestionTest {
 
         assertThat(count("SELECT count(*) FROM raw_observation")).isEqualTo(3);
         assertThat(count("SELECT count(DISTINCT source) FROM raw_observation")).isEqualTo(3);
-        // ANA e APAC meteorologia24h seguem UNVERIFIED (F2-DADOS-07 não as aprovou): quarentena TZ_UNVERIFIED
-        assertThat(count("SELECT count(*) FROM raw_observation WHERE source_tz = 'UNVERIFIED'")).isEqualTo(2);
+        // APAC meteorologia24h segue UNVERIFIED (F2-DADOS-07 não a aprovou): quarentena TZ_UNVERIFIED
+        assertThat(count("SELECT count(*) FROM raw_observation WHERE source_tz = 'UNVERIFIED'")).isEqualTo(1);
         assertThat(count("SELECT count(*) FROM ingestion_quarantine WHERE reason = 'TZ_UNVERIFIED' AND resolved_at IS NULL"))
-                .isEqualTo(2);
-        assertThat(count("SELECT count(*) FROM observation WHERE source IN ('ANA_SOAP', 'APAC_METEO24H')")).isZero();
+                .isEqualTo(1);
+        assertThat(count("SELECT count(*) FROM observation WHERE source = 'APAC_METEO24H'")).isZero();
+        // ANA_SOAP foi verificada em F2-DADOS-10 (V14, UTC-3): o registro ao vivo nasce America/Recife
+        assertThat(count("SELECT count(*) FROM raw_observation WHERE source = 'ANA_SOAP' AND source_tz = 'America/Recife'")).isEqualTo(1);
         // CEMADEN foi verificado (V13, UTC-3): 11:10 local = 14:10Z, consolidado sem quarentena
         assertThat(count("SELECT count(*) FROM raw_observation WHERE source = 'CEMADEN' AND source_tz = 'America/Recife'")).isEqualTo(1);
         assertThat(jdbc.queryForObject("SELECT ts_utc FROM observation WHERE source = 'CEMADEN' AND variable = 'precipitation'",
                 java.sql.Timestamp.class).toInstant()).isEqualTo(java.time.Instant.parse("2026-10-10T14:10:00Z"));
+        // runs com quarentena: APAC (TZ_UNVERIFIED) e ANA (nível ao vivo de 120,0 fora da faixa em m; não é o legado em cm)
         assertThat(count("SELECT count(*) FROM ingestion_run WHERE kind = 'LIVE' AND status = 'OK' AND quarantined = 1"))
                 .isEqualTo(2);
     }
@@ -92,9 +95,9 @@ class LiveSensorStagingIntegrationTest extends AbstractIngestionTest {
 
     @Test
     void depoisDeVerificarOFusoORevalidateConsolidaOBruto() throws Exception {
-        // volta ao estado anterior à V13 para reproduzir o caminho real: bruto em quarentena e depois REVALIDATE
+        // volta ao estado anterior à V14 para reproduzir o caminho real: bruto em quarentena e depois REVALIDATE
         setTz("ANA_SOAP", "UNVERIFIED", "UNVERIFIED");
-        // só chuva: o nível da ANA vem sem unidade (cm) e fica fora da faixa em m do catálogo, assunto à parte do fuso
+        // só chuva: o nível ao vivo (envelope do coletor) não declara unidade; a conversão cm->m vale só para o legado
         staging.stage("ANA_SOAP", List.of(mapper.readTree("""
                 {"codigo":"39187998","Data_Hora_Medicao":"2026-10-10 11:00:00","Chuva_Adotada":"2,5"}""")));
         assertThat(count("SELECT count(*) FROM observation")).isZero();
@@ -106,6 +109,7 @@ class LiveSensorStagingIntegrationTest extends AbstractIngestionTest {
         assertThat(jdbc.queryForObject("SELECT ts_utc FROM observation WHERE source = 'ANA_SOAP' AND variable = 'precipitation'",
                 java.sql.Timestamp.class).toInstant()).isEqualTo(java.time.Instant.parse("2026-10-10T14:00:00Z"));
         assertThat(count("SELECT count(*) FROM ingestion_quarantine WHERE resolved_at IS NULL")).isZero();
-        setTz("ANA_SOAP", "UNVERIFIED", "UNVERIFIED");
+        // devolve o estado real do registro (V14: ANA verificada), para não vazar nos outros testes da classe
+        setTz("ANA_SOAP", "America/Recife", "VERIFIED");
     }
 }

@@ -1,0 +1,153 @@
+{
+ "n_estacoes": 53,
+ "n_novas": 33,
+ "estacoes_com_novas": 12,
+ "res": {
+  "-6": {
+   "p01_all": -148.10783522133335,
+   "p05_new": -159.66265574666667,
+   "med_new": -144.16411998333334,
+   "n_all": 4025,
+   "n_new": 33,
+   "st_gt5pct_future": 45,
+   "V1": false,
+   "V2": true,
+   "viable": false
+  },
+  "-5": {
+   "p01_all": -88.10783522133333,
+   "p05_new": -99.66265574666667,
+   "med_new": -84.16411998333334,
+   "n_all": 4025,
+   "n_new": 33,
+   "st_gt5pct_future": 30,
+   "V1": false,
+   "V2": true,
+   "viable": false
+  },
+  "-4": {
+   "p01_all": -28.107835221333332,
+   "p05_new": -39.662655746666665,
+   "med_new": -24.164119983333332,
+   "n_all": 4025,
+   "n_new": 33,
+   "st_gt5pct_future": 5,
+   "V1": false,
+   "V2": true,
+   "viable": false
+  },
+  "-3": {
+   "p01_all": 31.892164778666668,
+   "p05_new": 20.33734425333333,
+   "med_new": 35.83588001666667,
+   "n_all": 4025,
+   "n_new": 33,
+   "st_gt5pct_future": 0,
+   "V1": true,
+   "V2": true,
+   "viable": true
+  },
+  "-2": {
+   "p01_all": 91.89216477866667,
+   "p05_new": 80.33734425333333,
+   "med_new": 95.83588001666666,
+   "n_all": 4025,
+   "n_new": 33,
+   "st_gt5pct_future": 0,
+   "V1": true,
+   "V2": false,
+   "viable": false
+  },
+  "-1": {
+   "p01_all": 151.89216477866665,
+   "p05_new": 140.33734425333333,
+   "med_new": 155.83588001666666,
+   "n_all": 4025,
+   "n_new": 33,
+   "st_gt5pct_future": 0,
+   "V1": true,
+   "V2": false,
+   "viable": false
+  },
+  "0": {
+   "p01_all": 211.89216477866665,
+   "p05_new": 200.33734425333333,
+   "med_new": 215.83588001666666,
+   "n_all": 4025,
+   "n_new": 33,
+   "st_gt5pct_future": 0,
+   "V1": true,
+   "V2": false,
+   "viable": false
+  },
+  "1": {
+   "p01_all": 271.89216477866665,
+   "p05_new": 260.3373442533333,
+   "med_new": 275.8358800166667,
+   "n_all": 4025,
+   "n_new": 33,
+   "st_gt5pct_future": 0,
+   "V1": true,
+   "V2": false,
+   "viable": false
+  },
+  "2": {
+   "p01_all": 331.8921647786667,
+   "p05_new": 320.33734425333336,
+   "med_new": 335.8358800166667,
+   "n_all": 4025,
+   "n_new": 33,
+   "st_gt5pct_future": 0,
+   "V1": true,
+   "V2": false,
+   "viable": false
+  },
+  "3": {
+   "p01_all": 391.8921647786667,
+   "p05_new": 380.33734425333336,
+   "med_new": 395.8358800166667,
+   "n_all": 4025,
+   "n_new": 33,
+   "st_gt5pct_future": 0,
+   "V1": true,
+   "V2": false,
+   "viable": false
+  },
+  "4": {
+   "p01_all": 451.8921647786667,
+   "p05_new": 440.33734425333336,
+   "med_new": 455.8358800166667,
+   "n_all": 4025,
+   "n_new": 33,
+   "st_gt5pct_future": 0,
+   "V1": true,
+   "V2": false,
+   "viable": false
+  },
+  "5": {
+   "p01_all": 511.8921647786667,
+   "p05_new": 500.33734425333336,
+   "med_new": 515.8358800166667,
+   "n_all": 4025,
+   "n_new": 33,
+   "st_gt5pct_future": 0,
+   "V1": true,
+   "V2": false,
+   "viable": false
+  },
+  "6": {
+   "p01_all": 571.8921647786667,
+   "p05_new": 560.3373442533333,
+   "med_new": 575.8358800166666,
+   "n_all": 4025,
+   "n_new": 33,
+   "st_gt5pct_future": 0,
+   "V1": true,
+   "V2": false,
+   "viable": false
+  }
+ },
+ "viaveis": [
+  -3
+ ]
+}

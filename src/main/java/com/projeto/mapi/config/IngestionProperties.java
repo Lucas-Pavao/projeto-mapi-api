@@ -18,7 +18,7 @@ import java.util.List;
 public class IngestionProperties {
 
     /** Versão do conjunto de regras de validação gravada em cada observação e quarentena. */
-    private String ruleVersion = "2026.10.2";
+    private String ruleVersion = "2026.10.3";
 
     /** Fallback explícito (nunca silencioso) quando o build não trouxe git.properties nem override. */
     public static final String NO_GIT = "unknown-build-without-git";
