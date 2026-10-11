@@ -46,3 +46,11 @@ Calculados por estação, com o rótulo já em UTC (UTC−3 aplicado) e não sob
 - Leitura fora da grade de 15 min (norma 4.2(a) admite coleta defasada com justificativa): cai inteira na hora do seu carimbo (sem rateio) e conta em `n_readings`; a janela dela é desconhecida, por isso a contagem de leituras fora da grade é reportada e C1 limita a 1 %.
 - Lacuna: hora com menos de `4 × 0,8` leituras (ou seja, < 4, pois `count < 3,2`) vira `NULL`, `incomplete = true`. Nunca preenche com 0. Observação: isso é mais estrito que o "≥ 3 de 4" usado em F2-DADOS-07/10 §7; a diferença é medida e reportada.
 - Valor 0 é leitura válida (sem chuva), distinta de ausência.
+
+## Notas datadas (o texto acima não foi alterado)
+
+### Nota 2026-10-11 (depois de C1 e C2, antes de implementar a view)
+
+1. **C2d não é aprovado na leitura literal.** A estação 39167000 em 2024 (93,5 % do ano coberto) soma 781 mm, abaixo do piso de 800 mm do critério. O piso é `[sem fonte]`. Como referência independente, o Open-Meteo archive soma 821 mm na coordenada da estação no mesmo ano (razão 0,95), e C2a a C2c rejeitam H3 e H4 com folga. Decisão: **prosseguir com este único desvio declarado**, a ser confirmado ou revertido pelo autor; a reversão é um commit (o adaptador volta a `EVENT`).
+2. **Leituras grandes (68,8 mm em 15 min e outras acima de 30 mm).** A inspeção usou só a série de chuva, sem rótulo de alagamento nem escore. Todas as leituras acima de 30 mm vêm logo depois de uma lacuna longa na própria série (de 1 dia 6 h a 28 dias), são isoladas (vizinhos zero) e nenhuma outra estação registra chuva no mesmo instante. Entre leituras que chegam depois de uma lacuna maior que 15 min, a média dos valores positivos é 4,15 mm contra 0,88 mm nas demais, e o máximo é 68,8 contra 27,8 mm.
+3. **Regra de qualidade fixada (genérica, por estrutura da série, sem datas):** a leitura de chuva da ANA cuja leitura anterior da mesma estação está a **mais de 15 min** não entra na soma horária. A janela dela é desconhecida: a norma manda acumular "no intervalo de transmissão", mas o registro depois de uma falha pode carregar chuva do período sem dado. Ela continua gravada em `observation` (nada é apagado); só a grade horária a ignora, e a hora dela fica `NULL` por completude. Só a ANA recebe a regra (configuração em `source_registry`), para não mudar as outras fontes.
