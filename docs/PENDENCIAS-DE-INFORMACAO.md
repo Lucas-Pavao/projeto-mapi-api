@@ -31,7 +31,7 @@ prorrogáveis por mais 10 (pedidos 05 e 06).
 |---|---|---|---|---|---|
 | 1 | ~~Ficha F-41~~ (obtida em 2026-10-11) · autorização para reutilizar as tábuas | CHM/DHN (Marinha) | 01 | Publicar a maré derivada | média |
 | 2 | ~~Altitude da RN do marégrafo~~ (BDG, RN 2603F) · confirmação e NMM no SGB | IBGE, Coordenação de Geodésia | 02 | Nada bloqueante; só confirma Δ | baixa (opcional) |
-| 3 | Relatório técnico do MDT (datum, geoide, precisão) e termo de uso | Governo de PE (PE3D / APAC) | 03 | Viés MDT↔SGB (último elo do Δ); publicar a camada de terreno | **alta: bloqueio principal do refluxo** |
+| 3 | Relatório técnico do MDT (datum, geoide, precisão) e termo de uso | Governo de PE (PE3D / APAC) | 03 | Publicar a camada de terreno (termo de uso); viés MDT↔SGB só se o refluxo voltar ao escopo | baixa (opcional; refluxo fora do escopo desde 2026-10-11) |
 | 4 | Quantos falsos alarmes por mês a Defesa Civil tolera | Defesa Civil do Recife | 04 | Limiares de Moderado e Alto | média |
 | 5 | Registros de alagamento com data, hora e endereço | Defesa Civil do Recife, via LAI | 05 | Validação com mais casos e com hora | alta |
 | 6 | Cadastro da microdrenagem nos 4 pontos | EMLURB / URB Recife, via LAI | 06 | Capacidade da galeria e soleira com fonte | média |
@@ -95,6 +95,8 @@ prorrogáveis por mais 10 (pedidos 05 e 06).
 
 ### 3.3 Relatório técnico do MDT e termo de uso do PE3D (pedido 03)
 
+> **Atualização 2026-10-11 (2): o refluxo de maré saiu do escopo por decisão do Lucas (ADR 0009, emenda 2); este pedido
+> virou opcional e só importa pelo termo de uso, se a camada for publicada.** Registro da atualização anterior:
 > **Atualização 2026-10-11: este é agora o bloqueio principal do refluxo de maré.** Com Δ fechado, falta saber se o MDT
 > está no SGB sem viés. A comparação com 14 RRNN do IBGE em terra descartou a altura elipsoidal, porque a diferença ficou
 > em decímetros, e não em −5,7 m. O viés, porém, não foi medido: a mediana deu −0,36 m e o desvio-padrão 0,56 m

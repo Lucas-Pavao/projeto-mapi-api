@@ -175,6 +175,19 @@ Eventos de alagamento de **maré em dia sem chuva** no CKAN (chuva 24 h ≈ 0 na
   passa a ser **o bloqueio principal**.
 - Decisor: Agente 5 e Arquiteto, pela autorização durável do Lucas. Checkpoint Máximo (subagente Opus independente, 2026-10-11): **APROVADO COM 6 RESSALVAS**, todas aplicadas nesta emenda (inconsistência 393T × 2603F não é dispersão; premissa do datum da RN1; geoide × viés; cenário assimétrico; checagem pela lâmina d'água; recalque entre épocas).
 
+## Emenda 2 (2026-10-11) — refluxo de maré fora do escopo
+
+- Decisão do Lucas: a dissertação **não espera** a medida do viés MDT↔SGB (pedido 03 ou nivelamento de campo).
+- Consequências:
+  - A regra C vale para todo o escopo atual. Nenhuma regra, feature, camada ou resultado usa cota absoluta contra a maré.
+  - Δ = +0,821 m (emenda 1) entra na dissertação como resultado metodológico. O refluxo de maré (variante M1b) entra
+    como limitação e trabalho futuro, com o caminho documentado: Δ fechado; falta o viés do MDT.
+  - A análise exploratória da emenda 1, item 3, fica opcional. Se for feita, sai só como sensibilidade.
+  - O pedido 03 vira opcional. Ele continua útil pelo termo de uso, necessário só se a camada de terreno for publicada
+    fora do uso local e acadêmico. A tarefa F3-GEO-09 foi descartada.
+- Reabre se: o pedido 03 for respondido; ou alguém fizer o ponto de controle de campo; ou o autor trouxer o refluxo de
+  volta ao escopo.
+
 ## Fontes
 
 Ver `docs/extratos/f41-porto-recife.md` (F-41 e BDG 2603F/393T, acesso em 2026-10-11) e `docs/extratos/referencia-vertical.md` (acessos em 2026-10-10): IBGE, relacao_dvsgb_nr_zh.pdf; IBGE, 10anos.pdf; TabuaMare/DHN `pe02`; IBGE BDG RN 393Y; PSMSL estação 556; Fuchs et al. (2021), IHR; Lins (2018), UFPE; Cirilo et al., ABRHidro.
