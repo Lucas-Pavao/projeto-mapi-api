@@ -36,6 +36,8 @@ tarball conferido por SHA-256 no `run.sh`). Saída: `OUT/tiles/terrain_hypsometr
 é a mesma de `src/features/map/utils/terrain.ts` do front: mudou uma, mude a outra e regenere. Copie o `.pmtiles` para `public/terrain/`
 do front (dev) ou para o volume do nginx (precisa de `Range`).
 
+Variantes (F3-FRONT-03), por ambiente: `ZOOM_MAX=16` (corta o zoom 17; o MapLibre amplia o z16), `TILE_FORMAT=PNG|PNG8|WEBP` e `TILE_QUALITY` (WebP), `TILES_VARIANT=nome` (saída em `OUT/tiles-nome/`). Sem variáveis o resultado é o de sempre (SHA-256 `3e375bf1…`, reproduzido em 2026-10-11). Medido: WebP (qualidade 50–90) não reduz o arquivo (20,7–25,1 MB contra 21,3 MB de PNG em z12–16); `ZOOM_MAX=16` reduz o tráfego de 3,39 para 2,20 MB.
+
 ## Hidrologia (fill, D8, área contribuinte)
 
 - Motor padrão: **WhiteboxTools v2.4.0** (binário oficial baixado para `OUT/whitebox/`; o zip é conferido contra

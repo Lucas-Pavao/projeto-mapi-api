@@ -1,7 +1,8 @@
 """Grava terrain_manifest.json de tiles/ (chamado por run.sh tiles). Argumentos: vrt_sha cog_sha pal_sha seg_total bbox img pmtiles_ver pmtiles_sha"""
 import json, sys, os, hashlib, sqlite3, subprocess
 vrt, cog, pal, seg, bbox, img, pmv, pms = sys.argv[1:9]
-D = '/terreno/tiles'
+TD, FMT, QUAL = (sys.argv[9:12] + ['tiles', 'PNG', ''])[:3] if len(sys.argv) >= 12 else ('tiles', 'PNG', '')
+D = f'/terreno/{TD}'
 f = f'{D}/terrain_hypsometry.pmtiles'
 h = hashlib.sha256()
 with open(f, 'rb') as fh:
@@ -10,7 +11,7 @@ with open(f, 'rb') as fh:
 hd = json.load(open(f'{D}/pmtiles_header.json'))
 txt = dict(l.split(': ', 1) for l in open(f'{D}/pmtiles_show.txt').read().splitlines() if ': ' in l)
 m = {
- 'artefato': 'terrain_hypsometry.pmtiles', 'formato': 'PMTiles v3, tiles PNG RGBA 256 px, ja coloridos (cota nao esta no tile)',
+ 'artefato': 'terrain_hypsometry.pmtiles', 'formato': f'PMTiles v3, tiles {FMT}' + (f' (qualidade {QUAL})' if FMT == 'WEBP' else '') + ' RGBA 256 px, ja coloridos (cota nao esta no tile)',
  'zoom_min': hd['minzoom'], 'zoom_max': hd['maxzoom'],
  'bbox_epsg31985': dict(zip(['xmin','ymin','xmax','ymax'], map(float, bbox.split()))),
  'bbox_regra': 'bbox dos pontos de cobertura.csv + 2000 m', 'bbox_wgs84': hd['bounds'],

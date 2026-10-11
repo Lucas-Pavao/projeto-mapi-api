@@ -104,11 +104,13 @@ etapa_cog3857() {
 # Intermediarios (RGBA, MBTiles) sao apagados ao fim; fica tiles/terrain_hypsometry.pmtiles + terrain_manifest.json. Exige 1,5 GB livres.
 PMTILES_VER="1.31.2"
 PMTILES_TGZ_SHA256="3ed7dbf4ec2e6dfe5e25b6f70d1ffc932729f93c86db353bf514dd71010a312f"   # go-pmtiles_1.31.2_Linux_x86_64.tar.gz (BSD-3-Clause)
-ZOOM_MIN=12; ZOOM_MAX=17
+# Variantes (F3-FRONT-03), por ambiente: TILE_FORMAT=PNG|PNG8|WEBP (padrao PNG), TILE_QUALITY (WEBP, padrao 90), ZOOM_MAX (padrao 17; o MBTiles nasce no zoom nativo 17 e z > ZOOM_MAX e cortado),
+# TILES_VARIANT (sufixo da pasta de saida: vazio = tiles/; "webp-z16" = tiles-webp-z16/). Sem variaveis, o resultado e o de F3-FRONT-02.
+ZOOM_MIN=12; ZOOM_MAX="${ZOOM_MAX:-17}"; TILE_FORMAT="${TILE_FORMAT:-PNG}"; TILE_QUALITY="${TILE_QUALITY:-90}"; TILES_VARIANT="${TILES_VARIANT:-}"
 etapa_tiles() {
   checa_disco
   [ -s "$OUT/cog3857/terrain_3857.tif" ] || { echo "ABORTA: rode a etapa cog3857 antes" >&2; exit 1; }
-  local P="$OUT/pmtiles"; mkdir -p "$P" "$OUT/tiles"
+  local P="$OUT/pmtiles"; local TD="tiles${TILES_VARIANT:+-$TILES_VARIANT}"; mkdir -p "$P" "$OUT/$TD"
   if [ ! -x "$P/pmtiles" ]; then
     curl -sL -m 300 -o "$P/p.tgz" "https://github.com/protomaps/go-pmtiles/releases/download/v${PMTILES_VER}/go-pmtiles_${PMTILES_VER}_Linux_x86_64.tar.gz"
     echo "$PMTILES_TGZ_SHA256  $P/p.tgz" | sha256sum -c - || { echo "ABORTA: hash do pmtiles difere" >&2; exit 1; }
@@ -117,16 +119,17 @@ etapa_tiles() {
   local pms; pms=$(sha256sum "$P/pmtiles" | cut -d' ' -f1)
   local bbox; bbox=$(tail -n +2 "$OUT/cobertura.csv" | awk -F, 'NR==1{xa=xb=$3;ya=yb=$4} {if($3<xa)xa=$3;if($3>xb)xb=$3;if($4<ya)ya=$4;if($4>yb)yb=$4}
     END{printf "%.3f %.3f %.3f %.3f", xa-2000, ya-2000, xb+2000, yb+2000}')
-  local T="$OUT/tiles"; rm -f "$T/_rgba.tif" "$T/_z.mbtiles" "$T/terrain_hypsometry.pmtiles"
+  local T="$OUT/$TD"; rm -f "$T/_rgba.tif" "$T/_z.mbtiles" "$T/terrain_hypsometry.pmtiles"
+  local TQ=(); if [ "$TILE_FORMAT" = WEBP ]; then TQ=(-co QUALITY="$TILE_QUALITY"); fi
   local t0 t1; t0=$(date +%s.%N)
   dk gdaldem color-relief -alpha -of GTiff -co TILED=YES -co COMPRESS=DEFLATE -co BIGTIFF=IF_SAFER \
-    /terreno/cog3857/terrain_3857.tif /tools/terreno/paleta_hipsometrica.txt /terreno/tiles/_rgba.tif
+    /terreno/cog3857/terrain_3857.tif /tools/terreno/paleta_hipsometrica.txt /terreno/$TD/_rgba.tif
   checa_disco >/dev/null
-  dk gdal_translate -of MBTiles -co TILE_FORMAT=PNG -co MINZOOM=$ZOOM_MAX -co MAXZOOM=$ZOOM_MAX -co RESAMPLING=NEAREST \
-    /terreno/tiles/_rgba.tif /terreno/tiles/_z.mbtiles
+  dk gdal_translate -of MBTiles -co TILE_FORMAT=$TILE_FORMAT ${TQ[@]+"${TQ[@]}"} -co MINZOOM=17 -co MAXZOOM=17 -co RESAMPLING=NEAREST \
+    /terreno/$TD/_rgba.tif /terreno/$TD/_z.mbtiles
   rm -f "$T/_rgba.tif"
-  dk gdaladdo -r average /terreno/tiles/_z.mbtiles 2 4 8 16 32
-  dk python3 -I /tools/terreno/cortaz.py /terreno/tiles/_z.mbtiles $ZOOM_MIN
+  dk gdaladdo -r average /terreno/$TD/_z.mbtiles 2 4 8 16 32
+  dk python3 -I /tools/terreno/cortaz.py /terreno/$TD/_z.mbtiles $ZOOM_MIN $ZOOM_MAX
   "$P/pmtiles" convert "$T/_z.mbtiles" "$T/terrain_hypsometry.pmtiles"
   t1=$(date +%s.%N)
   rm -f "$T/_z.mbtiles"
@@ -135,7 +138,7 @@ etapa_tiles() {
   "$P/pmtiles" show --header-json "$T/terrain_hypsometry.pmtiles" > "$T/pmtiles_header.json"
   local vrt_sha cog_sha pal_sha; vrt_sha=$(sha256sum "$OUT/mosaico.vrt" | cut -d' ' -f1); cog_sha=$(sha256sum "$OUT/cog3857/terrain_3857.tif" | cut -d' ' -f1)
   pal_sha=$(sha256sum "$AQUI/paleta_hipsometrica.txt" | cut -d' ' -f1)
-  dk python3 -I /tools/terreno/manifesto_tiles.py "$vrt_sha" "$cog_sha" "$pal_sha" "$seg" "$bbox" "$IMG_TAG@$IMG_DIGEST" "$PMTILES_VER" "$pms"
+  dk python3 -I /tools/terreno/manifesto_tiles.py "$vrt_sha" "$cog_sha" "$pal_sha" "$seg" "$bbox" "$IMG_TAG@$IMG_DIGEST" "$PMTILES_VER" "$pms" "$TD" "$TILE_FORMAT" "$TILE_QUALITY"
   ls -l "$T"
 }
 
