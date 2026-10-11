@@ -1,0 +1,16 @@
+cenario|endpoint|n|p50_ms|p95_ms|max_ms
+flood_prediction|flood-predictions|68|23.2|2984.8|5097.9
+None|http://mapi-api:8080/api/auth/login|1|171.0|171.0|171.0
+None|http://mapi-api:8080/api/auth/register|1|96.4|96.4|96.4
+None|http://mapi-api:8080/api/pontos|1|50.5|50.5|50.5
+None|http://mapi-api:8080/api/sensors/ids|1|27.8|27.8|27.8
+ramping_load|pontos|9325|2.3|4.0|15.1
+ramping_load|sensors/latest|9325|1.6|2.5|13.3
+ramping_load|sensors/inventory|9325|1.4|2.3|19.3
+ramping_load|sensors/{id}/history|9325|1.1|1.9|10.9
+ramping_load|tabua-mare/states|9325|0.9|1.9|5535.4
+ramping_load|tide/harbors|9325|1.0|1.9|10.0
+ramping_load|marine|9325|0.8|1.5|792.1
+ramping_load|sensors/{id}/latest|9325|0.8|1.4|10.4
+ramping_load|sensors/ids|9325|0.7|1.2|8.9
+ramping_load|weather|9325|0.5|0.8|479.9

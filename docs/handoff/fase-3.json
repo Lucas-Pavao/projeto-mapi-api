@@ -1,0 +1,96 @@
+{
+ "fase": 3,
+ "data": "2026-10-10",
+ "adrs": [
+  "0008 aprovado (C3 efetivo após C1 reprovado na medição)",
+  "0009 aprovado (só cotas relativas)"
+ ],
+ "metricas": {
+  "pontos_cobertos": "4/5",
+  "cota_rua_m": {
+   "AV_RECIFE_IBURA": 1.392,
+   "CIN_UFPE": 7.679,
+   "AGAMENON_DERBY": 2.58,
+   "MASCARENHAS_IMBIRIBEIRA": 2.068
+  },
+  "mdt_menos_openmeteo_m": {
+   "media": -2.82,
+   "max_abs": 5.42
+  },
+  "area_contribuinte_m2": {
+   "AV_RECIFE_IBURA": 208,
+   "CIN_UFPE": 82378,
+   "AGAMENON_DERBY": 62,
+   "MASCARENHAS_IMBIRIBEIRA": 10103
+  },
+  "d8_concordancia_whitebox_pct": [
+   97,
+   99.5
+  ],
+  "ponto_terreno_csv_sha256": "114ddd32679176010c45b514842b00b8a755671e4f6edbba8be2b78483fbb405",
+  "camada_C1_cog": {
+   "mb": 20.95,
+   "s": 5.8,
+   "veredito": "reprovado"
+  },
+  "camada_C3_tiles": {
+   "mb": 3.39,
+   "s": 2.89,
+   "veredito": "aprovado, margem estreita"
+  }
+ },
+ "bloqueios": [
+  "Δ NR↔datum do MDT (pedidos CHM/IBGE/PE3D)",
+  "teste em celular real"
+ ],
+ "tarefas": [
+  {
+   "id": "F3-GEO-01",
+   "status": "concluido"
+  },
+  {
+   "id": "F3-GEO-02",
+   "status": "concluido"
+  },
+  {
+   "id": "F3-GEO-03",
+   "status": "concluido"
+  },
+  {
+   "id": "F3-GEO-04",
+   "status": "concluido"
+  },
+  {
+   "id": "F3-GEO-05",
+   "status": "concluido"
+  },
+  {
+   "id": "F3-GEO-06",
+   "status": "concluido"
+  },
+  {
+   "id": "F3-BACK-01",
+   "status": "concluido"
+  },
+  {
+   "id": "F3-FRONT-01",
+   "status": "concluido"
+  },
+  {
+   "id": "F3-GEO-07",
+   "status": "concluido"
+  },
+  {
+   "id": "F3-ARQ-02",
+   "status": "concluido"
+  },
+  {
+   "id": "F3-FRONT-02",
+   "status": "concluido"
+  },
+  {
+   "id": "F3-ARQ-01",
+   "status": "pendente"
+  }
+ ]
+}

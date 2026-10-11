@@ -34,7 +34,7 @@ Este projeto utiliza agentes especializados para garantir a integridade técnica
 
 ## 🧪 Qualidade e Testes
 - **Testes Unitários:** Obrigatórios para lógicas de parsing e cálculo (JUnit 5 + Mockito).
-- **Testes de Integração:** Utilizar H2 (em memória) para validar repositórios e fluxos JPA.
+- **Testes de Integração:** Utilizar Testcontainers com a imagem TimescaleDB do compose para validar repositórios, migrations Flyway e queries nativas (ADR 0004). H2 não executa TimescaleDB e será removido.
 - **Mocking:** Sempre mockar APIs externas (ANA, Open-Meteo) para garantir testes determinísticos.
 
 ---
