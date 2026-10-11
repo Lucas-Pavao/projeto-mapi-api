@@ -1,8 +1,10 @@
 package com.projeto.mapi.integration;
 
+import com.projeto.mapi.dto.CurrentWeatherDTO;
 import com.projeto.mapi.dto.FloodPredictionRequestDTO;
 import com.projeto.mapi.dto.FloodPredictionResponseDTO;
 import com.projeto.mapi.dto.RiskLevel;
+import com.projeto.mapi.dto.WeatherResponseDTO;
 import com.projeto.mapi.model.DayData;
 import com.projeto.mapi.model.FloodPoint;
 import com.projeto.mapi.model.GeoLocation;
@@ -105,5 +107,36 @@ class PredictionCycleTideIntegrationTest extends AbstractTimescaleIntegrationTes
         verify(floodPredictionService).predict(any(), imputed.capture());
         // A maré veio da tábua local (interpolada), não foi imputada como 0.0.
         assertThat(imputed.getValue()).doesNotContain("tide_level");
+    }
+
+    @Test
+    void cicloEnviaVariaveisMeteorologicasEDeOndaParaAIa() {
+        // A IA exige estas 9 variáveis na inferência e responde 422 se faltarem (ADR 0007 §3). Antes o
+        // backend não as enviava e toda previsão do ciclo saía UNKNOWN/INSUFFICIENT_DATA.
+        when(weatherService.getWeatherData(anyDouble(), anyDouble())).thenReturn(new WeatherResponseDTO(
+                -8.06, -34.87, 0.1, 4.0,
+                new CurrentWeatherDTO("2026-10-11T19:00", 26.7, 60.0, 29.1, 1013.9, 1, 0, 0.0, 10.3, 0.0)));
+        when(marineService.getCurrentWaveHeight(anyDouble(), anyDouble())).thenReturn(1.12);
+        when(marineService.getCurrentWavePeriod(anyDouble(), anyDouble())).thenReturn(6.65);
+        when(marineService.getCurrentWaveDirection(anyDouble(), anyDouble())).thenReturn(111.0);
+        Instant t = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+        when(floodPredictionService.predict(any(FloodPredictionRequestDTO.class), anyCollection()))
+                .thenReturn(new PredictionResult(FloodPredictionResponseDTO.builder()
+                        .riskLevel(RiskLevel.LOW).floodProbability(0.1).modelVersion("m").issuedAt(t).build(), "m+x"));
+
+        mapiService.refreshPredictionsForActivePoints();
+
+        ArgumentCaptor<FloodPredictionRequestDTO> req = ArgumentCaptor.forClass(FloodPredictionRequestDTO.class);
+        verify(floodPredictionService).predict(req.capture(), anyCollection());
+        FloodPredictionRequestDTO r = req.getValue();
+        assertThat(r.getTemperature()).isEqualTo(26.7);
+        assertThat(r.getApparentTemperature()).isEqualTo(29.1);
+        assertThat(r.getHumidity()).isEqualTo(60.0);
+        assertThat(r.getPressure()).isEqualTo(1013.9);
+        assertThat(r.getWindSpeed()).isEqualTo(10.3);
+        assertThat(r.getSolarRadiation()).isEqualTo(0.0);
+        assertThat(r.getWaveHeight()).isEqualTo(1.12);
+        assertThat(r.getWavePeriod()).isEqualTo(6.65);
+        assertThat(r.getWaveDirection()).isEqualTo(111.0);
     }
 }
