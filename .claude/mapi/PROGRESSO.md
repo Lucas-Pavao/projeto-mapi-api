@@ -142,7 +142,7 @@
 | F4-ARQ-01 | 4 | Arquiteto | Rápido | Handoff da Fase 4 | pendente | | |
 | F5-QA-01 | 5 | QA | Rápido | `docs/FONTES-E-LICENCAS.md` | concluido | ver commit "FONTES-E-LICENCAS" | 2026-10-10 · subagente Haiku · `docs/FONTES-E-LICENCAS.md` · termo localizado em 8/11 fontes; pendentes: PE3D, ANA (API), APAC, DHN/CHM (403), termo da API TabuaMare · restrições: Open-Meteo gratuito só não comercial; CARTO exige chave própria; Nominatim 1 req/s; CKAN pode conter endereços (LGPD) |
 | F5-QA-02 | 5 | QA | Rápido | Checklist de release e guia de contribuição; conferir origem de todo número | pendente | | |
-| F5-REV-01 | 5 | Revisor | Máximo | `docs/REVISAO-CRITICA.md` | pendente | | |
+| F5-REV-01 | 5 | Revisor | Máximo | `docs/REVISAO-CRITICA.md` | em_andamento | | 2026-10-10 · subagente Opus (Máximo), revisor independente dos checkpoints · adiantado enquanto a pergunta 28 não chega |
 | F5-ACAD-01 | 5 | Acadêmico | Máximo | `docs/PRONTIDAO-ACADEMICA.md` | pendente | | |
 | F5-ARQ-01 | 5 | Arquiteto | Máximo | `docs/ARQUITETURA.md` ×3 e `docs/ROADMAP-REVISAO.md` | pendente | | |
 | F5-ARQ-02 | 5 | Arquiteto | Máximo | `docs/RELATORIO-REVISAO.md` e PRs finais | pendente | | |
