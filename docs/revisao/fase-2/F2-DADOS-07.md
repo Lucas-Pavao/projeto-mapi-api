@@ -41,4 +41,10 @@ Limite assumido desde já: o teste B prova o fuso **da janela observada**, não 
 - Fonte aprovada com `h = −3` → `source_registry.source_tz = 'America/Recife'`, `verification_state = 'VERIFIED'`; com `h = 0` → `'UTC'`. Mudança de dado de configuração via migração Flyway; o bruto sai da quarentena por `REVALIDATE` (nunca por `UPDATE` em `observation`).
 - Fonte não aprovada → continua `UNVERIFIED`, nota com o motivo.
 
+### 1.4 Aditamento (posterior ao resultado do teste A da ANA; declarado como pós-hoc)
+
+O teste A da ANA foi calculado antes deste aditamento e **não aprovou nenhuma estação** (seção 3.1). Este item foi escrito depois de ver esse resultado e **antes** de calcular o teste abaixo; por isso ele é registrado como pós-hoc e **não** altera a decisão pré-fixada da seção 1.1. Serve de evidência independente para o autor decidir.
+
+Teste C — relógio da ANA: para cada estação telemétrica ativa de PE do inventário `ListaEstacoesTelemetricas`, baixar `DadosHidrometeorologicos` de D−1 a D+1 e tomar o rótulo mais recente; `lag(h) = instante do download (UTC) − (rótulo − h)`. Hipótese `h` viável se **≤ 2 % das estações** tiverem `lag < −10 min` (leitura do futuro) **e** a estação mais fresca tiver `lag ≤ 30 min` (a telemetria tem alguma estação em dia com transmissão recente). Poder: ≥ 50 estações com leitura. Exatamente um `h` viável, em {−3, 0}, é a conclusão do teste. Limite: estações satelitais transmitem em blocos e ficam atrasadas; por isso o limite superior usa a estação mais fresca, não a mediana.
+
 <!-- RESULTADOS: seções 2 em diante entram no commit seguinte -->
