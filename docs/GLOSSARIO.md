@@ -9,7 +9,7 @@ conforme a preferência registrada para DTOs); se ainda não existe no código, 
 
 Status: **v2, 2026-10-11**. v2 corrige os termos desatualizados da v1 (Lâmina, Rótulo, Horizonte, Modelo do balde,
 Fuso; Preamar passa a "m (NR DHN)" para o painel não omitir a referência), registra os campos divergentes do código, acrescenta os termos de modelo e de dados que a banca
-vai ver (§4 de `docs/PRONTIDAO-ACADEMICA.md`) e a nota fichas × degraus da curva. Definições de ficha, soleira, lâmina e
+apontados no §4 de `docs/PRONTIDAO-ACADEMICA.md` e a nota fichas × degraus da curva. Definições de ficha, soleira, lâmina e
 nível lá fora confirmadas pelo Lucas contra a formulação do modelo estocástico em 2026-10-10.
 
 ## Hidrologia urbana e modelo físico
