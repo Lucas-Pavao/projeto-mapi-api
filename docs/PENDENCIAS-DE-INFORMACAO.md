@@ -39,7 +39,7 @@ prorrogáveis por mais 10 (pedidos 05 e 06).
 | 8 | Credencial do Hidro-WebService da ANA | ANA | não há | Dado da ANA ao vivo | baixa |
 | 9 | Pluviômetro urbano com hora confiável em 2023–2024 | Cemaden, APAC ou ANA | não há | Um teste com poder | média |
 | 10 | Confirmação de que a rede de Petri vai exportar no formato combinado | você | não há | Voltar a avaliar a Petri | baixa agora |
-| 11 | Onde guardar a cópia dos dumps | você | não há | Proteção contra perda dos dados | **urgente** |
+| 11 | ~~Onde guardar a cópia dos dumps~~ (resolvido em 2026-10-11: Google Drive, pasta "MAPI — backup") | você | não há | Proteção contra perda dos dados | resolvido |
 | 12 | Teste da camada de terreno em celular real | você (ou alguém com um celular comum) | não há | Fechar o critério do ADR 0008 | média |
 | 13 | Sua confirmação escrita e a leitura do orientador nos pré-registros e no MEMO | você e o orientador | não há | Validade do protocolo diante da banca | alta |
 | 14 | Polígonos oficiais de bairro | Prefeitura do Recife | não há | Análise secundária por bairro | baixa |

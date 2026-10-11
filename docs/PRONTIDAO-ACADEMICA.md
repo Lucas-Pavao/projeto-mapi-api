@@ -86,6 +86,9 @@ Pré-requisitos para o roteiro funcionar, por ordem de custo:
    `requirements.txt` com `--hash` e a versão do Python declarada. **Quem faz:** IA.
 5. **Tirar uma cópia fora da máquina** de `MAPI/snapshots/`, `MAPI/avaliacao-f1/` e `MAPI/terreno/ponto_terreno*`, com os
    `.sha256` (RC-01 e RC-21 recomendavam isso; não há registro de que a cópia foi feita). **Quem faz:** Lucas.
+   **Feito em 2026-10-11:** Google Drive do Lucas, pasta "MAPI — backup", `mapi-backup-2026-10-11.tar` (SHA-256 4c8a2038…),
+   com os 4 dumps, `avaliacao-f1/` (inclui `entradas/ponto_terreno.csv`, 114ddd32…), exports, rótulos externos e fontes. Os PDFs
+   das tábuas DHN 2021–2025 não estão guardados localmente (o script baixa e registra o SHA-256 de cada um no CSV).
 6. **Escrever `avaliacao/README.md`**, com o roteiro, os hashes esperados e o que não é reprodutível (ingestão online). Hoje
    a pasta não tem README. **Quem faz:** IA.
 
