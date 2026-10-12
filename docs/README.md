@@ -7,6 +7,7 @@ Comece por `VISAO-GERAL.md`. O estado da revisão e as decisões ficam em `../.c
 | Documento | Para que serve |
 |---|---|
 | `VISAO-GERAL.md` | Como o sistema funciona de ponta a ponta; arquivos do PE3D; estado verificado |
+| `PROMPT-CLAUDE-WEB.md` | Prompt pronto para colar no claude.ai: explica tudo em linguagem simples e gera um HTML completo |
 | `arquitetura/api.md`, `ai.md`, `front.md` | Arquitetura de cada repositório |
 | `API.md`, `openapi/openapi-integracao-fase2.json` | Rotas da API e contrato (o JSON é o snapshot de referência citado no API.md) |
 | `INGESTAO.md` | Pipeline de ingestão (fontes, quarentena, versões, proveniência) |
