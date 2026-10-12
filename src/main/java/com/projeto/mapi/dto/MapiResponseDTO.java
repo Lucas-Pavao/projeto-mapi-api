@@ -18,6 +18,8 @@ public class MapiResponseDTO {
     private SensorResponseDTO nearestSensor;
     private WeatherResponseDTO openMeteoData;
     private Double distanceToNearestSensorKm;
+    // Altitude do local: cota do MDT do PE3D (5 m) quando o ponto está na área levantada; senão, Open-Meteo (90 m).
+    private LocalElevationDTO localElevation;
     private FloodPredictionResponseDTO floodPrediction;
 
     // Contrato de RESPOSTA ao front-end (camelCase, igual ao resto da MapiResponseDTO) — não

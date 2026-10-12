@@ -151,6 +151,7 @@ sem extrair nada. Etapas:
 | Atributos por ponto (3 arquivos) | `MAPI/terreno/` → **banco** (`terrain_run`, `point_terrain`, `point_terrain_curve`; V9) | API: `GET /api/pontos/{slug}/terrain`, colunas `terrain_*` do export, painel do ponto |
 | Carga no banco | `POST /api/admin/terrain/runs` (admin) lê `/terreno` montado no container; carga idempotente pelo SHA-256 dos 3 arquivos | — |
 | Tiles PMTiles | copiados para `projeto-mapi-front/public/terrain/` (ignorado pelo git; só o manifesto é versionado) → nginx do front serve `/terrain/` por volume | camada "Terreno (hipsometria)" no mapa, lida por range requests (`pmtiles://`) |
+| Grade de altitude (5 m) | `MAPI/terreno/altitude/mdt_5m_cm.i16` + `mdt_5m.json` (46 MB; `run.sh grade_altitude`), lida pela API em `/terreno/altitude` | campo `localElevation` de `GET /api/environmental-data`: altitude no card "Análise de local" (fora da área do MDT, Open-Meteo de 90 m, marcado como aproximado) |
 | Entradas da avaliação F1 | `MAPI/avaliacao-f1/entradas/ponto_terreno.csv` e `curva_cota_volume.csv` (cópias congeladas, com hash) | modelo físico do balde (projeto-mapi-ai `avaliacao/`) |
 
 ### 4.4 Limites que valem para tudo que usa o MDT
