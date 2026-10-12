@@ -36,7 +36,7 @@ prorrogáveis por mais 10 (pedidos 05 e 06).
 | 5 | Registros de alagamento com data, hora e endereço | Defesa Civil do Recife, via LAI | 05 | Validação com mais casos e com hora | alta |
 | 6 | Cadastro da microdrenagem nos 4 pontos | EMLURB / URB Recife, via LAI | 06 | Capacidade da galeria e soleira com fonte | média |
 | 7 | Termos de uso das demais fontes | ANA, APAC, Cemaden, Open-Meteo, CARTO, Prefeitura | não há | Publicar dados e o site | média |
-| 8 | Credencial do Hidro-WebService da ANA | ANA | não há | Dado da ANA ao vivo | baixa |
+| 8 | ~~Credencial do Hidro-WebService da ANA~~ (resolvido em 2026-10-12: coleta ao vivo funcionando) | ANA | não há | Dado da ANA ao vivo | resolvido |
 | 9 | Pluviômetro urbano com hora confiável em 2023–2024 | Cemaden, APAC ou ANA | não há | Um teste com poder | média |
 | 10 | Confirmação de que a rede de Petri vai exportar no formato combinado | você | não há | Voltar a avaliar a Petri | baixa agora |
 | 11 | ~~Onde guardar a cópia dos dumps~~ (resolvido em 2026-10-11: Google Drive, pasta "MAPI — backup") | você | não há | Proteção contra perda dos dados | resolvido |
