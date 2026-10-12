@@ -44,6 +44,7 @@ public class MapiServiceImpl implements MapiService {
     private final com.projeto.mapi.service.flood.FloodPredictionHistoryService predictionHistory;
     private final FloodScenarioLabelRepository floodScenarioLabelRepository;
     private final SensorDataRepository sensorDataRepository;
+    private final com.projeto.mapi.service.terrain.LocalElevationService localElevationService;
 
     private static final double MAX_SENSOR_RADIUS_KM = 20.0;
 
@@ -96,7 +97,23 @@ public class MapiServiceImpl implements MapiService {
                 .nearestSensor(nearestSensor)
                 .openMeteoData(weatherData)
                 .distanceToNearestSensorKm(distance)
+                .localElevation(localElevation(latitude, longitude, weatherData))
                 .build();
+    }
+
+    // Cota do MDT do PE3D (grade de 5 m) quando o ponto está na área levantada; fora dela, a altitude do Open-Meteo
+    // (modelo de 90 m, aproximada). Sem clima de verdade (fallback com current = null) o Open-Meteo traz 0,0 inventado.
+    private com.projeto.mapi.dto.LocalElevationDTO localElevation(double latitude, double longitude, WeatherResponseDTO weather) {
+        java.util.OptionalDouble mdt = localElevationService.mdtElevationAt(latitude, longitude);
+        if (mdt.isPresent()) {
+            return new com.projeto.mapi.dto.LocalElevationDTO(mdt.getAsDouble(), "PE3D_MDT_5M", 5.0,
+                    "Cota do MDT do PE3D (voo de 2016), média de 5 m; datum não confirmado, cota relativa (ADR 0009)");
+        }
+        if (weather != null && weather.current() != null) {
+            return new com.projeto.mapi.dto.LocalElevationDTO(weather.elevation(), "OPEN_METEO_90M", 90.0,
+                    "Altitude aproximada do Open-Meteo (modelo de terreno de 90 m); fora da área do MDT do PE3D");
+        }
+        return null;
     }
 
     @Override

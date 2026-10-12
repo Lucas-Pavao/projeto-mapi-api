@@ -224,7 +224,7 @@ Autenticação: login devolve um token (JWT); rotas `/api/admin/...` exigem pape
 | `GET /api/pontos/{slug}` | estado atual de um ponto: clima, chuva, maré, sensores, última previsão |
 | `GET /api/pontos/{slug}/terrain` | terreno do ponto (cota, declividade, área, curva de enchimento) |
 | `POST /api/pontos/scenarios` | grava cenários rotulados (para treino) |
-| `GET /api/environmental-data` | dado ambiental de qualquer coordenada (clique no mapa) |
+| `GET /api/environmental-data` | dado ambiental de qualquer coordenada (clique no mapa), incluindo a altitude do local (`localElevation`) |
 | `POST /api/flood-predictions` | roda uma previsão sob demanda para uma coordenada e grava a auditoria |
 
 **Sensores**
@@ -448,6 +448,7 @@ Reprodutibilidade: `reproduzir.sh` refaz tudo com hashes conferidos:
   (liga a hipsometria, com a legenda de cotas) e **Legenda de risco** (o que significa Baixo, Moderado, Alto e Previsão
   indisponível).
 - **Clique no mapa**: card "Análise de local", com temperatura, umidade, chuva, vento, pressão, radiação, nível de água,
+  **altitude** (cota do MDT do PE3D, grade de 5 m, cota relativa; fora da área do MDT, Open-Meteo de 90 m, aproximado),
   maré e sensores no raio.
 - **Clique num ponto**: popup com probabilidade, classe, selo "experimental" e sensores. Dali abre o painel analítico
   completo.

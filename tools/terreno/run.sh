@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # MAPi — terreno PE3D: reproduz inventário, mosaico, recortes COG, atributos por ponto e comparação.
 # Uso: tools/terreno/run.sh [etapa ...]   (sem argumentos roda todas)
-# Etapas: altitude inventario vrt cobertura recortes atributos comparar estimativas validar testes cog3857 tiles (whitebox roda sozinho dentro de atributos e validar)
+# Etapas: altitude inventario vrt cobertura recortes atributos comparar estimativas validar testes cog3857 tiles grade_altitude (whitebox roda sozinho dentro de atributos e validar)
 # Requer: docker, curl. Nunca descompacta os zips (lê por /vsizip). Saídas em ../terreno (fora do git).
 set -euo pipefail
 AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -154,6 +154,20 @@ etapa_tiles() {
   pal_sha=$(sha256sum "$AQUI/paleta_hipsometrica.txt" | cut -d' ' -f1)
   dk python3 -I /tools/terreno/manifesto_tiles.py "$vrt_sha" "$cog_sha" "$pal_sha" "$seg" "$bbox" "$IMG_TAG@$IMG_DIGEST" "$PMTILES_VER" "$pms" "$TD" "$TILE_FORMAT" "$TILE_QUALITY"
   ls -l "$T"
+}
+
+# grade_altitude: grade de 5 m (média) do mosaico inteiro, gravada como int16 em centímetros para a API consultar a cota
+# de qualquer ponto clicado no mapa (GET /api/environmental-data -> localElevation). Saída: $OUT/altitude/ (≈ 46 MB).
+etapa_grade_altitude() {
+  checa_disco
+  [ -s "$OUT/mosaico.vrt" ] || { echo "ABORTA: rode a etapa vrt antes" >&2; exit 1; }
+  mkdir -p "$OUT/altitude"; rm -f "$OUT/altitude/mdt_5m.tif"
+  dk gdalwarp -tr 5 5 -r average -srcnodata -9999 -dstnodata -9999 -ot Float32 -co COMPRESS=DEFLATE -co TILED=YES \
+    /terreno/mosaico.vrt /terreno/altitude/mdt_5m.tif
+  local vrt_sha; vrt_sha=$(sha256sum "$OUT/mosaico.vrt" | cut -d' ' -f1)
+  dk python3 -I /tools/terreno/grade_altitude.py /terreno/altitude/mdt_5m.tif /terreno/altitude "$vrt_sha" "$IMG_TAG@$IMG_DIGEST"
+  rm -f "$OUT/altitude/mdt_5m.tif"
+  ls -l "$OUT/altitude"
 }
 
 ETAPAS=("$@"); [ ${#ETAPAS[@]} -gt 0 ] || ETAPAS=(altitude inventario vrt cobertura recortes atributos comparar estimativas validar testes)

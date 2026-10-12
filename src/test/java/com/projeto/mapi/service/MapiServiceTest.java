@@ -48,6 +48,9 @@ class MapiServiceTest {
     @Mock
     private com.projeto.mapi.service.flood.FloodPredictionHistoryService predictionHistory;
 
+    @Mock
+    private com.projeto.mapi.service.terrain.LocalElevationService localElevationService;
+
     @InjectMocks
     private MapiServiceImpl mapiService;
 
