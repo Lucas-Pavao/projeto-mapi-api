@@ -19,7 +19,7 @@ deveria verificar no código.
 
 ## O que eu quero que você faça
 
-1. **Gerar um único arquivo HTML completo e autocontido** (um só `.html`, CSS e JS embutidos, sem depender de servidor;
+1. **Ataulizar o nnosso HTML completo e autocontido** (um só `.html`, CSS e JS embutidos, sem depender de servidor;
    bibliotecas só por CDN conhecido, por exemplo Mermaid). Ele deve explicar o MAPi de ponta a ponta, com as seções:
    1. O problema e a pergunta (por que alagamento no Recife é difícil de prever).
    2. Visão geral em uma imagem (diagrama do sistema inteiro).
@@ -56,7 +56,7 @@ deveria verificar no código.
 - **Atualização:** sempre que eu mandar uma informação nova ou uma correção, **gere de novo o HTML inteiro, completo,
   do começo ao fim**, já com a mudança aplicada. Nunca mande só o trecho alterado, nunca escreva "o resto continua
   igual". No fim de cada versão, inclua uma seção "Histórico de versões" com data e o que mudou.
-
+- Manter o que ja temos de relavante e adapatar ao novo formato e ataulizar o que for necessário, por exemplo as redes de petri
 ---
 
 ## Base de fatos (estado em 2026-10-11)
@@ -118,7 +118,7 @@ Banco → exportação CSV → avaliação científica
 |---|---|---|---|---|---|
 | **APAC** (Agência Pernambucana de Águas e Clima) | chuva dos pluviômetros, nível de rio | coleta automática da API | a cada 5 min | chuva e rio **medidos no local**; vence o Open-Meteo na chuva atual quando há sensor a até 3 km | funcionando; só traz as últimas 24 h (sem histórico longo para baixar) |
 | **Cemaden** (via APAC) | chuva (pluviômetros) | coleta automática | a cada 3 min | idem; fuso horário verificado por teste (UTC−3) | funcionando; 8 638 leituras desde 2026-10-09 |
-| **ANA** (Agência Nacional de Águas) | chuva e nível de rio (telemetria) | coleta automática (HidroWebService) | a cada 15 min | rio e chuva de estações oficiais; fuso verificado (UTC−3) | **parada ao vivo**: a credencial informada ainda não tem acesso ao módulo (a ANA responde 401). Histórico: 1 614 541 leituras de 2021-10 a 2026-10-10 |
+| **ANA** (Agência Nacional de Águas) | chuva e nível de rio (telemetria) | coleta automática (HidroWebService) | a cada 15 min | rio e chuva de estações oficiais; fuso verificado (UTC−3) | funcionando ao vivo desde 2026-10-12 (235 leituras na 1ª coleta). Histórico: 1 614 541 leituras de 2021-10 a 2026-10-10 |
 | **Open-Meteo** (clima atual e forecast) | temperatura, umidade, pressão, vento, radiação, chuva das últimas 24 h | API pública | de hora em hora, com cache | clima de qualquer ponto; **única fonte dos acumulados de chuva (3 a 24 h) que vão para a IA** | funcionando |
 | **Open-Meteo Archive** (reanálise ERA5) | chuva e clima horários do passado | carga histórica | sob demanda | histórico de 5 anos; foi a chuva usada na avaliação da dissertação | 1 714 440 valores, de 2021-01 a 2026-09-30 |
 | **ERA5-Land** (via Open-Meteo) | umidade do solo (0 a 7 cm) | carga histórica | sob demanda | indica solo encharcado | 219 120 valores |
@@ -474,7 +474,6 @@ Reprodutibilidade: `reproduzir.sh` refaz tudo com hashes conferidos:
 - Rótulo fraco: 18 dias em 5 anos, sem hora, com resolução de bairro (distância mediana de 2 456 m até o ponto). "Dia
   sem registro" não significa "não alagou".
 - A chuva usada na avaliação (reanálise) não alcança as intensidades que alagam ruas.
-- ANA ao vivo parada até a credencial ser liberada.
 - Termos de uso pendentes: DHN, PE3D, APAC.
 - Faltam dados da galeria (cadastro de drenagem da EMLURB) e registros com hora da Defesa Civil (pedidos via Lei de
   Acesso à Informação, ainda não enviados).

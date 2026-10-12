@@ -203,7 +203,7 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | (resolvido) F2-BACK-15 | Umidade do solo ERA5-Land no pipeline | V10 aprovada pela autorização durável | 2026-10-10 |
 | (resolvido) F5-OPS-02 | branches só locais | push feito pelo Lucas em 2026-10-11 | 2026-10-10 |
 | F4-PED-03 | Registros de alagamento com hora e endereço | resposta ao pedido LAI 05 (envio pelo Lucas) | 2026-10-11 |
-| F2-DADOS-12 | ANA ao vivo: credencial configurada em `.env` (2026-10-11), mas o HidroWebService responde 401 "Usuário sem permissão de acesso ao módulo" (mesma resposta de um usuário inexistente) | liberação do acesso ao módulo Estações Telemétricas no cadastro da ANA (Lucas) | 2026-10-11 |
+| (resolvido) F2-DADOS-12 | ANA ao vivo: o 401 era senha errada no `.env`; com a senha correta (a mesma do `.env` do projeto-mapi/Edge) a autenticação deu 200 e a coleta de 2026-10-12 processou 235 leituras, 0 erros | senha corrigida pelo Lucas | 2026-10-11 |
 
 ## Perguntas pendentes para o Lucas
 | # | Pergunta | Desde | Impacto se não responder |

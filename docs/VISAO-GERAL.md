@@ -58,7 +58,7 @@ flowchart LR
 |---|---|---|---|
 | APAC Cemaden | 3 min | chuva (pluviômetros Cemaden via APAC) | funcionando |
 | APAC meteorologia | 5 min | chuva e rio das estações APAC | funcionando |
-| ANA | 15 min | chuva e rio (telemetria) | **parada**: faltam `ANA_IDENTIFICADOR`/`ANA_SENHA` (pendência 8) |
+| ANA | 15 min | chuva e rio (telemetria) | funcionando desde 2026-10-12 (credenciais em `projeto-mapi-api/.env`, fora do git) |
 | Open-Meteo (clima) | 1 h, e sob demanda com cache | temperatura, umidade, pressão, vento, radiação, chuva das últimas 24 h | funcionando |
 | Tábua de maré | 1 dia | maré prevista (Porto do Recife, `pe02`) | funcionando |
 
@@ -173,7 +173,6 @@ sem extrair nada. Etapas:
 | Mapa | conferido no navegador em desktop e em 390 px: barra de botões, painéis, popups, card e camada de terreno |
 
 O que ainda depende de fora (detalhes em `docs/PENDENCIAS-DE-INFORMACAO.md`):
-- credencial da ANA (rio ao vivo);
 - termos de uso (DHN, PE3D e demais fontes) antes de publicar qualquer coisa;
 - teste da camada de terreno num celular real;
 - leitura do orientador.
