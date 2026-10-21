@@ -41,6 +41,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/logout").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/sensors/**", "/api/weather/**").permitAll()
+                // ADR 0013: só leitura pública, com limite de taxa (PublicRateLimitingFilter).
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/public/**").permitAll()
                 // Verificado ao vivo: mesmo com management.server.port separado (application.yml),
                 // esse SecurityFilterChain continua interceptando as requisições do Actuator —
                 // não existe isolamento automático por porta aqui (ao contrário do que a doc do
