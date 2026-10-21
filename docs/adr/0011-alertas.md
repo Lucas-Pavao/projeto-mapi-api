@@ -34,7 +34,7 @@ Opção B.
 - `UNKNOWN` gera alerta do tipo `PREDICTION_UNAVAILABLE` com `degradationReason`; nunca é tratado como queda de risco.
 - Todo alerta vindo de previsão leva `model_validation_status`; o front mostra `ExperimentalBadge`.
 - Canais: `BROWSER` via SSE (ADR 0012). E-mail e WhatsApp entram só como interface `AlertChannel` sem implementação.
-- Padrões iniciais (V18, regras desativáveis): risco HIGH em qualquer ponto; rio na cota de alerta; pluviômetro sem resposta por 30 min. Maré e chuva ficam sem regra padrão: o limiar precisa de fonte (ADR 0009 e MEMO §5 vetam limiar escolhido olhando eventos).
+- Padrões iniciais (V18, regras desativáveis): risco HIGH em qualquer ponto; rio na cota de alerta; pluviômetro sem resposta por 30 min; chuva ≥ 55 mm em 1 h por pluviômetro (`RAIN_RATE`, limiar pré-registrado da IDF TR 2 anos, `docs/PARAMETROS-MODELO-FISICO.md:47`; pergunta 36). Maré fica sem regra padrão: o limiar precisa de fonte (ADR 0009 e MEMO §5 vetam limiar escolhido olhando eventos).
 
 ## Consequências
 
