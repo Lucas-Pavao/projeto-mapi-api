@@ -1,11 +1,11 @@
-package com.projeto.mapi.service.model;
+package com.projeto.mapi.service.desempenho;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.projeto.mapi.config.ModelEvaluationProperties;
 import com.projeto.mapi.dto.ModelEvaluationDTO;
 import com.projeto.mapi.exception.ServiceUnavailableException;
 import com.projeto.mapi.service.ingestion.Hashing;
-import com.projeto.mapi.service.model.impl.ModelEvaluationServiceImpl;
+import com.projeto.mapi.service.desempenho.impl.ModelEvaluationServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 

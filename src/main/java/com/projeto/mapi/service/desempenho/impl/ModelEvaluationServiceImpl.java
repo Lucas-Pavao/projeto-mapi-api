@@ -1,11 +1,11 @@
-package com.projeto.mapi.service.model.impl;
+package com.projeto.mapi.service.desempenho.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.projeto.mapi.config.ModelEvaluationProperties;
 import com.projeto.mapi.dto.ModelEvaluationDTO;
 import com.projeto.mapi.exception.ServiceUnavailableException;
 import com.projeto.mapi.service.ingestion.Hashing;
-import com.projeto.mapi.service.model.ModelEvaluationService;
+import com.projeto.mapi.service.desempenho.ModelEvaluationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;

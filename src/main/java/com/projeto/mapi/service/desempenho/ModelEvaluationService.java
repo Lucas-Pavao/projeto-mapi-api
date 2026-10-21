@@ -1,4 +1,4 @@
-package com.projeto.mapi.service.model;
+package com.projeto.mapi.service.desempenho;
 
 import com.projeto.mapi.dto.ModelEvaluationDTO;
 
