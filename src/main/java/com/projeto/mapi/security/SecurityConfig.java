@@ -6,6 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,6 +24,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -49,6 +53,7 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/**").hasAuthority(Role.ADMIN.name())
                 .requestMatchers("/api/admin/ingestion/**").hasAuthority(Role.ADMIN.name())
                 .requestMatchers("/api/admin/terrain/**").hasAuthority(Role.ADMIN.name())
+                .requestMatchers("/api/admin/**").hasAuthority(Role.ADMIN.name())
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
@@ -58,6 +63,18 @@ public class SecurityConfig {
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    /**
+     * ADR 0010: ADMIN herda OPERADOR, que herda USER. As authorities deste projeto não têm o prefixo
+     * ROLE_ (ver User#getAuthorities), por isso o prefixo da hierarquia é vazio.
+     */
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        return RoleHierarchyImpl.withRolePrefix("")
+                .role(Role.ADMIN.name()).implies(Role.OPERADOR.name())
+                .role(Role.OPERADOR.name()).implies(Role.USER.name())
+                .build();
     }
 
     @Bean

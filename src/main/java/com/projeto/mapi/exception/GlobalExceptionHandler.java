@@ -114,6 +114,51 @@ public class GlobalExceptionHandler {
                 request.getDescription(false));
     }
 
+    @ExceptionHandler(ConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorMessage handleConflict(ConflictException ex, WebRequest request) {
+        return build(HttpStatus.CONFLICT, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(UnprocessableEntityException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ErrorMessage handleUnprocessable(UnprocessableEntityException ex, WebRequest request) {
+        return build(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(ServiceUnavailableException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public ErrorMessage handleServiceUnavailable(ServiceUnavailableException ex, WebRequest request) {
+        log.warn("Serviço indisponível em {}: {}", request.getDescription(false), ex.getMessage());
+        return build(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(TooManyRequestsException.class)
+    public org.springframework.http.ResponseEntity<ErrorMessage> handleTooManyRequests(TooManyRequestsException ex, WebRequest request) {
+        return org.springframework.http.ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("Retry-After", String.valueOf(ex.getRetryAfterSeconds()))
+                .body(build(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), request));
+    }
+
+    // @PreAuthorize lança AccessDeniedException dentro do controller; sem este handler o catch-all abaixo a
+    // transformaria em 500.
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorMessage handleAccessDenied(org.springframework.security.access.AccessDeniedException ex, WebRequest request) {
+        return build(HttpStatus.FORBIDDEN, "Perfil insuficiente para esta operação", request);
+    }
+
+    // Conta desativada (ADR 0010): mesma resposta de credencial inválida, para não revelar o estado da conta.
+    @ExceptionHandler(org.springframework.security.authentication.DisabledException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorMessage handleDisabled(org.springframework.security.authentication.DisabledException ex, WebRequest request) {
+        return build(HttpStatus.UNAUTHORIZED, "Invalid username or password", request);
+    }
+
+    private static ErrorMessage build(HttpStatus status, String message, WebRequest request) {
+        return new ErrorMessage(status.value(), new Date(), message, request.getDescription(false));
+    }
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorMessage handleGlobalException(Exception ex, WebRequest request) {

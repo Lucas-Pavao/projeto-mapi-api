@@ -18,6 +18,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.projeto.mapi.service.admin.InviteService;
+import java.time.Clock;
 
 @Service
 @RequiredArgsConstructor
@@ -28,17 +31,25 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenService refreshTokenService;
+    private final InviteService inviteService;
+    private final Clock clock;
 
     @Override
+    @Transactional
     public void register(RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new UserAlreadyExistsException("Username already exists: " + request.getUsername());
         }
 
+        // Convite (ADR 0010): o perfil vem do token; sem token, USER.
+        Role role = (request.getInviteToken() == null || request.getInviteToken().isBlank())
+                ? Role.USER
+                : Role.valueOf(inviteService.redeem(request.getInviteToken(), request.getUsername()));
+
         var user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
+                .role(role)
                 .build();
 
         userRepository.save(user);
@@ -55,6 +66,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow();
+        user.setLastLoginAt(clock.instant());
+        userRepository.save(user);
 
         var jwtToken = jwtService.generateToken(user.getUsername());
         var refreshToken = refreshTokenService.createRefreshToken(user.getUsername());

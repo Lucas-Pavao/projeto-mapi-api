@@ -19,4 +19,7 @@ public class RegisterRequest {
     @NotBlank(message = "A senha é obrigatória")
     @Size(min = 8, message = "A senha deve ter no mínimo 8 caracteres")
     private String password;
+
+    /** Token de convite (ADR 0010); define o perfil do novo usuário. Sem ele, o perfil é USER. */
+    private String inviteToken;
 }
