@@ -17,6 +17,16 @@ public interface SensorDataRepository extends JpaRepository<SensorData, Long> {
     @Query(value = "SELECT DISTINCT ON (sensor_id) * FROM sensor_data WHERE timestamp >= :since ORDER BY sensor_id, timestamp DESC", nativeQuery = true)
     List<SensorData> findAllLatest(@org.springframework.data.repository.query.Param("since") LocalDateTime since);
 
+    /** Projeção de {@link #maxRainSince}. */
+    interface RainRow {
+        String getSensorId();
+        Double getMaxMm();
+    }
+
+    @Query(value = "SELECT sensor_id AS sensorId, MAX(accumulated_precipitation) AS maxMm FROM sensor_data "
+            + "WHERE timestamp >= :since AND accumulated_precipitation IS NOT NULL GROUP BY sensor_id", nativeQuery = true)
+    List<RainRow> maxRainSince(@org.springframework.data.repository.query.Param("since") LocalDateTime since);
+
     Optional<SensorData> findBySensorIdAndTimestamp(String sensorId, LocalDateTime timestamp);
 
     // Usado por repairSensorCoordinates(): evita carregar a hypertable inteira (>1M linhas) em memória,

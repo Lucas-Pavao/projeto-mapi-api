@@ -48,3 +48,10 @@ Opção B.
 
 - Defesa Civil exigir integração com sistema próprio de alerta.
 - Volume de alertas > 100 por dia por operador (fadiga), medido na tabela `alert`.
+
+## Emenda 1 — estado por alvo e rastreio (2026-10-21, F2)
+
+- `alert_state (rule_id, target_key, in_condition, updated_at)` entra na V18. Guarda se cada par (regra, alvo) estava em condição no ciclo anterior. Em memória, um reinício reemitiria todo alerta ainda ativo; no banco, não. Um par sem linha conta como "fora de condição".
+- `UNKNOWN` não altera o estado das regras `RISK_LEVEL` (não é queda de risco); só a regra `PREDICTION_UNAVAILABLE` o avalia.
+- `alert.prediction_id` fica nulo por enquanto: o resumo de previsão usado pelo avaliador não carrega o id da linha de `flood_predictions`.
+- `RAIN_RATE` usa o maior `accumulated_precipitation` do pluviômetro nos últimos 60 min (mesma leitura que o acumulado do MapiServiceImpl trata como chuva da hora). A semântica por fonte (Cemaden, APAC) ainda não foi verificada contra o manual de cada uma `[sem fonte]`.

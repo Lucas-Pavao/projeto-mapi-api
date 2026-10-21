@@ -281,6 +281,15 @@ public class SensorServiceImpl implements SensorService {
     }
 
     @Override
+    public java.util.Map<String, Double> rainLastHourBySensor() {
+        LocalDateTime since = LocalDateTime.ofInstant(clock.instant().minus(java.time.Duration.ofHours(1)),
+                java.time.ZoneId.systemDefault());
+        java.util.Map<String, Double> out = new java.util.LinkedHashMap<>();
+        sensorDataRepository.maxRainSince(since).forEach(r -> out.put(r.getSensorId(), r.getMaxMm()));
+        return out;
+    }
+
+    @Override
     public List<SensorResponseDTO> getLatestWithFreshness(String type) {
         java.time.Instant now = clock.instant();
         return getAllLatestData().stream()
