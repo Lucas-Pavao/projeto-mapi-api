@@ -8,6 +8,7 @@ import com.projeto.mapi.model.SensorData;
 import com.projeto.mapi.repository.FloodPointRepository;
 import com.projeto.mapi.repository.SensorDataRepository;
 import com.projeto.mapi.service.sensor.SensorFreshnessPolicy;
+import com.projeto.mapi.service.sensor.SensorReadingSavedEvent;
 import com.projeto.mapi.service.sensor.SensorService;
 import com.projeto.mapi.util.GeoUtils;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,9 @@ public class SensorServiceImpl implements SensorService {
     private final FloodPointRepository floodPointRepository;
     private final ObjectMapper objectMapper;
     private final com.projeto.mapi.service.tide.TideService tideService;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     // Opcionais (injeção por campo): testes unitários constroem o serviço só com o construtor de 4 argumentos.
     @org.springframework.beans.factory.annotation.Autowired(required = false)
@@ -228,8 +232,25 @@ public class SensorServiceImpl implements SensorService {
         try {
             sensorDataRepository.save(data);
             log.info("Dados do sensor {} salvos: timestamp={}", finalSensorId, timestamp);
+            publishReading(data);
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
             log.warn("Tentativa de salvar registro duplicado interceptada pelo banco: {} em {}", finalSensorId, timestamp);
+        }
+    }
+
+    // ADR 0012: o stream SSE assina as gravações de leitura. Falha de ouvinte nunca derruba a ingestão.
+    private void publishReading(SensorData data) {
+        if (eventPublisher == null || data.getTimestamp() == null) return;
+        try {
+            Double value = data.getAccumulatedPrecipitation() != null ? data.getAccumulatedPrecipitation()
+                    : data.getWaterLevel() != null ? data.getWaterLevel() : data.getValue();
+            String type = data.getAccumulatedPrecipitation() != null ? "PRECIPITATION"
+                    : data.getWaterLevel() != null ? "RIVER_LEVEL" : data.getType();
+            eventPublisher.publishEvent(new SensorReadingSavedEvent(new com.projeto.mapi.dto.SensorReadingEventDTO(
+                    data.getSensorId(), type, value, data.getUnit(),
+                    data.getTimestamp().atZone(java.time.ZoneId.systemDefault()).toInstant())));
+        } catch (Exception e) {
+            log.warn("Falha ao publicar leitura no stream: {}", e.getMessage());
         }
     }
 
