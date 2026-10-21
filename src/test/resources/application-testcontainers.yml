@@ -6,6 +6,11 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
+    # Cada variação de contexto (MockitoBean, propriedades) abre o próprio pool e o contêiner é único por JVM:
+    # com o pool padrão (10) a suíte estoura max_connections (100) do PostgreSQL ("too many clients").
+    hikari:
+      maximum-pool-size: 3
+      minimum-idle: 0
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
