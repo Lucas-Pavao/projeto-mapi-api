@@ -52,3 +52,11 @@ hypertables, EXPLAIN — nenhum container do banco estava rodando.
 - Integração: `integracao/fase-2` @ e27755b (worktree no scratchpad `wt-integ`), V1–V13, 218 testes.
 - Bloqueio central: pergunta 28 (F1 físico+emulador × F2 rótulo ampliado). Sem ela, a Fase 4 não começa.
 - Autorização durável do Lucas para implementar/decidir no escopo; registrar tudo aqui e no PROGRESSO.
+
+## Acréscimo 2026-10-21 (redesign, sessão encerrada)
+- Ler só: `docs/redesign/HANDOFF-redesign.md` e `docs/redesign/F0-TELAS.md`. Contrato: `docs/openapi/redesign-telas.yaml` na branch `feat/redesign-f2` (versão corrigida).
+- Decidido: ADRs 0010–0015 e 0016 (MapStruct) aprovados; perguntas 32–46 respondidas.
+- Branches locais, sem push: api `docs/redesign-f0` e `feat/redesign-f2`; ia `feat/simulate-bucket`; front `feat/redesign-f1` e `feat/redesign-f3`.
+- Banco real sem V16–V20: não subir o compose com a branch da F2 sem dump e aprovação.
+- F6 e PWA ficam para depois da F5.
+

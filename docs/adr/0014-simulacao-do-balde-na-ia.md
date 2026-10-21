@@ -26,17 +26,17 @@ A favor: uma única implementação, a mesma da avaliação; teste de regressão
 
 Opção C.
 
-- IA: `POST /v1/simulate/bucket` com `P_mm_h` (lista horária, 1 a 72 valores, sem NaN), `point` (`slug`, `area_m2`, `z_curva_m`, `v_curva_m3`, `rua_rel_m`) e `params` opcionais só dentro das faixas de sensibilidade já registradas: `f` de 0 a 1 em passos de 0,2 e `curve_scale` de 0,7 a 1,3 (`docs/PARAMETROS-MODELO-FISICO.md:66,69`); `C`, `iT_mm_h`, `hcrit_mm` e `snap_m` ficam fixos nos valores de `Params`. Valor fora da faixa → 422. Resposta: `h_mm[]`, `n_fora_da_curva`, `hmax_mm`, `t_cross_h` (primeira hora com `h ≥ h_crit` ou `null`), `params_usados`, `model = "M1a"`.
+- IA: `POST /v1/simulate/bucket` com `P_mm_h` (lista horária, 1 a 72 valores, sem NaN), `point` (`slug`, `area_m2`, `z_curva_m`, `v_curva_m3`, `rua_rel_m`) e `params` opcionais só dentro das faixas de sensibilidade já registradas: `f` de 0 a 1 em passos de 0,2 e `curve_scale` de 0,7 a 1,3 (`docs/PARAMETROS-MODELO-FISICO.md:66,69`); `C`, `iT_mm_h`, `hcrit_mm` e `snap_m` ficam fixos nos valores de `Params`. Valor fora da faixa → 422. Resposta: `h_mm[]`, `n_fora_da_curva`, `hmax_mm`, `t_cross_h` (índice 0-based da primeira hora com `h ≥ h_crit`, ou `null`), `params_usados`, `model = "M1a"`.
 - Backend: `POST /api/model/simulate/bucket` com `slug` e `P_mm_h`; monta a curva a partir de `point_terrain_curve` e repassa. Ponto sem terreno (Jaboatão) → 422.
 - Sem controle de maré. Sem escrita no banco. Resposta marcada `illustrative = true`; o front mostra "Simulação — não é previsão".
-- Teste de regressão (pytest): para os pontos e chuvas dos dias de teste já usados na avaliação, a saída do endpoint é idêntica (`np.array_equal`) à de `simular_ponto`. O endpoint não muda `balde.py`; `HASHES.sha256` continua batendo.
+- Teste de regressão (pytest): para os pontos e chuvas dos dias de teste já usados na avaliação, a saída do endpoint é idêntica (`np.array_equal`) à de `simular_ponto`. O endpoint não muda `balde.py`; `HASHES.sha256` continua batendo (ele lista arquivos de `MAPI/avaliacao-f1/`; conferir com `sha256sum -c` a partir dessa pasta).
 
 ## Consequências
 
 - Melhor: uma fórmula só; o simulador mostra exatamente o modelo avaliado.
 - Pior: a tela depende da IA no ar.
 - Muda: `mapi_ai/app.py` ganha uma rota; backend ganha um cliente e um endpoint.
-- Medida: pytest de regressão verde; `sha256sum -c HASHES.sha256` verde.
+- Medida: pytest de regressão verde; `cd avaliacao-f1 && sha256sum -c ../projeto-mapi-ai/avaliacao/HASHES.sha256` verde (5/5 em 2026-10-21).
 
 ## Condições que reabririam a decisão
 
