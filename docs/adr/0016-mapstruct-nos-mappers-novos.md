@@ -1,4 +1,4 @@
-# 0015 — MapStruct nos mappers novos
+# 0016 — MapStruct nos mappers novos
 
 - Status: aprovado (2026-10-21, instrução do prompt da F2: "MapStruct")
 - Data: 2026-10-21
