@@ -29,9 +29,9 @@ public class EventTimelineController {
     @GetMapping("/timeline")
     @PreAuthorize("hasAuthority('USER')")
     @Operation(summary = "Linha do tempo agregada (chuva, maré, rio, risco por ponto)",
-            description = "Janela máxima de 72 h, passo de 10 min. A série de risco vem de flood_predictions.")
+            description = "Janela máxima de 72 h, passo de 10 min; to vai até agora + 72 h. Só a maré é prevista no futuro: chuva, rio e risco (de flood_predictions) param em agora.")
     @ApiResponse(responseCode = "200", description = "OK")
-    @ApiResponse(responseCode = "400", description = "Janela inválida ou slug inexistente")
+    @ApiResponse(responseCode = "400", description = "Janela inválida, to além de agora + 72 h ou slug inexistente")
     public ResponseEntity<TimelineDTO> timeline(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to,

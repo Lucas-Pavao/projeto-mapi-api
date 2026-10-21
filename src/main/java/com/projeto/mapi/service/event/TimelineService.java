@@ -9,7 +9,8 @@ import java.util.List;
 public interface TimelineService {
 
     /**
-     * Janela máxima de 72 h, passo de 10 min. {@code slugs} vazio = todos os pontos ativos;
+     * Janela máxima de 72 h, passo de 10 min; {@code to} vai até agora + 72 h. Só a maré (tábua prevista) cobre o
+     * futuro: chuva, rio, risco e alagamentos param em agora. {@code slugs} vazio = todos os pontos ativos;
      * slug inexistente = {@code InvalidRequestException}.
      */
     TimelineDTO timeline(Instant from, Instant to, List<String> slugs);

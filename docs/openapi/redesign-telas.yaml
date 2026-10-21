@@ -285,7 +285,9 @@ paths:
       tags: [Eventos]
       summary: Linha do tempo agregada (chuva, maré, rio, risco por ponto)
       description: |
-        Janela máxima de 72 h. Série de risco vem de flood_predictions; rio e demais séries usam passo de 10 min.
+        Janela máxima de 72 h (to - from), e `to` pode ir até agora + 72 h (além disso, 400). Só a maré (tábua prevista pe02)
+        cobre o futuro; chuva, rio, risco (de flood_predictions) e alagamentos confirmados param em agora. Série de maré e
+        rio usam passo de 10 min.
         A chuva (`rain`) é a soma horária de observation.precipitation (série consolidada, só ACTIVE) servida como vem:
         um ponto por hora, com `t` = fim da hora e `v` em mm na hora (não é reamostrada a 10 min).
       parameters:

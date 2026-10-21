@@ -21,6 +21,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -98,6 +99,54 @@ class TimelineAndIngestionAdminIntegrationTest extends AbstractApiIntegrationTes
         mockMvc.perform(as(get("/api/events/timeline?from=" + now.minus(80, ChronoUnit.HOURS) + "&to=" + now), userToken()))
                 .andExpect(status().isBadRequest());
         mockMvc.perform(as(get("/api/events/timeline?from=" + now + "&to=" + now.minusSeconds(1)), userToken()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void timeline_aceitaToNoFuturo_soAMareEhPrevista_restoParaEmAgora() throws Exception {
+        Instant now = Instant.now();
+        java.util.UUID run = ObservationFixtures.run(jdbc, "TST_TL");
+        // chuva numa hora futura e extremos de maré (um antes, dois depois de agora)
+        ObservationFixtures.precipitation(jdbc, run, "TST_TL", "261160-PLUV-TL", now.truncatedTo(ChronoUnit.HOURS).plus(2, ChronoUnit.HOURS), 33.0);
+        ObservationFixtures.tideExtreme(jdbc, run, now.minus(3, ChronoUnit.HOURS), 0.3);
+        ObservationFixtures.tideExtreme(jdbc, run, now.plus(3, ChronoUnit.HOURS), 2.3);
+        ObservationFixtures.tideExtreme(jdbc, run, now.plus(9, ChronoUnit.HOURS), 0.5);
+        try {
+            Instant from = now.minus(2, ChronoUnit.HOURS), to = now.plus(10, ChronoUnit.HOURS);
+            String body = mockMvc.perform(as(get("/api/events/timeline?from=" + from + "&to=" + to), userToken()))
+                    .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+            var tree = objectMapper.readTree(body);
+
+            var futureTide = new java.util.ArrayList<Double>();
+            for (var pt : tree.at("/tide/points")) {
+                Instant t = Instant.parse(pt.get("t").asText());
+                assertThat(t).isBefore(to);
+                if (t.isAfter(now) && t.isBefore(now.plus(9, ChronoUnit.HOURS)) && !pt.get("v").isNull()) futureTide.add(pt.get("v").asDouble());
+            }
+            assertThat(futureTide).as("a maré vem prevista no futuro").isNotEmpty().allMatch(v -> v >= 0.3 && v <= 2.3);
+            assertThat(tree.at("/tide/points").size()).as("passo de 10 min até o fim da janela").isGreaterThan(12 * 6 - 2);
+
+            for (var series : tree.get("rain")) {
+                for (var pt : series.get("points")) assertThat(Instant.parse(pt.get("t").asText())).isBeforeOrEqualTo(now);
+            }
+            for (var risk : tree.get("risk")) {
+                for (var it : risk.get("items")) assertThat(Instant.parse(it.get("issuedAt").asText())).isBeforeOrEqualTo(now);
+            }
+            assertThat(body).doesNotContain("33.0");
+        } finally {
+            jdbc.update("DELETE FROM observation WHERE run_id = ?", run);
+        }
+    }
+
+    @Test
+    void timeline_toAlemDeAgoraMais72h_400_eJanelaTotalContinuaLimitadaA72h() throws Exception {
+        Instant now = Instant.now();
+        String t = userToken();
+        mockMvc.perform(as(get("/api/events/timeline?from=" + now.plus(10, ChronoUnit.HOURS) + "&to=" + now.plus(73, ChronoUnit.HOURS)), t))
+                .andExpect(status().isBadRequest());
+        mockMvc.perform(as(get("/api/events/timeline?from=" + now.plus(5, ChronoUnit.HOURS) + "&to=" + now.plus(71, ChronoUnit.HOURS)), t))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.rain.length()").value(0)).andExpect(jsonPath("$.risk[0].items.length()").value(0));
+        mockMvc.perform(as(get("/api/events/timeline?from=" + now.minus(2, ChronoUnit.HOURS) + "&to=" + now.plus(71, ChronoUnit.HOURS)), t))
                 .andExpect(status().isBadRequest());
     }
 

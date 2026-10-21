@@ -46,6 +46,14 @@ public final class ObservationFixtures {
         precipitation(jdbc, run, source, stationId, "PT1H", hourEnd, mm, "ACTIVE");
     }
 
+    /** Preamar/baixa-mar prevista do Porto do Recife (pe02), na fonte da tábua da DHN. */
+    public static void tideExtreme(JdbcTemplate jdbc, UUID run, Instant ts, double level) {
+        jdbc.update("INSERT INTO observation (source, station_id, variable, resolution, ts_utc, value, unit, interval_start_utc, "
+                        + "run_id, raw_hash, rule_version, value_hash, origin_ts_norm) "
+                        + "VALUES ('DHN_TABUA_PE02', 'pe02', 'tide_height', 'EVENT', ?, ?, 'm', ?, ?, repeat('a',64), 't', repeat('b',64), ?)",
+                Timestamp.from(ts), level, Timestamp.from(ts), run, ts.toString());
+    }
+
     public static void clear(JdbcTemplate jdbc, String source) {
         jdbc.update("DELETE FROM observation WHERE source = ?", source);
         jdbc.update("DELETE FROM station WHERE source = ?", source);

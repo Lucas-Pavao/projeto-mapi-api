@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -44,12 +45,17 @@ public class TimelineServiceImpl implements TimelineService {
     private final ObservationReadRepository observations;
     private final FloodPredictionHistoryService history;
     private final PredictionSummaryMapper summaryMapper;
+    private final Clock clock;
 
     @Override
     @Transactional(readOnly = true)
     public TimelineDTO timeline(Instant from, Instant to, List<String> slugs) {
         if (!from.isBefore(to)) throw new InvalidRequestException("from deve ser anterior a to");
         if (Duration.between(from, to).compareTo(MAX_WINDOW) > 0) throw new InvalidRequestException("Janela máxima de 72 h");
+        Instant now = clock.instant();
+        if (to.isAfter(now.plus(MAX_WINDOW))) throw new InvalidRequestException("to pode ir no máximo até agora + 72 h");
+        // Só a maré é prevista: chuva, rio, risco e eventos observados/gravados param em agora.
+        Instant dataTo = to.isAfter(now) ? now : to;
 
         List<FloodPoint> points = slugs.isEmpty() ? pointRepository.findByActiveTrue() : slugs.stream()
                 .map(s -> pointRepository.findBySlug(s)
@@ -60,11 +66,11 @@ public class TimelineServiceImpl implements TimelineService {
         Set<String> riverStations = slugs.isEmpty() ? null : union(points, false);
 
         ZoneId zone = ZoneId.systemDefault();
-        LocalDateTime lf = LocalDateTime.ofInstant(from, zone), lt = LocalDateTime.ofInstant(to, zone);
+        LocalDateTime lf = LocalDateTime.ofInstant(from, zone), lt = LocalDateTime.ofInstant(dataTo, zone);
         String step = STEP.toMinutes() + " minutes";
 
         // Chuva: soma horária de observation.precipitation, como vem (um ponto por hora, t = fim da hora).
-        List<StationSeries> rain = hourlyRain(from, to, rainStations);
+        List<StationSeries> rain = hourlyRain(from, dataTo, rainStations);
         List<StationSeries> river = group(sensorRepository.riverBuckets(lf, lt, step), riverStations, zone);
 
         List<TideInterpolation.Extreme> extremes = observations
@@ -75,7 +81,7 @@ public class TimelineServiceImpl implements TimelineService {
 
         List<TimelineDTO.RiskSeries> risk = new ArrayList<>();
         for (FloodPoint p : points) {
-            List<PredictionSummaryDTO> items = history.findSeries(p.getId(), from, to).stream()
+            List<PredictionSummaryDTO> items = (from.isBefore(dataTo) ? history.findSeries(p.getId(), from, dataTo) : List.<com.projeto.mapi.dto.FloodPredictionResponseDTO>of()).stream()
                     .map(r -> summaryMapper.toSummary(r, p.getSlug())).toList();
             risk.add(new TimelineDTO.RiskSeries(p.getSlug(), items));
         }
