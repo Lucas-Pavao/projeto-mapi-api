@@ -39,13 +39,25 @@ public class UserAdminServiceImpl implements UserAdminService {
     @Override
     @Transactional
     public UserSummaryDTO update(Long id, UserPatchRequestDTO patch, String actingUsername) {
-        if (patch.role() == null && patch.active() == null) {
-            throw new InvalidRequestException("Informe role e/ou active");
+        if (patch.role() == null && patch.active() == null && patch.email() == null && patch.name() == null) {
+            throw new InvalidRequestException("Informe ao menos um de role, active, email ou name");
         }
         User target = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado: " + id));
-        if (target.getUsername().equals(actingUsername)) {
+        boolean touchesAccess = patch.role() != null || patch.active() != null;
+        if (touchesAccess && target.getUsername().equals(actingUsername)) {
             throw new ConflictException("Um ADMIN não pode alterar o próprio perfil nem desativar a si mesmo");
+        }
+        if (patch.email() != null) {
+            String email = patch.email().isBlank() ? null : patch.email().trim().toLowerCase(java.util.Locale.ROOT);
+            if (email != null && userRepository.findByEmailIgnoreCase(email)
+                    .filter(u -> !u.getId().equals(target.getId())).isPresent()) {
+                throw new ConflictException("E-mail já cadastrado");
+            }
+            target.setEmail(email);
+        }
+        if (patch.name() != null) {
+            target.setName(patch.name().isBlank() ? null : patch.name().trim());
         }
 
         Role newRole = patch.role() != null ? Role.valueOf(patch.role()) : target.getRole();

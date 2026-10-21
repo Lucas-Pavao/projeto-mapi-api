@@ -41,18 +41,34 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new UserAlreadyExistsException("Username already exists: " + request.getUsername());
         }
 
-        // Convite (ADR 0010): o perfil vem do token; sem token, USER.
-        Role role = (request.getInviteToken() == null || request.getInviteToken().isBlank())
-                ? Role.USER
-                : Role.valueOf(inviteService.redeem(request.getInviteToken(), request.getUsername()));
+        // Convite (ADR 0010): o perfil vem do token (e o e-mail, se o convite trouxer); sem token, USER.
+        Role role = Role.USER;
+        String email = normalizeEmail(request.getEmail());
+        if (request.getInviteToken() != null && !request.getInviteToken().isBlank()) {
+            var redemption = inviteService.redeem(request.getInviteToken(), request.getUsername());
+            role = Role.valueOf(redemption.role());
+            if (redemption.email() != null && !redemption.email().isBlank()) {
+                email = normalizeEmail(redemption.email());
+            }
+        }
+        // Falha antes de gravar; se o convite já foi consumido nesta transação, o rollback o devolve.
+        if (email != null && userRepository.existsByEmailIgnoreCase(email)) {
+            throw new UserAlreadyExistsException("E-mail já cadastrado");
+        }
 
         var user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(role)
+                .email(email)
+                .name(request.getName() == null || request.getName().isBlank() ? null : request.getName().trim())
                 .build();
 
         userRepository.save(user);
+    }
+
+    private static String normalizeEmail(String email) {
+        return email == null || email.isBlank() ? null : email.trim().toLowerCase(java.util.Locale.ROOT);
     }
 
     @Override

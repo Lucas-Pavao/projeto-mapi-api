@@ -8,7 +8,5 @@ import org.mapstruct.Mapping;
 @Mapper
 public interface UserMapper {
 
-    @Mapping(target = "name", expression = "java(null)")
-    @Mapping(target = "email", source = "username")
     UserSummaryDTO toSummary(User user);
 }

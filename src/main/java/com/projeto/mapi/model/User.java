@@ -39,6 +39,13 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private boolean active = true;
 
+    /** Opcional (nulo nos usuários anteriores à V19); único sem diferenciar maiúsculas. */
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "name")
+    private String name;
+
     @Column(name = "last_login_at")
     private Instant lastLoginAt;
 

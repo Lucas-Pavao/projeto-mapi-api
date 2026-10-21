@@ -48,12 +48,13 @@ public class InviteServiceImpl implements InviteService {
 
     @Override
     @Transactional
-    public String redeem(String token, String newUsername) {
+    public com.projeto.mapi.dto.InviteRedemptionDTO redeem(String token, String newUsername) {
         String hash = Hashing.sha256(token);
         int consumed = inviteRepository.consume(hash, clock.instant(), newUsername);
         if (consumed != 1) {
             throw new InvalidRequestException("Convite inválido, já usado ou vencido");
         }
-        return inviteRepository.findByTokenHash(hash).orElseThrow().getRole().name();
+        UserInvite invite = inviteRepository.findByTokenHash(hash).orElseThrow();
+        return new com.projeto.mapi.dto.InviteRedemptionDTO(invite.getRole().name(), invite.getEmail());
     }
 }
