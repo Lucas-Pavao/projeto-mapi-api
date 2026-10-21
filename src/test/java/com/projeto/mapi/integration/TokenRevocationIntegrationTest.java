@@ -156,6 +156,24 @@ class TokenRevocationIntegrationTest extends AbstractApiIntegrationTest {
     }
 
     @Test
+    void cookieLegadoNoNavegadorNaoImpedeLoginNemCadastro_eO401ApagaOCookie() throws Exception {
+        bearer("tk_cookie_velho", Role.USER);
+        var key = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
+        String legado = Jwts.builder().subject("tk_cookie_velho").issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + 60_000)).signWith(key).compact();
+        Cookie velho = new Cookie("accessToken", legado);
+        mockMvc.perform(post("/api/auth/login").header("X-Forwarded-For", ip()).cookie(velho)
+                        .contentType(MediaType.APPLICATION_JSON).content(loginBody("tk_cookie_velho")))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/auth/register").header("X-Forwarded-For", ip()).cookie(velho)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"tk_cookie_novo\",\"password\":\"" + SENHA + "\"}"))
+                .andExpect(status().isCreated());
+        mockMvc.perform(get("/api/auth/me").cookie(velho)).andExpect(status().isUnauthorized())
+                .andExpect(cookie().maxAge("accessToken", 0));
+    }
+
+    @Test
     void cookieHttpOnlyDoAccessTokenAutenticaOStream() throws Exception {
         bearer("tk_cookie", Role.OPERADOR);
         String jwt = login("tk_cookie").get("accessToken").asText();

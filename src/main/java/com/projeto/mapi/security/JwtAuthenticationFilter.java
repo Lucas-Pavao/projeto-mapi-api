@@ -8,6 +8,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -53,7 +55,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Role role = parseRole(data.get().role());
             if (current.isEmpty() || !current.get().isActive() || role == null || data.get().tokenVersion() == null
                     || data.get().tokenVersion() != current.get().getTokenVersion()) {
-                revoked(response);
+                // Rotas públicas (login, cadastro, refresh, logout, /api/public) seguem anônimas: um cookie
+                // velho no navegador não pode impedir o usuário de entrar de novo.
+                if (isPublicPath(request)) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+                revoked(response, fromCookie(request));
                 return;
             }
             // Principal com o perfil DO TOKEN (as authorities nascem do claim, não do banco).
@@ -69,7 +77,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private static void revoked(HttpServletResponse response) throws IOException {
+    private static final List<String> PUBLIC_PATHS = List.of(
+            "/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/logout");
+
+    private static boolean isPublicPath(HttpServletRequest request) {
+        String path = request.getRequestURI().substring(request.getContextPath().length());
+        return PUBLIC_PATHS.contains(path) || path.startsWith("/api/public/");
+    }
+
+    private static boolean fromCookie(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        return authHeader == null || !authHeader.startsWith("Bearer ");
+    }
+
+    private static void revoked(HttpServletResponse response, boolean clearCookie) throws IOException {
+        if (clearCookie) {
+            // O cookie é httpOnly: só o servidor consegue apagá-lo.
+            response.addHeader(HttpHeaders.SET_COOKIE, ResponseCookie.from("accessToken", "")
+                    .httpOnly(true).sameSite("Lax").path("/").maxAge(0).build().toString());
+        }
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
