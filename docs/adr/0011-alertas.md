@@ -55,3 +55,4 @@ Opção B.
 - `UNKNOWN` não altera o estado das regras `RISK_LEVEL` (não é queda de risco); só a regra `PREDICTION_UNAVAILABLE` o avalia.
 - `alert.prediction_id` fica nulo por enquanto: o resumo de previsão usado pelo avaliador não carrega o id da linha de `flood_predictions`.
 - `RAIN_RATE` usa o maior `accumulated_precipitation` do pluviômetro nos últimos 60 min (mesma leitura que o acumulado do MapiServiceImpl trata como chuva da hora). A semântica por fonte (Cemaden, APAC) ainda não foi verificada contra o manual de cada uma `[sem fonte]`.
+- Escalada (decisão 46, 2026-10-21): dentro da condição, subir de severidade (ex.: MEDIUM para HIGH numa regra com `min_risk = MEDIUM`) gera alerta novo com a severidade maior, mesmo dentro dos 30 min. A supressão vale para o mesmo nível: um alerta recente de severidade igual ou maior segura o novo. Para isso a V20 acrescenta `alert_state.severity`.

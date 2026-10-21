@@ -5,10 +5,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import java.time.Instant;
+import java.util.Collection;
 
 public interface AlertRepository extends JpaRepository<Alert, Long>, JpaSpecificationExecutor<Alert> {
 
-    boolean existsByRule_IdAndFloodPoint_IdAndTriggeredAtGreaterThanEqual(Long ruleId, Long pointId, Instant since);
+    /** Já houve alerta da regra para o ponto, com uma dessas severidades, desde {@code since}? */
+    boolean existsByRule_IdAndFloodPoint_IdAndSeverityInAndTriggeredAtGreaterThanEqual(
+            Long ruleId, Long pointId, Collection<Alert.Severity> severities, Instant since);
 
-    boolean existsByRule_IdAndStationIdAndTriggeredAtGreaterThanEqual(Long ruleId, String stationId, Instant since);
+    boolean existsByRule_IdAndStationIdAndSeverityInAndTriggeredAtGreaterThanEqual(
+            Long ruleId, String stationId, Collection<Alert.Severity> severities, Instant since);
 }

@@ -28,6 +28,11 @@ public class AlertState {
     @Column(name = "in_condition", nullable = false)
     private boolean inCondition;
 
+    /** Severidade do ciclo anterior; nula fora de condição (detecta escalada dentro da condição). */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "severity")
+    private Alert.Severity severity;
+
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 

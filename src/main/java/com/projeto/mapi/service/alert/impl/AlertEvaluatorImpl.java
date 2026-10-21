@@ -128,12 +128,20 @@ public class AlertEvaluatorImpl implements AlertEvaluator {
         return created;
     }
 
-    /** Grava o alerta se entrou em condição e não está suprimido; sempre atualiza o estado. */
+    /**
+     * Grava o alerta quando o alvo ENTRA em condição ou ESCALA de severidade dentro dela (ex.: MEDIUM para HIGH numa
+     * regra com minRisk MEDIUM). A supressão de 30 min vale para o mesmo nível: um alerta recente de severidade igual
+     * ou maior segura o novo; um de severidade menor não. O estado é sempre atualizado.
+     */
     private boolean process(AlertRule rule, Candidate c, Instant now) {
         AlertState.Key key = new AlertState.Key(rule.getId(), c.targetKey);
-        boolean previous = stateRepository.findById(key).map(AlertState::isInCondition).orElse(false);
+        AlertState previous = stateRepository.findById(key).orElse(null);
+        boolean wasIn = previous != null && previous.isInCondition();
+        boolean entered = c.inCondition && !wasIn;
+        boolean escalated = c.inCondition && wasIn && previous.getSeverity() != null
+                && c.severity.ordinal() > previous.getSeverity().ordinal();
         boolean createdAlert = false;
-        if (c.inCondition && !previous && !suppressed(rule, c, now)) {
+        if ((entered || escalated) && !suppressed(rule, c, now)) {
             Alert alert = alertRepository.save(Alert.builder()
                     .rule(rule).kind(rule.getKind()).severity(c.severity)
                     .floodPoint(c.point).stationId(c.stationId)
@@ -145,17 +153,22 @@ public class AlertEvaluatorImpl implements AlertEvaluator {
             createdAlert = true;
         }
         stateRepository.save(AlertState.builder().ruleId(rule.getId()).targetKey(c.targetKey)
-                .inCondition(c.inCondition).updatedAt(now).build());
+                .inCondition(c.inCondition).severity(c.inCondition ? c.severity : null).updatedAt(now).build());
         return createdAlert;
     }
 
     private boolean suppressed(AlertRule rule, Candidate c, Instant now) {
         Instant since = now.minus(SUPPRESSION);
+        // severidades iguais ou maiores que a do candidato
+        List<Alert.Severity> sameOrHigher = java.util.Arrays.stream(Alert.Severity.values())
+                .filter(sv -> sv.ordinal() >= c.severity.ordinal()).toList();
         if (c.point != null) {
-            return alertRepository.existsByRule_IdAndFloodPoint_IdAndTriggeredAtGreaterThanEqual(rule.getId(), c.point.getId(), since);
+            return alertRepository.existsByRule_IdAndFloodPoint_IdAndSeverityInAndTriggeredAtGreaterThanEqual(
+                    rule.getId(), c.point.getId(), sameOrHigher, since);
         }
         return c.stationId != null
-                && alertRepository.existsByRule_IdAndStationIdAndTriggeredAtGreaterThanEqual(rule.getId(), c.stationId, since);
+                && alertRepository.existsByRule_IdAndStationIdAndSeverityInAndTriggeredAtGreaterThanEqual(
+                        rule.getId(), c.stationId, sameOrHigher, since);
     }
 
     private List<Candidate> candidates(AlertRule rule, Snapshot s) {

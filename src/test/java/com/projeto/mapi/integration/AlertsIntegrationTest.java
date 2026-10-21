@@ -107,6 +107,40 @@ class AlertsIntegrationTest extends AbstractApiIntegrationTest {
     }
 
     @Test
+    void escaladaMediumParaHigh_geraAlertaMaiorMesmoDentroDe30Min_eSupressaoVaiPorNivel() {
+        regra("RISK_LEVEL", "MEDIUM", null, null);
+
+        previsao(RiskLevel.LOW, null);
+        assertThat(evaluator.evaluate()).isZero();
+
+        previsao(RiskLevel.MEDIUM, null);
+        assertThat(evaluator.evaluate()).as("entrada em MEDIUM").isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT severity FROM alert ORDER BY id DESC LIMIT 1", String.class)).isEqualTo("WARNING");
+
+        previsao(RiskLevel.HIGH, null);
+        assertThat(evaluator.evaluate()).as("escalada MEDIUM -> HIGH, dentro dos 30 min").isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT severity FROM alert ORDER BY id DESC LIMIT 1", String.class)).isEqualTo("CRITICAL");
+        assertThat(alertas()).isEqualTo(2);
+
+        assertThat(evaluator.evaluate()).as("HIGH repetido: nada").isZero();
+
+        // desce para MEDIUM (continua em condição): sem alerta; volta a HIGH dentro de 30 min: mesmo nível, suprimido
+        previsao(RiskLevel.MEDIUM, null);
+        assertThat(evaluator.evaluate()).isZero();
+        previsao(RiskLevel.HIGH, null);
+        assertThat(evaluator.evaluate()).as("mesmo nível dentro da supressão").isZero();
+        assertThat(alertas()).isEqualTo(2);
+
+        // passados 30 min, uma nova escalada alerta de novo
+        previsao(RiskLevel.MEDIUM, null);
+        evaluator.evaluate();
+        jdbc.update("UPDATE alert SET triggered_at = now() - interval '31 minutes'");
+        previsao(RiskLevel.HIGH, null);
+        assertThat(evaluator.evaluate()).isEqualTo(1);
+        assertThat(alertas()).isEqualTo(3);
+    }
+
+    @Test
     void unknownNaoEhQuedaDeRisco_eGeraPredictionUnavailableComMotivo() {
         regra("RISK_LEVEL", "HIGH", null, null);
         regra("PREDICTION_UNAVAILABLE", null, null, null);
