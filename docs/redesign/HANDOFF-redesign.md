@@ -10,20 +10,21 @@ Sessão encerrada a pedido do autor com a F3 pela metade. Nada foi enviado ao Gi
 | api | `feat/redesign-f2` | `.claude/worktrees/redesign-f2` | F2 concluída: V16–V20, todos os endpoints; 339 testes, 0 falhas |
 | ia | `feat/simulate-bucket` | `.claude/worktrees/simulate-bucket` | F4 concluída: `POST /v1/simulate/bucket`; 30 testes |
 | front | `feat/redesign-f1` | `.claude/worktrees/redesign-f1` | F1 concluída: tokens, temas, componentes, Nav, rotas; 141 testes, Playwright 33/33 |
-| front | `feat/redesign-f3` | `.claude/worktrees/redesign-f3` | F3 em 7 de 15 telas; 270 testes, `tsc` limpo |
+| front | `feat/redesign-f3` | `.claude/worktrees/redesign-f3` | F3 concluída (inclui a F1); 343 testes |
 
-## F3: onde parou
+## F3: concluída
 
-- Feito: nginx do `/api/stream`; `MapView` de 969 para 365 linhas; Mapa (SSE, contagem, pulso por alerta ativo); Ponto; Sensores; Alertas (ack, SSE, regras); Relatos; Dados; Pontos (admin).
-- Interrompido: Modelo, no commit `39154c3` marcado `wip`. Revisar antes de seguir.
-- Falta: Simulador, Maré, Evento, Relatório, Usuários (com convite), Minha rua, Login.
-- Para retomar: branch `feat/redesign-f3`, mesmo briefing da F3, a partir da tela Modelo.
+- 15 de 15 telas em `feat/redesign-f3`: vitest 343, Playwright 91 ok e 7 pulados; `MapView` de 969 para 365 linhas; SSE no mapa e nos alertas; nginx do stream.
+- Perguntas 47–53 no `PROGRESSO.md`.
 
 ## Depende do autor
 
-1. Aplicar V16–V20 no banco real, com dump e hash antes. Até lá, nada de compose com a branch da F2.
-2. Push e PRs dos cinco ramos acima. Juntar `4bb976b` com `9c0ce42` antes: o primeiro reprova o ArchUnit isolado.
-3. Backup novo no Drive, se o banco mudar.
+1. ~~Aplicar V16–V20 no banco real~~ **Feito em 2026-10-21**, com o ok do autor:
+   - Dump antes: `MAPI/snapshots/tide_db-2026-10-21-pre-V16-V20.dump`, 197 KB, SHA-256 `47ace65695a98c851b7c22fb14c453bd22b8abb7419fc5e808106202879a7489`.
+   - A API da F2 subiu pelo override `scratchpad/override-f2.yml`. O Flyway aplicou V16–V20 com sucesso e a API ficou healthy.
+2. **Achado:** o volume `projeto-mapi-api_postgres_ha_data` foi recriado em 2026-10-13. O banco estava quase vazio: 112 linhas em `observation`, 0 em `flood_occurrence`, 1 em `users`. A carga histórica está em `snapshots/tide_db-2026-10-10-pos-carga.dump` (317 MB) e no tar do Drive. Restaurar depende de decisão do autor.
+3. Push e PRs: o modo automático bloqueou o `git push`, então o autor envia. `docs/redesign-f0` já foi mesclada na `feat/redesign-f2`, e basta um PR na api. Os commits `4bb976b` e `9c0ce42` seguem separados: no merge, usar squash.
+4. Backup no Drive: não vale a pena com o banco atual quase vazio. Refazer depois de restaurar a carga.
 
 ## Próximas fases
 
