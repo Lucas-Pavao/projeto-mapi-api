@@ -1,6 +1,6 @@
 # Progresso da revisão multiagente do MAPi
 
-Última execução: 2026-10-21 · **Redesign**: F0–F4 concluídas; V16–V20 aplicadas no banco (dump `47ace656…`) · push/PRs bloqueados pelo modo automático (autor envia) · Próxima ação: perguntas 47–53, PRs, F5
+Última execução: 2026-10-21 · **Redesign**: F0–F4 concluídas + perfil no token; PRs abertos (api #66, front #19, ia #11); banco em V21 (dumps `47ace656…` pré-V16 e `f0fb24b4…` pré-V21); compose rodando com as 3 branches novas (override no scratchpad) · Próxima ação: merge dos PRs (autor), pergunta 52, decisão sobre a carga histórica, F5
 
 > Local: `projeto-mapi-api/.claude/mapi/PROGRESSO.md`. A pasta-mãe `MAPI/` não é repositório git;
 > o estado oficial fica no repositório orquestrador para ser versionado. Docs transversais

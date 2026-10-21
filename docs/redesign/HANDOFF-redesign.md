@@ -2,7 +2,7 @@
 
 Sessão encerrada a pedido do autor com a F3 pela metade. Nada foi enviado ao GitHub e o banco do autor não foi tocado.
 
-## Branches (todas locais, sem push)
+## Branches e PRs
 
 | Repo | Branch | Worktree | Estado |
 |---|---|---|---|
@@ -23,7 +23,9 @@ Sessão encerrada a pedido do autor com a F3 pela metade. Nada foi enviado ao Gi
    - Dump antes: `MAPI/snapshots/tide_db-2026-10-21-pre-V16-V20.dump`, 197 KB, SHA-256 `47ace65695a98c851b7c22fb14c453bd22b8abb7419fc5e808106202879a7489`.
    - A API da F2 subiu pelo override `scratchpad/override-f2.yml`. O Flyway aplicou V16–V20 com sucesso e a API ficou healthy.
 2. **Achado:** o volume `projeto-mapi-api_postgres_ha_data` foi recriado em 2026-10-13. O banco estava quase vazio: 112 linhas em `observation`, 0 em `flood_occurrence`, 1 em `users`. A carga histórica está em `snapshots/tide_db-2026-10-10-pos-carga.dump` (317 MB) e no tar do Drive. Restaurar depende de decisão do autor.
-3. Push e PRs: o modo automático bloqueou o `git push`, então o autor envia. `docs/redesign-f0` já foi mesclada na `feat/redesign-f2`, e basta um PR na api. Os commits `4bb976b` e `9c0ce42` seguem separados: no merge, usar squash.
+3. PRs abertos: api #66 (squash), front #19 (`feat/redesign-f3`, inclui a F1) e ia #11. Merge na `main` só por pedido do autor.
+5. V21 (`users.token_version`) aplicada em 2026-10-21. Dump anterior: `snapshots/tide_db-2026-10-21-pre-V21.dump`, SHA-256 `f0fb24b4…`. Os tokens antigos deixaram de valer.
+6. O compose roda com as três branches novas por meio de `scratchpad/override-redesign.yml`. Depois do merge, volta ao compose normal a partir da `main`.
 4. Backup no Drive: não vale a pena com o banco atual quase vazio. Refazer depois de restaurar a carga.
 
 ## Próximas fases
