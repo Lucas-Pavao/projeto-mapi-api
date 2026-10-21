@@ -22,8 +22,13 @@ jwt:
 app:
   ana:
     enabled: false
+    # Os ciclos agendados (SensorCollectionTask) disparam a rodada de previsão em outra thread. Com o intervalo
+    # padrão (15 s), ela caía depois da limpeza do banco de um teste e violava fk_flood_predictions_flood_point
+    # (log de ERRO). Nos testes o primeiro ciclo só ocorre depois de 1 dia; produção não muda.
+    initial-delay-ms: 86400000
   apac:
     enabled: false
+    initial-delay-ms: 86400000
 
 weather:
   apiUrl: https://api.open-meteo.com/v1
