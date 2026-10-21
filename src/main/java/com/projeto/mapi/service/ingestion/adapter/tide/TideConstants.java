@@ -6,6 +6,9 @@ public final class TideConstants {
     /** Identificador da estação na fonte (porto da TabuaMare). */
     public static final String STATION = "pe02";
 
+    /** Nome do porto como a TabuaMare o devolve (e como fica em {@code tide_tables.harbor_name}). */
+    public static final String HARBOR_NAME = "PORTO DO RECIFE (ESTADO DE PERNAMBUCO)";
+
     /** Altura referida ao Nível de Redução da DHN; NÃO convertida ao datum do MDT (ADR 0009). */
     public static final String VERTICAL_REFERENCE = "NR_DHN_pe02";
 

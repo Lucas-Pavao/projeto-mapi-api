@@ -7,6 +7,7 @@ import com.projeto.mapi.model.GeoLocation;
 import com.projeto.mapi.model.HourData;
 import com.projeto.mapi.model.TideTable;
 import com.projeto.mapi.repository.TideTableRepository;
+import com.projeto.mapi.service.ingestion.adapter.tide.TideConstants;
 import com.projeto.mapi.service.tide.TideService;
 import com.projeto.mapi.util.GeoUtils;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,9 @@ public class TideServiceImpl implements TideService {
     @Override
     @Transactional
     public Optional<TideTableResponseDTO> getTideTable(String harborName, Integer year) {
-        List<TideTable> results = tideTableRepository.findAllByHarborNameIgnoreCaseAndYear(harborName, year);
+        // A tábua é gravada pelo nome do porto; o resto da API (e o front) chama o porto pelo id da TabuaMare.
+        String name = TideConstants.STATION.equalsIgnoreCase(harborName) ? TideConstants.HARBOR_NAME : harborName;
+        List<TideTable> results = tideTableRepository.findAllByHarborNameIgnoreCaseAndYear(name, year);
         
         if (results.isEmpty()) {
             log.info("Dados não encontrados para {} em {}.", harborName, year);
