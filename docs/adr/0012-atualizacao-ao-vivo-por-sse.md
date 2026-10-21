@@ -41,3 +41,12 @@ Opção B: `GET /api/stream`, `text/event-stream`.
 
 - Mais de uma instância do backend (precisaria de pub/sub, ex.: `LISTEN/NOTIFY` do PostgreSQL).
 - Necessidade de mensagem do cliente para o servidor.
+
+## Emenda 1 — o stream autentica pelo cookie httpOnly do access token (2026-10-21, decisão 53)
+
+A seção "Decisão" diz que o front abre o stream com `fetch` + `ReadableStream` e `Authorization: Bearer`. O código vence: o navegador autentica o stream pelo **cookie httpOnly `accessToken`**, enviado com `credentials` (`EventSource` com `withCredentials: true`, ou `fetch` com `credentials: 'include'`). O `JwtAuthenticationFilter` aceita o cookie quando não há cabeçalho `Authorization`, e o token continua fora da query string, então não vaza em log. O Bearer segue valendo para clientes que não são o navegador (scripts, testes).
+
+- Consequência: a biblioteca `@microsoft/fetch-event-source` não é necessária; o `EventSource` nativo, com reconexão e `Last-Event-ID`, basta.
+- O CORS já expõe `allowCredentials(true)` com origens explícitas (sem curinga), como o cookie exige.
+- Perfil ou ativação alterados pelo ADMIN encerram os streams do usuário (ADR 0010, emenda 2); o cliente reconecta com o token novo, ou refaz o login se receber 401 `TOKEN_REVOKED`.
+- Teste: `TokenRevocationIntegrationTest.cookieHttpOnlyDoAccessTokenAutenticaOStream`.
