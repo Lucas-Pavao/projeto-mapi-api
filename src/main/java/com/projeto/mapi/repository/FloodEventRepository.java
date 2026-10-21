@@ -16,4 +16,5 @@ public interface FloodEventRepository extends JpaRepository<FloodEvent, Long> {
     Page<FloodEvent> findByFloodPointIdOrderByStartTimeDesc(Long floodPointId, Pageable pageable);
     long countByFloodPointId(Long floodPointId);
     boolean existsByFloodPointAndStartTime(FloodPoint floodPoint, LocalDateTime startTime);
+    List<FloodEvent> findByStartTimeGreaterThanEqualAndStartTimeLessThanOrderByStartTimeAsc(LocalDateTime from, LocalDateTime to);
 }
