@@ -1,6 +1,6 @@
 # 0015 — Divergências entre a skill do front e AGENTS.md/GEMINI.md
 
-- Status: proposto
+- Status: **aprovado** (2026-10-21, Lucas, pergunta 42)
 - Data: 2026-10-21
 - Decisores: Orquestrador do redesign (autor), Lucas
 - Tarefa: F1-REDESIGN-FRONT

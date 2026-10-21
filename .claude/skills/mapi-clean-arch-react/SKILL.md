@@ -6,13 +6,14 @@ description: Convenções do front MAPI (React 19, TypeScript, Vite, MapLibre GL
 # MAPI — arquitetura do front React
 
 Fonte de verdade: `AGENTS.md` e `GEMINI.md` do projeto-mapi-front. Divergência vira ADR.
-Antes de qualquer mudança visual, carregue também a skill `frontend-design`.
+Referência visual: design system MAPi (artifact `9CgPBgTm4Dh3uGCorPF2XT`) e `src/styles/theme.css`; risco sempre com `RiskBadge`/`RiskLegend` de `src/components/risk` (ADR 0015).
 
 ## 1. Organização por feature
 
 ```
 src/
-├── components/ui/      primitivos shadcn (não colocar regra de domínio aqui)
+├── components/ui/      primitivos shadcn sobre @base-ui (não colocar regra de domínio aqui)
+├── components/risk/    RiskBadge, RiskIcon, RiskLegend, ExperimentalBadge (compartilhados)
 ├── hooks/              hooks globais (useAuth)
 ├── lib/utils.ts        cn()
 └── features/
@@ -36,11 +37,11 @@ subdiretórios.
 - **Validação na borda**: resposta da API passa pelo schema zod em `schemas/` antes de virar
   tipo de domínio. O tipo TS deriva do schema (`z.infer`) ou, quando houver geração a partir
   do OpenAPI do backend, do tipo gerado — nunca escrito à mão em paralelo.
-- **Estado de servidor ≠ estado de UI**: dados da API ficam em hooks da feature (hoje não há
-  TanStack Query; adicionar exige ADR). Seleção, painel aberto, filtro são estado de UI local.
+- **Estado de servidor ≠ estado de UI**: dados da API ficam em hooks da feature (TanStack Query,
+  ADR 0015). Seleção, painel aberto, filtro são estado de UI local.
 - **Apresentação ≠ contêiner**: componente de apresentação recebe props e não busca dado.
-  Contêiner usa hook e repassa. `MapView.tsx` (~1100 linhas) mistura os dois — ao mexer,
-  extraia, não aumente.
+  Contêiner usa hook e repassa. `MapView.tsx` (~1100 linhas) mistura os dois — a extração
+  é tarefa própria da F3 do redesign (ADR 0015); até lá, não aumente.
 
 ## 3. MapLibre
 

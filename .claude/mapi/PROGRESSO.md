@@ -63,6 +63,7 @@
 | 2026-10-11 | Cópia fora da máquina no Google Drive do Lucas: 4 dumps, avaliação F1, exports, rótulos externos e fontes (F-41/BDG), num tar com manifesto SHA-256; envio manual do tar pelo Lucas (o conector não aceita 448 MB); MDT do PE3D e saídas do terreno ficam de fora (recuperáveis). Nova cópia a cada novo dump | — (operacional; RC-01) | Lucas |
 | 2026-10-11 | Limpeza da documentação: handoffs, achados por fase, screenshots, matriz, consistência, medidas de linha de base, OpenAPI pré-revisão e `TimescaleSetup.sql` saem da árvore; tudo fica na tag `revisao-completa-2026-10-11`. Índice novo em `docs/README.md` e visão geral em `docs/VISAO-GERAL.md` | — (operacional) | Lucas (pedido) / Arquiteto |
 | 2026-10-21 | Redesign: ADRs 0010–0014 aprovados; relatos em `flood_report` (V17); página pública com classe sem %; simulador fiel ao `balde.py` sem maré; regra padrão de chuva 55 mm/1 h; dependências novas do front aprovadas; JSON da avaliação por volume; F6/PWA depois da F5 | 0010–0014 | Lucas |
+| 2026-10-21 | ADR 0015 aprovado: TanStack Query; risco por tokens; `@base-ui`; uma feature por tela; sem skill `frontend-design`; extração do `MapView` na F3 | 0015 | Lucas |
 
 ## Tarefas
 | ID | Fase | Agente | Nível | Tarefa | Status | PR/commit | Resultado em uma linha |
@@ -255,7 +256,7 @@ prompt foi executado diretamente pelo orquestrador, sem subagentes. Registrado c
 | 39 | ~~Escopo: F6 (modo demonstração com `sim.js`) e o PWA do celular entram agora ou ficam para depois da F5?~~ **respondida 2026-10-21: "aprovado tudo" sem escolha explícita; Lucas mandou seguir só F1 e F2 → F6 e PWA ficam para depois da F5** | 2026-10-21 | — |
 | 40 | ~~Há ~10 worktrees antigas em `projeto-mapi-api/.claude/worktrees/` (branches já fundidas na `main`). Posso remover as que estiverem limpas antes de criar as novas?~~ **respondida 2026-10-21: sim — remover as limpas** | 2026-10-21 | — |
 | 41 | ~~Os arquivos da F0 estão na branch `docs/redesign-f0`, sem commit. Posso commitar lá (sem push)?~~ **respondida 2026-10-21: sim — commit sem push** | 2026-10-21 | — |
-| 42 | ADR 0015 (divergências skill × AGENTS/GEMINI do front): aprova as 6 propostas — TanStack Query registrado; risco por tokens e não por variantes shadcn; `@base-ui` no lugar de Radix nos docs; uma feature por tela; retirar a exigência da skill `frontend-design`; extrair o `MapView` na F3? | 2026-10-21 | Skill e AGENTS/GEMINI seguem divergentes; F3 não extrai o `MapView` |
+| 42 | ~~ADR 0015 (divergências skill × AGENTS/GEMINI do front): aprova as 6 propostas — TanStack Query registrado; risco por tokens e não por variantes shadcn; `@base-ui` no lugar de Radix nos docs; uma feature por tela; retirar a exigência da skill `frontend-design`; extrair o `MapView` na F3?~~ **respondida 2026-10-21: aprovadas as 6 propostas** | 2026-10-21 | — |
 
 ## Medidas antes e depois
 | Métrica | Antes | Depois | Quando | Onde foi medida |
