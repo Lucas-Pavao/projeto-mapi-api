@@ -138,7 +138,8 @@ class AdminUsersAuthorizationIntegrationTest extends AbstractApiIntegrationTest 
         assertThat(jdbc.queryForObject("SELECT count(*) FROM refresh_token WHERE user_id = ?", Integer.class, id)).isZero();
         mockMvc.perform(post("/api/auth/login").header("X-Forwarded-For", ip()).contentType(MediaType.APPLICATION_JSON).content(loginBody))
                 .andExpect(status().isUnauthorized());
-        mockMvc.perform(as(get("/api/auth/me"), access)).andExpect(status().isForbidden());
+        mockMvc.perform(as(get("/api/auth/me"), access)).andExpect(status().isUnauthorized())
+                .andExpect(content().json("{\"code\":\"TOKEN_REVOKED\"}"));
     }
 
     @Test

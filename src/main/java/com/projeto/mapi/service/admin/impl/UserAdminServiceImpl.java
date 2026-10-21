@@ -27,6 +27,8 @@ public class UserAdminServiceImpl implements UserAdminService {
     private final UserRepository userRepository;
     private final RefreshTokenService refreshTokenService;
     private final UserMapper userMapper;
+    private final com.projeto.mapi.security.UserAccessCache accessCache;
+    private final com.projeto.mapi.service.stream.LiveStreamService streamService;
 
     @Override
     @Transactional(readOnly = true)
@@ -70,11 +72,20 @@ public class UserAdminServiceImpl implements UserAdminService {
             throw new ConflictException("O sistema precisa manter ao menos um ADMIN ativo");
         }
 
+        boolean accessChanged = newRole != target.getRole() || newActive != target.isActive();
         target.setRole(newRole);
         target.setActive(newActive);
+        if (accessChanged) {
+            // Revogação imediata (ADR 0010, emenda 2): os tokens emitidos com a versão antiga deixam de valer.
+            target.setTokenVersion(target.getTokenVersion() + 1);
+        }
         User saved = userRepository.save(target);
-        if (!newActive) {
+        if (accessChanged) {
             refreshTokenService.deleteByUserId(saved.getId());
+            accessCache.evict(saved.getUsername());
+            streamService.disconnect(saved.getUsername());
+        } else {
+            accessCache.evict(saved.getUsername()); // e-mail e nome também aparecem no principal
         }
         log.info("Usuário {} alterado por {}: role={}, active={}", saved.getUsername(), actingUsername, newRole, newActive);
         return userMapper.toSummary(saved);

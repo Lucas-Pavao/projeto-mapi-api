@@ -55,3 +55,11 @@ Desativar usuário (`users.active = false`) bloqueia login e revoga os refresh t
 
 - Necessidade de permissões por região (ex.: operador só de Jaboatão).
 - Integração com login institucional (SSO) da Prefeitura.
+
+## Emenda 2 — o perfil viaja no token; revogação por tokenVersion (2026-10-21, F2)
+
+- O access token JWT leva os claims `role` (`USER`, `OPERADOR` ou `ADMIN`) e `tv` (valor de `users.token_version` na emissão). O `JwtAuthenticationFilter` monta as authorities a partir de `role`, sem ler o perfil do banco. `RoleHierarchy`, `@PreAuthorize` e os `requestMatchers` seguem valendo.
+- V21 acrescenta `users.token_version` (inteiro, padrão 0). `PATCH /api/admin/users/{id}` que mude `role` ou `active` incrementa a versão, revoga os refresh tokens e encerra os streams SSE do usuário. Mudar só nome ou e-mail não revoga.
+- A cada requisição o filtro compara `tv` com `users.token_version` e confere se o usuário está ativo, por um cache de no máximo 30 s (`UserAccessCache`). A API chama `evict` ao alterar o usuário, então, nesta instância, a revogação vale na requisição seguinte. Divergência, usuário inativo ou inexistente, ou token sem `role`/`tv` (emitido antes desta emenda) respondem **401** com `{"code":"TOKEN_REVOKED"}`. É a única exceção ao 403 que o projeto devolve para anônimo.
+- Login e refresh emitem token com o perfil atual do banco. Como a mudança de perfil apaga o refresh token, o usuário afetado refaz o login.
+- Consequências: o ADMIN administra perfis pela API e o efeito é imediato; custo de uma consulta a cada 30 s por usuário ativo; com mais de uma instância da API, a revogação chegaria em até 30 s nas demais. Os tokens já emitidos antes do deploy deixam de valer (um novo login resolve).

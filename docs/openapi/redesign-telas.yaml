@@ -7,7 +7,10 @@ info:
     Só endpoints novos ou alterados. Os existentes estão em openapi-integracao-fase2.json.
     Timestamps em ISO 8601 com "Z" (UTC, ADR 0001). Previsão segue o ADR 0007 sem alteração.
     Status: aprovado em 2026-10-21 (ADRs 0010–0014). Implementação na F2.
-    Autenticação: requisição sem token válido recebe 403 (não 401), como em toda a API (decisão 44).
+    Autenticação: requisição sem token, ou com token malformado ou expirado, recebe 403 (não 401), como em toda a API (decisão 44).
+    Exceção: token válido mas revogado (perfil ou ativação do usuário mudou, usuário inativo, ou token anterior ao claim `role`)
+    recebe 401 com corpo {"code":"TOKEN_REVOKED"}; o cliente deve refazer o login (ADR 0010, emenda 2). Vale para qualquer
+    endpoint autenticado. O access token JWT carrega os claims `role` (USER|OPERADOR|ADMIN) e `tv` (versão do token).
 servers:
   - url: http://localhost:8080
 security:
@@ -25,6 +28,27 @@ tags:
   - name: Público
 
 paths:
+  /api/auth/me:
+    get:
+      tags: [Admin]
+      summary: (alterado) Usuário autenticado, com id, e-mail e nome
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, username, role]
+                properties:
+                  id: { type: integer, format: int64 }
+                  username: { type: string }
+                  email: { type: [string, 'null'], format: email, description: Nulo nos usuários criados antes da V19 }
+                  name: { type: [string, 'null'] }
+                  role: { $ref: '#/components/schemas/Role' }
+        '401': { $ref: '#/components/responses/TokenRevoked' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
   /api/stream:
     get:
       tags: [Ao vivo]
@@ -44,6 +68,7 @@ paths:
           content:
             text/event-stream:
               schema: { type: string }
+        '401': { $ref: '#/components/responses/TokenRevoked' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
@@ -480,6 +505,7 @@ paths:
     patch:
       tags: [Admin]
       summary: Trocar perfil, ativar/desativar, editar e-mail e nome (ADMIN). Perfil e ativação não valem para si mesmo.
+      description: Mudar `role` ou `active` incrementa a versão do token do usuário e revoga os refresh tokens e os streams dele; os tokens antigos passam a receber 401 TOKEN_REVOKED na requisição seguinte.
       parameters:
         - $ref: '#/components/parameters/Id'
       requestBody:
@@ -566,6 +592,15 @@ components:
 
   responses:
     BadRequest: { description: Requisição inválida }
+    TokenRevoked:
+      description: Token válido, mas revogado (perfil/ativação mudou, usuário inativo ou token antigo). Corpo {"code":"TOKEN_REVOKED"}; refazer o login.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [code]
+            properties:
+              code: { const: TOKEN_REVOKED }
     Forbidden: { description: Sem token válido (anônimo) ou perfil insuficiente (ADR 0010) }
     NotFound: { description: Não encontrado }
     TooManyRequests:

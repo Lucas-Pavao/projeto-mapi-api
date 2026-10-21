@@ -72,6 +72,19 @@ public class LiveStreamServiceImpl implements LiveStreamService {
     }
 
     @Override
+    public void disconnect(String username) {
+        for (Subscriber s : List.copyOf(subscribers)) {
+            if (!s.username().equals(username)) continue;
+            subscribers.remove(s);
+            try {
+                s.emitter().complete();
+            } catch (Exception ignored) {
+                // já encerrado
+            }
+        }
+    }
+
+    @Override
     public int activeConnections() {
         return subscribers.size();
     }

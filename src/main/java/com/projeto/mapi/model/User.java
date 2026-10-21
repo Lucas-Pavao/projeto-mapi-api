@@ -46,6 +46,10 @@ public class User implements UserDetails {
     @Column(name = "name")
     private String name;
 
+    /** Incrementa quando perfil ou ativação mudam; tokens com outro valor em {@code tv} são recusados (ADR 0010, emenda 2). */
+    @Column(name = "token_version", nullable = false)
+    private int tokenVersion;
+
     @Column(name = "last_login_at")
     private Instant lastLoginAt;
 

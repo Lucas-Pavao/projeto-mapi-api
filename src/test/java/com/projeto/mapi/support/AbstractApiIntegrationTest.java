@@ -34,7 +34,7 @@ public abstract class AbstractApiIntegrationTest extends AbstractTimescaleIntegr
                 .password(passwordEncoder.encode(SENHA))
                 .role(role)
                 .build()));
-        return "Bearer " + jwtService.generateToken(user.getUsername());
+        return "Bearer " + jwtService.generateToken(user);
     }
 
     protected String userToken() { return bearer("it_user", Role.USER); }

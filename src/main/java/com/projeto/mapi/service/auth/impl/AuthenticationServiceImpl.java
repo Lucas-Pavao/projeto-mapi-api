@@ -85,7 +85,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setLastLoginAt(clock.instant());
         userRepository.save(user);
 
-        var jwtToken = jwtService.generateToken(user.getUsername());
+        var jwtToken = jwtService.generateToken(user);
         var refreshToken = refreshTokenService.createRefreshToken(user.getUsername());
 
         return LoginResponse.builder()
@@ -100,7 +100,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .map(refreshTokenService::verifyExpiration)
                 .map(RefreshToken::getUser)
                 .map(user -> {
-                    String token = jwtService.generateToken(user.getUsername());
+                    if (!user.isActive()) throw new TokenException("Usuário desativado");
+                    // O refresh emite o perfil ATUAL do banco (não o do token antigo).
+                    String token = jwtService.generateToken(user);
                     return LoginResponse.builder()
                             .accessToken(token)
                             .refreshToken(request.getRefreshToken())

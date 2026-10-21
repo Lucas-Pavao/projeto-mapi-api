@@ -13,4 +13,7 @@ public interface LiveStreamService {
     SseEmitter subscribe(String username, boolean receivesAlerts, String lastEventId);
 
     int activeConnections();
+
+    /** Encerra os streams abertos do usuário (perfil ou ativação mudou; o cliente reconecta com o token novo). */
+    void disconnect(String username);
 }
