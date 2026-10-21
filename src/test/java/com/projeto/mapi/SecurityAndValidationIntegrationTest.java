@@ -106,7 +106,8 @@ class SecurityAndValidationIntegrationTest {
 
     @Test
     void floodPointCreation_withMissingRequiredFields_returns400WithFieldErrors() throws Exception {
-        String token = loginAndGetToken("regular_user_test");
+        // Criar ponto é ADMIN desde o ADR 0010; o foco aqui é a validação do corpo.
+        String token = loginAndGetToken("admin_user_test");
         mockMvc.perform(post("/api/pontos")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)

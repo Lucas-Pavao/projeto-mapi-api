@@ -52,7 +52,8 @@ public class MapiController {
     }
 
     @PostMapping("/pontos")
-    @Operation(summary = "Registra um novo ponto de monitoramento de alagamento")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ADMIN')")
+    @Operation(summary = "Registra um novo ponto de monitoramento de alagamento (ADMIN, ADR 0010)")
     public ResponseEntity<FloodPointResponseDTO> createFloodPoint(
 
             @Valid @RequestBody FloodPointRequestDTO request) {
