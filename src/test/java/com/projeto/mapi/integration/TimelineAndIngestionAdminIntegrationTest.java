@@ -8,6 +8,7 @@ import com.projeto.mapi.repository.FloodPointRepository;
 import com.projeto.mapi.repository.FloodPredictionRepository;
 import com.projeto.mapi.repository.SensorDataRepository;
 import com.projeto.mapi.support.AbstractApiIntegrationTest;
+import com.projeto.mapi.support.ObservationFixtures;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,13 +43,16 @@ class TimelineAndIngestionAdminIntegrationTest extends AbstractApiIntegrationTes
         limparDependentesDePontos();
         pointRepository.deleteAll();
         FloodPoint p = pointRepository.save(FloodPoint.builder().slug("p-tl").name("Ponto TL").latitude(-8.05).longitude(-34.88)
-                .pluviometerStationIds(Set.of("PLUV-TL")).riverLevelStationIds(Set.of("RIO-TL")).build());
+                .pluviometerStationIds(Set.of("APAC-PLUVIO-261160-PLUV-TL")).riverLevelStationIds(Set.of("RIO-TL")).build());
         base = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).minusHours(2);
         // chuva: duas leituras no mesmo balde de 10 min (vale o máximo) e uma em outro balde
-        sensorRepository.save(SensorData.builder().sensorId("PLUV-TL").accumulatedPrecipitation(3.0).timestamp(base.plusMinutes(2)).build());
-        sensorRepository.save(SensorData.builder().sensorId("PLUV-TL").accumulatedPrecipitation(5.0).timestamp(base.plusMinutes(7)).build());
-        sensorRepository.save(SensorData.builder().sensorId("PLUV-TL").accumulatedPrecipitation(1.0).timestamp(base.plusMinutes(12)).build());
-        sensorRepository.save(SensorData.builder().sensorId("PLUV-OUTRO").accumulatedPrecipitation(9.0).timestamp(base.plusMinutes(2)).build());
+        // chuva: somas horárias de observation.precipitation, servidas como vêm (decisão 45)
+        ObservationFixtures.clear(jdbc, "TST_TL");
+        java.util.UUID run = ObservationFixtures.run(jdbc, "TST_TL");
+        Instant h = base.atZone(ZoneId.systemDefault()).toInstant().truncatedTo(ChronoUnit.HOURS);
+        ObservationFixtures.precipitation(jdbc, run, "TST_TL", "261160-PLUV-TL", h.plus(1, ChronoUnit.HOURS), 5.0);
+        ObservationFixtures.precipitation(jdbc, run, "TST_TL", "261160-PLUV-TL", h.plus(2, ChronoUnit.HOURS), 1.5);
+        ObservationFixtures.precipitation(jdbc, run, "TST_TL", "PLUV-OUTRO", h.plus(1, ChronoUnit.HOURS), 9.0);
         sensorRepository.save(SensorData.builder().sensorId("RIO-TL").waterLevel(2.0).timestamp(base.plusMinutes(1)).build());
         sensorRepository.save(SensorData.builder().sensorId("RIO-TL").waterLevel(4.0).timestamp(base.plusMinutes(4)).build());
         eventRepository.save(FloodEvent.builder().floodPoint(p).startTime(base.plusMinutes(20)).severity(FloodEvent.Severity.HIGH)
@@ -61,7 +65,7 @@ class TimelineAndIngestionAdminIntegrationTest extends AbstractApiIntegrationTes
 
     private String url(String extra) {
         Instant from = base.atZone(ZoneId.systemDefault()).toInstant().minus(30, ChronoUnit.MINUTES);
-        Instant to = base.atZone(ZoneId.systemDefault()).toInstant().plus(1, ChronoUnit.HOURS);
+        Instant to = base.atZone(ZoneId.systemDefault()).toInstant().plus(3, ChronoUnit.HOURS);
         return "/api/events/timeline?from=" + from + "&to=" + to + extra;
     }
 
@@ -71,9 +75,9 @@ class TimelineAndIngestionAdminIntegrationTest extends AbstractApiIntegrationTes
         mockMvc.perform(as(get(url("")), userToken()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.stepMinutes").value(10))
-                .andExpect(jsonPath("$.rain[?(@.stationId=='PLUV-TL')].points.length()").value(2))
-                .andExpect(jsonPath("$.rain[?(@.stationId=='PLUV-TL')].points[0].v").value(5.0))
-                .andExpect(jsonPath("$.rain[?(@.stationId=='PLUV-TL')].points[1].v").value(1.0))
+                .andExpect(jsonPath("$.rain[?(@.stationId=='261160-PLUV-TL')].points.length()").value(2))
+                .andExpect(jsonPath("$.rain[?(@.stationId=='261160-PLUV-TL')].points[0].v").value(5.0))
+                .andExpect(jsonPath("$.rain[?(@.stationId=='261160-PLUV-TL')].points[1].v").value(1.5))
                 .andExpect(jsonPath("$.rain.length()").value(2))
                 .andExpect(jsonPath("$.river[0].points[0].v").value(3.0))
                 .andExpect(jsonPath("$.tide.harbor").value("pe02"))
@@ -88,7 +92,7 @@ class TimelineAndIngestionAdminIntegrationTest extends AbstractApiIntegrationTes
     void timeline_slugsRestringemEstacoes_eValida() throws Exception {
         mockMvc.perform(as(get(url("&slugs=p-tl")), operadorToken()))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.rain.length()").value(1))
-                .andExpect(jsonPath("$.rain[0].stationId").value("PLUV-TL"));
+                .andExpect(jsonPath("$.rain[0].stationId").value("261160-PLUV-TL"));
         mockMvc.perform(as(get(url("&slugs=nao-existe")), userToken())).andExpect(status().isBadRequest());
         Instant now = Instant.now();
         mockMvc.perform(as(get("/api/events/timeline?from=" + now.minus(80, ChronoUnit.HOURS) + "&to=" + now), userToken()))

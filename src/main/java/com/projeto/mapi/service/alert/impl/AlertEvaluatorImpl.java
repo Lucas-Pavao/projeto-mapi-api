@@ -16,6 +16,7 @@ import com.projeto.mapi.repository.FloodPointRepository;
 import com.projeto.mapi.service.alert.AlertCreatedEvent;
 import com.projeto.mapi.service.alert.AlertEvaluator;
 import com.projeto.mapi.service.flood.PredictionQueryService;
+import com.projeto.mapi.service.sensor.HourlyRainService;
 import com.projeto.mapi.service.sensor.SensorService;
 import com.projeto.mapi.service.tide.TideService;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +49,7 @@ public class AlertEvaluatorImpl implements AlertEvaluator {
     private final FloodPointRepository pointRepository;
     private final PredictionQueryService predictionQuery;
     private final SensorService sensorService;
+    private final HourlyRainService hourlyRain;
     private final TideService tideService;
     private final AlertMapper alertMapper;
     private final ApplicationEventPublisher publisher;
@@ -90,10 +92,10 @@ public class AlertEvaluatorImpl implements AlertEvaluator {
         final List<FloodPoint> points;
         final Map<String, PredictionSummaryDTO> predictions;
         final List<SensorResponseDTO> sensors;
-        final Map<String, Double> rainLastHour;
+        final List<HourlyRainService.StationRain> rainLastHour;
 
         Snapshot(List<FloodPoint> points, Map<String, PredictionSummaryDTO> predictions,
-                 List<SensorResponseDTO> sensors, Map<String, Double> rainLastHour) {
+                 List<SensorResponseDTO> sensors, List<HourlyRainService.StationRain> rainLastHour) {
             this.points = points;
             this.predictions = predictions;
             this.sensors = sensors;
@@ -112,7 +114,7 @@ public class AlertEvaluatorImpl implements AlertEvaluator {
                 predictionQuery.latestPerActivePoint().stream()
                         .collect(Collectors.toMap(PredictionSummaryDTO::slug, Function.identity(), (a, b) -> a)),
                 sensorService.getLatestWithFreshness(null),
-                sensorService.rainLastHourBySensor());
+                hourlyRain.latestClosedHour());
 
         int created = 0;
         for (AlertRule rule : rules) {
@@ -195,14 +197,15 @@ public class AlertEvaluatorImpl implements AlertEvaluator {
             }
             case RAIN_RATE -> {
                 if (rule.getThreshold() == null) break;
-                for (Map.Entry<String, Double> e : s.rainLastHour.entrySet()) {
-                    if (!matchesStation(rule, e.getKey())) continue;
-                    boolean in = e.getValue() >= rule.getThreshold();
-                    out.add(new Candidate("station:" + e.getKey(), null, e.getKey(), in, Alert.Severity.WARNING,
-                            "Chuva forte no pluviômetro " + e.getKey(),
-                            String.format(Locale.ROOT, "%.1f mm na última hora (limiar %.1f mm/h; fonte: %s).",
-                                    e.getValue(), rule.getThreshold(), rule.getThresholdSource()),
-                            e.getValue(), null, null, null));
+                // Soma horária de observation.precipitation (série consolidada, só ACTIVE), última hora fechada.
+                for (HourlyRainService.StationRain r : s.rainLastHour) {
+                    if (rule.getStationId() != null && !HourlyRainService.sameStation(r.stationId(), rule.getStationId())) continue;
+                    boolean in = r.mm() >= rule.getThreshold();
+                    out.add(new Candidate("station:" + r.stationId(), null, r.stationId(), in, Alert.Severity.WARNING,
+                            "Chuva forte no pluviômetro " + r.stationId(),
+                            String.format(Locale.ROOT, "%.1f mm na hora encerrada em %s (soma horária; limiar %.1f mm/h; fonte: %s).",
+                                    r.mm(), r.hourEnd(), rule.getThreshold(), rule.getThresholdSource()),
+                            r.mm(), null, null, null));
                 }
             }
             case SENSOR_STALE -> {

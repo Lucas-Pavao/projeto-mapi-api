@@ -24,7 +24,46 @@ public class ObservationReadRepository {
     /** Estação mais próxima (haversine, m) de uma fonte que tem a variável na grade horária PT15M. */
     public record NearestStation(String stationId, double distanceM) {}
 
+    /** Soma horária de precipitação (mm) de uma estação; {@code lat}/{@code lon} vêm da tabela station (podem faltar). */
+    public record HourlyRainRow(String source, String stationId, Instant hourEndUtc, double mm, Double lat, Double lon) {}
+
     private final JdbcTemplate jdbc;
+
+    /**
+     * Última hora FECHADA de chuva de cada estação: soma horária de {@code precipitation} (variable_catalog: PT1H, SUM)
+     * da grade determinística sobre {@code observation_current} (só ACTIVE), com fim em ({@code notBeforeUtc},
+     * {@code nowUtc}]. Hora incompleta (completude abaixo do mínimo) tem valor nulo e não entra.
+     */
+    public List<HourlyRainRow> latestClosedHourRain(Instant nowUtc, Instant notBeforeUtc) {
+        return jdbc.query("""
+                SELECT DISTINCT ON (h.source, h.station_id) h.source, h.station_id, h.hour_end_utc, h.value, s.lat, s.lon
+                FROM observation_hourly_v h
+                LEFT JOIN station s ON s.source = h.source AND s.station_id = h.station_id
+                WHERE h.variable = 'precipitation' AND h.value IS NOT NULL
+                  AND h.hour_end_utc <= ? AND h.hour_end_utc > ?
+                ORDER BY h.source, h.station_id, h.hour_end_utc DESC
+                """, (rs, i) -> new HourlyRainRow(rs.getString("source"), rs.getString("station_id"),
+                rs.getObject("hour_end_utc", OffsetDateTime.class).toInstant(), rs.getDouble("value"),
+                rs.getObject("lat", Double.class), rs.getObject("lon", Double.class)),
+                OffsetDateTime.ofInstant(nowUtc, java.time.ZoneOffset.UTC),
+                OffsetDateTime.ofInstant(notBeforeUtc, java.time.ZoneOffset.UTC));
+    }
+
+    /** Somas horárias de chuva com fim em ({@code fromUtc}, {@code toUtc}], por estação e hora. */
+    public List<HourlyRainRow> hourlyRain(Instant fromUtc, Instant toUtc) {
+        return jdbc.query("""
+                SELECT h.source, h.station_id, h.hour_end_utc, h.value, s.lat, s.lon
+                FROM observation_hourly_v h
+                LEFT JOIN station s ON s.source = h.source AND s.station_id = h.station_id
+                WHERE h.variable = 'precipitation' AND h.value IS NOT NULL
+                  AND h.hour_end_utc > ? AND h.hour_end_utc <= ?
+                ORDER BY h.station_id, h.source, h.hour_end_utc
+                """, (rs, i) -> new HourlyRainRow(rs.getString("source"), rs.getString("station_id"),
+                rs.getObject("hour_end_utc", OffsetDateTime.class).toInstant(), rs.getDouble("value"),
+                rs.getObject("lat", Double.class), rs.getObject("lon", Double.class)),
+                OffsetDateTime.ofInstant(fromUtc, java.time.ZoneOffset.UTC),
+                OffsetDateTime.ofInstant(toUtc, java.time.ZoneOffset.UTC));
+    }
 
     /**
      * Estação da fonte mais próxima da coordenada entre as que têm {@code variable} em {@code resolution}; empate

@@ -7,6 +7,7 @@ import com.projeto.mapi.repository.FloodPointRepository;
 import com.projeto.mapi.repository.FloodPredictionRepository;
 import com.projeto.mapi.repository.SensorDataRepository;
 import com.projeto.mapi.support.AbstractApiIntegrationTest;
+import com.projeto.mapi.support.ObservationFixtures;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +52,15 @@ class PublicRiskIntegrationTest extends AbstractApiIntegrationTest {
                         + "risk_level, status, model_version, model_version_full, horizon_hours) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
                 LocalDateTime.ofInstant(agora, ZoneId.systemDefault()), java.sql.Timestamp.from(agora), alto.getId(),
                 -8.05, -34.88, 0.91, "HIGH", "SUCCESS", "m1", "m1+abc", 3);
-        sensorRepository.save(SensorData.builder().sensorId("PLUV-PUB").accumulatedPrecipitation(12.5).latitude(-8.0510).longitude(-34.8800)
-                .timestamp(LocalDateTime.now().minusMinutes(5)).build());
+        // chuva da última hora: soma horária de observation.precipitation (decisão 45)
+        ObservationFixtures.clear(jdbc, "TST_PUB");
+        java.util.UUID run = ObservationFixtures.run(jdbc, "TST_PUB");
+        ObservationFixtures.station(jdbc, "TST_PUB", "PLUV-PUB", -8.0510, -34.8800);
+        ObservationFixtures.station(jdbc, "TST_PUB", "PLUV-LONGE", -8.0900, -34.8800);
+        Instant h0 = Instant.now().truncatedTo(ChronoUnit.HOURS);
+        ObservationFixtures.precipitation(jdbc, run, "TST_PUB", "PLUV-PUB", h0.minus(1, ChronoUnit.HOURS), 3.0);
+        ObservationFixtures.precipitation(jdbc, run, "TST_PUB", "PLUV-PUB", h0, 12.5);
+        ObservationFixtures.precipitation(jdbc, run, "TST_PUB", "PLUV-LONGE", h0, 99.0);
     }
 
     private org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder req(String qs) {

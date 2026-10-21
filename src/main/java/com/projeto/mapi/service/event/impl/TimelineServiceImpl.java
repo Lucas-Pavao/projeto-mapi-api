@@ -14,6 +14,7 @@ import com.projeto.mapi.repository.ingestion.ObservationReadRepository;
 import com.projeto.mapi.service.event.TideInterpolation;
 import com.projeto.mapi.service.event.TimelineService;
 import com.projeto.mapi.service.flood.FloodPredictionHistoryService;
+import com.projeto.mapi.service.sensor.HourlyRainService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,7 +63,8 @@ public class TimelineServiceImpl implements TimelineService {
         LocalDateTime lf = LocalDateTime.ofInstant(from, zone), lt = LocalDateTime.ofInstant(to, zone);
         String step = STEP.toMinutes() + " minutes";
 
-        List<StationSeries> rain = group(sensorRepository.rainBuckets(lf, lt, step), rainStations, zone);
+        // Chuva: soma horária de observation.precipitation, como vem (um ponto por hora, t = fim da hora).
+        List<StationSeries> rain = hourlyRain(from, to, rainStations);
         List<StationSeries> river = group(sensorRepository.riverBuckets(lf, lt, step), riverStations, zone);
 
         List<TideInterpolation.Extreme> extremes = observations
@@ -89,6 +91,15 @@ public class TimelineServiceImpl implements TimelineService {
 
         return new TimelineDTO(from, to, (int) STEP.toMinutes(), rain,
                 new TimelineDTO.TideSeries(HARBOR, tidePoints), river, risk, events);
+    }
+
+    private List<StationSeries> hourlyRain(Instant from, Instant to, Set<String> only) {
+        Map<String, List<TimePoint>> by = new LinkedHashMap<>();
+        for (ObservationReadRepository.HourlyRainRow r : observations.hourlyRain(from, to)) {
+            if (only != null && only.stream().noneMatch(id -> HourlyRainService.sameStation(r.stationId(), id))) continue;
+            by.computeIfAbsent(r.stationId(), k -> new ArrayList<>()).add(new TimePoint(r.hourEndUtc(), r.mm()));
+        }
+        return by.entrySet().stream().map(e -> new StationSeries(e.getKey(), e.getValue())).toList();
     }
 
     private static Set<String> union(List<FloodPoint> points, boolean rain) {

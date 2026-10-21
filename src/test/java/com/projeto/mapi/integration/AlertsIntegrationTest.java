@@ -43,6 +43,7 @@ class AlertsIntegrationTest extends AbstractApiIntegrationTest {
 
     @MockitoBean PredictionQueryService predictionQuery;
     @MockitoBean SensorService sensorService;
+    @MockitoBean com.projeto.mapi.service.sensor.HourlyRainService hourlyRain;
     @MockitoBean TideService tideService;
 
     @BeforeEach
@@ -56,7 +57,7 @@ class AlertsIntegrationTest extends AbstractApiIntegrationTest {
         pointRepository.deleteAll();
         pointRepository.save(FloodPoint.builder().slug("p-alerta").name("Ponto alerta").latitude(-8.05).longitude(-34.88).build());
         when(sensorService.getLatestWithFreshness(any())).thenReturn(List.of());
-        when(sensorService.rainLastHourBySensor()).thenReturn(Map.of());
+        when(hourlyRain.latestClosedHour()).thenReturn(List.of());
         when(predictionQuery.latestPerActivePoint()).thenReturn(List.of());
     }
 
@@ -69,6 +70,10 @@ class AlertsIntegrationTest extends AbstractApiIntegrationTest {
         when(predictionQuery.latestPerActivePoint()).thenReturn(List.of(new PredictionSummaryDTO("p-alerta", level,
                 level == RiskLevel.UNKNOWN ? null : 0.9, Instant.now(), null, 3, "m1", reason, null,
                 ModelValidationStatus.NOT_VALIDATED)));
+    }
+
+    private static com.projeto.mapi.service.sensor.HourlyRainService.StationRain rain(String id, double mm) {
+        return new com.projeto.mapi.service.sensor.HourlyRainService.StationRain("T", id, Instant.now(), mm, null, null);
     }
 
     private long alertas() {
@@ -161,9 +166,9 @@ class AlertsIntegrationTest extends AbstractApiIntegrationTest {
     @Test
     void chuva55mmEm1h_naoDisparaAbaixoDoLimiar() {
         regra("RAIN_RATE", null, 55.0, "IDF TR 2 anos");
-        when(sensorService.rainLastHourBySensor()).thenReturn(Map.of("S-OK", 54.9));
+        when(hourlyRain.latestClosedHour()).thenReturn(List.of(rain("S-OK", 54.9)));
         assertThat(evaluator.evaluate()).isZero();
-        when(sensorService.rainLastHourBySensor()).thenReturn(Map.of("S-OK", 54.9, "S-FORTE", 55.0));
+        when(hourlyRain.latestClosedHour()).thenReturn(List.of(rain("S-OK", 54.9), rain("S-FORTE", 55.0)));
         assertThat(evaluator.evaluate()).isEqualTo(1);
         assertThat(jdbc.queryForMap("SELECT station_id, kind, observed_value FROM alert"))
                 .containsEntry("station_id", "S-FORTE").containsEntry("kind", "RAIN_RATE").containsEntry("observed_value", 55.0);

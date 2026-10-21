@@ -4,14 +4,13 @@ import com.projeto.mapi.dto.FloodPredictionResponseDTO;
 import com.projeto.mapi.dto.ModelValidationStatus;
 import com.projeto.mapi.dto.PublicRiskDTO;
 import com.projeto.mapi.dto.RiskLevel;
-import com.projeto.mapi.dto.SensorResponseDTO;
 import com.projeto.mapi.exception.UnprocessableEntityException;
 import com.projeto.mapi.model.FloodPoint;
 import com.projeto.mapi.repository.FloodPointRepository;
 import com.projeto.mapi.service.flood.FloodPredictionHistoryService;
 import com.projeto.mapi.service.publico.PublicRiskService;
 import com.projeto.mapi.service.publico.RiskMeaning;
-import com.projeto.mapi.service.sensor.SensorService;
+import com.projeto.mapi.service.sensor.HourlyRainService;
 import com.projeto.mapi.util.GeoUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,7 +36,7 @@ public class PublicRiskServiceImpl implements PublicRiskService {
 
     private final FloodPointRepository pointRepository;
     private final FloodPredictionHistoryService history;
-    private final SensorService sensorService;
+    private final HourlyRainService hourlyRain;
     private final Clock clock;
 
     private record Cached(Instant at, PublicRiskDTO value) {
@@ -87,14 +86,12 @@ public class PublicRiskServiceImpl implements PublicRiskService {
     private record Rain(Double mm, String station) {
     }
 
+    /** Pluviômetro mais próximo (até 3 km) com hora fechada recente: soma horária de observation.precipitation. */
     private Rain nearestRain(double lat, double lon) {
-        Map<String, Double> rain = sensorService.rainLastHourBySensor();
-        if (rain.isEmpty()) return new Rain(null, null);
-        return sensorService.getAllLatestData().stream()
-                .filter(s -> s.getLatitude() != null && s.getLongitude() != null && rain.containsKey(s.getSensorId()))
-                .filter(s -> km(lat, lon, s.getLatitude(), s.getLongitude()) <= RAIN_RADIUS_KM)
-                .min(Comparator.comparingDouble((SensorResponseDTO s) -> km(lat, lon, s.getLatitude(), s.getLongitude())))
-                .map(s -> new Rain(rain.get(s.getSensorId()), s.getSensorId()))
+        return hourlyRain.latestClosedHour().stream()
+                .filter(r -> r.lat() != null && r.lon() != null && km(lat, lon, r.lat(), r.lon()) <= RAIN_RADIUS_KM)
+                .min(Comparator.comparingDouble(r -> km(lat, lon, r.lat(), r.lon())))
+                .map(r -> new Rain(r.mm(), r.stationId()))
                 .orElse(new Rain(null, null));
     }
 

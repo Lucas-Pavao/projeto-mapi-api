@@ -17,20 +17,12 @@ public interface SensorDataRepository extends JpaRepository<SensorData, Long> {
     @Query(value = "SELECT DISTINCT ON (sensor_id) * FROM sensor_data WHERE timestamp >= :since ORDER BY sensor_id, timestamp DESC", nativeQuery = true)
     List<SensorData> findAllLatest(@org.springframework.data.repository.query.Param("since") LocalDateTime since);
 
-    /** Linha de série agregada por balde de tempo ({@link #rainBuckets}, {@link #riverBuckets}). */
+    /** Linha de série agregada por balde de tempo ({@link #riverBuckets}). */
     interface BucketRow {
         String getSensorId();
         java.sql.Timestamp getBucket();
         Double getVal();
     }
-
-    @Query(value = "SELECT sensor_id AS sensorId, time_bucket(CAST(:step AS interval), timestamp) AS bucket, "
-            + "MAX(accumulated_precipitation) AS val FROM sensor_data "
-            + "WHERE timestamp >= :from AND timestamp < :to AND accumulated_precipitation IS NOT NULL "
-            + "GROUP BY sensor_id, bucket ORDER BY sensor_id, bucket", nativeQuery = true)
-    List<BucketRow> rainBuckets(@org.springframework.data.repository.query.Param("from") LocalDateTime from,
-                                @org.springframework.data.repository.query.Param("to") LocalDateTime to,
-                                @org.springframework.data.repository.query.Param("step") String step);
 
     @Query(value = "SELECT sensor_id AS sensorId, time_bucket(CAST(:step AS interval), timestamp) AS bucket, "
             + "AVG(water_level) AS val FROM sensor_data "
@@ -39,16 +31,6 @@ public interface SensorDataRepository extends JpaRepository<SensorData, Long> {
     List<BucketRow> riverBuckets(@org.springframework.data.repository.query.Param("from") LocalDateTime from,
                                  @org.springframework.data.repository.query.Param("to") LocalDateTime to,
                                  @org.springframework.data.repository.query.Param("step") String step);
-
-    /** Projeção de {@link #maxRainSince}. */
-    interface RainRow {
-        String getSensorId();
-        Double getMaxMm();
-    }
-
-    @Query(value = "SELECT sensor_id AS sensorId, MAX(accumulated_precipitation) AS maxMm FROM sensor_data "
-            + "WHERE timestamp >= :since AND accumulated_precipitation IS NOT NULL GROUP BY sensor_id", nativeQuery = true)
-    List<RainRow> maxRainSince(@org.springframework.data.repository.query.Param("since") LocalDateTime since);
 
     Optional<SensorData> findBySensorIdAndTimestamp(String sensorId, LocalDateTime timestamp);
 
