@@ -7,6 +7,7 @@ info:
     Só endpoints novos ou alterados. Os existentes estão em openapi-integracao-fase2.json.
     Timestamps em ISO 8601 com "Z" (UTC, ADR 0001). Previsão segue o ADR 0007 sem alteração.
     Status: aprovado em 2026-10-21 (ADRs 0010–0014). Implementação na F2.
+    Autenticação: requisição sem token válido recebe 403 (não 401), como em toda a API (decisão 44).
 servers:
   - url: http://localhost:8080
 security:
@@ -43,7 +44,7 @@ paths:
           content:
             text/event-stream:
               schema: { type: string }
-        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /api/pontos/risk-summary:
@@ -157,8 +158,16 @@ paths:
         - in: query
           name: status
           schema: { type: string, enum: [OPEN, ACKNOWLEDGED, ALL], default: OPEN }
-        - $ref: '#/components/parameters/From'
-        - $ref: '#/components/parameters/To'
+        - in: query
+          name: from
+          required: false
+          description: Filtra por triggeredAt >= from (opcional)
+          schema: { type: string, format: date-time }
+        - in: query
+          name: to
+          required: false
+          description: Filtra por triggeredAt < to (opcional)
+          schema: { type: string, format: date-time }
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/Size'
       responses:
@@ -250,7 +259,10 @@ paths:
     get:
       tags: [Eventos]
       summary: Linha do tempo agregada (chuva, maré, rio, risco por ponto)
-      description: Janela máxima de 72 h. Passo de agregação de 10 min. Série de risco vem de flood_predictions.
+      description: |
+        Janela máxima de 72 h. Série de risco vem de flood_predictions; rio e demais séries usam passo de 10 min.
+        A chuva (`rain`) é a soma horária de observation.precipitation (série consolidada, só ACTIVE) servida como vem:
+        um ponto por hora, com `t` = fim da hora e `v` em mm na hora (não é reamostrada a 10 min).
       parameters:
         - $ref: '#/components/parameters/From'
         - $ref: '#/components/parameters/To'
@@ -288,7 +300,10 @@ paths:
                 properties:
                   sha256: { type: string }
                   source: { type: string, examples: [avaliacao-f1/resultado_etapa2.json] }
-                  frozenAt: { type: [string, 'null'], format: date-time }
+                  frozenAt:
+                    type: [string, 'null']
+                    format: date-time
+                    description: Sempre null por enquanto (o arquivo não registra a data de congelamento); campo reservado
                   result:
                     description: Conteúdo literal de resultado_etapa2.json
                     type: object
@@ -436,7 +451,7 @@ paths:
                     status: { type: string, enum: [OK, DELAYED, FAILING, QUARANTINED, IDLE] }
                     expectedEveryMinutes: { type: [integer, 'null'] }
                     lastSuccessAt: { type: [string, 'null'], format: date-time }
-                    lastRunId: { type: [integer, 'null'] }
+                    lastRunId: { type: [string, 'null'], format: uuid, description: id do ingestion_run (UUID desde a V3) }
                     lastError: { type: [string, 'null'] }
                     rowsLast24h: { type: integer }
 
@@ -464,7 +479,7 @@ paths:
   /api/admin/users/{id}:
     patch:
       tags: [Admin]
-      summary: Trocar perfil ou ativar/desativar (ADMIN). Não vale para si mesmo.
+      summary: Trocar perfil, ativar/desativar, editar e-mail e nome (ADMIN). Perfil e ativação não valem para si mesmo.
       parameters:
         - $ref: '#/components/parameters/Id'
       requestBody:
@@ -477,18 +492,21 @@ paths:
               properties:
                 role: { $ref: '#/components/schemas/Role' }
                 active: { type: boolean }
+                email: { type: string, format: email, description: Único sem diferenciar maiúsculas; "" limpa }
+                name: { type: string, maxLength: 255, description: "\"\" limpa" }
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema: { $ref: '#/components/schemas/UserSummary' }
-        '409': { description: Deixaria o sistema sem ADMIN ativo, ou alvo é o próprio usuário }
+        '409': { description: Trocar o próprio perfil, desativar a si mesmo, deixar o sistema sem ADMIN ativo ou e-mail já cadastrado }
 
   /api/admin/invites:
     post:
       tags: [Admin]
       summary: Gera convite de uso único (72 h) com perfil pré-definido (ADMIN)
+      description: O e-mail do convite, se informado, preenche users.email no cadastro com o token (POST /api/auth/register, campo inviteToken) e vale sobre o e-mail enviado ali.
       requestBody:
         required: true
         content:
@@ -548,8 +566,7 @@ components:
 
   responses:
     BadRequest: { description: Requisição inválida }
-    Unauthorized: { description: Sem token válido }
-    Forbidden: { description: Perfil insuficiente (ADR 0010) }
+    Forbidden: { description: Sem token válido (anônimo) ou perfil insuficiente (ADR 0010) }
     NotFound: { description: Não encontrado }
     TooManyRequests:
       description: Limite de taxa
@@ -647,7 +664,7 @@ components:
         floodPointSlug: { type: [string, 'null'] }
         stationId: { type: [string, 'null'] }
         threshold: { type: [number, 'null'], description: mm/h, m ou minutos, conforme kind }
-        thresholdSource: { type: [string, 'null'], description: Origem do limiar (obrigatória para TIDE_ABOVE e RAIN_RATE) }
+        thresholdSource: { type: [string, 'null'], description: Origem do limiar (obrigatória para TIDE_ABOVE e RAIN_RATE; RAIN_RATE compara com a soma horária de observation.precipitation) }
         minRisk: { type: [string, 'null'], enum: [MEDIUM, HIGH, null] }
         enabled: { type: boolean }
         channels: { type: array, items: { type: string, enum: [BROWSER] }, default: [BROWSER] }
@@ -692,7 +709,7 @@ components:
         stepMinutes: { type: integer, examples: [10] }
         rain:
           type: array
-          description: Chuva por pluviômetro (mm no passo)
+          description: Chuva por pluviômetro, soma horária em mm (um ponto por hora; t = fim da hora)
           items:
             type: object
             properties:
@@ -783,11 +800,11 @@ components:
 
     UserSummary:
       type: object
-      required: [id, email, role, active]
+      required: [id, role, active]
       properties:
         id: { type: integer }
         name: { type: [string, 'null'] }
-        email: { type: string, format: email }
+        email: { type: [string, 'null'], format: email, description: Nulo nos usuários criados antes da V19 }
         role: { $ref: '#/components/schemas/Role' }
         active: { type: boolean }
         lastLoginAt: { type: [string, 'null'], format: date-time }
@@ -806,7 +823,7 @@ components:
             issuedAt: { type: string, format: date-time }
             validUntil: { type: [string, 'null'], format: date-time }
             degradationReason: { $ref: '#/components/schemas/DegradationReason' }
-        rainLastHourMm: { type: [number, 'null'] }
+        rainLastHourMm: { type: [number, 'null'], description: Soma horária de observation.precipitation da última hora fechada do pluviômetro mais próximo (até 3 km) }
         rainStationId: { type: [string, 'null'] }
         modelValidationStatus: { $ref: '#/components/schemas/ModelValidationStatus' }
         meaning: { type: string, description: Texto de RISK_MEANING, sem reescrita }
