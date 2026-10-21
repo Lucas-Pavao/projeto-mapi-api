@@ -743,7 +743,7 @@ components:
         illustrative: { const: true }
         hMm: { type: array, items: { type: number } }
         hmaxMm: { type: number }
-        tCrossH: { type: [integer, 'null'], description: Primeira hora com h >= hcrit }
+        tCrossH: { type: [integer, 'null'], description: Índice 0-based em rainfallMmH da primeira hora com h >= hcrit; null se não cruzar }
         nOutsideCurve: { type: integer }
         paramsUsed:
           type: object
