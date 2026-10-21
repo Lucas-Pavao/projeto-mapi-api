@@ -32,7 +32,7 @@ public class ModelEvaluationServiceImpl implements ModelEvaluationService {
             read();
             log.info("Avaliação F1 conferida: {} (sha256 {})", props.getPath(), props.getExpectedSha256());
         } catch (ServiceUnavailableException e) {
-            log.error("Avaliação F1 indisponível na subida: {}", e.getMessage());
+            log.warn("Avaliação F1 indisponível na subida (o endpoint responde 503): {}", e.getMessage());
         }
     }
 
