@@ -24,6 +24,9 @@ public class ObservationReadRepository {
     /** Estação mais próxima (haversine, m) de uma fonte que tem a variável na grade horária PT15M. */
     public record NearestStation(String stationId, double distanceM) {}
 
+    /** Estação de uma fonte com a soma da chuva horária no intervalo (nula se nenhuma hora com valor). */
+    public record StationRainSum(String stationId, String name, String municipality, Double lat, Double lon, Double mm) {}
+
     /** Soma horária de precipitação (mm) de uma estação; {@code lat}/{@code lon} vêm da tabela station (podem faltar). */
     public record HourlyRainRow(String source, String stationId, Instant hourEndUtc, double mm, Double lat, Double lon) {}
 
@@ -63,6 +66,24 @@ public class ObservationReadRepository {
                 rs.getObject("lat", Double.class), rs.getObject("lon", Double.class)),
                 OffsetDateTime.ofInstant(fromUtc, java.time.ZoneOffset.UTC),
                 OffsetDateTime.ofInstant(toUtc, java.time.ZoneOffset.UTC));
+    }
+
+    /** Estações da fonte com a soma das horas de chuva com fim em ({@code fromUtc}, {@code toUtc}]. */
+    public List<StationRainSum> rainSumByStation(String source, Instant fromUtc, Instant toUtc) {
+        return jdbc.query("""
+                SELECT s.station_id, s.name, s.municipality, s.lat, s.lon, h.mm
+                FROM station s
+                LEFT JOIN (SELECT station_id, sum(value) AS mm FROM observation_hourly_v
+                           WHERE source = ? AND variable = 'precipitation' AND value IS NOT NULL
+                             AND hour_end_utc > ? AND hour_end_utc <= ?
+                           GROUP BY station_id) h ON h.station_id = s.station_id
+                WHERE s.source = ?
+                ORDER BY s.station_id
+                """, (rs, i) -> new StationRainSum(rs.getString("station_id"), rs.getString("name"),
+                rs.getString("municipality"), rs.getObject("lat", Double.class), rs.getObject("lon", Double.class),
+                rs.getObject("mm", Double.class)),
+                source, OffsetDateTime.ofInstant(fromUtc, java.time.ZoneOffset.UTC),
+                OffsetDateTime.ofInstant(toUtc, java.time.ZoneOffset.UTC), source);
     }
 
     /**

@@ -21,6 +21,19 @@ import java.util.List;
 public class SensorController {
 
     private final SensorService sensorService;
+    private final com.projeto.mapi.service.sensor.cemaden.CemadenAccumulationService cemadenAccumulation;
+
+    @GetMapping("/cemaden/accumulated")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('USER')")
+    @Operation(summary = "Acumulados oficiais de chuva da CEMADEN na RMR (1 a 96 h), com a conferência do MAPi",
+            description = "Painel público da CEMADEN, reaproveitado por 5 min. Acumulado nulo = a estação não transmitiu "
+                    + "na janela. mapiAcc24hMm é a soma das horas gravadas pelo MAPi (blocos de 10/60 min) e diff24hMm a "
+                    + "diferença para o acc24hMm oficial; stationId/lat/lon vêm da estação casada pelo nome.")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @ApiResponse(responseCode = "503", description = "Painel da CEMADEN indisponível")
+    public ResponseEntity<List<com.projeto.mapi.dto.CemadenAccumulationDTO>> cemadenAccumulated() {
+        return ResponseEntity.ok(cemadenAccumulation.rmr());
+    }
 
     @GetMapping("/latest")
     @Operation(summary = "Ver as leituras recentes de todos os sensores, com frescor",

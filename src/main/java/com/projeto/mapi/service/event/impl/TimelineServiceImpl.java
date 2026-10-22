@@ -10,10 +10,12 @@ import com.projeto.mapi.model.FloodPoint;
 import com.projeto.mapi.repository.FloodEventRepository;
 import com.projeto.mapi.repository.FloodPointRepository;
 import com.projeto.mapi.repository.SensorDataRepository;
+import com.projeto.mapi.repository.TideTableRepository;
 import com.projeto.mapi.repository.ingestion.ObservationReadRepository;
 import com.projeto.mapi.service.event.TideInterpolation;
 import com.projeto.mapi.service.event.TimelineService;
 import com.projeto.mapi.service.flood.FloodPredictionHistoryService;
+import com.projeto.mapi.service.ingestion.adapter.tide.TideConstants;
 import com.projeto.mapi.service.sensor.HourlyRainService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,7 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -38,11 +43,14 @@ public class TimelineServiceImpl implements TimelineService {
     static final Duration MAX_WINDOW = Duration.ofHours(72);
     static final Duration STEP = Duration.ofMinutes(10);
     static final String HARBOR = "pe02";
+    /** Fuso da tábua da DHN do Porto do Recife ("UTC -03.0"), sem horário de verão. */
+    static final ZoneOffset TABLE_OFFSET = ZoneOffset.ofHours(-3);
 
     private final FloodPointRepository pointRepository;
     private final FloodEventRepository eventRepository;
     private final SensorDataRepository sensorRepository;
     private final ObservationReadRepository observations;
+    private final TideTableRepository tideTables;
     private final FloodPredictionHistoryService history;
     private final PredictionSummaryMapper summaryMapper;
     private final Clock clock;
@@ -73,9 +81,12 @@ public class TimelineServiceImpl implements TimelineService {
         List<StationSeries> rain = hourlyRain(from, dataTo, rainStations);
         List<StationSeries> river = group(sensorRepository.riverBuckets(lf, lt, step), riverStations, zone);
 
-        List<TideInterpolation.Extreme> extremes = observations
-                .tideExtremes(from.minus(MAX_WINDOW.dividedBy(9)), to.plus(MAX_WINDOW.dividedBy(9))).stream()
+        Instant tideFrom = from.minus(MAX_WINDOW.dividedBy(9)), tideTo = to.plus(MAX_WINDOW.dividedBy(9));
+        List<TideInterpolation.Extreme> extremes = observations.tideExtremes(tideFrom, tideTo).stream()
                 .map(e -> new TideInterpolation.Extreme(e.tsUtc(), e.level())).toList();
+        // Reserva: sem extremos em observation (banco recriado, carga da TabuaMare ainda não rodou), usa a tábua
+        // local da tela Maré. É a mesma tábua da DHN, no mesmo NR.
+        if (extremes.isEmpty()) extremes = tableExtremes(tideFrom, tideTo);
         List<TimePoint> tidePoints = TideInterpolation.sample(extremes, from, to, STEP).stream()
                 .map(s -> new TimePoint(s.t(), s.v())).toList();
 
@@ -106,6 +117,38 @@ public class TimelineServiceImpl implements TimelineService {
             by.computeIfAbsent(r.stationId(), k -> new ArrayList<>()).add(new TimePoint(r.hourEndUtc(), r.mm()));
         }
         return by.entrySet().stream().map(e -> new StationSeries(e.getKey(), e.getValue())).toList();
+    }
+
+    /** Extremos da tábua local ({@code tide_tables}) do Porto do Recife em {@code [fromUtc, toUtc)}, em ordem. */
+    List<TideInterpolation.Extreme> tableExtremes(Instant fromUtc, Instant toUtc) {
+        List<TideInterpolation.Extreme> out = new ArrayList<>();
+        int firstYear = fromUtc.atOffset(TABLE_OFFSET).getYear(), lastYear = toUtc.atOffset(TABLE_OFFSET).getYear();
+        for (int year = firstYear; year <= lastYear; year++) {
+            for (var table : tideTables.findAllByHarborNameIgnoreCaseAndYear(TideConstants.HARBOR_NAME, year)) {
+                if (table.getMonths() == null) continue;
+                for (var month : table.getMonths()) {
+                    if (month.getDays() == null || month.getMonth() == null) continue;
+                    for (var day : month.getDays()) {
+                        if (day.getHours() == null || day.getDay() == null) continue;
+                        for (var h : day.getHours()) {
+                            if (h.getHour() == null || h.getLevel() == null) continue;
+                            Instant t;
+                            try {
+                                t = LocalDate.of(year, month.getMonth(), day.getDay())
+                                        .atTime(LocalTime.parse(h.getHour())).toInstant(TABLE_OFFSET);
+                            } catch (java.time.DateTimeException e) {
+                                continue; // hora ou dia malformado na tábua: o extremo é ignorado
+                            }
+                            if (!t.isBefore(fromUtc) && t.isBefore(toUtc)) {
+                                out.add(new TideInterpolation.Extreme(t, h.getLevel()));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        out.sort(java.util.Comparator.comparing(TideInterpolation.Extreme::ts));
+        return out;
     }
 
     private static Set<String> union(List<FloodPoint> points, boolean rain) {

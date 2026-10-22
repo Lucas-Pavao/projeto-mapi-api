@@ -29,6 +29,9 @@ app:
   apac:
     enabled: false
     initial-delay-ms: 86400000
+  tide:
+    # TideObservationSyncTask chamaria a TabuaMare de verdade: nos testes o primeiro ciclo só ocorre depois de 1 dia.
+    observation-sync-initial-delay-ms: 86400000
 
 weather:
   apiUrl: https://api.open-meteo.com/v1

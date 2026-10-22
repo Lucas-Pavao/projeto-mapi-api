@@ -13,6 +13,7 @@ public class AppProperties {
     private Marine marine = new Marine();
     private Ana ana = new Ana();
     private Apac apac = new Apac();
+    private Cemaden cemaden = new Cemaden();
     private Cookie cookie = new Cookie();
     private Cors cors = new Cors();
 
@@ -57,6 +58,15 @@ public class AppProperties {
         private long cemadenFixedRateMs = 180000L;
         private long meteorologiaFixedRateMs = 300000L;
         private long initialDelayMs = 20000L;
+    }
+
+    /** Painel público da CEMADEN (acumulados oficiais por estação; ver CemadenAccumulationClient). */
+    @Data
+    public static class Cemaden {
+        private String baseUrl = "https://resources.cemaden.gov.br";
+        private String uf = "PE";
+        /** Por quanto tempo a resposta do painel é reaproveitada (a CEMADEN atualiza a cada 10 min). */
+        private long cacheTtlMs = 300000L;
     }
 
     @Data

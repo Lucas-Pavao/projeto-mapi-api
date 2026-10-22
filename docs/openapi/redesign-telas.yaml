@@ -289,7 +289,10 @@ paths:
         cobre o futuro; chuva, rio, risco (de flood_predictions) e alagamentos confirmados param em agora. Série de maré e
         rio usam passo de 10 min.
         A chuva (`rain`) é a soma horária de observation.precipitation (série consolidada, só ACTIVE) servida como vem:
-        um ponto por hora, com `t` = fim da hora e `v` em mm na hora (não é reamostrada a 10 min).
+        um ponto por hora, com `t` = fim da hora e `v` em mm na hora (não é reamostrada a 10 min). Na CEMADEN cada leitura
+        é um bloco de 10/60 min e a hora é a soma dos blocos; hora sem nenhuma leitura não aparece (V22).
+        A maré vem dos extremos TABUAMARE_PE02/DHN_TABUA_PE02 em observation (mantidos pelo TideObservationSyncTask); sem
+        eles, da tábua local `tide_tables` da tela Maré.
       parameters:
         - $ref: '#/components/parameters/From'
         - $ref: '#/components/parameters/To'
