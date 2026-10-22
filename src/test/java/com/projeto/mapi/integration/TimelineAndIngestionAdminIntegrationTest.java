@@ -48,6 +48,8 @@ class TimelineAndIngestionAdminIntegrationTest extends AbstractApiIntegrationTes
         base = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).minusHours(2);
         // chuva: duas leituras no mesmo balde de 10 min (vale o máximo) e uma em outro balde
         // chuva: somas horárias de observation.precipitation, servidas como vêm (decisão 45)
+        // O contêiner é compartilhado: chuva perto de agora gravada por outro teste entraria na contagem de séries.
+        jdbc.update("DELETE FROM observation WHERE variable = 'precipitation'");
         ObservationFixtures.clear(jdbc, "TST_TL");
         java.util.UUID run = ObservationFixtures.run(jdbc, "TST_TL");
         Instant h = base.atZone(ZoneId.systemDefault()).toInstant().truncatedTo(ChronoUnit.HOURS);
