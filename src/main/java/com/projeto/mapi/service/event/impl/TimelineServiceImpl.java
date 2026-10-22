@@ -74,7 +74,9 @@ public class TimelineServiceImpl implements TimelineService {
         Set<String> rainStations = slugs.isEmpty() ? null : union(points, true);
         Set<String> riverStations = slugs.isEmpty() ? null : union(points, false);
 
-        ZoneId zone = ZoneId.systemDefault();
+        // sensor_data e flood_events guardam a hora local de Recife, sem fuso; o fuso da JVM (UTC no container)
+        // deslocava o rio e os eventos em 3 h.
+        ZoneId zone = ZoneId.of("America/Recife");
         LocalDateTime lf = LocalDateTime.ofInstant(from, zone), lt = LocalDateTime.ofInstant(dataTo, zone);
         String step = STEP.toMinutes() + " minutes";
 
