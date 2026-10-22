@@ -65,9 +65,12 @@ class LiveSensorStagingIntegrationTest extends AbstractIngestionTest {
         assertThat(count("SELECT count(*) FROM raw_observation WHERE source = 'CEMADEN' AND source_tz = 'America/Recife'")).isEqualTo(1);
         assertThat(jdbc.queryForObject("SELECT ts_utc FROM observation WHERE source = 'CEMADEN' AND variable = 'precipitation'",
                 java.sql.Timestamp.class).toInstant()).isEqualTo(java.time.Instant.parse("2026-10-10T14:10:00Z"));
-        // runs com quarentena: APAC (TZ_UNVERIFIED) e ANA (nível ao vivo de 120,0 fora da faixa em m; não é o legado em cm)
+        // Cota_Adotada ao vivo vem em cm, como o Nivel do legado: 120,0 cm = 1,20 m, consolidado
+        assertThat(jdbc.queryForObject("SELECT value FROM observation WHERE source = 'ANA_SOAP' AND variable = 'water_level'",
+                Double.class)).isCloseTo(1.2, org.assertj.core.data.Offset.offset(1e-9));
+        // só a APAC (TZ_UNVERIFIED) tem run com quarentena
         assertThat(count("SELECT count(*) FROM ingestion_run WHERE kind = 'LIVE' AND status = 'OK' AND quarantined = 1"))
-                .isEqualTo(2);
+                .isEqualTo(1);
     }
 
     @Test

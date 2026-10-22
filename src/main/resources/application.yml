@@ -77,6 +77,10 @@ app:
       # 30s evita contar como falha um login lento porém válido.
       ana:
         read-timeout: 30s
+      # ListaEstacoesTelemetricas devolve ~4 MB de XML. Pela rota IPv4 a ANA entregou a ~70 kB/s (~50 s) em
+      # 2026-10-21, e o container só tem IPv4; com 30 s a descoberta falhava em todo ciclo. Roda 1 vez a cada 24 h.
+      ana-discovery:
+        read-timeout: 120s
       # Série de 15 min de um mês inteiro (~1 MB de XML) pelo serviço legado (F2-DADOS-07).
       ana-historical:
         read-timeout: 120s
