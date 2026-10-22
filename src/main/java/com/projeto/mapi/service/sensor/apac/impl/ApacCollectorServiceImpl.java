@@ -47,6 +47,9 @@ public class ApacCollectorServiceImpl implements ApacCollectorService {
     private final LiveSensorStagingService staging;
     private final ApacEnvelopeMapper envelopes;
 
+    /** "Data-hora" da última leitura Cemaden entregue ao pipeline, por código GMMC (em memória: zera ao subir). */
+    private final Map<String, String> ultimaEntreguePorEstacao = new java.util.concurrent.ConcurrentHashMap<>();
+
     @Override
     public CollectionSummaryDTO collectCemaden() {
         AppProperties.Apac config = appProperties.getApac();
@@ -76,7 +79,8 @@ public class ApacCollectorServiceImpl implements ApacCollectorService {
         // uma única estação no Cemaden, ~8.700 itens no total por fetch), não um snapshot atual.
         // Processar tudo a cada ciclo geraria milhares de consultas de dedupe redundantes no banco
         // a cada poucos minutos — mantemos só a leitura mais recente por estação por ciclo, no
-        // mesmo espírito do VirtualSensor original (que só publicava dados[0]).
+        // mesmo espírito do VirtualSensor original (que só publicava dados[0]). Isso vale para o fluxo legado
+        // (sensor_data); o pipeline novo do Cemaden recebe a janela inteira em stageCemadenBlocks.
         Map<String, JsonNode> ultimaLeituraPorEstacao = new LinkedHashMap<>();
         for (JsonNode item : estacoes) {
             String codigo = item.path("Codigo_gmmc").asText(null);
@@ -124,10 +128,47 @@ public class ApacCollectorServiceImpl implements ApacCollectorService {
             }
         }
 
-        // Pipeline novo (ADR 0006): meteorologia24h e Cemaden com fuso UNVERIFIED => quarentena TZ_UNVERIFIED.
-        staging.stage(isCemaden ? "CEMADEN" : "APAC_METEO24H", staged);
+        // Pipeline novo (ADR 0006). Cemaden: cada leitura é a chuva de um bloco de 10/60 min, então a hora só fecha
+        // com todas elas; vão ao pipeline todas as leituras da janela ainda não entregues, não só a última.
+        if (isCemaden) {
+            stageCemadenBlocks(estacoes, fonte, rmrOnly);
+        } else {
+            staging.stage("APAC_METEO24H", staged);
+        }
 
         return new CollectionSummaryDTO(processed, errors);
+    }
+
+    /**
+     * Entrega ao pipeline as leituras com "Data-hora" posterior à última já entregue de cada estação. Na primeira
+     * coleta depois de subir a API a marca está vazia e vai a janela inteira (~24 h): é o que recupera as leituras
+     * perdidas durante uma parada. A marca só avança se o pipeline aceitou o lote; o pipeline é idempotente pela
+     * chave natural, então reenviar uma leitura não duplica nada.
+     */
+    private void stageCemadenBlocks(List<JsonNode> estacoes, String fonte, boolean rmrOnly) {
+        List<JsonNode> novos = new java.util.ArrayList<>();
+        Map<String, String> marcas = new LinkedHashMap<>();
+        Map<String, Boolean> rmrPorCodigo = new java.util.HashMap<>();
+        for (JsonNode item : estacoes) {
+            String codigo = item.path("Codigo_gmmc").asText("");
+            String dataHora = item.path("Data-hora").asText("");
+            if (codigo.isBlank() || dataHora.isBlank()) continue;
+            String marca = ultimaEntreguePorEstacao.get(codigo);
+            if (marca != null && dataHora.compareTo(marca) <= 0) continue;
+            try {
+                ObjectNode envelope = envelopes.cemaden(item, fonte);
+                if (envelope == null) continue;
+                // a janela tem ~150 leituras por estação: o filtro (regex por município) roda uma vez por código
+                if (rmrOnly && !rmrPorCodigo.computeIfAbsent(codigo, c -> RmrFilter.isRmr(
+                        envelope.path("municipio").asText(""), envelope.path("estacao_nome").asText("")))) continue;
+                novos.add(envelope);
+                marcas.merge(codigo, dataHora, (a, b) -> a.compareTo(b) >= 0 ? a : b);
+            } catch (Exception e) {
+                log.error("Erro ao montar leitura Cemaden {} {}: {}", codigo, dataHora, e.getMessage());
+            }
+        }
+        if (novos.isEmpty()) return;
+        if (staging.stage("CEMADEN", novos) > 0) ultimaEntreguePorEstacao.putAll(marcas);
     }
 
     private String buildSensorId(String prefixoId, String municipio, String estacaoNome) {

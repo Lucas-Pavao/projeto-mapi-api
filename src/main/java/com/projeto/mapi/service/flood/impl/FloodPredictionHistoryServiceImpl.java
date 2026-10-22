@@ -107,6 +107,25 @@ public class FloodPredictionHistoryServiceImpl implements FloodPredictionHistory
         return row.map(this::issuedAtOf);
     }
 
+    @Override
+    public List<FloodPredictionResponseDTO> findSeries(Long floodPointId, Instant from, Instant to) {
+        LocalDateTime tsFrom = toLocal(from.minus(1, ChronoUnit.DAYS));
+        LocalDateTime tsTo = toLocal(to.plus(1, ChronoUnit.DAYS));
+        List<FloodPrediction> rows = repository.findSeries(floodPointId, from, to, tsFrom, tsTo);
+        Instant lastValid = repository.findLastSuccessBefore(floodPointId, from, toLocal(from.minus(30, ChronoUnit.DAYS)))
+                .map(this::issuedAtOf).orElse(null);
+        List<FloodPredictionResponseDTO> out = new java.util.ArrayList<>(rows.size());
+        for (FloodPrediction row : rows) {
+            FloodPredictionResponseDTO dto = toResponse(row, lastValid);
+            if (dto.riskLevel() != RiskLevel.UNKNOWN) {
+                lastValid = dto.issuedAt();
+                dto = dto.toBuilder().lastValidIssuedAt(lastValid).build();
+            }
+            out.add(dto);
+        }
+        return out;
+    }
+
     private Instant issuedAtOf(FloodPrediction row) {
         return row.getIssuedAt() != null ? row.getIssuedAt() : toInstant(row.getTimestamp());
     }

@@ -42,10 +42,10 @@ public abstract class SensorEnvelopeAdapter implements SourceAdapter {
     }
 
     /**
-     * Lote a partir de envelopes já montados (fontes cujo endpoint devolve uma janela rolante de ~24 h). Estações
+     * Lote a partir de envelopes já montados (carga da janela rolante de ~24 h e lote do coletor ao vivo). Estações
      * saem do próprio envelope (código, nome, coordenadas, município).
      */
-    protected FetchedBatch snapshotBatch(List<JsonNode> envelopes, Instant collectedAt, JsonNode requestInfo) {
+    public FetchedBatch snapshotBatch(List<JsonNode> envelopes, Instant collectedAt, JsonNode requestInfo) {
         List<RawRecord> records = new ArrayList<>();
         java.util.Map<String, StationInfo> stations = new java.util.LinkedHashMap<>();
         for (JsonNode e : envelopes) {

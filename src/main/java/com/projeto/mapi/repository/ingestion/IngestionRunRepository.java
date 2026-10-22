@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.projeto.mapi.service.ingestion.IngestionRunView;
+import com.projeto.mapi.service.ingestion.SourceRunSummary;
 import com.projeto.mapi.service.ingestion.RunCounters;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -92,6 +93,58 @@ public class IngestionRunRepository {
 
     public Optional<IngestionRunView> findById(UUID id) {
         return jdbc.query("SELECT * FROM ingestion_run WHERE id = ?", (rs, i) -> map(rs), id).stream().findFirst();
+    }
+
+    /** Página de runs, mais recentes primeiro; {@code source} e {@code status} opcionais. */
+    public List<IngestionRunView> page(String source, String status, int limit, long offset) {
+        StringBuilder sql = new StringBuilder("SELECT * FROM ingestion_run WHERE 1=1");
+        List<Object> args = new java.util.ArrayList<>();
+        appendFilters(sql, args, source, status);
+        sql.append(" ORDER BY started_at DESC, id LIMIT ? OFFSET ?");
+        args.add(limit);
+        args.add(offset);
+        return jdbc.query(sql.toString(), (rs, i) -> map(rs), args.toArray());
+    }
+
+    public long count(String source, String status) {
+        StringBuilder sql = new StringBuilder("SELECT count(*) FROM ingestion_run WHERE 1=1");
+        List<Object> args = new java.util.ArrayList<>();
+        appendFilters(sql, args, source, status);
+        Long n = jdbc.queryForObject(sql.toString(), Long.class, args.toArray());
+        return n == null ? 0 : n;
+    }
+
+    private static void appendFilters(StringBuilder sql, List<Object> args, String source, String status) {
+        if (source != null && !source.isBlank()) {
+            sql.append(" AND source = ?");
+            args.add(source);
+        }
+        if (status != null && !status.isBlank()) {
+            sql.append(" AND status = ?");
+            args.add(status);
+        }
+    }
+
+    /** Um resumo por fonte (do source_registry e de qualquer fonte que já teve run). */
+    public List<SourceRunSummary> sourceSummaries(Instant since24h) {
+        return jdbc.query("""
+                SELECT sr.source,
+                       l.id AS last_run_id, l.status AS last_status, l.error_summary AS last_error,
+                       l.valid AS last_valid, l.quarantined AS last_quarantined,
+                       s.last_success_at,
+                       COALESCE(a.rows24, 0) AS rows24
+                FROM (SELECT source FROM source_registry UNION SELECT DISTINCT source FROM ingestion_run) sr
+                LEFT JOIN LATERAL (SELECT * FROM ingestion_run x WHERE x.source = sr.source
+                                   ORDER BY x.started_at DESC LIMIT 1) l ON TRUE
+                LEFT JOIN LATERAL (SELECT max(x.finished_at) AS last_success_at FROM ingestion_run x
+                                   WHERE x.source = sr.source AND x.status IN ('OK', 'PARTIAL')) s ON TRUE
+                LEFT JOIN LATERAL (SELECT sum(x.obs_inserted + x.obs_updated) AS rows24 FROM ingestion_run x
+                                   WHERE x.source = sr.source AND x.started_at >= ?) a ON TRUE
+                ORDER BY sr.source
+                """, (rs, i) -> new SourceRunSummary(rs.getString("source"), rs.getObject("last_run_id", UUID.class),
+                rs.getString("last_status"), rs.getString("last_error"), rs.getObject("last_valid", Integer.class),
+                rs.getObject("last_quarantined", Integer.class), inst(rs, "last_success_at"), rs.getLong("rows24")),
+                odt(since24h));
     }
 
     /** Fecha o lock da fonte na transação corrente (um lote por fonte por vez; ADR 0006 seção 1). */

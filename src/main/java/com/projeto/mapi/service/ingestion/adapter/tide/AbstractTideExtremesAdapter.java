@@ -91,7 +91,7 @@ public abstract class AbstractTideExtremesAdapter implements SourceAdapter {
         }
 
         StationInfo info = new StationInfo(source(), TideConstants.STATION,
-                "PORTO DO RECIFE (ESTADO DE PERNAMBUCO)", -8.056667, -34.868333, "Recife", stationAttrs());
+                TideConstants.HARBOR_NAME, -8.056667, -34.868333, "Recife", stationAttrs());
         sink.accept(new FetchedBatch(records, List.of(info), loaded.requestInfo()));
     }
 

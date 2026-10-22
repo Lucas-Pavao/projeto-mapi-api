@@ -41,13 +41,14 @@ public class SourceRegistryRepository {
         return map;
     }
 
+    /** Coordenada ausente no lote não apaga a já gravada (estações [APAC] do feed Cemaden vêm sem lat/lon). */
     public void upsertStations(List<StationInfo> stations) {
         if (stations.isEmpty()) return;
         jdbc.batchUpdate("""
                 INSERT INTO station (source, station_id, name, lat, lon, municipality, attrs)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT (source, station_id) DO UPDATE SET name = EXCLUDED.name, lat = EXCLUDED.lat,
-                  lon = EXCLUDED.lon, municipality = EXCLUDED.municipality, attrs = EXCLUDED.attrs
+                ON CONFLICT (source, station_id) DO UPDATE SET name = EXCLUDED.name,
+                  lat = coalesce(EXCLUDED.lat, station.lat), lon = coalesce(EXCLUDED.lon, station.lon), municipality = EXCLUDED.municipality, attrs = EXCLUDED.attrs
                 """, stations, 200, (ps, s) -> {
             ps.setString(1, s.source());
             ps.setString(2, s.stationId());

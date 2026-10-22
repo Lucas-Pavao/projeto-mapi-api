@@ -1,0 +1,869 @@
+openapi: 3.1.0
+info:
+  title: MAPi — contratos novos do redesign
+  version: 0.1.0-proposta
+  description: |
+    Contratos propostos na F0 do redesign (docs/redesign/F0-TELAS.md), escritos antes da implementação.
+    Só endpoints novos ou alterados. Os existentes estão em openapi-integracao-fase2.json.
+    Timestamps em ISO 8601 com "Z" (UTC, ADR 0001). Previsão segue o ADR 0007 sem alteração.
+    Status: aprovado em 2026-10-21 (ADRs 0010–0014). Implementação na F2.
+    Autenticação: requisição sem token, ou com token malformado ou expirado, recebe 403 (não 401), como em toda a API (decisão 44).
+    Exceção: token válido mas revogado (perfil ou ativação do usuário mudou, usuário inativo, ou token anterior ao claim `role`)
+    recebe 401 com corpo {"code":"TOKEN_REVOKED"}; o cliente deve refazer o login (ADR 0010, emenda 2). Vale para qualquer
+    endpoint autenticado. O access token JWT carrega os claims `role` (USER|OPERADOR|ADMIN) e `tv` (versão do token).
+servers:
+  - url: http://localhost:8080
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Ao vivo
+  - name: Pontos
+  - name: Sensores
+  - name: Alertas
+  - name: Eventos
+  - name: Modelo
+  - name: Relatos
+  - name: Admin
+  - name: Público
+
+paths:
+  /api/auth/me:
+    get:
+      tags: [Admin]
+      summary: (alterado) Usuário autenticado, com id, e-mail e nome
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, username, role]
+                properties:
+                  id: { type: integer, format: int64 }
+                  username: { type: string }
+                  email: { type: [string, 'null'], format: email, description: Nulo nos usuários criados antes da V19 }
+                  name: { type: [string, 'null'] }
+                  role: { $ref: '#/components/schemas/Role' }
+        '401': { $ref: '#/components/responses/TokenRevoked' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /api/stream:
+    get:
+      tags: [Ao vivo]
+      summary: Stream de eventos ao vivo (SSE, ADR 0012)
+      description: |
+        Eventos: `prediction` (PredictionSummary), `sensor` (SensorReadingEvent), `risk-summary` (RiskSummary),
+        `alert` (Alert; só OPERADOR e ADMIN) e `heartbeat` a cada 25 s. Suporta `Last-Event-ID`.
+        Perfil mínimo: USER. Máximo de 3 conexões por usuário (a 4ª recebe 429).
+      parameters:
+        - in: header
+          name: Last-Event-ID
+          required: false
+          schema: { type: string }
+      responses:
+        '200':
+          description: Stream aberto
+          content:
+            text/event-stream:
+              schema: { type: string }
+        '401': { $ref: '#/components/responses/TokenRevoked' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /api/pontos/risk-summary:
+    get:
+      tags: [Pontos]
+      summary: Contagem de pontos ativos por nível de risco (última previsão de cada ponto)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RiskSummary' }
+
+  /api/pontos/{slug}:
+    patch:
+      tags: [Pontos]
+      summary: Editar ou ativar/desativar ponto crítico (ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/Slug'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FloodPointPatch' }
+      responses:
+        '200':
+          description: Ponto atualizado (mesmo corpo de GET /api/pontos/{slug})
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/pontos/{slug}/predictions:
+    get:
+      tags: [Pontos]
+      summary: Série de previsões do ponto (de flood_predictions), sem gravar nada
+      parameters:
+        - $ref: '#/components/parameters/Slug'
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+      responses:
+        '200':
+          description: Série ordenada por issuedAt. Janela máxima de 7 dias.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [slug, from, to, items]
+                properties:
+                  slug: { type: string }
+                  from: { type: string, format: date-time }
+                  to: { type: string, format: date-time }
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/PredictionSummary' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/pontos/station-suggestions:
+    get:
+      tags: [Pontos]
+      summary: Estações a até radiusM de uma coordenada, para o cadastro de pontos (ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/Lat'
+        - $ref: '#/components/parameters/Lon'
+        - in: query
+          name: radiusM
+          schema: { type: integer, default: 3000, minimum: 100, maximum: 10000 }
+      responses:
+        '200':
+          description: Estações ordenadas por distância
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [stationId, name, type, source, distanceM]
+                  properties:
+                    stationId: { type: string }
+                    name: { type: string }
+                    type: { $ref: '#/components/schemas/SensorType' }
+                    source: { type: string, examples: [CEMADEN, APAC, ANA] }
+                    distanceM: { type: integer }
+                    lastReadingAt: { type: [string, 'null'], format: date-time }
+
+  /api/sensors/latest:
+    get:
+      tags: [Sensores]
+      summary: (alterado) última leitura por sensor, com filtro por tipo e frescor
+      description: Acrescenta `type` como filtro e os campos `ageSeconds` e `stale`. Campos atuais mantidos.
+      security: []
+      parameters:
+        - in: query
+          name: type
+          required: false
+          schema: { $ref: '#/components/schemas/SensorType' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/SensorFreshness' }
+
+  /api/alerts:
+    get:
+      tags: [Alertas]
+      summary: Lista alertas (OPERADOR)
+      parameters:
+        - in: query
+          name: status
+          schema: { type: string, enum: [OPEN, ACKNOWLEDGED, ALL], default: OPEN }
+        - in: query
+          name: from
+          required: false
+          description: Filtra por triggeredAt >= from (opcional)
+          schema: { type: string, format: date-time }
+        - in: query
+          name: to
+          required: false
+          description: Filtra por triggeredAt < to (opcional)
+          schema: { type: string, format: date-time }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PageMeta'
+                  - type: object
+                    properties:
+                      content:
+                        type: array
+                        items: { $ref: '#/components/schemas/Alert' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /api/alerts/{id}/ack:
+    post:
+      tags: [Alertas]
+      summary: Reconhecer alerta (OPERADOR). Idempotente.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Alerta reconhecido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Alert' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/alert-rules:
+    get:
+      tags: [Alertas]
+      summary: Lista regras (OPERADOR)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AlertRule' }
+    post:
+      tags: [Alertas]
+      summary: Cria regra (OPERADOR)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AlertRuleInput' }
+      responses:
+        '201':
+          description: Criada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AlertRule' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /api/alert-rules/{id}:
+    put:
+      tags: [Alertas]
+      summary: Substitui regra (OPERADOR)
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AlertRuleInput' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AlertRule' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Alertas]
+      summary: Remove regra (OPERADOR). Alertas já disparados ficam.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204': { description: Removida }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/events/timeline:
+    get:
+      tags: [Eventos]
+      summary: Linha do tempo agregada (chuva, maré, rio, risco por ponto)
+      description: |
+        Janela máxima de 72 h (to - from), e `to` pode ir até agora + 72 h (além disso, 400). Só a maré (tábua prevista pe02)
+        cobre o futuro; chuva, rio, risco (de flood_predictions) e alagamentos confirmados param em agora. Série de maré e
+        rio usam passo de 10 min.
+        A chuva (`rain`) é a soma horária de observation.precipitation (série consolidada, só ACTIVE) servida como vem:
+        um ponto por hora, com `t` = fim da hora e `v` em mm na hora (não é reamostrada a 10 min). Na CEMADEN cada leitura
+        é um bloco de 10/60 min e a hora é a soma dos blocos; hora sem nenhuma leitura não aparece (V22).
+        A maré vem dos extremos TABUAMARE_PE02/DHN_TABUA_PE02 em observation (mantidos pelo TideObservationSyncTask); sem
+        eles, da tábua local `tide_tables` da tela Maré.
+      parameters:
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+        - in: query
+          name: slugs
+          required: false
+          description: Lista separada por vírgula; vazio = todos os pontos ativos
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Timeline' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+
+  /api/model/evaluation:
+    get:
+      tags: [Modelo]
+      summary: Resultado congelado da avaliação F1 (resultado_etapa2.json), sem recálculo
+      description: |
+        Servido como está. O backend confere o SHA-256 do arquivo na subida e a cada leitura de cache;
+        se não bater com o esperado, responde 503. Nenhum número é recalculado.
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Content-SHA256:
+              schema: { type: string, examples: [dcf020cb57a3d1cce5e4a7c0efc36db0fc47d4841759dad5fb58be3e6c9fac14] }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [sha256, source, result]
+                properties:
+                  sha256: { type: string }
+                  source: { type: string, examples: [avaliacao-f1/resultado_etapa2.json] }
+                  frozenAt:
+                    type: [string, 'null']
+                    format: date-time
+                    description: Sempre null por enquanto (o arquivo não registra a data de congelamento); campo reservado
+                  result:
+                    description: Conteúdo literal de resultado_etapa2.json
+                    type: object
+        '503': { description: Arquivo ausente ou hash divergente }
+
+  /api/model/simulate/bucket:
+    post:
+      tags: [Modelo]
+      summary: Simula o balde M1a num ponto (repassa para a IA, ADR 0014). Não é previsão.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [slug, rainfallMmH]
+              properties:
+                slug: { type: string }
+                rainfallMmH:
+                  type: array
+                  minItems: 1
+                  maxItems: 72
+                  items: { type: number, minimum: 0, maximum: 300 }
+                f: { type: number, enum: [0, 0.2, 0.4, 0.6, 0.8, 1.0], default: 1.0 }
+                curveScale: { type: number, minimum: 0.7, maximum: 1.3, default: 1.0 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BucketSimulation' }
+        '422': { description: Ponto sem terreno (ex. Jaboatão) ou parâmetro fora da faixa }
+        '503': { description: IA indisponível }
+
+  /api/reports:
+    post:
+      tags: [Relatos]
+      summary: Enviar relato de alagamento (USER)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FloodReportInput' }
+      responses:
+        '201':
+          description: Criado como PENDING
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FloodReport' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+    get:
+      tags: [Relatos]
+      summary: Fila de relatos (OPERADOR)
+      parameters:
+        - in: query
+          name: status
+          schema: { $ref: '#/components/schemas/ReportStatus' }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PageMeta'
+                  - type: object
+                    properties:
+                      content:
+                        type: array
+                        items: { $ref: '#/components/schemas/FloodReport' }
+
+  /api/reports/{id}:
+    patch:
+      tags: [Relatos]
+      summary: Confirmar ou descartar relato (OPERADOR)
+      description: |
+        CONFIRMED cria um FloodEvent (severity, confirmedBy = usuário logado) ligado ao ponto informado.
+        Relato confirmado não entra em flood_occurrence nem nos rótulos da avaliação.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  required: [status, floodPointSlug, severity]
+                  properties:
+                    status: { const: CONFIRMED }
+                    floodPointSlug: { type: string }
+                    severity: { $ref: '#/components/schemas/Severity' }
+                    note: { type: string, maxLength: 500 }
+                - type: object
+                  required: [status, reason]
+                  properties:
+                    status: { const: DISCARDED }
+                    reason: { type: string, maxLength: 500 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FloodReport' }
+        '409': { description: Relato já revisado }
+
+  /api/admin/ingestion/runs:
+    get:
+      tags: [Admin]
+      summary: Lista execuções de ingestão, paginada (ADMIN)
+      parameters:
+        - in: query
+          name: source
+          schema: { type: string }
+        - in: query
+          name: status
+          schema: { type: string }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: OK (itens no mesmo formato de GET /api/admin/ingestion/runs/{id})
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PageMeta' }
+
+  /api/admin/ingestion/sources:
+    get:
+      tags: [Admin]
+      summary: Status por fonte (ADMIN)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [source, status]
+                  properties:
+                    source: { type: string, examples: [CEMADEN, APAC, ANA, OPEN_METEO, TABUA_MARE, CKAN_RECIFE] }
+                    status: { type: string, enum: [OK, DELAYED, FAILING, QUARANTINED, IDLE] }
+                    expectedEveryMinutes: { type: [integer, 'null'] }
+                    lastSuccessAt: { type: [string, 'null'], format: date-time }
+                    lastRunId: { type: [string, 'null'], format: uuid, description: id do ingestion_run (UUID desde a V3) }
+                    lastError: { type: [string, 'null'] }
+                    rowsLast24h: { type: integer }
+
+  /api/admin/users:
+    get:
+      tags: [Admin]
+      summary: Lista usuários (ADMIN)
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PageMeta'
+                  - type: object
+                    properties:
+                      content:
+                        type: array
+                        items: { $ref: '#/components/schemas/UserSummary' }
+
+  /api/admin/users/{id}:
+    patch:
+      tags: [Admin]
+      summary: Trocar perfil, ativar/desativar, editar e-mail e nome (ADMIN). Perfil e ativação não valem para si mesmo.
+      description: Mudar `role` ou `active` incrementa a versão do token do usuário e revoga os refresh tokens e os streams dele; os tokens antigos passam a receber 401 TOKEN_REVOKED na requisição seguinte.
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                role: { $ref: '#/components/schemas/Role' }
+                active: { type: boolean }
+                email: { type: string, format: email, description: Único sem diferenciar maiúsculas; "" limpa }
+                name: { type: string, maxLength: 255, description: "\"\" limpa" }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserSummary' }
+        '409': { description: Trocar o próprio perfil, desativar a si mesmo, deixar o sistema sem ADMIN ativo ou e-mail já cadastrado }
+
+  /api/admin/invites:
+    post:
+      tags: [Admin]
+      summary: Gera convite de uso único (72 h) com perfil pré-definido (ADMIN)
+      description: O e-mail do convite, se informado, preenche users.email no cadastro com o token (POST /api/auth/register, campo inviteToken) e vale sobre o e-mail enviado ali.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role: { $ref: '#/components/schemas/Role' }
+                email: { type: [string, 'null'], format: email }
+      responses:
+        '201':
+          description: Convite criado; o link é mostrado ao ADMIN para copiar
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [token, role, expiresAt]
+                properties:
+                  token: { type: string }
+                  role: { $ref: '#/components/schemas/Role' }
+                  expiresAt: { type: string, format: date-time }
+
+  /api/public/risk:
+    get:
+      tags: [Público]
+      summary: Risco perto de uma coordenada, sem login (ADR 0013)
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Lat'
+        - $ref: '#/components/parameters/Lon'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PublicRisk' }
+        '422': { description: Coordenada fora da RMR }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    Slug: { in: path, name: slug, required: true, schema: { type: string } }
+    Id: { in: path, name: id, required: true, schema: { type: integer, format: int64 } }
+    From: { in: query, name: from, required: true, schema: { type: string, format: date-time } }
+    To: { in: query, name: to, required: true, schema: { type: string, format: date-time } }
+    Lat: { in: query, name: lat, required: true, schema: { type: number, minimum: -8.4, maximum: -7.8 } }
+    Lon: { in: query, name: lon, required: true, schema: { type: number, minimum: -35.2, maximum: -34.8 } }
+    Page: { in: query, name: page, schema: { type: integer, minimum: 0, default: 0 } }
+    Size: { in: query, name: size, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+
+  responses:
+    BadRequest: { description: Requisição inválida }
+    TokenRevoked:
+      description: Token válido, mas revogado (perfil/ativação mudou, usuário inativo ou token antigo). Corpo {"code":"TOKEN_REVOKED"}; refazer o login.
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [code]
+            properties:
+              code: { const: TOKEN_REVOKED }
+    Forbidden: { description: Sem token válido (anônimo) ou perfil insuficiente (ADR 0010) }
+    NotFound: { description: Não encontrado }
+    TooManyRequests:
+      description: Limite de taxa
+      headers:
+        Retry-After: { schema: { type: integer } }
+
+  schemas:
+    RiskLevel: { type: string, enum: [LOW, MEDIUM, HIGH, UNKNOWN] }
+    ModelValidationStatus: { type: string, enum: [NOT_VALIDATED, VALIDATED] }
+    DegradationReason: { type: [string, 'null'], enum: [INSUFFICIENT_DATA, AI_TIMEOUT, AI_UNAVAILABLE, AI_ERROR, null] }
+    Role: { type: string, enum: [USER, OPERADOR, ADMIN] }
+    Severity: { type: string, enum: [LOW, MEDIUM, HIGH, CRITICAL], description: Enum de FloodEvent.Severity (gravidade observada; não é classe de risco) }
+    SensorType: { type: string, enum: [PRECIPITATION, RIVER_LEVEL], description: Valores usados hoje em SensorResponseDTO.type (String) }
+    ReportStatus: { type: string, enum: [PENDING, CONFIRMED, DISCARDED] }
+
+    PageMeta:
+      type: object
+      required: [page, size, totalElements]
+      properties:
+        page: { type: integer }
+        size: { type: integer }
+        totalElements: { type: integer }
+        content: { type: array, items: {} }
+
+    PredictionSummary:
+      description: Recorte do contrato do ADR 0007; probability é null quando riskLevel = UNKNOWN.
+      type: object
+      required: [slug, riskLevel, issuedAt, modelValidationStatus]
+      properties:
+        slug: { type: string }
+        riskLevel: { $ref: '#/components/schemas/RiskLevel' }
+        probability: { type: [number, 'null'], minimum: 0, maximum: 1 }
+        issuedAt: { type: string, format: date-time }
+        validUntil: { type: [string, 'null'], format: date-time }
+        horizonHours: { type: [integer, 'null'] }
+        modelVersion: { type: [string, 'null'] }
+        degradationReason: { $ref: '#/components/schemas/DegradationReason' }
+        lastValidIssuedAt: { type: [string, 'null'], format: date-time }
+        modelValidationStatus: { $ref: '#/components/schemas/ModelValidationStatus' }
+
+    RiskSummary:
+      type: object
+      required: [LOW, MEDIUM, HIGH, UNKNOWN, computedAt]
+      properties:
+        LOW: { type: integer }
+        MEDIUM: { type: integer }
+        HIGH: { type: integer }
+        UNKNOWN: { type: integer }
+        computedAt: { type: string, format: date-time }
+
+    SensorReadingEvent:
+      type: object
+      required: [sensorId, type, value, observedAt]
+      properties:
+        sensorId: { type: string }
+        type: { $ref: '#/components/schemas/SensorType' }
+        value: { type: number }
+        unit: { type: string }
+        observedAt: { type: string, format: date-time }
+
+    SensorFreshness:
+      type: object
+      required: [sensorId, type, observedAt, ageSeconds, stale]
+      properties:
+        sensorId: { type: string }
+        type: { $ref: '#/components/schemas/SensorType' }
+        value: { type: [number, 'null'] }
+        observedAt: { type: string, format: date-time }
+        ageSeconds: { type: integer }
+        stale:
+          type: boolean
+          description: true quando ageSeconds > 2 × intervalo esperado da fonte ("sem resposta")
+
+    FloodPointPatch:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string }
+        description: { type: [string, 'null'] }
+        latitude: { type: number }
+        longitude: { type: number }
+        active: { type: boolean }
+        alertThresholdMm: { type: [number, 'null'] }
+        pluviometerStationIds: { type: array, items: { type: string } }
+        riverLevelStationIds: { type: array, items: { type: string } }
+        weatherStationIds: { type: array, items: { type: string } }
+
+    AlertKind: { type: string, enum: [RISK_LEVEL, RIVER_STAGE, TIDE_ABOVE, RAIN_RATE, SENSOR_STALE, PREDICTION_UNAVAILABLE] }
+
+    AlertRuleInput:
+      type: object
+      required: [kind, enabled]
+      properties:
+        kind: { $ref: '#/components/schemas/AlertKind' }
+        floodPointSlug: { type: [string, 'null'] }
+        stationId: { type: [string, 'null'] }
+        threshold: { type: [number, 'null'], description: mm/h, m ou minutos, conforme kind }
+        thresholdSource: { type: [string, 'null'], description: Origem do limiar (obrigatória para TIDE_ABOVE e RAIN_RATE; RAIN_RATE compara com a soma horária de observation.precipitation) }
+        minRisk: { type: [string, 'null'], enum: [MEDIUM, HIGH, null] }
+        enabled: { type: boolean }
+        channels: { type: array, items: { type: string, enum: [BROWSER] }, default: [BROWSER] }
+
+    AlertRule:
+      allOf:
+        - $ref: '#/components/schemas/AlertRuleInput'
+        - type: object
+          required: [id, createdBy, createdAt]
+          properties:
+            id: { type: integer }
+            createdBy: { type: string }
+            createdAt: { type: string, format: date-time }
+            updatedAt: { type: [string, 'null'], format: date-time }
+
+    Alert:
+      type: object
+      required: [id, kind, severity, title, triggeredAt]
+      properties:
+        id: { type: integer }
+        ruleId: { type: [integer, 'null'] }
+        kind: { $ref: '#/components/schemas/AlertKind' }
+        severity: { type: string, enum: [INFO, WARNING, CRITICAL] }
+        floodPointSlug: { type: [string, 'null'] }
+        stationId: { type: [string, 'null'] }
+        title: { type: string }
+        detail: { type: [string, 'null'] }
+        observedValue: { type: [number, 'null'] }
+        riskLevel: { oneOf: [{ $ref: '#/components/schemas/RiskLevel' }, { type: 'null' }] }
+        degradationReason: { $ref: '#/components/schemas/DegradationReason' }
+        modelValidationStatus: { oneOf: [{ $ref: '#/components/schemas/ModelValidationStatus' }, { type: 'null' }] }
+        triggeredAt: { type: string, format: date-time }
+        acknowledgedAt: { type: [string, 'null'], format: date-time }
+        acknowledgedBy: { type: [string, 'null'] }
+
+    Timeline:
+      type: object
+      required: [from, to, stepMinutes, rain, tide, river, risk]
+      properties:
+        from: { type: string, format: date-time }
+        to: { type: string, format: date-time }
+        stepMinutes: { type: integer, examples: [10] }
+        rain:
+          type: array
+          description: Chuva por pluviômetro, soma horária em mm (um ponto por hora; t = fim da hora)
+          items:
+            type: object
+            properties:
+              stationId: { type: string }
+              points: { type: array, items: { $ref: '#/components/schemas/TimePoint' } }
+        tide:
+          type: object
+          description: Maré prevista pe02 (m, referência da tábua; não comparável à cota do terreno, ADR 0009)
+          properties:
+            harbor: { type: string, examples: [pe02] }
+            points: { type: array, items: { $ref: '#/components/schemas/TimePoint' } }
+        river:
+          type: array
+          items:
+            type: object
+            properties:
+              stationId: { type: string }
+              points: { type: array, items: { $ref: '#/components/schemas/TimePoint' } }
+        risk:
+          type: array
+          items:
+            type: object
+            properties:
+              slug: { type: string }
+              items: { type: array, items: { $ref: '#/components/schemas/PredictionSummary' } }
+        floodEvents:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              slug: { type: string }
+              startTime: { type: string, format: date-time }
+              severity: { $ref: '#/components/schemas/Severity' }
+
+    TimePoint:
+      type: object
+      required: [t, v]
+      properties:
+        t: { type: string, format: date-time }
+        v: { type: [number, 'null'] }
+
+    BucketSimulation:
+      type: object
+      required: [model, illustrative, hMm, hmaxMm, nOutsideCurve, paramsUsed]
+      properties:
+        model: { const: M1a }
+        illustrative: { const: true }
+        hMm: { type: array, items: { type: number } }
+        hmaxMm: { type: number }
+        tCrossH: { type: [integer, 'null'], description: Índice 0-based em rainfallMmH da primeira hora com h >= hcrit; null se não cruzar }
+        nOutsideCurve: { type: integer }
+        paramsUsed:
+          type: object
+          properties:
+            C: { type: number }
+            iT_mm_h: { type: number }
+            f: { type: number }
+            hcrit_mm: { type: number }
+            snap_m: { type: integer }
+            curve_scale: { type: number }
+
+    FloodReportInput:
+      type: object
+      required: [latitude, longitude, observedAt]
+      properties:
+        latitude: { type: number }
+        longitude: { type: number }
+        observedAt: { type: string, format: date-time }
+        waterDepth: { type: [string, 'null'], enum: [ANKLE, KNEE, WAIST, ABOVE_WAIST, null] }
+        description: { type: [string, 'null'], maxLength: 1000 }
+
+    FloodReport:
+      allOf:
+        - $ref: '#/components/schemas/FloodReportInput'
+        - type: object
+          required: [id, status, createdAt]
+          properties:
+            id: { type: integer }
+            status: { $ref: '#/components/schemas/ReportStatus' }
+            nearestPointSlug: { type: [string, 'null'] }
+            nearestPointDistanceM: { type: [integer, 'null'] }
+            createdAt: { type: string, format: date-time }
+            reviewedAt: { type: [string, 'null'], format: date-time }
+            reviewedBy: { type: [string, 'null'] }
+            floodEventId: { type: [integer, 'null'] }
+            discardReason: { type: [string, 'null'] }
+
+    UserSummary:
+      type: object
+      required: [id, role, active]
+      properties:
+        id: { type: integer }
+        name: { type: [string, 'null'] }
+        email: { type: [string, 'null'], format: email, description: Nulo nos usuários criados antes da V19 }
+        role: { $ref: '#/components/schemas/Role' }
+        active: { type: boolean }
+        lastLoginAt: { type: [string, 'null'], format: date-time }
+
+    PublicRisk:
+      type: object
+      required: [nearestPoint, modelValidationStatus, meaning]
+      properties:
+        nearestPoint:
+          type: [object, 'null']
+          properties:
+            slug: { type: string }
+            name: { type: string }
+            distanceM: { type: integer, description: Arredondada a 50 m; máximo 1000 }
+            riskLevel: { $ref: '#/components/schemas/RiskLevel' }
+            issuedAt: { type: string, format: date-time }
+            validUntil: { type: [string, 'null'], format: date-time }
+            degradationReason: { $ref: '#/components/schemas/DegradationReason' }
+        rainLastHourMm: { type: [number, 'null'], description: Soma horária de observation.precipitation da última hora fechada do pluviômetro mais próximo (até 3 km) }
+        rainStationId: { type: [string, 'null'] }
+        modelValidationStatus: { $ref: '#/components/schemas/ModelValidationStatus' }
+        meaning: { type: string, description: Texto de RISK_MEANING, sem reescrita }

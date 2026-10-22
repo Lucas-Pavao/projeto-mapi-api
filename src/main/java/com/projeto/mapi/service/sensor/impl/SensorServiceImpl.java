@@ -7,6 +7,8 @@ import com.projeto.mapi.model.FloodPoint;
 import com.projeto.mapi.model.SensorData;
 import com.projeto.mapi.repository.FloodPointRepository;
 import com.projeto.mapi.repository.SensorDataRepository;
+import com.projeto.mapi.service.sensor.SensorFreshnessPolicy;
+import com.projeto.mapi.service.sensor.SensorReadingSavedEvent;
 import com.projeto.mapi.service.sensor.SensorService;
 import com.projeto.mapi.util.GeoUtils;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,16 @@ public class SensorServiceImpl implements SensorService {
     private final FloodPointRepository floodPointRepository;
     private final ObjectMapper objectMapper;
     private final com.projeto.mapi.service.tide.TideService tideService;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
+
+    // Opcionais (injeção por campo): testes unitários constroem o serviço só com o construtor de 4 argumentos.
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private java.time.Clock clock = java.time.Clock.systemUTC();
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private SensorFreshnessPolicy freshnessPolicy = new SensorFreshnessPolicy(900_000L, 180_000L, 300_000L);
 
     // Opcional (injeção por campo): testes unitários constroem o serviço sem o pipeline.
     @org.springframework.beans.factory.annotation.Autowired(required = false)
@@ -220,8 +232,25 @@ public class SensorServiceImpl implements SensorService {
         try {
             sensorDataRepository.save(data);
             log.info("Dados do sensor {} salvos: timestamp={}", finalSensorId, timestamp);
+            publishReading(data);
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
             log.warn("Tentativa de salvar registro duplicado interceptada pelo banco: {} em {}", finalSensorId, timestamp);
+        }
+    }
+
+    // ADR 0012: o stream SSE assina as gravações de leitura. Falha de ouvinte nunca derruba a ingestão.
+    private void publishReading(SensorData data) {
+        if (eventPublisher == null || data.getTimestamp() == null) return;
+        try {
+            Double value = data.getAccumulatedPrecipitation() != null ? data.getAccumulatedPrecipitation()
+                    : data.getWaterLevel() != null ? data.getWaterLevel() : data.getValue();
+            String type = data.getAccumulatedPrecipitation() != null ? "PRECIPITATION"
+                    : data.getWaterLevel() != null ? "RIVER_LEVEL" : data.getType();
+            eventPublisher.publishEvent(new SensorReadingSavedEvent(new com.projeto.mapi.dto.SensorReadingEventDTO(
+                    data.getSensorId(), type, value, data.getUnit(),
+                    data.getTimestamp().atZone(java.time.ZoneId.systemDefault()).toInstant())));
+        } catch (Exception e) {
+            log.warn("Falha ao publicar leitura no stream: {}", e.getMessage());
         }
     }
 
@@ -270,6 +299,34 @@ public class SensorServiceImpl implements SensorService {
     public List<SensorResponseDTO> getAllLatestData() {
         // Por padrão, retorna apenas dados das últimas 24 horas para evitar lixo histórico
         return getAllLatestData(LocalDateTime.now().minusHours(24));
+    }
+
+    @Override
+    public List<SensorResponseDTO> getLatestWithFreshness(String type) {
+        java.time.Instant now = clock.instant();
+        return getAllLatestData().stream()
+                .map(dto -> withFreshness(dto, now))
+                .filter(dto -> type == null || type.equals(dto.getType()))
+                .toList();
+    }
+
+    private SensorResponseDTO withFreshness(SensorResponseDTO dto, java.time.Instant now) {
+        // Mesma regra de MapiServiceImpl (leituras recentes): chuva acumulada => PRECIPITATION, senão RIVER_LEVEL.
+        if (dto.getAccumulatedPrecipitation() != null) {
+            dto.setType("PRECIPITATION");
+        } else if (dto.getWaterLevel() != null) {
+            dto.setType("RIVER_LEVEL");
+        }
+        java.time.Instant observed = dto.getTimestamp() == null ? null
+                : dto.getTimestamp().atZone(java.time.ZoneId.systemDefault()).toInstant();
+        dto.setObservedAt(observed);
+        if (observed != null) {
+            long age = Math.max(0, java.time.Duration.between(observed, now).getSeconds());
+            dto.setAgeSeconds(age);
+            dto.setStale(freshnessPolicy.isStale(
+                    SensorFreshnessPolicy.canonicalSource(dto.getSource(), dto.getSensorId()), age));
+        }
+        return dto;
     }
 
     @Override

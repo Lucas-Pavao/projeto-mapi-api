@@ -79,6 +79,15 @@ WHERE resolved_at IS NULL GROUP BY 1, 2 ORDER BY 3 DESC;
 
 No dataset exportado, o **manifesto** (`/api/export/ia-dataset/{slug}/manifest`, proposto) lista `datasetId` (SHA-256 do CSV), período, fusos, `linkage_config` usada, `rule_version` e os `run_id` por fonte e variável. É o documento que a banca recebe junto do CSV.
 
+## Chuva da CEMADEN e maré da timeline (2026-10-21)
+
+- **Leitura = bloco.** Cada leitura do endpoint `/cemaden/` da APAC é a chuva de um bloco de 10 min (com chuva) ou 60 min (seco), com carimbo no fim; não é acumulado. A soma dos blocos de 24 h bate com o `acc24hr` publicado pela CEMADEN.
+- **Hora.** A V22 põe a chuva `EVENT` das fontes com `source_registry.event_rain_blocks` (só CEMADEN) em `observation_hourly_v`: a hora é a soma dos blocos com fim nela. Bloco que falta numa hora com leitura conta como zero; hora sem leitura não gera linha (estação calada é lacuna).
+- **Coleta.** O coletor entrega ao pipeline todas as leituras da janela de ~24 h ainda não entregues (marca por estação, em memória). Ao subir a API, a janela inteira vai de novo, e é isso que recupera uma parada; o pipeline é idempotente pela chave natural. O fluxo legado (`sensor_data`) segue só com a última leitura. O lote ao vivo grava também as estações (`station`), com coordenadas.
+- **Pico isolado.** A chuva horária servida (timeline, última hora do mapa público e dos alertas) descarta a hora de uma estação com 10 mm ou mais quando pelo menos 2 vizinhas a até 6 km informam a mesma hora abaixo de 1 mm (`RainSpatialCheck`). Caso real: Bonsucesso (Olinda), 40,7 mm com as 15 vizinhas em 0. Nada é apagado de `observation`.
+- **Conferência.** `GET /api/sensors/cemaden/accumulated` traz os acumulados oficiais de 1 a 96 h do painel público da CEMADEN (`resources.cemaden.gov.br/graficos/interativo/getJson2.php?uf=PE`, sem credencial) e a diferença para a soma de 24 h do MAPi.
+- **Maré.** `TideObservationSyncTask` recarrega TABUAMARE_PE02 em `observation` (3 dias atrás a 10 à frente, no máximo até 31/12) quando falta cobertura. Se ainda assim não houver extremo, a timeline usa a tábua local `tide_tables`.
+
 ## Retenção e compressão (resumo)
 
 Staging bruto e série consolidada **não têm `drop_chunks`**. Compressão (14 dias no bruto, 60 na consolidada) e continuous aggregates estão **adiados** (migração de compressão, número a definir): entram só se um limiar de medição for atingido (ADR 0006, seção 9). Apagar bruto exige exportar para arquivo com SHA-256 e aprovação explícita. Detalhe e volumes: ADR 0006, seção 9.

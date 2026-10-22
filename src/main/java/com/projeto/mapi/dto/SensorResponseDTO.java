@@ -53,4 +53,10 @@ public class SensorResponseDTO {
     // Nulos enquanto os sensores vierem do legado sensor_data (ANA/APAC/Cemaden ainda não migrados).
     private String provenanceId;
     private Integer revision;
+
+    // Frescor (redesign, GET /api/sensors/latest): preenchidos só nessa rota; null nas demais.
+    // observedAt = timestamp em UTC; stale = ageSeconds > 2 x intervalo esperado da fonte.
+    private java.time.Instant observedAt;
+    private Long ageSeconds;
+    private Boolean stale;
 }

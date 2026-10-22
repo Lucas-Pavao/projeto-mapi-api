@@ -87,6 +87,9 @@ app:
       # séries horárias (~8.760 pontos x 7 variáveis) numa só resposta.
       open-meteo-archive:
         read-timeout: 60s
+      # Painel da CEMADEN: JSON de ~440 estações de uma UF (~100 kB).
+      cemaden:
+        read-timeout: 20s
       # Nominatim aplica throttling de 1 req/s e é só geocodificação pontual.
       nominatim:
         read-timeout: 10s
@@ -127,6 +130,17 @@ app:
     cemaden-fixed-rate-ms: ${APAC_CEMADEN_INTERVAL_MS:180000}
     meteorologia-fixed-rate-ms: ${APAC_METEOROLOGIA_INTERVAL_MS:300000}
     initial-delay-ms: ${APAC_COLLECTOR_INITIAL_DELAY_MS:20000}
+  cemaden:
+    # Painel público da CEMADEN (sem credencial): acumulados oficiais de 1 a 96 h por estação, para conferir a soma
+    # de blocos do MAPi e servir a chuva de 24 h (GET /api/sensors/cemaden/accumulated).
+    base-url: ${CEMADEN_BASE_URL:https://resources.cemaden.gov.br}
+    uf: ${CEMADEN_UF:PE}
+    cache-ttl-ms: ${CEMADEN_CACHE_TTL_MS:300000}
+  tide:
+    # Maré prevista (extremos TABUAMARE_PE02) em observation, lida pela timeline de Eventos e pelo cartão do mapa
+    # (TideObservationSyncTask). Checa a cobertura a cada 6 h; só chama a TabuaMare quando falta.
+    observation-sync-ms: ${TIDE_OBSERVATION_SYNC_MS:21600000}
+    observation-sync-initial-delay-ms: ${TIDE_OBSERVATION_SYNC_INITIAL_DELAY_MS:60000}
   cookie:
     # Cookie Secure exige HTTPS — o navegador simplesmente descarta o Set-Cookie se a resposta
     # não veio por HTTPS. Em produção (atrás de TLS de verdade) isso deve ser true; em dev local

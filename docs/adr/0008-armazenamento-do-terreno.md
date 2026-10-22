@@ -237,3 +237,12 @@ Como medir: (i) após a carga, 5 pontos (4 `OK`, 1 `NO_DATA`) conferindo com `po
 5. A licença do PE3D não permitir redistribuir a cota bruta publicamente.
 6. A tabela de proveniência não bastar para a banca reproduzir os números.
 7. A Prefeitura exigir edição de pontos ou terreno por interface: passa a valer um fluxo de carga com perfil e auditoria.
+
+## Emenda 1 — a camada visual do terreno é PMTiles; o código vence (2026-10-21, decisão 53)
+
+A seção "Decisão" acima descreve C1 (um COG em EPSG:3857 lido por range requests). C1 foi reprovado no critério 4 (20,95 MB e 5,8 s; ver o topo deste ADR) e a decisão efetiva passou a ser **C3**. O que roda hoje é o que vale:
+
+- A camada visual é um **PMTiles** de PNG já coloridos (hipsometria), zooms 12 a 17, gerado por `tools/terreno/run.sh` a partir do COG 3857 (`tiles/terrain_hypsometry.pmtiles`, com `terrain_manifest.json`). O COG fica como artefato intermediário regenerável, não é mais servido ao navegador.
+- Os itens 2 a 5 e 7 da seção "Decisão" que falam de servir o COG ao cliente, ou de copiar o COG novo para o nginx, devem ser lidos trocando "COG" por "PMTiles". Os atributos por ponto no banco (`terrain_run`, `point_terrain`, `point_terrain_curve`) e o fluxo de carga por script não mudam.
+- A cota bruta deixa de chegar ao cliente: o limiar e a paleta ficam fixados na geração dos tiles. A camada de maré (quando o Δ do ADR 0009 existir) exigirá regerar os tiles ou, por reabertura desta decisão, Terrain-RGB.
+- O arquivo `.pmtiles` fica fora da imagem Docker e é montado no compose (`docker-compose.yml`, bloco dos tiles de terreno).

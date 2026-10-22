@@ -64,4 +64,19 @@ class PredictionCycleRunnerTest {
 
         assertThat(runner.triggerAfterCycle("ana")).isFalse();
     }
+
+    @Test
+    void publicaEventoDeFimDeCicloDepoisDaRodada() {
+        List<Runnable> fila = new ArrayList<>();
+        org.springframework.context.ApplicationEventPublisher publisher = mock(org.springframework.context.ApplicationEventPublisher.class);
+        PredictionCycleRunner runner = new PredictionCycleRunner(mapiService, fila::add, publisher);
+
+        runner.triggerAfterCycle("ana");
+        verify(publisher, times(0)).publishEvent(org.mockito.ArgumentMatchers.any(PredictionCycleCompletedEvent.class));
+        fila.get(0).run();
+
+        org.mockito.ArgumentCaptor<PredictionCycleCompletedEvent> ev = org.mockito.ArgumentCaptor.forClass(PredictionCycleCompletedEvent.class);
+        verify(publisher).publishEvent(ev.capture());
+        assertThat(ev.getValue().origin()).isEqualTo("ana");
+    }
 }

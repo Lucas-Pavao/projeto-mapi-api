@@ -28,6 +28,7 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<mapstruct.version>1.6.3</mapstruct.version>
 		<!-- O BOM do Spring Boot 3.4.0 fixa Testcontainers em 1.20.4, cujo docker-java usa API 1.32 por
 		     padrão e é recusado por Docker Engine >= 29 (mínimo 1.44: "client version too old").
 		     Sobrescrevemos a versão do BOM (ADR 0004). -->
@@ -150,6 +151,11 @@
 			<version>1.4.1</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>${mapstruct.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -213,7 +219,21 @@
 							<artifactId>lombok</artifactId>
 							<version>1.18.40</version>
 						</path>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok-mapstruct-binding</artifactId>
+							<version>0.2.0</version>
+						</path>
+						<path>
+							<groupId>org.mapstruct</groupId>
+							<artifactId>mapstruct-processor</artifactId>
+							<version>${mapstruct.version}</version>
+						</path>
 					</annotationProcessorPaths>
+					<compilerArgs>
+						<arg>-Amapstruct.defaultComponentModel=spring</arg>
+						<arg>-Amapstruct.unmappedTargetPolicy=ERROR</arg>
+					</compilerArgs>
 				</configuration>
 			</plugin>
 		</plugins>

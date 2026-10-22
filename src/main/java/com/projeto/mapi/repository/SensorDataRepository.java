@@ -17,6 +17,21 @@ public interface SensorDataRepository extends JpaRepository<SensorData, Long> {
     @Query(value = "SELECT DISTINCT ON (sensor_id) * FROM sensor_data WHERE timestamp >= :since ORDER BY sensor_id, timestamp DESC", nativeQuery = true)
     List<SensorData> findAllLatest(@org.springframework.data.repository.query.Param("since") LocalDateTime since);
 
+    /** Linha de série agregada por balde de tempo ({@link #riverBuckets}). */
+    interface BucketRow {
+        String getSensorId();
+        java.sql.Timestamp getBucket();
+        Double getVal();
+    }
+
+    @Query(value = "SELECT sensor_id AS sensorId, time_bucket(CAST(:step AS interval), timestamp) AS bucket, "
+            + "AVG(water_level) AS val FROM sensor_data "
+            + "WHERE timestamp >= :from AND timestamp < :to AND water_level IS NOT NULL "
+            + "GROUP BY sensor_id, bucket ORDER BY sensor_id, bucket", nativeQuery = true)
+    List<BucketRow> riverBuckets(@org.springframework.data.repository.query.Param("from") LocalDateTime from,
+                                 @org.springframework.data.repository.query.Param("to") LocalDateTime to,
+                                 @org.springframework.data.repository.query.Param("step") String step);
+
     Optional<SensorData> findBySensorIdAndTimestamp(String sensorId, LocalDateTime timestamp);
 
     // Usado por repairSensorCoordinates(): evita carregar a hypertable inteira (>1M linhas) em memória,

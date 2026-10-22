@@ -74,7 +74,7 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<UserInfoResponse> me(@AuthenticationPrincipal User user) {
-        return ResponseEntity.ok(new UserInfoResponse(user.getUsername(), user.getRole().name()));
+        return ResponseEntity.ok(new UserInfoResponse(user.getId(), user.getUsername(), user.getEmail(), user.getName(), user.getRole().name()));
     }
 
     private void setAuthCookies(HttpServletResponse response, LoginResponse loginResponse) {

@@ -55,9 +55,27 @@ public class JwtService {
                 .getPayload();
     }
 
-    public String generateToken(String username) {
+    /** Conteúdo útil de um access token válido. {@code role} e {@code tokenVersion} são nulos em token antigo. */
+    public record TokenData(String username, String role, Integer tokenVersion) {
+    }
+
+    /** Lê o token; vazio se a assinatura é inválida, se expirou ou se está malformado. */
+    public java.util.Optional<TokenData> parse(String token) {
+        try {
+            Claims c = extractAllClaims(token);
+            if (c.getExpiration() == null || c.getExpiration().before(new Date())) return java.util.Optional.empty();
+            return java.util.Optional.of(new TokenData(c.getSubject(), c.get("role", String.class), c.get("tv", Integer.class)));
+        } catch (Exception e) {
+            return java.util.Optional.empty();
+        }
+    }
+
+    /** Access token com o perfil (claim {@code role}) e a versão (claim {@code tv}) atuais do usuário. */
+    public String generateToken(com.projeto.mapi.model.User user) {
         return Jwts.builder()
-                .subject(username)
+                .subject(user.getUsername())
+                .claim("role", user.getRole().name())
+                .claim("tv", user.getTokenVersion())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_MS))
                 .signWith(getSigningKey())

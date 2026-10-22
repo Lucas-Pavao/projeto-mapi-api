@@ -3,6 +3,7 @@ package com.projeto.mapi.service.flood;
 import com.projeto.mapi.dto.FloodPredictionRequestDTO;
 import com.projeto.mapi.dto.FloodPredictionResponseDTO;
 
+import java.time.Instant;
 import java.util.Optional;
 
 /** Auditoria de previsões em {@code flood_predictions} e leitura da última previsão de um ponto. */
@@ -19,4 +20,10 @@ public interface FloodPredictionHistoryService {
 
     /** {@code issuedAt} da última previsão SUCCESS da coordenada, ou vazio se nunca houve. */
     Optional<java.time.Instant> findLastValidIssuedAt(Long floodPointId, double latitude, double longitude);
+
+    /**
+     * Previsões do ponto com {@code issuedAt} em [from, to), ordenadas, já no contrato do ADR 0007. Não chama a IA e
+     * não grava. {@code lastValidIssuedAt} de cada item é a última previsão válida até ele (inclusive).
+     */
+    java.util.List<FloodPredictionResponseDTO> findSeries(Long floodPointId, Instant from, Instant to);
 }

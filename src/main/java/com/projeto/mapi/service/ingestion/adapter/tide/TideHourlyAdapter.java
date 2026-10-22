@@ -67,7 +67,7 @@ public class TideHourlyAdapter implements SourceAdapter {
         List<CosineTideInterpolator.Point> extremes = loadExtremes(from.minus(MARGIN), to.plus(MARGIN));
         List<CosineTideInterpolator.Hourly> hours =
                 CosineTideInterpolator.hourly(extremes, from, to, Duration.ofHours(MAX_GAP_HOURS));
-        StationInfo info = new StationInfo(SOURCE, TideConstants.STATION, "PORTO DO RECIFE (ESTADO DE PERNAMBUCO)",
+        StationInfo info = new StationInfo(SOURCE, TideConstants.STATION, TideConstants.HARBOR_NAME,
                 -8.056667, -34.868333, "Recife", stationAttrs());
         Instant collectedAt = clock.instant();
         ObjectNode req = mapper.createObjectNode();

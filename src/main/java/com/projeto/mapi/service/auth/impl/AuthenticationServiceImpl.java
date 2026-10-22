@@ -18,6 +18,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.projeto.mapi.service.admin.InviteService;
+import java.time.Clock;
 
 @Service
 @RequiredArgsConstructor
@@ -28,20 +31,44 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenService refreshTokenService;
+    private final InviteService inviteService;
+    private final Clock clock;
 
     @Override
+    @Transactional
     public void register(RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new UserAlreadyExistsException("Username already exists: " + request.getUsername());
         }
 
+        // Convite (ADR 0010): o perfil vem do token (e o e-mail, se o convite trouxer); sem token, USER.
+        Role role = Role.USER;
+        String email = normalizeEmail(request.getEmail());
+        if (request.getInviteToken() != null && !request.getInviteToken().isBlank()) {
+            var redemption = inviteService.redeem(request.getInviteToken(), request.getUsername());
+            role = Role.valueOf(redemption.role());
+            if (redemption.email() != null && !redemption.email().isBlank()) {
+                email = normalizeEmail(redemption.email());
+            }
+        }
+        // Falha antes de gravar; se o convite já foi consumido nesta transação, o rollback o devolve.
+        if (email != null && userRepository.existsByEmailIgnoreCase(email)) {
+            throw new UserAlreadyExistsException("E-mail já cadastrado");
+        }
+
         var user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.USER)
+                .role(role)
+                .email(email)
+                .name(request.getName() == null || request.getName().isBlank() ? null : request.getName().trim())
                 .build();
 
         userRepository.save(user);
+    }
+
+    private static String normalizeEmail(String email) {
+        return email == null || email.isBlank() ? null : email.trim().toLowerCase(java.util.Locale.ROOT);
     }
 
     @Override
@@ -55,8 +82,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow();
+        user.setLastLoginAt(clock.instant());
+        userRepository.save(user);
 
-        var jwtToken = jwtService.generateToken(user.getUsername());
+        var jwtToken = jwtService.generateToken(user);
         var refreshToken = refreshTokenService.createRefreshToken(user.getUsername());
 
         return LoginResponse.builder()
@@ -71,7 +100,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .map(refreshTokenService::verifyExpiration)
                 .map(RefreshToken::getUser)
                 .map(user -> {
-                    String token = jwtService.generateToken(user.getUsername());
+                    if (!user.isActive()) throw new TokenException("Usuário desativado");
+                    // O refresh emite o perfil ATUAL do banco (não o do token antigo).
+                    String token = jwtService.generateToken(user);
                     return LoginResponse.builder()
                             .accessToken(token)
                             .refreshToken(request.getRefreshToken())
