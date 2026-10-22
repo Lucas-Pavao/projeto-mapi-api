@@ -17,6 +17,7 @@ import com.projeto.mapi.service.event.TimelineService;
 import com.projeto.mapi.service.flood.FloodPredictionHistoryService;
 import com.projeto.mapi.service.ingestion.adapter.tide.TideConstants;
 import com.projeto.mapi.service.sensor.HourlyRainService;
+import com.projeto.mapi.service.sensor.RainSpatialCheck;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -112,7 +113,8 @@ public class TimelineServiceImpl implements TimelineService {
 
     private List<StationSeries> hourlyRain(Instant from, Instant to, Set<String> only) {
         Map<String, List<TimePoint>> by = new LinkedHashMap<>();
-        for (ObservationReadRepository.HourlyRainRow r : observations.hourlyRain(from, to)) {
+        // Pico isolado sem chuva nos vizinhos sai antes do filtro por ponto (os vizinhos podem ser de outro ponto).
+        for (ObservationReadRepository.HourlyRainRow r : RainSpatialCheck.dropIsolatedPeaks(observations.hourlyRain(from, to))) {
             if (only != null && only.stream().noneMatch(id -> HourlyRainService.sameStation(r.stationId(), id))) continue;
             by.computeIfAbsent(r.stationId(), k -> new ArrayList<>()).add(new TimePoint(r.hourEndUtc(), r.mm()));
         }
