@@ -13,6 +13,12 @@ public class TerrainProperties {
     /** Diretório com ponto_terreno.csv, ponto_terreno.meta.json e curva_cota_volume.csv (saída de tools/terreno/run.sh). */
     private String dir = "../terreno";
 
+    /**
+     * Carrega o diretório na subida quando não há terrain_run vigente (banco recriado). Sem isso o simulador do balde
+     * responde 422 até um admin chamar POST /api/admin/terrain/runs.
+     */
+    private boolean loadOnStartup = true;
+
     /** Referência vertical declarada (ADR 0009): sem comparação com a maré. */
     private String verticalReference = "datum do MDT não confirmado (hipótese: altitude normal, Imbituba/REALT 2018)";
 

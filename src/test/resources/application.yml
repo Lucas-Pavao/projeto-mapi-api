@@ -35,3 +35,8 @@ app:
 
 weather:
   apiUrl: https://api.open-meteo.com/v1
+
+mapi:
+  terrain:
+    # TerrainStartupLoader carregaria ../terreno de verdade (existe quando os testes rodam do checkout principal).
+    load-on-startup: false
