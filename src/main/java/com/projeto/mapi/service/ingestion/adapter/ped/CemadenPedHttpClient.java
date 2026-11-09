@@ -88,7 +88,7 @@ public class CemadenPedHttpClient implements CemadenPedClient {
                     return new Response(status, url, body, status == 202 || body.contains(NO_RESULT));
                 }, true);
                 int s = r.httpStatus();
-                if ((s == 401 || s == 403) && !renewed) {
+                if (tokenRejected(s, r.body()) && !renewed) {
                     log.warn("PED {}: token recusado, renovando", s);
                     tokenExpiresAt = Instant.EPOCH;
                     renewAt = Instant.EPOCH;
@@ -166,6 +166,15 @@ public class CemadenPedHttpClient implements CemadenPedClient {
         TransientPedException(String msg, Throwable cause) {
             super(msg, cause);
         }
+    }
+
+    /**
+     * Token recusado: 401/403, ou 400 com "Token informado é inválido" (medido em 2026-11-09: a PED usa 400 para token
+     * invalidado, 19 min depois de emitido).
+     */
+    static boolean tokenRejected(int status, String body) {
+        return status == 401 || status == 403
+                || (status == 400 && body != null && body.toLowerCase(java.util.Locale.ROOT).contains("token"));
     }
 
     /** {@code exp} do JWT; sem ele, assume 1 h (renovação por 401/403 cobre o erro). */

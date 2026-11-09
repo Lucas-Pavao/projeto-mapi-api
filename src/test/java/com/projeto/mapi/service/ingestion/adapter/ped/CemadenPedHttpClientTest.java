@@ -21,4 +21,12 @@ class CemadenPedHttpClientTest {
         assertThat(CemadenPedHttpClient.expiryOf("lixo", NOW)).isEqualTo(NOW.plusSeconds(3600));
     }
 
+
+    @Test
+    void tokenInvalidoEm400TambemRenova() {
+        assertThat(CemadenPedHttpClient.tokenRejected(400, "Alerta\nO Token informado é inválido!")).isTrue();
+        assertThat(CemadenPedHttpClient.tokenRejected(401, "")).isTrue();
+        assertThat(CemadenPedHttpClient.tokenRejected(400, "parâmetro inicio inválido")).isFalse();
+        assertThat(CemadenPedHttpClient.tokenRejected(500, "token")).isFalse();
+    }
 }
