@@ -127,13 +127,15 @@ public class CemadenPedHttpClient implements CemadenPedClient {
             body = client().post().uri(cfg().getTokenUrl()).contentType(MediaType.APPLICATION_JSON)
                     .body(Map.of("email", cfg().getEmail(), "password", cfg().getPassword()))
                     .retrieve().onStatus(HttpStatusCode::isError, (req, res) -> {
-                        throw new SourceUnavailableException("PED: emissão de token recusada (HTTP "
-                                + res.getStatusCode().value() + ")");
+                        int st = res.getStatusCode().value();
+                        if (st == 429 || st >= 500) throw new TransientPedException("PED: emissão de token HTTP " + st);
+                        throw new SourceUnavailableException("PED: emissão de token recusada (HTTP " + st + ")");
                     }).body(String.class);
-        } catch (SourceUnavailableException e) {
+        } catch (SourceUnavailableException | TransientPedException e) {
             throw e;
         } catch (RuntimeException e) {
-            throw new SourceUnavailableException("PED: emissão de token falhou: " + e.getMessage(), e);
+            // rede (timeout de conexão etc.): transitória, entra nas tentativas com espera de get()
+            throw new TransientPedException("PED: emissão de token falhou: " + e.getMessage(), e);
         }
         try {
             JsonNode n = mapper.readTree(body);
@@ -150,6 +152,17 @@ public class CemadenPedHttpClient implements CemadenPedClient {
             throw e;
         } catch (Exception e) {
             throw new SourceUnavailableException("PED: resposta de token ilegível", e);
+        }
+    }
+
+    /** Falha de rede ou 5xx: tenta de novo com espera, em vez de encerrar o run (medido em 2026-11-09: connect timeout). */
+    static class TransientPedException extends RuntimeException {
+        TransientPedException(String msg) {
+            super(msg);
+        }
+
+        TransientPedException(String msg, Throwable cause) {
+            super(msg, cause);
         }
     }
 
