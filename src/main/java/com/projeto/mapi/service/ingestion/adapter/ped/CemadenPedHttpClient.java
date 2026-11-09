@@ -51,6 +51,8 @@ public class CemadenPedHttpClient implements CemadenPedClient {
 
     private String token;
     private Instant tokenExpiresAt = Instant.EPOCH;
+    /** Quando pedir token de novo: margem antes do vencimento, ou o próprio vencimento se a PED repetir o token. */
+    private Instant renewAt = Instant.EPOCH;
     private long lastRequestNanos;
 
     @Override
@@ -88,6 +90,7 @@ public class CemadenPedHttpClient implements CemadenPedClient {
                 if ((s == 401 || s == 403) && !renewed) {
                     log.warn("PED {}: token recusado, renovando", s);
                     tokenExpiresAt = Instant.EPOCH;
+                    renewAt = Instant.EPOCH;
                     renewed = true;
                     attempt--; // renovar o token não conta como tentativa
                     continue;
@@ -113,7 +116,7 @@ public class CemadenPedHttpClient implements CemadenPedClient {
 
     /** Token vigente; emite outro se não houver ou se estiver perto de vencer. */
     private String ensureToken() {
-        if (token != null && clock.instant().isBefore(tokenExpiresAt.minus(TOKEN_MARGIN))) return token;
+        if (token != null && clock.instant().isBefore(renewAt)) return token;
         if (cfg().getEmail() == null || cfg().getEmail().isBlank() || cfg().getPassword() == null
                 || cfg().getPassword().isBlank()) {
             throw new SourceUnavailableException("PED: credenciais ausentes (CEMADEN_PED_EMAIL / CEMADEN_PED_SENHA)");
@@ -138,6 +141,9 @@ public class CemadenPedHttpClient implements CemadenPedClient {
             if (t == null || t.isBlank()) throw new SourceUnavailableException("PED: resposta de token sem campo token");
             token = t;
             tokenExpiresAt = expiryOf(t, clock.instant());
+            // A PED devolve o MESMO token enquanto ele vale (medido em 2026-11-09): dentro da margem, pedir de novo a
+            // cada requisição só gasta o limite de 10/min. Usa até vencer; um 401/403 força a renovação.
+            renewAt = renewAtFor(tokenExpiresAt, clock.instant());
             log.info("PED: token emitido, vence em {}", tokenExpiresAt);
             return token;
         } catch (SourceUnavailableException e) {
@@ -145,6 +151,12 @@ public class CemadenPedHttpClient implements CemadenPedClient {
         } catch (Exception e) {
             throw new SourceUnavailableException("PED: resposta de token ilegível", e);
         }
+    }
+
+    /** Renova na margem antes do vencimento; se já está dentro da margem, só depois de vencer. */
+    static Instant renewAtFor(Instant expiresAt, Instant now) {
+        Instant early = expiresAt.minus(TOKEN_MARGIN);
+        return now.isBefore(early) ? early : expiresAt.plusSeconds(1);
     }
 
     /** {@code exp} do JWT; sem ele, assume 1 h (renovação por 401/403 cobre o erro). */
