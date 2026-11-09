@@ -11,9 +11,11 @@ import java.util.Map;
  * <p>Para cada estação e mês, compara a estação com as vizinhas nas MESMAS horas (horas em que as duas têm valor), para
  * que lacuna de uma não pareça falta de chuva. Quatro defeitos reprovam o mês:
  * <ul>
- *   <li>{@code PARTIAL_COVERAGE}: os blocos aceitos cobrem menos que {@link Rules#minBlockCoverage()} do tempo do mês.
- *       Pega a estação que transmite só parte dos blocos: na regra da V22 o bloco que falta numa hora com leitura
- *       conta como zero, então o volume sai baixo sem a hora virar lacuna;</li>
+ *   <li>{@code PARTIAL_COVERAGE}: nas horas COM valor, os blocos aceitos cobrem menos que
+ *       {@link Rules#minBlockCoverage()} do tempo. Pega a estação que transmite só parte dos blocos: na regra da V22
+ *       o bloco que falta numa hora com leitura conta como zero, então o volume sai baixo sem a hora virar lacuna.
+ *       Dia inteiro sem transmissão NÃO conta aqui: já é lacuna e não distorce valor (chuva-ponto-v2; na v1 a
+ *       cobertura era sobre o mês inteiro e reprovava estação boa com dias parados);</li>
  *   <li>{@code STUCK_ZERO}: total da estação abaixo de {@link Rules#stuckMaxMm()} nas horas em comum, com a mediana das
  *       vizinhas acima de {@link Rules#minNeighborMm()} (pluviômetro travado);</li>
  *   <li>{@code UNDERCATCH}: mediana da razão estação/vizinha abaixo de {@link Rules#minRatio()} (entupimento);</li>
@@ -55,7 +57,8 @@ public final class StationMonthChecker {
     public record StationMonth(String stationId, double lat, double lon, double[] mm, double[] coveredMin) {}
 
     public record Result(String stationId, String status, List<String> reasons, int hoursInMonth, int hoursWithValue,
-                         double hourCoverage, double blockCoverage, Double totalMm, int nNeighbors,
+                         double hourCoverage, double blockCoverage, double blockCoverageInHours, Double totalMm,
+                         int nNeighbors,
                          Double ratioMedian, Double commonMmMedian, List<String> neighborsUsed) {
 
         public boolean usable() {
@@ -82,9 +85,10 @@ public final class StationMonthChecker {
         double hourCov = n == 0 ? 0 : (double) withValue / n;
         double blockCov = n == 0 ? 0 : Math.min(1.0, covered / (n * 60.0));
         if (withValue == 0) {
-            return new Result(s.stationId(), "OFFLINE", List.of("NO_DATA_IN_MONTH"), n, 0, 0, 0, null, 0, null, null,
+            return new Result(s.stationId(), "OFFLINE", List.of("NO_DATA_IN_MONTH"), n, 0, 0, 0, 0, null, 0, null, null,
                     List.of());
         }
+        double blockCovInHours = Math.min(1.0, covered / (withValue * 60.0));
 
         List<Double> ratios = new ArrayList<>();
         List<Double> commonN = new ArrayList<>();
@@ -108,7 +112,7 @@ public final class StationMonthChecker {
         }
 
         List<String> reasons = new ArrayList<>();
-        if (blockCov < r.minBlockCoverage()) reasons.add("PARTIAL_COVERAGE");
+        if (blockCovInHours < r.minBlockCoverage()) reasons.add("PARTIAL_COVERAGE");
         Double ratioMed = ratios.isEmpty() ? null : median(ratios);
         Double nMed = commonN.isEmpty() ? null : median(commonN);
         if (ratios.size() >= r.minNeighbors()) {
@@ -125,7 +129,8 @@ public final class StationMonthChecker {
         } else {
             status = "PASS";
         }
-        return new Result(s.stationId(), status, reasons, n, withValue, hourCov, blockCov, total, ratios.size(),
+        return new Result(s.stationId(), status, reasons, n, withValue, hourCov, blockCov, blockCovInHours, total,
+                ratios.size(),
                 ratioMed, nMed, used);
     }
 

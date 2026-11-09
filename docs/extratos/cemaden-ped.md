@@ -92,4 +92,4 @@ Pico horário pela regra da V22 (fonte: `dados_pcd` de 29 estações e `observat
 | CIN_UFPE | Brega e Chique: 35,0 | Várzea: 44,8 | 16,7 |
 | JABOATAO_CENTRO | Centro: 23,7 | Curado 4: 46,6 | 13,8 |
 
-Defeitos vistos no mesmo mês: Torreão 0,0 mm (vizinhas ~700 mm), Cavaleiro 65 mm, Imbiribeira 398 mm e Jaboatão Centro 354 mm (cerca de metade). Eles motivaram a checagem espacial do ADR 0022.
+Defeitos vistos no mesmo mês: Torreão 0,0 mm (vizinhas ~700 mm), Cavaleiro 65 mm, Imbiribeira 398 mm e Jaboatão Centro 354 mm (cerca de metade). Eles motivaram a checagem espacial do ADR 0022. **Correção depois da carga completa:** nas horas em comum com as vizinhas, Imbiribeira e Jaboatão Centro têm razão 0,92 e 0,87; o total baixo vinha de 15–17% de horas sem dado, não de medição ruim. Torreão (travado) e Cavaleiro (razão 0,09) são defeitos de fato.

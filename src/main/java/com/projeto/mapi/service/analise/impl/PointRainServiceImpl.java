@@ -111,6 +111,7 @@ public class PointRainServiceImpl implements PointRainService {
                 Map<String, Object> metrics = new LinkedHashMap<>();
                 metrics.put("hourCoverage", r.hourCoverage());
                 metrics.put("blockCoverage", r.blockCoverage());
+                metrics.put("blockCoverageInHours", r.blockCoverageInHours());
                 metrics.put("neighborsUsed", r.neighborsUsed());
                 metrics.put("rules", rules.asMap());
                 checks.add(new CheckRow(SOURCE, r.stationId(), ms, r.status(), r.reasons(), r.hoursInMonth(),

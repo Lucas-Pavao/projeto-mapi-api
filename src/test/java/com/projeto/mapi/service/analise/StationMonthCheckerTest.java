@@ -70,8 +70,9 @@ class StationMonthCheckerTest {
     }
 
     @Test
-    void comparaSoNasHorasEmComum() {
-        // a estação só operou a 1a metade; nas horas dela, chove igual às vizinhas: não é entupimento
+    void comparaSoNasHorasEmComumEDiasParadosNaoReprovam() {
+        // a estação só operou a 1a metade; nas horas dela, chove igual às vizinhas e os blocos cobrem as horas:
+        // não é entupimento nem cobertura parcial (os dias parados já são lacuna)
         double[] half = wet(1);
         double[] c = cov(60);
         for (int i = H / 2; i < H; i++) {
@@ -80,7 +81,9 @@ class StationMonthCheckerTest {
         }
         var r = run(st("A", 0, wet(1), cov(60)), st("B", 0.01, wet(1), cov(60)), st("METADE", 0.005, half, c));
         assertThat(r.get("METADE").ratioMedian()).isEqualTo(1.0);
-        assertThat(r.get("METADE").reasons()).containsExactly("PARTIAL_COVERAGE"); // cobre só 50% do mês
+        assertThat(r.get("METADE").blockCoverage()).isEqualTo(0.5);
+        assertThat(r.get("METADE").blockCoverageInHours()).isEqualTo(1.0);
+        assertThat(r.get("METADE").status()).isEqualTo("PASS");
     }
 
     @Test
