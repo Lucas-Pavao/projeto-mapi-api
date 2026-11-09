@@ -8,7 +8,7 @@ import java.time.Instant;
 public interface PointRainService {
 
     String SOURCE = "CEMADEN_PED";
-    String RULE_VERSION = "chuva-ponto-v3";
+    String RULE_VERSION = "chuva-ponto-v4";
     String LINKAGE_METHOD = "MAX_VALID_MONTHLY";
 
     /** Recalcula as três tabelas derivadas para horas com fim em (from, to]; from e to em hora cheia UTC. */

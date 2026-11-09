@@ -18,7 +18,7 @@ import java.util.List;
 public class IngestionProperties {
 
     /** Versão do conjunto de regras de validação gravada em cada observação e quarentena. */
-    private String ruleVersion = "2026.10.4";
+    private String ruleVersion = "2026.11.1";
 
     /** Fallback explícito (nunca silencioso) quando o build não trouxe git.properties nem override. */
     public static final String NO_GIT = "unknown-build-without-git";
@@ -144,5 +144,12 @@ public class IngestionProperties {
         private int maxAttempts = 4;
         /** Espera base entre tentativas (dobra a cada uma). */
         private long retryBackoffMs = 30000;
+        /**
+         * Códigos de {@code qualificacao} que vão para a quarentena ({@code QUALIFIER / SUSPECT_QUALIFIER}). Decisão do
+         * Lucas em 2026-11-09, antes da resposta do Cemaden: {@code 0002} aparece em 70 blocos nos 5 anos, todos acima
+         * de 25 mm (até 255,5 mm, valores repetidos idênticos); com {@code 0004} o maior bloco é 26,9 mm
+         * (docs/extratos/cemaden-ped.md). Reversível por REVALIDATE se a resposta mudar.
+         */
+        private List<String> suspectQualifiers = List.of("0002");
     }
 }

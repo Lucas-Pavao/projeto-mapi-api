@@ -162,4 +162,24 @@ class CemadenPedAdapterTest {
             assertThat(o.qualifier()).isEqualTo("0004");
         });
     }
+
+    @Test
+    void qualificacaoSuspeitaVaiParaQuarentenaSoNaFonteConfigurada() {
+        ValidationService v = new ValidationService(List.of(-9999.0), ValidationService.DEFAULT_MAX_BLOCK,
+                Map.of("CEMADEN_PED", Set.of("0002")));
+        Map<String, VariableRule> cat = Map.of("precipitation",
+                new VariableRule("precipitation", "mm", 0.0, 300.0, "[sem fonte]", "PT1H", "END", "SUM", 0.8));
+        String body = HEAD + line("2022-05-01 00:10:00", "chuva", "0.0", "0000")
+                + line("2022-05-01 00:20:00", "chuva", "215.6744", "0002")
+                + line("2022-05-01 00:30:00", "chuva", "2.0", "0004");
+        List<RawRecord> recs = adapter().parse(body, "261160609A", START, END, Instant.now());
+        SourceTzRule utc = new SourceTzRule("UTC", "VERIFIED");
+        var suspect = v.validate(recs.get(1), utc, adapter().extract(recs.get(1)), cat);
+        assertThat(suspect.valid()).isEmpty();
+        assertThat(suspect.rejections()).singleElement().satisfies(r -> {
+            assertThat(r.ruleId()).isEqualTo("QUALIFIER");
+            assertThat(r.reason()).isEqualTo("SUSPECT_QUALIFIER");
+        });
+        assertThat(v.validate(recs.get(2), utc, adapter().extract(recs.get(2)), cat).valid()).hasSize(1);
+    }
 }

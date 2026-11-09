@@ -30,14 +30,21 @@ public class ValidationService {
 
     private final List<Double> sentinels;
     private final Duration maxBlock;
+    /** Qualificadores da própria fonte que marcam leitura suspeita, por fonte (ex.: CEMADEN_PED → 0002). */
+    private final Map<String, Set<String>> suspectQualifiers;
 
     public ValidationService(List<Double> sentinels) {
-        this(sentinels, DEFAULT_MAX_BLOCK);
+        this(sentinels, DEFAULT_MAX_BLOCK, Map.of());
     }
 
     public ValidationService(List<Double> sentinels, Duration maxBlock) {
+        this(sentinels, maxBlock, Map.of());
+    }
+
+    public ValidationService(List<Double> sentinels, Duration maxBlock, Map<String, Set<String>> suspectQualifiers) {
         this.sentinels = List.copyOf(sentinels);
         this.maxBlock = maxBlock;
+        this.suspectQualifiers = Map.copyOf(suspectQualifiers);
     }
 
     /**
@@ -77,6 +84,11 @@ public class ValidationService {
             if (d.resolution() == null || !RESOLUTIONS.contains(d.resolution())) {
                 rejections.add(new Rejection("RESOLUTION", "UNKNOWN_RESOLUTION",
                         detail("variable", d.variable(), "resolution", d.resolution())));
+                continue;
+            }
+            if (d.qualifier() != null && suspectQualifiers.getOrDefault(raw.source(), Set.of()).contains(d.qualifier())) {
+                rejections.add(new Rejection("QUALIFIER", "SUSPECT_QUALIFIER", detail("variable", d.variable(),
+                        "qualifier", d.qualifier(), "value", d.value())));
                 continue;
             }
             double raw0 = d.value();
