@@ -92,9 +92,9 @@ Antes de rodar qualquer migração ou carga sobre dado real:
 - [ ] Gerar o dump fora do repositório:
   ```bash
   mkdir -p "$HOME/backups/mapi"
-  DUMP="$HOME/backups/mapi/tide_db-$(date -u +%Y%m%dT%H%M%SZ).dump"
+  DUMP="$HOME/backups/mapi/mapi_db-$(date -u +%Y%m%dT%H%M%SZ).dump"
   docker compose -p projeto-mapi-api exec -T postgres \
-    pg_dump -U mapi_user -Fc tide_db > "$DUMP"
+    pg_dump -U mapi_user -Fc mapi_db > "$DUMP"
   sha256sum "$DUMP" | tee "$DUMP.sha256"
   ```
 - [ ] Guardar o SHA-256 no PROGRESSO, junto da data e da migração que virá depois.

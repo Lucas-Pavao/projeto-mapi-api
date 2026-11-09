@@ -44,6 +44,10 @@ prorrogáveis por mais 10 (pedidos 05 e 06).
 | 13 | Sua confirmação escrita e a leitura do orientador nos pré-registros e no MEMO | você e o orientador | não há | Validade do protocolo diante da banca | alta |
 | 14 | Polígonos oficiais de bairro | Prefeitura do Recife | não há | Análise secundária por bairro | baixa |
 | 15 | Qual modelo de reanálise o Open-Meteo usou em cada período | documentação do Open-Meteo | não há | Uma ameaça à validade citada no texto | média |
+| 16 | Cadastro na Plataforma de Entrega de Dados (PED) do Cemaden, para o token da API histórica de 10 min | você (cadastro em sws.cemaden.gov.br) | não há | Estação a até 5 km de cada ponto (ADR 0018); o download do mapa interativo tem captcha e não deve ser automatizado | alta |
+| 17 | Atendimentos a alagamento do Corpo de Bombeiros, com hora e endereço | CBMPE, via LAI estadual | 07 | Rótulo com hora (ADR 0019) | alta |
+| 18 | Cópia do dump `tide_db-2026-11-08-pre-recarga` no Drive (ADRs aprovados em 2026-11-08; o dump não foi encontrado no Drive na conferência do mesmo dia) | você | não há | Apagar o volume antigo `postgres_ha_data` e a cópia local | alta |
+| 19 | Decidir se "Imóveis Alagados" da Defesa Civil entra como alagamento (confiança MÉDIA) | você | não há | De 18 para ~49 dias de rótulo (REVISAO-INGESTAO-2026-11, 4.3) | alta |
 
 ## 3. Pedidos redigidos
 

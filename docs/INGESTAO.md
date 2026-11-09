@@ -88,6 +88,17 @@ No dataset exportado, o **manifesto** (`/api/export/ia-dataset/{slug}/manifest`,
 - **Conferência.** `GET /api/sensors/cemaden/accumulated` traz os acumulados oficiais de 1 a 96 h do painel público da CEMADEN (`resources.cemaden.gov.br/graficos/interativo/getJson2.php?uf=PE`, sem credencial) e a diferença para a soma de 24 h do MAPi.
 - **Maré.** `TideObservationSyncTask` recarrega TABUAMARE_PE02 em `observation` (3 dias atrás a 10 à frente, no máximo até 31/12) quando falta cobertura. Se ainda assim não houver extremo, a timeline usa a tábua local `tide_tables`.
 
+## Revisão de 2026-11 (proposta, ADRs 0018–0020)
+
+- **Recarga e nome novo.** O banco passa a se chamar `mapi_db`, em volume novo; `tide_db` e o volume antigo ficam até aprovação para apagar. Ordem e o que se preserva: ADR 0020. Antes de começar: dump `tide_db-2026-11-08-pre-recarga` (`docs/snapshots/2026-11-08-pre-recarga.md`) com cópia fora da máquina.
+- **Vínculo estação↔ponto.** Raio máximo (padrão proposto 5 km) e regra em `linkage_config`; fora do raio, reanálise declarada (ADR 0018).
+- **Fontes novas de chuva.** APAC histórica: só total diário, série `P1D` fora da grade horária; XLSX bruto com hash; o adaptador falha de forma visível se a planilha mudar ou vier vazia; uma requisição por vez. Cemaden histórico: API PED com token (cadastro pendente), leituras de 10 min tratadas como na V22.
+- **Rótulos.** Modelo multifonte com precisão temporal e espacial, confiança, deduplicação entre fontes e negativos verificados (ADR 0019). Toda fonte de rótulo passa por bruto, fuso declarado e quarentena.
+
+> **Aviso.** Nada ingerido como rótulo pode realimentar a definição de evento, o limiar de classificação ou a capacidade da galeria (ADR 0006, 0017, 0019).
+
+Detalhes e números: `docs/REVISAO-INGESTAO-2026-11.md`.
+
 ## Retenção e compressão (resumo)
 
 Staging bruto e série consolidada **não têm `drop_chunks`**. Compressão (14 dias no bruto, 60 na consolidada) e continuous aggregates estão **adiados** (migração de compressão, número a definir): entram só se um limiar de medição for atingido (ADR 0006, seção 9). Apagar bruto exige exportar para arquivo com SHA-256 e aprovação explícita. Detalhe e volumes: ADR 0006, seção 9.

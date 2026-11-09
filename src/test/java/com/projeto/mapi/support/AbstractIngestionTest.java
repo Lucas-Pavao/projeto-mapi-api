@@ -29,6 +29,7 @@ public abstract class AbstractIngestionTest extends AbstractTimescaleIntegration
     @MockitoBean protected com.projeto.mapi.service.ingestion.adapter.Era5LandClient era5Land;
     // no contexto compartilhado (um contexto a mais estoura max_connections do contêiner de teste)
     @MockitoBean protected com.projeto.mapi.service.ingestion.adapter.AnaLegacyClient anaLegacy;
+    @MockitoBean protected com.projeto.mapi.service.ingestion.adapter.ApacHistoricoClient apacHistorico;
 
     @BeforeEach
     void cleanPipeline() {

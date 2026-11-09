@@ -32,3 +32,5 @@ Os timestamps estão como gravados (sem fuso declarado; ver ADR 0001).
 - **Não há histórico de 5 anos neste banco**: 555 leituras de sensor e 40 de clima em ~4 semanas, e 0 eventos de alagamento (rótulos).
 - `flood_predictions` tem 45 vezes mais linhas que `sensor_data`: confirma que a navegação grava auditoria (F1-B2-25, F1-F2-06).
 - O log do `pg_dump` tem 1 aviso (o esperado de dependência circular em hypertables do TimescaleDB).
+
+> **Nota de 2026-11-08.** A cópia local do dump foi apagada para liberar disco, a pedido do Lucas, depois de conferir o SHA-256 contra o manifesto do Drive (`mapi-backup-2026-10-11.tar`, pasta "MAPI — backup"). Para restaurar ou reproduzir a F1 (`projeto-mapi-ai/avaliacao/reproduzir.sh` espera o arquivo em `MAPI/snapshots/`), baixe o tar do Drive e extraia o dump nesse caminho. O banco passou a se chamar `mapi_db` nesta data (ADR 0020).

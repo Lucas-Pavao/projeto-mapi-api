@@ -2,7 +2,7 @@ spring:
   application:
     name: projeto-mapi-api
   datasource:
-    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/tide_db}
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/mapi_db}
     username: ${POSTGRES_USER:mapi_user}
     password: ${POSTGRES_PASSWORD:mapi123}
     driver-class-name: org.postgresql.Driver
