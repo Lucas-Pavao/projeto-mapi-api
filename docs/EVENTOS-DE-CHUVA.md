@@ -166,3 +166,69 @@ Mesma janela e regras padrão (`methodVersion` `eventos-chuva-v2`). Arquivos em 
 - O resumo pedido como `ANA` e como `OPEN_METEO_ARCHIVE` dá o mesmo `X-Dataset-Id` (`f84ff71a…`): é a mesma série.
 - Os pares AGAMENON_DERBY/CIN_UFPE e AV_RECIFE_IBURA/MASCARENHAS_IMBIRIBEIRA têm resumo idêntico: cada par cai na mesma célula da grade da reanálise. Na prática a reanálise dá 3 séries distintas para 5 pontos.
 - Pico horário máximo 21,1 mm/h; 0 eventos acima de 60,1 mm/h; 0 eventos FORTE; `ckanOccurrenceSameDay` verdadeiro em 0 eventos (nenhuma ocorrência a 500 m depois da nova geocodificação, `REVISAO-INGESTAO-2026-11` §7.3).
+
+## Terceira extração: três fontes, com o Cemaden medido no ponto (2026-11-09)
+
+DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC.
+
+Mesma janela (`2021-10-01T03:00Z` a `2026-10-01T03:00Z`, 43 824 horas), `slug=all`, regras padrão (`eventos-chuva-v2`). Banco `mapi_db` depois da carga do Cemaden PED (ADR 0021; relatório em `docs/extratos/cemaden-ped-carga-2026-11-09.md`). Arquivos em `MAPI/exports/eventos-chuva-2026-11-09-cemaden-ped/`, com manifestos e `SHA256SUMS.txt`.
+
+| Fonte | Série por ponto | `codeVersion` | Eventos (CSV) | `X-Dataset-Id` eventos / resumo |
+|---|---|---|---|---|
+| Cemaden (`CEMADEN_PED`) | maior valor entre as estações válidas a até 5 km (ADR 0022, `chuva-ponto-v4`) | `c9b0cc8` | 4 408 | `8d1d5bdd…` / `b04a5938…` |
+| ANA (`ANA_SOAP`) | 39187800, a 11,6–19,9 km (raio de 25 km só nesta extração, declarado no manifesto) | `00d5d74` | 2 680 | `93dab382…` / `25fd789f…` |
+| Reanálise (`OPEN_METEO_ARCHIVE`) | célula ERA5 do ponto | `00d5d74` | 3 947 | `b0961dfc…` / `f84ff71a…` |
+
+A ANA reproduz a contagem da primeira extração (2 680) e a reanálise reproduz o resumo da segunda (`f84ff71a…`). Os commits entre `00d5d74` e `c9b0cc8` só mudam o Cemaden PED.
+
+### Comparação
+
+Valor de um ponto, ou faixa entre os 5 pontos. Fonte: `resumo_*.csv` (linha `TOTAL` e `FORTE`) e `eventos_*.csv` (pico). Na ANA os 5 pontos usam a mesma estação e têm o mesmo valor.
+
+| Métrica | Cemaden | ANA | Reanálise |
+|---|---|---|---|
+| Pico horário em 5 anos (mm/h) | **62,0** (Jaboatão Centro); faixa 48,7–62,0 | 41,0 | 21,1; faixa 16,3–21,1 |
+| Eventos com pico ≥ 25,15 mm/h (FORTE) | 24–28 por ponto | 9 | 0 |
+| Eventos acima de 60,1 mm/h | **1** em 4 pontos, 0 no CIn (4 eventos-ponto, 3 chuvas) | 0 | 0 |
+| Eventos por ano | 172–179 (176–185 nas horas cobertas) | 107 (121) | 154–166 |
+| Duração média do evento | 14,4–17,4 h | 13,6 h | 25,9–30,9 h |
+| Fração do tempo com chuva | 0,29–0,35 | 0,19 | 0,49–0,54 |
+| Cobertura da série | 0,958–0,998 | 0,885 | 1,000 |
+
+### Eventos acima da capacidade de projeto
+
+**Com o Cemaden, 3 chuvas medidas passaram de 60,1 mm/h em 5 anos, que viram 4 eventos-ponto. Todas passaram por menos de 2 mm/h, em uma hora só.** O CIn não teve nenhuma. Com a ANA e a reanálise, 0.
+
+| Ponto | Início (hora local) | Pico (mm/h) | Estação da hora de pico | Excesso (mm) | Total do evento (mm) |
+|---|---|---|---|---|---|
+| JABOATAO_CENTRO | 2023-02-22 02:00 | 62,0 | Centro (260790107A), 0,64 km | 1,85 | 167,5 |
+| AV_RECIFE_IBURA | 2023-02-09 04:00 | 61,3 | Imbiribeira (261160609A), 2,05 km | 1,18 | 145,6 |
+| MASCARENHAS_IMBIRIBEIRA | 2023-02-09 04:00 | 61,3 | Imbiribeira (261160609A), 1,04 km | 1,18 | 130,9 |
+| AGAMENON_DERBY | 2025-01-12 19:00 | 60,5 | Campina do Barreto (261160614A), 4,64 km | 0,44 | 147,3 |
+
+As três horas têm vizinhas altas na mesma hora (Alto Vento 57,2; Pina 38,5; Torreão 46,0 mm/h): não são picos isolados.
+
+### Varredura de capacidade
+
+Eventos com pico horário acima de uma fração da capacidade de projeto (60,1 mm/h), por ponto, em 5 anos (inclui eventos truncados). Fonte: `eventos_*.csv`, coluna `maxHourlyMmH`.
+
+| Fração (mm/h) | Cemaden | ANA | Reanálise |
+|---|---|---|---|
+| 100% (60,1) | 0–1 | 0 | 0 |
+| 80% (48,1) | 1–2 | 0 | 0 |
+| 60% (36,1) | 6–9 | 1 | 0 |
+| 40% (24,0) | 26–32 | 10 | 0 |
+| 20% (12,0) | 108–133 | 51 | 5–8 |
+
+Com chuva medida no ponto, a galeria com a capacidade de projeto falha cerca de uma vez em 5 anos em 4 dos 5 pontos, sempre por pouco. Com 80% da capacidade, falha 1 a 2 vezes em todos os pontos. Com 60%, mais de uma vez por ano (6 a 9 em 5 anos). Com a ANA, a falha só aparece a partir de 60% da capacidade; com a reanálise, só a 20%. A forçante muda a fração em que o modelo começa a falhar de 0,2 (reanálise) para 0,6 (ANA) e para 1,0 (Cemaden).
+
+### Sensibilidades
+
+- **Seleção da estação (ADR 0022, opção B).** Com a estação válida mais próxima em vez do maior valor, o pico por ponto fica entre 36,0 e 62,0 mm/h, e só Jaboatão Centro e Mascarenhas passam de 60,1 (1 hora cada). O Derby (pico 47,3) e o Ibura (41,2) deixam de passar. Horas com 25,15 mm/h ou mais caem de 33–44 para 9–27 por ponto. Fonte: `point_rain_hourly` e `station_month_check`, consulta em `docs/extratos/cemaden-ped-carga-2026-11-09.md`.
+- **Qualificação `0002` (decisão do Lucas: quarentena até o Cemaden responder).** Com os 70 blocos `0002` de volta (série `chuva-ponto-v3`, arquivos `*_CEMADEN_PED_COM_0002`), o CIn ganha um evento de 215,7 mm/h (Cavaleiro 2, 2021-10-18), e o total acima da capacidade passa de 4 para 5 eventos-ponto. O valor 215,7 se repete idêntico em 13 blocos da mesma estação.
+
+### Leitura
+
+- A escolha da forçante muda a conclusão. Com a reanálise e com a ANA, a galeria nunca falharia por chuva em 5 anos. Com o pluviômetro no ponto, falha, mas no limite: o excesso máximo é de 1,85 mm numa hora. A falha observada nos pontos (rótulo) continua dependendo da capacidade efetiva menor (obstrução), da maré e da chuva acima do pluviômetro mais próximo.
+- O Cemaden tem eventos mais curtos e mais frequentes que a reanálise (15 h contra 28 h; 176 contra 158 por ano) e cerca de 3 vezes mais eventos FORTE que a ANA por ponto (24–28 contra 9). Parte disso é a seleção do maior valor entre 3 a 5 estações válidas; a opção B corta as horas com 25,15 mm/h ou mais pela metade ou mais.
+- O Cemaden e a ANA não são da mesma natureza: o Cemaden é o máximo de várias estações a até 5 km; a ANA é uma estação a 12–20 km. A diferença entre eles mede a forçante e a regra de seleção juntas.

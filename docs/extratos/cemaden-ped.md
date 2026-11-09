@@ -76,9 +76,19 @@ O código acompanha 100% das leituras com chuva > 0. Hipótese: indicador de "ho
 
 Pergunta para o Cemaden (canal de atendimento da PED):
 
-> Na saída da rota `/pcds/dados_pcd` (formato CSV), o que significa o campo `qualificacao`? Observamos `0000` em toda leitura de chuva igual a zero e `0004` em toda leitura maior que zero. Há outros códigos possíveis, e algum deles indica dado suspeito ou corrigido? Há documentação dos códigos?
+> Na saída da rota `/pcds/dados_pcd` (formato CSV), o que significa o campo `qualificacao`? Em 5 anos de 46 estações da RMR (2021–2026, sensor 10) observamos `0000` em toda leitura de chuva igual a zero, `0004` em toda leitura maior que zero (maior bloco 26,9 mm) e `0002` em 70 leituras, todas acima de 25 mm e até 255,5 mm, com valores repetidos idênticos (por exemplo, 215,67 mm em 13 blocos da PCD 260790102A). O `0002` indica dado suspeito ou inválido? Há outros códigos e documentação deles?
 
 Resposta: pendente.
+
+**Carga de 5 anos (2026-11-09).** O código `0002` apareceu na carga completa e não na amostra da etapa 1:
+
+| qualificacao | leituras | chuva = 0 | chuva > 0 | > 25 mm | > 50 mm | máximo (mm) | estações |
+|---|---|---|---|---|---|---|---|
+| `0000` | 1 119 339 | 1 119 339 | 0 | 0 | 0 | 0 | 46 |
+| `0004` | 343 092 | 81 | 343 011 | 7 | 0 | 26,9 | 46 |
+| `0002` | 70 | 0 | 70 | 70 | 55 | 255,5 | 6 |
+
+Decisão do Lucas (2026-11-09), antes da resposta: `0002` vai para a quarentena (`QUALIFIER / SUSPECT_QUALIFIER`; `mapi.ingestion.cemaden-ped.suspect-qualifiers`), reversível por REVALIDATE. O resultado com `0002` fica como sensibilidade (`docs/EVENTOS-DE-CHUVA.md`). `0000` e `0004` continuam guardados sem filtro.
 
 ## 6. Maio/2022, comparação com a reanálise
 

@@ -34,7 +34,7 @@ Opção B, fonte `CEMADEN_PED` no pipeline do ADR 0006, fuso UTC verificado.
 - **Duração do bloco** = intervalo até a leitura anterior da mesma estação. Cada requisição começa 70 min antes da janela; a anterior, se existe a até 70 min, está sempre na resposta, então a duração não depende de onde a janela começa. Ela vai para `observation.interval_start_utc`.
 - **Bloco mais longo que 60 min vai para a quarentena** (`GAP / AFTER_GAP`): a leitura veio depois de uma lacuna e a chuva pode ter caído em qualquer ponto do intervalo. Sem anterior em 70 min, o bloco é declarado com 71 min e também cai na quarentena.
 - **Hora**: a regra da V22 continua (soma dos blocos com fim na hora; hora sem bloco = lacuna). A `observation_hourly_v` passa a declarar, por hora, `n_readings` (blocos), `blocks_covered_min` (soma das durações) e `first_block_start_utc`. A exigência de 6 blocos por hora foi descartada: só 3–6% das horas de maio/2022 têm seis leituras.
-- **Qualificação**: o código (`0000`, `0004`) vai para `observation.qualifier`, sem filtrar. Significado em consulta ao Cemaden.
+- **Qualificação**: o código vai para `observation.qualifier`. `0000` e `0004` sem filtro. `0002` vai para a quarentena (`QUALIFIER / SUSPECT_QUALIFIER`): decisão do Lucas em 2026-11-09, depois da carga de 5 anos mostrar 70 blocos `0002`, todos acima de 25 mm e até 255,5 mm, contra no máximo 26,9 mm com `0004` (`docs/extratos/cemaden-ped.md`, seção 5). Reversível por REVALIDATE. Significado em consulta ao Cemaden.
 - **Limite**: uma requisição a cada 6 s (10 por minuto), contando a emissão de token, sem rajada.
 - **Token**: renovado antes de vencer (`exp` do JWT) e depois de 401/403; expiração é erro recuperável.
 - **Retomada**: a janela entra em `ped_fetch_window` na mesma transação do bruto e da observação; a carga seguinte pula as janelas gravadas.
@@ -49,6 +49,6 @@ Opção B, fonte `CEMADEN_PED` no pipeline do ADR 0006, fuso UTC verificado.
 
 ## Condições que reabririam a decisão
 
-- O Cemaden informar outro significado para `qualificacao` (por exemplo, um código de dado suspeito).
+- O Cemaden informar que `0002` não é dado suspeito (devolve os 70 blocos à série) ou que outro código é.
 - A `dados_pcd` passar a recusar períodos antigos.
 - Evidência de que o bloco não termina no carimbo.

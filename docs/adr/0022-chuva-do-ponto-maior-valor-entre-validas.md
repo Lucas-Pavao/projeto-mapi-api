@@ -37,11 +37,15 @@ Opção C. Dentro do raio do vínculo (5 km), descartar as estações reprovadas
 | Entupimento | `UNDERCATCH` | mediana da razão estação/vizinha abaixo de 0,5 |
 | Excesso | `OVERCATCH` | mediana da razão acima de 2,0 |
 
+**Antes da checagem, pico isolado sai hora a hora** pela regra que o sistema já usa na chuva ao vivo (`RainSpatialCheck`): a hora de uma estação com 10 mm ou mais sai da série quando pelo menos 2 vizinhas a até 6 km informam a mesma hora abaixo de 1 mm. Cada hora retirada fica em `station_month_check.metrics.isolatedPeaksRemoved`. Sem isso, a seleção do maior valor levava à série do ponto um pico de uma estação só (255,5 mm/h com as vizinhas em 0,0), e a checagem mensal, que compara volumes, não enxerga uma hora.
+
 Qualquer motivo reprova o mês (`FAIL`). Com menos de 2 vizinhas com chuva suficiente, a estação fica `UNCHECKED` e é usada, com o motivo `FEW_WET_NEIGHBORS`. Sem nenhuma hora com valor no mês, fica `OFFLINE`.
 
 Por que cobertura de **bloco nas horas com valor**: na V22 o bloco que falta numa hora com leitura conta zero, então a estação que perde blocos tem a hora preenchida e volume baixo. Dia inteiro sem transmissão não reprova: já é lacuna e não distorce valor; a hora do ponto sai da vizinha válida.
 
 **Revisão da regra (2026-11-09, `chuva-ponto-v1` → `chuva-ponto-v2`).** Na v1 a cobertura de bloco era sobre o mês inteiro. Em 5 anos ela reprovou 458 meses-estação por `PARTIAL_COVERAGE`; nesses meses os blocos cobriam 95–98% das horas com valor (exceto meses com menos de 20% de horas, 0,81), e o que derrubava a cobertura eram dias parados. Imbiribeira e Jaboatão Centro em maio/2022, apontados na etapa 1 como "metade das vizinhas", têm razão 0,92 e 0,87 nas horas em comum: o volume baixo era hora sem dado, não defeito de medição. As linhas da v1 ficam em `station_month_check` e `point_rain_hourly` como registro.
+
+**`chuva-ponto-v3`** acrescenta o corte de pico isolado (151 horas-estação em 5 anos). **`chuva-ponto-v4`** é a v3 sobre a série sem a qualificação `0002` (ADR 0021). A v4 é a versão em uso pela tabela de eventos; a v3 fica como sensibilidade "com `0002`".
 
 Todos os limiares são `[sem fonte]` como critério físico: escolhidos antes de olhar o rótulo de alagamento, gravados em cada linha de `station_month_check.metrics.rules` e sujeitos a sensibilidade.
 

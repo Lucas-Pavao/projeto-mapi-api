@@ -122,7 +122,7 @@ flowchart LR
     W -->|202 sem dado| N[janela NO_DATA]
     R --> V{validação}
     V -->|bloco ≤ 60 min| O[observation EVENT<br/>interval_start = leitura anterior]
-    V -->|bloco > 60 min| Q[quarentena GAP/AFTER_GAP]
+    V -->|bloco > 60 min| Q[quarentena GAP/AFTER_GAP<br/>QUALIFIER/0002]
     O --> H[observation_hourly_v<br/>soma dos blocos, n_readings,<br/>blocks_covered_min]
     H --> K[station_month_check<br/>checagem espacial mensal]
     K --> P[point_rain_hourly<br/>maior valor entre válidas ≤ 5 km]
@@ -144,9 +144,9 @@ flowchart LR
 
 **Bloco e hora.** A duração do bloco é o intervalo até a leitura anterior; a requisição começa 70 min antes da janela para que a anterior esteja sempre na resposta. Bloco acima de 60 min vai para a quarentena. A hora segue a V22 (soma dos blocos com fim nela; bloco que falta numa hora com leitura conta zero). Por hora, a view declara `n_readings` (blocos), `blocks_covered_min` e `first_block_start_utc`: uma hora com seis blocos de 10 min e uma com um bloco de 60 min ficam distinguíveis.
 
-**Qualificação.** O código `qualificacao` (`0000`, `0004`) vai para `observation.qualifier`, sem filtrar. Significado em consulta (`docs/extratos/cemaden-ped.md`, seção 5).
+**Qualificação.** O código `qualificacao` vai para `observation.qualifier`. `0002` vai para a quarentena `QUALIFIER / SUSPECT_QUALIFIER` (70 blocos em 5 anos, todos acima de 25 mm; decisão de 2026-11-09, ADR 0021); `0000` e `0004` sem filtro. Significado em consulta (`docs/extratos/cemaden-ped.md`, seção 5).
 
-**Vínculo e checagem.** Dentro de 5 km, maior valor horário entre as estações aprovadas na checagem espacial do mês; reprovada fica em `station_month_check` com o motivo (travado, entupimento, excesso, cobertura parcial dos blocos). Cada hora de `point_rain_hourly` declara a estação, a distância e quantas estavam válidas (ADR 0022).
+**Vínculo e checagem.** Antes de tudo, a hora de pico isolado sai da série (`RainSpatialCheck`, mesma regra da chuva ao vivo). Dentro de 5 km, maior valor horário entre as estações aprovadas na checagem espacial do mês; reprovada fica em `station_month_check` com o motivo (travado, entupimento, excesso, cobertura parcial dos blocos). Cada hora de `point_rain_hourly` declara a estação, a distância e quantas estavam válidas (ADR 0022).
 
 **Conta.** Conta da PED inativa por um ano é removida pela plataforma: usar a API pelo menos uma vez antes de 2027-11.
 

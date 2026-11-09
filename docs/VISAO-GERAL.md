@@ -66,7 +66,29 @@ Histórico, carregado por endpoints de admin (`/api/admin/ingestion/...`):
 - Open-Meteo Archive: chuva horária até 2026-09-30;
 - ERA5-Land: umidade do solo;
 - ANA: até 2026-10-10;
+- Cemaden PED: chuva por bloco de 46 estações, 2021-09-01 a 2026-10-07 (ADR 0021; DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC);
 - ocorrências do CKAN, revalidadas e geocodificadas.
+
+#### Estações de chuva por ponto (2026-11-09)
+
+A chuva horária de cada ponto é o maior valor entre as estações do Cemaden aprovadas na checagem espacial do mês, a até 5 km (ADR 0022, `point_rain_hourly`). Fora do raio não há estação medida; a ANA mais próxima (39187800) fica a 11,6–19,9 km e a reanálise é uma célula ERA5 por ponto. Distâncias em linha reta; detalhe e período de cada estação em `docs/extratos/cemaden-ped-carga-2026-11-09.md`, seção 6.
+
+```mermaid
+flowchart LR
+    DERBY[AGAMENON_DERBY] --- D1[Torreão 2,07 km] & D2[Porto 2,36 km] & D3[+6 estações 4,1–4,9 km]
+    IBURA[AV_RECIFE_IBURA] --- I1[Areias 0,69 km] & I2[Imbiribeira 2,05 km] & I3[+5 estações 2,8–4,5 km]
+    CIN[CIN_UFPE] --- C1[San Martin 3,49 km] & C2[Brega e Chique 3,64 km] & C3[+7 estações 3,8–4,9 km]
+    JAB[JABOATAO_CENTRO] --- J1[Engenho Velho 0,59 km] & J2[Centro 0,64 km] & J3[+5 estações 1,5–4,8 km]
+    MASC[MASCARENHAS_IMBIRIBEIRA] --- M1[Imbiribeira 1,04 km] & M2[Pina 2,90 km] & M3[+3 estações 3,2–5,0 km]
+```
+
+| Ponto | Estações ≤ 5 km | Mais próxima | Cobertura da série 2021-10 a 2026-10 | Pico horário |
+|---|---|---|---|---|
+| AGAMENON_DERBY | 8 | Torreão, 2,07 km | 0,998 | 60,5 mm/h |
+| AV_RECIFE_IBURA | 7 | Areias, 0,69 km | 0,958 | 61,3 mm/h |
+| CIN_UFPE | 9 | San Martin, 3,49 km | 0,996 | 48,7 mm/h |
+| JABOATAO_CENTRO | 7 | Engenho Velho, 0,59 km (desde 2023-05) | 0,998 | 62,0 mm/h |
+| MASCARENHAS_IMBIRIBEIRA | 5 | Imbiribeira, 1,04 km | 0,963 | 61,3 mm/h |
 
 Cada carga é um `ingestion_run` com proveniência. Uma correção vira nova versão em `observation_revision`, e nada é
 sobrescrito (ADR 0006, `docs/INGESTAO.md`). Todo instante fica em UTC no banco e é exibido em America/Recife (ADR 0001).
