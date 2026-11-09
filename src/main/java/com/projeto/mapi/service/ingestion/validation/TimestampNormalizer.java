@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.List;
 
 /**
@@ -19,7 +21,11 @@ public final class TimestampNormalizer {
 
     private static final List<DateTimeFormatter> DATE_TIME_FORMATS = List.of(
             DateTimeFormatter.ISO_LOCAL_DATE_TIME,
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm[:ss]"),
+            // ANA (Hidro-WebService): "2026-10-21 01:00:00.0", com fração de segundo
+            new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd HH:mm")
+                    .optionalStart().appendPattern(":ss")
+                    .optionalStart().appendFraction(ChronoField.NANO_OF_SECOND, 1, 9, true).optionalEnd()
+                    .optionalEnd().toFormatter(),
             DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm[:ss]"),
             DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm[:ss]"));
 
@@ -61,10 +67,14 @@ public final class TimestampNormalizer {
         return norm != null && norm.length() == 10 && norm.indexOf('T') < 0;
     }
 
-    /** Converte {@code source_ts_norm} no instante UTC pelo fuso da fonte. */
-    public static Instant toInstant(String norm, String tz) {
+    /**
+     * Converte {@code source_ts_norm} no instante UTC pelo fuso da fonte. O texto passa de novo por
+     * {@link #normalize}: o bruto é append-only e pode guardar um {@code source_ts_norm} de um parser antigo.
+     */
+    public static Instant toInstant(String stored, String tz) {
         if (UNVERIFIED.equals(tz)) throw new TzUnverifiedException("Fuso da fonte não verificado");
         ZoneId zone = zone(tz);
+        String norm = normalize(stored);
         try {
             if (norm.endsWith("Z") || norm.matches(".*[+-]\\d{2}:\\d{2}$")) {
                 return OffsetDateTime.parse(norm).toInstant();

@@ -26,6 +26,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class SensorServiceImpl implements SensorService {
+    /**
+     * sensor_data.timestamp é a hora local da fonte, sem fuso (CEMADEN e ANA verificadas em UTC-3, V13/V14). A
+     * conversão usa este fuso, nunca o da JVM: no container (UTC) a leitura saía 3 h mais velha.
+     */
+    static final java.time.ZoneId SOURCE_ZONE = java.time.ZoneId.of("America/Recife");
+
     private final SensorDataRepository sensorDataRepository;
     private final FloodPointRepository floodPointRepository;
     private final ObjectMapper objectMapper;
@@ -248,7 +254,7 @@ public class SensorServiceImpl implements SensorService {
                     : data.getWaterLevel() != null ? "RIVER_LEVEL" : data.getType();
             eventPublisher.publishEvent(new SensorReadingSavedEvent(new com.projeto.mapi.dto.SensorReadingEventDTO(
                     data.getSensorId(), type, value, data.getUnit(),
-                    data.getTimestamp().atZone(java.time.ZoneId.systemDefault()).toInstant())));
+                    data.getTimestamp().atZone(SOURCE_ZONE).toInstant())));
         } catch (Exception e) {
             log.warn("Falha ao publicar leitura no stream: {}", e.getMessage());
         }
@@ -277,7 +283,7 @@ public class SensorServiceImpl implements SensorService {
 
     private LocalDateTime parseTimestamp(String timestampStr) {
         if (timestampStr == null || timestampStr.isBlank()) {
-            return LocalDateTime.now();
+            return LocalDateTime.now(SOURCE_ZONE);
         }
         try {
             if (timestampStr.contains("T")) {
@@ -291,14 +297,14 @@ public class SensorServiceImpl implements SensorService {
             return LocalDateTime.parse(timestampStr, formatter);
         } catch (Exception e) {
             log.warn("Não foi possível processar o timestamp {}, usando hora atual", timestampStr);
-            return LocalDateTime.now();
+            return LocalDateTime.now(SOURCE_ZONE);
         }
     }
 
     @Override
     public List<SensorResponseDTO> getAllLatestData() {
         // Por padrão, retorna apenas dados das últimas 24 horas para evitar lixo histórico
-        return getAllLatestData(LocalDateTime.now().minusHours(24));
+        return getAllLatestData(LocalDateTime.now(SOURCE_ZONE).minusHours(24));
     }
 
     @Override
@@ -316,9 +322,13 @@ public class SensorServiceImpl implements SensorService {
             dto.setType("PRECIPITATION");
         } else if (dto.getWaterLevel() != null) {
             dto.setType("RIVER_LEVEL");
+            // Cota em cm (ANA Cota_Adotada/Nivel, APAC nivel_rio); a tela mostra metros. waterLevel segue em cm
+            // para as regras de alerta, que comparam com as cotas da APAC na mesma unidade.
+            dto.setValue(dto.getWaterLevel() / 100.0);
+            dto.setUnit("m");
         }
         java.time.Instant observed = dto.getTimestamp() == null ? null
-                : dto.getTimestamp().atZone(java.time.ZoneId.systemDefault()).toInstant();
+                : dto.getTimestamp().atZone(SOURCE_ZONE).toInstant();
         dto.setObservedAt(observed);
         if (observed != null) {
             long age = Math.max(0, java.time.Duration.between(observed, now).getSeconds());

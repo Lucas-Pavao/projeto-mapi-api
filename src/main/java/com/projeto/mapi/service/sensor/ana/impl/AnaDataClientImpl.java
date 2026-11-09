@@ -49,6 +49,8 @@ public class AnaDataClientImpl implements AnaDataClient {
     private static final String REFERER = "https://www.ana.gov.br/hidrowebservice/swagger-ui/index.html";
 
     private final RestClient restClient;
+    /** Lista de estações do Brasil inteiro (~4 MB de XML): cliente próprio, com timeout maior (ana-discovery). */
+    private final RestClient discoveryClient;
     private final AppProperties.Ana config;
     private final ObjectMapper objectMapper;
 
@@ -61,6 +63,7 @@ public class AnaDataClientImpl implements AnaDataClient {
 
     public AnaDataClientImpl(ExternalRestClientFactory http, AppProperties appProperties, ObjectMapper objectMapper) {
         this.restClient = http.builder("ana").build();
+        this.discoveryClient = http.builder("ana-discovery").build();
         this.config = appProperties.getAna();
         this.objectMapper = objectMapper;
     }
@@ -215,7 +218,7 @@ public class AnaDataClientImpl implements AnaDataClient {
                 .encode()
                 .toUri();
 
-        String xml = restClient.get().uri(uri).retrieve().body(String.class);
+        String xml = discoveryClient.get().uri(uri).retrieve().body(String.class);
         List<AnaStationDTO> descobertas = parseDiscoveryXml(xml);
 
         discoveredStationsCache = descobertas;

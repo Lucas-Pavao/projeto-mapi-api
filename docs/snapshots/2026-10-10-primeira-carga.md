@@ -128,3 +128,5 @@ Os `occurrence_ids` repetem 3 ids por causa dos recursos duplicados (77, 198, 31
 8. `codeVersion` aparece como "unknown" nos runs e no manifesto (a imagem não recebe a versão do código). Para auditoria, convém injetar o hash do commit no build.
 9. `mapi-ai` não foi construído nem iniciado nesta tarefa (o compose da worktree aponta o contexto `../projeto-mapi-ai`, que não existe ao lado da worktree); a API subiu com `--no-deps`. Predições da IA não foram exercitadas.
 10. Sem arquivo de ambiente: o admin local e a senha aleatória ficaram só no diretório temporário da sessão; para reusar o admin, é preciso recriar o contêiner com `ADMIN_BOOTSTRAP_*` definidos.
+
+> **Nota de 2026-11-08.** A cópia local do dump foi apagada para liberar disco, a pedido do Lucas, depois de conferir o SHA-256 contra o manifesto do Drive (`mapi-backup-2026-10-11.tar`, pasta "MAPI — backup"). Para restaurar ou reproduzir a F1 (`projeto-mapi-ai/avaliacao/reproduzir.sh` espera o arquivo em `MAPI/snapshots/`), baixe o tar do Drive e extraia o dump nesse caminho. O banco passou a se chamar `mapi_db` nesta data (ADR 0020).

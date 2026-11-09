@@ -101,6 +101,21 @@ class MapiServiceTest {
     }
 
     @Test
+    void nivelDoRioRegionalVaiEmMetros_eSemSensorDeNivelFicaNulo() {
+        when(weatherService.getWeatherData(anyDouble(), anyDouble())).thenReturn(mockWeather);
+        when(sensorService.getAllLatestData()).thenReturn(mockSensors);
+        // só pluviômetros perto: nada de nível, nulo (a previsão declara river_level imputado), não 0
+        assertNull(mapiService.getPreciseData(-8.055, -34.885).getPreciseData().getWaterLevel());
+
+        List<SensorResponseDTO> comRio = new java.util.ArrayList<>(mockSensors);
+        comRio.add(SensorResponseDTO.builder().sensorId("APAC-RIO-T").waterLevel(127.6).unit("mm")
+                .latitude(-8.061).longitude(-34.891).timestamp(LocalDateTime.now()).build());
+        when(sensorService.getAllLatestData()).thenReturn(comRio);
+        // cota em cm no sensor_data (127,6 cm), metros para o modelo
+        assertEquals(1.276, mapiService.getPreciseData(-8.055, -34.885).getPreciseData().getWaterLevel(), 1e-9);
+    }
+
+    @Test
     void shouldReturnWeatherServiceDataWhenNoSensorIsClose() {
         when(weatherService.getWeatherData(anyDouble(), anyDouble())).thenReturn(mockWeather);
         when(sensorService.getAllLatestData()).thenReturn(mockSensors);

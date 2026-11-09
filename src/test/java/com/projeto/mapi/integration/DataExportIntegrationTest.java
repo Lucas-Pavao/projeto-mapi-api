@@ -94,7 +94,7 @@ class DataExportIntegrationTest extends AbstractTimescaleIntegrationTest {
                     hora.minusSeconds(3600).toString(), run);
         }
         // chuva ANA (F2-DADOS-11): pluviômetro mais próximo, 4 leituras de 15 min (0,5 mm) na hora que termina em `hora`
-        jdbc.update("INSERT INTO station (source, station_id, name, lat, lon) VALUES ('ANA_SOAP', 'ANA-PERTO', 'perto', -8.10, -34.90),"
+        jdbc.update("INSERT INTO station (source, station_id, name, lat, lon) VALUES ('ANA_SOAP', 'ANA-PERTO', 'perto', -8.07, -34.89)," // ~2,5 km: dentro do raio de 5 km (ADR 0018)
                 + " ('ANA_SOAP', 'ANA-LONGE', 'longe', -7.50, -35.50)");
         for (String st : new String[] {"ANA-PERTO", "ANA-LONGE"}) {
             for (int k = 0; k < 4; k++) {

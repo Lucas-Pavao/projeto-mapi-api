@@ -125,7 +125,10 @@ public class IngestionRunRepository {
         }
     }
 
-    /** Um resumo por fonte (do source_registry e de qualquer fonte que já teve run). */
+    /**
+     * Um resumo por fonte (do source_registry e de qualquer fonte que já teve run). Fonte com coleta ao vivo é
+     * medida pelos runs LIVE: um REVALIDATE ou uma carga histórica não dizem que a coleta está em dia.
+     */
     public List<SourceRunSummary> sourceSummaries(Instant since24h) {
         return jdbc.query("""
                 SELECT sr.source,
@@ -134,10 +137,14 @@ public class IngestionRunRepository {
                        s.last_success_at,
                        COALESCE(a.rows24, 0) AS rows24
                 FROM (SELECT source FROM source_registry UNION SELECT DISTINCT source FROM ingestion_run) sr
-                LEFT JOIN LATERAL (SELECT * FROM ingestion_run x WHERE x.source = sr.source
+                LEFT JOIN LATERAL (SELECT bool_or(x.kind = 'LIVE') AS has_live FROM ingestion_run x
+                                   WHERE x.source = sr.source) k ON TRUE
+                LEFT JOIN LATERAL (SELECT * FROM ingestion_run x
+                                   WHERE x.source = sr.source AND (x.kind = 'LIVE' OR k.has_live IS NOT TRUE)
                                    ORDER BY x.started_at DESC LIMIT 1) l ON TRUE
                 LEFT JOIN LATERAL (SELECT max(x.finished_at) AS last_success_at FROM ingestion_run x
-                                   WHERE x.source = sr.source AND x.status IN ('OK', 'PARTIAL')) s ON TRUE
+                                   WHERE x.source = sr.source AND x.status IN ('OK', 'PARTIAL')
+                                     AND (x.kind = 'LIVE' OR k.has_live IS NOT TRUE)) s ON TRUE
                 LEFT JOIN LATERAL (SELECT sum(x.obs_inserted + x.obs_updated) AS rows24 FROM ingestion_run x
                                    WHERE x.source = sr.source AND x.started_at >= ?) a ON TRUE
                 ORDER BY sr.source

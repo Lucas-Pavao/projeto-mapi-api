@@ -569,10 +569,15 @@ public class MapiServiceImpl implements MapiService {
                 .mapToDouble(s -> s.getAccumulatedPrecipitation() != null ? s.getAccumulatedPrecipitation() : 0.0)
                 .max().orElse(0.0);
             
-            // Pega o MÁXIMO de nível de rio da região
-            double maxRiver = nearbySensors.stream()
-                .mapToDouble(s -> s.getWaterLevel() != null ? s.getWaterLevel() : 0.0)
-                .max().orElse(0.0);
+            // Pega o MÁXIMO de nível de rio da região, em metros. O sensor_data guarda a cota em cm (ANA
+            // Cota_Adotada/Nivel, APAC nivel_rio) e o modelo usa metros: 127 cm entrava como 127 m e o risco ia a
+            // ALTO. Sem sensor de nível fica nulo, para a previsão declarar river_level como imputado (ADR 0007).
+            Double maxRiver = nearbySensors.stream()
+                .map(SensorResponseDTO::getWaterLevel)
+                .filter(java.util.Objects::nonNull)
+                .max(Double::compare)
+                .map(cm -> cm / 100.0)
+                .orElse(null);
             
             // Pega o MÁXIMO de vazão da região
             double maxFlow = nearbySensors.stream()

@@ -56,6 +56,12 @@ public class IngestionProperties {
     /** Valores sentinela de "sem dado" reprovados como SENTINEL ([sem fonte]: convenção comum de agências). */
     private List<Double> sentinels = List.of(-9999.0, -999.0);
 
+    /**
+     * Raio máximo (m) do vínculo estação↔ponto da chuva medida (ADR 0018). Seleciona o {@code linkage_config}
+     * {@code SENSOR_POINT} com esse raio; fora dele o ponto usa a reanálise, declarada.
+     */
+    private double sensorLinkageRadiusM = 5000.0;
+
     /** Registros por lote/transação. */
     private int batchSize = 1000;
 
@@ -80,6 +86,15 @@ public class IngestionProperties {
 
     /** Base do serviço legado público da ANA (sem credencial): inventário e série telemétrica por estação. */
     private String anaLegacyUrl = "http://telemetriaws1.ana.gov.br/ServiceANA.asmx";
+
+    /** Histórico pluviométrico da APAC (formulário com exportação XLSX; REVISAO-INGESTAO-2026-11, seção 1). */
+    private String apacHistUrl = "http://dados.apac.pe.gov.br:41120/boletins/historico-pluviometrico/";
+
+    /** Pausa entre requisições à APAC histórica (ms): uma por vez, sem paralelismo. */
+    private long apacHistPauseMs = 3000;
+
+    /** Mesorregião consultada na APAC histórica. */
+    private String apacHistMesorregiao = "Metropolitana de Recife";
 
     /**
      * Estações telemétricas da ANA com pluviômetro na RMR/Zona da Mata (levantadas em 2026-10-10 no inventário

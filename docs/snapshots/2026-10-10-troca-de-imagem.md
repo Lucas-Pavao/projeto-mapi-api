@@ -28,3 +28,5 @@ refeito com os comandos explícitos. Volume antigo e dumps não foram afetados.
 ## Pendências
 - Remoção do volume antigo `projeto-mapi-api_postgres_data`: exige aprovação separada.
 - Testcontainers ainda usa `timescale/timescaledb:2.17.2-pg16`; precisa passar para a imagem `-ha` antes da migração V7 (PostGIS), senão a V7 falha nos testes.
+
+> **Nota de 2026-11-08.** A cópia local do dump foi apagada para liberar disco, a pedido do Lucas, depois de conferir o SHA-256 contra o manifesto do Drive (`mapi-backup-2026-10-11.tar`, pasta "MAPI — backup"). Para restaurar ou reproduzir a F1 (`projeto-mapi-ai/avaliacao/reproduzir.sh` espera o arquivo em `MAPI/snapshots/`), baixe o tar do Drive e extraia o dump nesse caminho. O banco passou a se chamar `mapi_db` nesta data (ADR 0020).

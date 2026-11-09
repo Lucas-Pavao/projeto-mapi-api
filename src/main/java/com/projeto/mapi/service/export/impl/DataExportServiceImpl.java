@@ -230,7 +230,9 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
     /** Pluviômetro ANA mais próximo do ponto (F2-DADOS-11), com chuva horária PT15M; sem estação = lista vazia. */
     private List<com.projeto.mapi.repository.ingestion.ObservationReadRepository.HourlyCell> anaCells(
             FloodPoint point, LocalDateTime start, LocalDateTime end) {
+        // ADR 0018: só dentro do raio máximo do vínculo; fora dele a coluna fica vazia (a reanálise já está no CSV)
         return observationRead.nearestStation(ANA_SOURCE, "precipitation", "PT15M", point.getLatitude(), point.getLongitude())
+                .filter(st -> st.distanceM() <= ingestionProps.getSensorLinkageRadiusM())
                 .map(st -> observationRead.hourly(ANA_SOURCE, st.stationId(),
                         start.toInstant(java.time.ZoneOffset.UTC), end.toInstant(java.time.ZoneOffset.UTC)))
                 .orElse(List.of());
@@ -309,7 +311,7 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
                 List.of("sensores (ANA, APAC, Cemaden): ainda lidos de sensor_data (legado, fuso não verificado)",
                         "maré: pipeline (TIDE_PE02_HOURLY a partir de TABUAMARE_PE02/DHN_TABUA_PE02), alturas em NR_DHN_pe02",
                         "rótulo legado isFlooded/severity: flood_events (obsoleto); rótulo novo: flood_occurrence",
-                        "ana_precipitation: soma de leituras de 15 min do pluviômetro ANA_SOAP mais próximo do ponto (a dezenas de km; não é chuva no ponto), rótulo = fim da hora UTC; hora com menos de 4 leituras, ou com leitura depois de lacuna, fica vazia (F2-DADOS-11)"),
+                        "ana_precipitation: soma de leituras de 15 min do pluviômetro ANA_SOAP mais próximo do ponto, só se estiver dentro do raio do ADR 0018 (mapi.ingestion.sensor-linkage-radius-m), rótulo = fim da hora UTC; hora com menos de 4 leituras, ou com leitura depois de lacuna, fica vazia (F2-DADOS-11)"),
                 List.of("isFlooded", "severity"), labelManifest(points, data, start, end),
                 new com.projeto.mapi.dto.ExportManifestDTO.TideManifest(
                         com.projeto.mapi.service.ingestion.adapter.tide.TideConstants.VERTICAL_REFERENCE,

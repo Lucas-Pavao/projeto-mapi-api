@@ -11,8 +11,8 @@ public interface IngestionAdminService {
     PageResponseDTO<IngestionRunView> listRuns(String source, String status, int page, int size);
 
     /**
-     * Status por fonte: IDLE (nunca rodou), FAILING (último run FAILED), QUARANTINED (último run só quarentenou),
-     * DELAYED (sem sucesso há mais de 2x o intervalo esperado) ou OK.
+     * Status por fonte, nesta ordem: IDLE (nunca rodou), FAILING (último run FAILED), DELAYED (sem sucesso há mais
+     * de 2x o intervalo esperado), QUARANTINED (último run só quarentenou) ou OK.
      */
     List<IngestionSourceStatusDTO> sources();
 }

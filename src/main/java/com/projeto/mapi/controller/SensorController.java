@@ -45,7 +45,11 @@ public class SensorController {
         if (type != null && !type.equals("PRECIPITATION") && !type.equals("RIVER_LEVEL")) {
             throw new com.projeto.mapi.exception.InvalidRequestException("type deve ser PRECIPITATION ou RIVER_LEVEL");
         }
-        return ResponseEntity.ok(sensorService.getLatestWithFreshness(type));
+        // Leitura sem chuva nem nível (ex.: ANA com Chuva_Adotada e Cota_Adotada nulas) não tem tipo: fica de fora
+        // do contrato, que só aceita PRECIPITATION ou RIVER_LEVEL.
+        return ResponseEntity.ok(sensorService.getLatestWithFreshness(type).stream()
+                .filter(s -> "PRECIPITATION".equals(s.getType()) || "RIVER_LEVEL".equals(s.getType()))
+                .toList());
     }
 
     @GetMapping("/{sensorId}/latest")
