@@ -78,6 +78,8 @@ services:
       - ANA_SENHA=${ANA_SENHA:-}
       - CEMADEN_PED_EMAIL=${CEMADEN_PED_EMAIL:-}
       - CEMADEN_PED_SENHA=${CEMADEN_PED_SENHA:-}
+      # false = baixar de novo da PED mesmo as janelas já gravadas (ADR 0021; docs/INGESTAO.md)
+      - MAPI_INGESTION_CEMADENPED_RESUME=${CEMADEN_PED_RESUME:-true}
       # Atributos de terreno por ponto (ADR 0008): POST /api/admin/terrain/runs lê ponto_terreno.csv,
       # ponto_terreno.meta.json e curva_cota_volume.csv deste diretório (saída de tools/terreno/run.sh).
       - MAPI_TERRAIN_DIR=/terreno

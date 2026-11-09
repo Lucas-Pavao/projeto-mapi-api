@@ -28,9 +28,9 @@ Opção B.
 **Ordem da recarga** (assíncrona, uma execução por vez, esperando `status` final; `docs/INGESTAO.md`):
 1. Migrations até a última V aprovada.
 2. Estações: inventário ANA e CEMADEN (e APAC histórica, se aprovada).
-3. Chuva: `OPEN_METEO_ARCHIVE`, `OPEN_METEO_ERA5LAND`, `ANA_SOAP`, CEMADEN histórico (com token), APAC histórica diária; blocos de 12 meses.
+3. Chuva: `OPEN_METEO_ARCHIVE`, `OPEN_METEO_ERA5LAND`, `ANA_SOAP`, Cemaden histórico (`CEMADEN_PED`, com token; ADR 0021), APAC histórica diária; blocos de 12 meses (a `CEMADEN_PED` vai num run só: o adaptador divide em janelas de 29 dias e retoma sozinho).
 4. Maré: `DHN_TABUA_PE02`, `TABUAMARE_PE02` (15 chamadas/60 s; blocos de 12 meses com pausa de 60 s), por último `TIDE_PE02_HOURLY`.
-5. Vínculo estação↔ponto (`linkage_config`, ADR 0018).
+5. Vínculo estação↔ponto (`linkage_config`, ADR 0018) e chuva do ponto: `POST /api/admin/chuva-ponto/rebuild` depois da `CEMADEN_PED` (ADR 0022).
 6. Rótulos: CKAN e fontes do ADR 0019; depois o casamento com os pontos.
 7. Terreno.
 
