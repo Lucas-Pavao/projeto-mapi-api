@@ -22,7 +22,7 @@
 
 ## 2. Endpoints por grupo
 
-Total: 52 operações em 51 caminhos (fonte: contagem em `openapi-integracao-fase2.json`). "Auth" segue a seção 1. "Novo" marca o que não existia no snapshot da Fase 1.
+Total: 52 operações em 51 caminhos (fonte: contagem em `openapi-integracao-fase2.json`). Em 2026-11-08 o código tem **78 operações em 72 caminhos** (fonte: contagem em `docs/openapi/openapi-2026-11-08.json`, gerado de `/v3/api-docs` no branch `fix/saude-sensores-dados`, perfil sem `dev`); 2 são os endpoints de eventos de chuva (2.8) e as outras 24 entraram depois do snapshot (redesign V16–V22 e correções). As tabelas 2.1–2.7 seguem o snapshot da Fase 2. "Auth" segue a seção 1. "Novo" marca o que não existia no snapshot da Fase 1.
 
 ### 2.1 Autenticação (`auth-controller`)
 
@@ -111,6 +111,15 @@ Total: 52 operações em 51 caminhos (fonte: contagem em `openapi-integracao-fas
 | GET | `/api/admin/ingestion/check-integrity` | Relatório de integridade (lacunas e contagens) | `DataHealthReportDTO[]` |
 | POST | `/api/admin/ingestion/align-events` | Desativado: responde 410 Gone | `ErrorMessage` |
 | DELETE | `/api/admin/ingestion/wipe-database` | Só no perfil `dev`; ausente deste snapshot | 204 |
+
+### 2.8 Análise — eventos de chuva (novo, ADR 0017)
+
+| Método | Caminho | Auth | O que faz | Resposta |
+|---|---|---|---|---|
+| GET | `/api/analise/eventos-chuva` | autenticado | Uma linha por evento de chuva por ponto (`slug` ou `all`, `from`, `to`, `source`, regras); `format=json\|csv` | `RainEventTableDTO` ou CSV; cabeçalho `X-Dataset-Id` |
+| GET | `/api/analise/eventos-chuva/resumo` | autenticado | Parâmetros agregados por ponto e tipo (FRACA, MEDIA, FORTE, TOTAL) | `RainEventSummaryTableDTO` ou CSV; cabeçalho `X-Dataset-Id` |
+
+Definição de evento, colunas, parâmetros e limitações: `docs/EVENTOS-DE-CHUVA.md`. O `X-Dataset-Id` é o SHA-256 do CSV e vem igual nos dois formatos; o manifesto (`manifest` no JSON) traz todas as regras usadas. A coluna `ckanOccurrenceSameDay` é só de validação. Sem token, 403 (padrão do projeto, PROGRESSO 2026-10-21).
 
 ## 3. Contratos que importam para a dissertação
 
