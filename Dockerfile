@@ -18,7 +18,10 @@ ARG GIT_BRANCH=unknown
 RUN printf 'git.commit.id=%s\ngit.commit.id.abbrev=%s\ngit.dirty=%s\ngit.branch=%s\ngit.build.time=%s\n' \
       "$GIT_COMMIT" "$(echo "$GIT_COMMIT" | cut -c1-7)" "$GIT_DIRTY" "$GIT_BRANCH" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
       > src/main/resources/git.properties
-RUN mvn package -DskipTests
+# Sem .git o git-commit-id-maven-plugin ainda gera um git.properties só com a data do build e SOBRESCREVE o de cima
+# (medido em 2026-11-09: codeVersion saía unknown-build-without-git mesmo com GIT_COMMIT). Aqui o commit já veio
+# pelo build-arg, então o plugin é pulado.
+RUN mvn package -DskipTests -Dmaven.gitcommitid.skip=true
 
 # Estágio 2: Ambiente de Execução leve
 FROM eclipse-temurin:21-jre-jammy
