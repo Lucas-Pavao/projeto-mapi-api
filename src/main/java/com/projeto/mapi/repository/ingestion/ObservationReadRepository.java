@@ -33,6 +33,13 @@ public class ObservationReadRepository {
     private final JdbcTemplate jdbc;
 
     /**
+     * Fontes só históricas, fora das consultas de chuva recente. O filtro por fonte (coluna de partição da view) é
+     * empurrado para baixo do lag da {@code observation_hourly_v}; o filtro por hora não é, e sem este corte cada
+     * chamada varria os 5 anos do Cemaden PED (medido em 2026-11-09: até 1,6 s por chamada durante a carga).
+     */
+    static final String HISTORICAL_ONLY_SQL = "'CEMADEN_PED'";
+
+    /**
      * Última hora FECHADA de chuva de cada estação: soma horária de {@code precipitation} (variable_catalog: PT1H, SUM)
      * da grade determinística sobre {@code observation_current} (só ACTIVE), com fim em ({@code notBeforeUtc},
      * {@code nowUtc}]. Hora incompleta (completude abaixo do mínimo) tem valor nulo e não entra.
@@ -43,9 +50,10 @@ public class ObservationReadRepository {
                 FROM observation_hourly_v h
                 LEFT JOIN station s ON s.source = h.source AND s.station_id = h.station_id
                 WHERE h.variable = 'precipitation' AND h.value IS NOT NULL
+                  AND h.source NOT IN (%s)
                   AND h.hour_end_utc <= ? AND h.hour_end_utc > ?
                 ORDER BY h.source, h.station_id, h.hour_end_utc DESC
-                """, (rs, i) -> new HourlyRainRow(rs.getString("source"), rs.getString("station_id"),
+                """.formatted(HISTORICAL_ONLY_SQL), (rs, i) -> new HourlyRainRow(rs.getString("source"), rs.getString("station_id"),
                 rs.getObject("hour_end_utc", OffsetDateTime.class).toInstant(), rs.getDouble("value"),
                 rs.getObject("lat", Double.class), rs.getObject("lon", Double.class)),
                 OffsetDateTime.ofInstant(nowUtc, java.time.ZoneOffset.UTC),
@@ -59,9 +67,10 @@ public class ObservationReadRepository {
                 FROM observation_hourly_v h
                 LEFT JOIN station s ON s.source = h.source AND s.station_id = h.station_id
                 WHERE h.variable = 'precipitation' AND h.value IS NOT NULL
+                  AND h.source NOT IN (%s)
                   AND h.hour_end_utc > ? AND h.hour_end_utc <= ?
                 ORDER BY h.station_id, h.source, h.hour_end_utc
-                """, (rs, i) -> new HourlyRainRow(rs.getString("source"), rs.getString("station_id"),
+                """.formatted(HISTORICAL_ONLY_SQL), (rs, i) -> new HourlyRainRow(rs.getString("source"), rs.getString("station_id"),
                 rs.getObject("hour_end_utc", OffsetDateTime.class).toInstant(), rs.getDouble("value"),
                 rs.getObject("lat", Double.class), rs.getObject("lon", Double.class)),
                 OffsetDateTime.ofInstant(fromUtc, java.time.ZoneOffset.UTC),
