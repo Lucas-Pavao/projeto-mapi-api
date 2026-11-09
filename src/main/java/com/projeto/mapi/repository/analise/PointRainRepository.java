@@ -55,7 +55,7 @@ public class PointRainRepository {
     /** Horas de chuva da estação com fim em (from, to]; uma consulta por estação (a view calcula o lag por série). */
     public List<HourRow> hourly(String source, String stationId, Instant from, Instant to) {
         return jdbc.query("""
-                SELECT hour_end_utc, value, n_readings, blocks_covered_min FROM observation_hourly_v
+                SELECT hour_end_utc, value, n_readings, CAST(blocks_covered_min AS double precision) FROM observation_hourly_v
                 WHERE source = ? AND station_id = ? AND variable = 'precipitation' AND hour_end_utc > ? AND hour_end_utc <= ?
                 ORDER BY hour_end_utc
                 """, (rs, i) -> new HourRow(rs.getObject(1, OffsetDateTime.class).toInstant(),
