@@ -21,13 +21,4 @@ class CemadenPedHttpClientTest {
         assertThat(CemadenPedHttpClient.expiryOf("lixo", NOW)).isEqualTo(NOW.plusSeconds(3600));
     }
 
-    @Test
-    void tokenRepetidoDentroDaMargemEhUsadoAteVencer() {
-        Instant exp = Instant.parse("2026-11-09T13:55:09Z");
-        // emitido às 13:51 com vencimento em 4 min: não pede de novo a cada requisição, só depois de vencer
-        assertThat(CemadenPedHttpClient.renewAtFor(exp, NOW)).isEqualTo(exp.plusSeconds(1));
-        // token novo, com 1 h de validade: renova 5 min antes
-        assertThat(CemadenPedHttpClient.renewAtFor(exp.plusSeconds(3600), NOW))
-                .isEqualTo(exp.plusSeconds(3600).minusSeconds(300));
-    }
 }

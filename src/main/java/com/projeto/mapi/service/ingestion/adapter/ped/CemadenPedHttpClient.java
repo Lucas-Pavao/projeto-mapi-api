@@ -27,8 +27,9 @@ import java.util.Map;
  * <ul>
  *   <li>limite de 12 requisições por minuto para usuário externo, com bloqueio de quem passa: uma requisição a cada
  *       {@code minIntervalMs} (6 s = 10 por minuto), contando também a emissão de token, sem rajada;</li>
- *   <li>token JWT com validade: renovado antes de vencer (claim {@code exp}) e, se a PED responder 401/403, renovado
- *       uma vez e a requisição repetida. Expiração é erro recuperável, nunca "zero registros";</li>
+ *   <li>token JWT: usado até a PED recusá-lo (401/403 renova uma vez e repete a requisição) e renovado por precaução a
+ *       cada {@link #TOKEN_REFRESH}. O {@code exp} declarado não é confiável (ver {@code ensureToken}). Expiração é
+ *       erro recuperável, nunca "zero registros";</li>
  *   <li>HTTP 202 com "Nenhum resultado foi encontrado" = sem dado no intervalo ({@link Response#noData()}).</li>
  * </ul>
  * Erro transitório (rede, 429, 5xx) tenta de novo com espera crescente; esgotadas as tentativas, falha visível.
@@ -41,8 +42,8 @@ public class CemadenPedHttpClient implements CemadenPedClient {
     static final String CLIENT = "cemaden-ped";
     static final String NO_RESULT = "Nenhum resultado foi encontrado";
     private static final DateTimeFormatter TS = DateTimeFormatter.ofPattern("yyyyMMddHHmm").withZone(ZoneOffset.UTC);
-    /** Renova o token quando faltar menos que isso para vencer. */
-    private static final Duration TOKEN_MARGIN = Duration.ofMinutes(5);
+    /** Renovação preventiva, pelo relógio local, independente do exp declarado. */
+    static final Duration TOKEN_REFRESH = Duration.ofMinutes(55);
 
     private final ExternalRestClientFactory http;
     private final IngestionProperties props;
@@ -114,7 +115,7 @@ public class CemadenPedHttpClient implements CemadenPedClient {
                 + url, last);
     }
 
-    /** Token vigente; emite outro se não houver ou se estiver perto de vencer. */
+    /** Token vigente; emite outro se não houver, se a PED recusou o anterior ou na renovação preventiva. */
     private String ensureToken() {
         if (token != null && clock.instant().isBefore(renewAt)) return token;
         if (cfg().getEmail() == null || cfg().getEmail().isBlank() || cfg().getPassword() == null
@@ -143,10 +144,11 @@ public class CemadenPedHttpClient implements CemadenPedClient {
             if (t == null || t.isBlank()) throw new SourceUnavailableException("PED: resposta de token sem campo token");
             token = t;
             tokenExpiresAt = expiryOf(t, clock.instant());
-            // A PED devolve o MESMO token enquanto ele vale (medido em 2026-11-09): dentro da margem, pedir de novo a
-            // cada requisição só gasta o limite de 10/min. Usa até vencer; um 401/403 força a renovação.
-            renewAt = renewAtFor(tokenExpiresAt, clock.instant());
-            log.info("PED: token emitido, vence em {}", tokenExpiresAt);
+            // O exp do JWT não é o que a PED confere (medido em 2026-11-09: o sgaa devolveu o mesmo token com exp
+            // vencido e a PED o aceitou). Renovar pelo exp fazia um pedido de token por requisição. A regra é: usar
+            // até a PED recusar (401/403 força a renovação) e renovar por precaução a cada TOKEN_REFRESH.
+            renewAt = clock.instant().plus(TOKEN_REFRESH);
+            log.info("PED: token emitido (exp declarado {}), renovação preventiva em {}", tokenExpiresAt, renewAt);
             return token;
         } catch (SourceUnavailableException e) {
             throw e;
@@ -164,12 +166,6 @@ public class CemadenPedHttpClient implements CemadenPedClient {
         TransientPedException(String msg, Throwable cause) {
             super(msg, cause);
         }
-    }
-
-    /** Renova na margem antes do vencimento; se já está dentro da margem, só depois de vencer. */
-    static Instant renewAtFor(Instant expiresAt, Instant now) {
-        Instant early = expiresAt.minus(TOKEN_MARGIN);
-        return now.isBefore(early) ? early : expiresAt.plusSeconds(1);
     }
 
     /** {@code exp} do JWT; sem ele, assume 1 h (renovação por 401/403 cobre o erro). */
