@@ -9,6 +9,8 @@ import com.projeto.mapi.repository.analise.PointRainRepository;
 import com.projeto.mapi.repository.analise.PointRainRepository.CheckRow;
 import com.projeto.mapi.repository.analise.PointRainRepository.LinkRow;
 import com.projeto.mapi.repository.analise.PointRainRepository.PointHourRow;
+import com.projeto.mapi.repository.ingestion.ObservationReadRepository.HourlyRainRow;
+import com.projeto.mapi.service.sensor.RainSpatialCheck;
 import com.projeto.mapi.service.analise.PointRainComposer;
 import com.projeto.mapi.service.analise.PointRainService;
 import com.projeto.mapi.service.analise.StationMonthChecker;
@@ -83,6 +85,38 @@ public class PointRainServiceImpl implements PointRainService {
             series.add(new Series(st, mm, n, cov, first, last));
         }
 
+        // 1b. pico isolado hora a hora (mesma regra da chuva ao vivo, RainSpatialCheck): a hora sai da série antes
+        //     da checagem mensal e da seleção do máximo; fica registrada nos metrics do mês da estação.
+        Map<String, List<Map<String, Object>>> peaksByStationMonth = new HashMap<>();
+        int isolatedPeaks = 0;
+        for (int i = 0; i < hours; i++) {
+            Instant hourEnd = from.plus(HOUR.multipliedBy(i + 1L));
+            List<HourlyRainRow> rowsAtHour = new ArrayList<>();
+            boolean anySuspect = false;
+            for (Series s : series) {
+                if (Double.isNaN(s.mm()[i])) continue;
+                rowsAtHour.add(new HourlyRainRow(SOURCE, s.st().stationId(), hourEnd, s.mm()[i], s.st().lat(),
+                        s.st().lon()));
+                anySuspect |= s.mm()[i] >= RainSpatialCheck.SUSPECT_MM;
+            }
+            if (!anySuspect) continue;
+            for (int j = 0; j < series.size(); j++) {
+                Series s = series.get(j);
+                if (Double.isNaN(s.mm()[i]) || s.mm()[i] < RainSpatialCheck.SUSPECT_MM) continue;
+                HourlyRainRow r = rowsAtHour.stream().filter(x -> x.stationId().equals(s.st().stationId())).findFirst()
+                        .orElseThrow();
+                if (!RainSpatialCheck.isIsolatedPeak(r, rowsAtHour)) continue;
+                Map<String, Object> peak = new LinkedHashMap<>();
+                peak.put("hourEndUtc", hourEnd.toString());
+                peak.put("mm", round(s.mm()[i], 2));
+                String key = s.st().stationId() + "|" + YearMonth.from(hourEnd.minusNanos(1).atZone(ZoneOffset.UTC));
+                peaksByStationMonth.computeIfAbsent(key, k -> new ArrayList<>()).add(peak);
+                s.mm()[i] = Double.NaN;
+                s.cov()[i] = Double.NaN;
+                isolatedPeaks++;
+            }
+        }
+
         // 2. checagem por mês UTC
         List<Instant> monthStarts = new ArrayList<>();
         for (YearMonth m = YearMonth.from(from.atZone(ZoneOffset.UTC)); m.atDay(1).atStartOfDay().toInstant(ZoneOffset.UTC)
@@ -112,6 +146,8 @@ public class PointRainServiceImpl implements PointRainService {
                 metrics.put("hourCoverage", r.hourCoverage());
                 metrics.put("blockCoverage", r.blockCoverage());
                 metrics.put("blockCoverageInHours", r.blockCoverageInHours());
+                metrics.put("isolatedPeaksRemoved", peaksByStationMonth.getOrDefault(
+                        r.stationId() + "|" + YearMonth.from(ms.atZone(ZoneOffset.UTC)), List.of()));
                 metrics.put("neighborsUsed", r.neighborsUsed());
                 metrics.put("rules", rules.asMap());
                 checks.add(new CheckRow(SOURCE, r.stationId(), ms, r.status(), r.reasons(), r.hoursInMonth(),
@@ -162,13 +198,16 @@ public class PointRainServiceImpl implements PointRainService {
         }
         repo.replacePointHours(RULE_VERSION, from, to, rows);
         repo.replaceLinks(linkageId, links);
-        log.info("chuva-ponto: {} estações, {} meses, {} checagens {}, {} horas-ponto", series.size(),
-                monthStarts.size(), checks.size(), byStatus, rows.size());
+        log.info("chuva-ponto: {} estações, {} meses, {} checagens {}, {} horas-ponto, {} picos isolados fora",
+                series.size(), monthStarts.size(), checks.size(), byStatus, rows.size(), isolatedPeaks);
+        reasons.put("ISOLATED_PEAK_HOURS", isolatedPeaks);
         return new PointRainRebuildDTO(from, to, series.size(), monthStarts.size(), checks.size(), byStatus, reasons,
                 rows.size(), coverage, linkageId, rules.asMap(), List.of(
                 "Mês = mês civil UTC; a checagem compara a estação com as vizinhas nas horas em que as duas têm valor.",
                 "Valor da hora do ponto = maior valor entre as estações aprovadas (PASS ou UNCHECKED) no mês, dentro "
-                        + "do raio; sem nenhuma com valor, lacuna."));
+                        + "do raio; sem nenhuma com valor, lacuna.",
+                "Antes de tudo, a hora de estação com pico isolado (RainSpatialCheck: >= 10 mm com >= 2 vizinhas a até "
+                        + "6 km abaixo de 1 mm) sai da série; failReasons.ISOLATED_PEAK_HOURS conta horas, não meses."));
     }
 
     private static int monthIndex(List<Instant> starts, Instant t) {
