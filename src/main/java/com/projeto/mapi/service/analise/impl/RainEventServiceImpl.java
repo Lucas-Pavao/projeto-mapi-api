@@ -12,6 +12,7 @@ import com.projeto.mapi.exception.InvalidRequestException;
 import com.projeto.mapi.exception.ResourceNotFoundException;
 import com.projeto.mapi.model.FloodPoint;
 import com.projeto.mapi.repository.FloodPointRepository;
+import com.projeto.mapi.repository.analise.PointRainRepository;
 import com.projeto.mapi.repository.analise.RainEventReadRepository;
 import com.projeto.mapi.repository.analise.RainEventReadRepository.HourRow;
 import com.projeto.mapi.repository.ingestion.ObservationReadRepository;
@@ -24,6 +25,7 @@ import com.projeto.mapi.service.analise.RainEventDetector.DetectedEvent;
 import com.projeto.mapi.service.analise.RainEventDetector.HourSample;
 import com.projeto.mapi.service.analise.RainEventParams;
 import com.projeto.mapi.service.analise.RainEventService;
+import com.projeto.mapi.service.analise.PointRainService;
 import com.projeto.mapi.service.analise.RainEventSummarizer;
 import com.projeto.mapi.service.export.TideFeatureCalculator;
 import com.projeto.mapi.service.ingestion.Hashing;
@@ -101,6 +103,9 @@ public class RainEventServiceImpl implements RainEventService {
                     + "do evento; nulo sem linkage_config.",
             "Vínculo (ADR 0018): pluviômetro mais próximo dentro de sensorLinkageRadiusM (linkage_config SENSOR_POINT); "
                     + "fora do raio a linha usa a reanálise e rainOrigin = REANALYSIS_FALLBACK; source é a fonte efetiva.",
+            "CEMADEN_PED (ADR 0022): série do ponto em point_rain_hourly = maior valor horário entre as estações "
+                    + "aprovadas na checagem espacial do mês dentro de sensorLinkageRadiusM; stationId e "
+                    + "stationDistanceM do evento = estação que forneceu a hora de pico; rainOrigin = MEASURED_MAX_VALID.",
             "eventId = 16 primeiros hex do SHA-256 de slug|startUtc|fonte efetiva|regras|raio do vínculo.");
 
     private final FloodPointRepository floodPointRepository;
@@ -110,6 +115,7 @@ public class RainEventServiceImpl implements RainEventService {
     private final TerrainRepository terrainRepository;
     private final ExportLabelProperties labelProps;
     private final IngestionProperties ingestionProps;
+    private final PointRainRepository pointRain;
 
     /** Resultado intermediário de uma extração (eventos + o que o manifesto e o resumo precisam). */
     private record Extraction(List<String> slugs, List<RainEventDTO> events,
@@ -148,7 +154,9 @@ public class RainEventServiceImpl implements RainEventService {
 
         var tz = repo.sourceTz(p.source().pipelineSource);
         double radiusM = ingestionProps.getSensorLinkageRadiusM();
-        Long sensorLinkageId = repo.sensorLinkage(radiusM).map(RainEventReadRepository.SensorLinkage::id).orElse(null);
+        Long sensorLinkageId = p.source().composite()
+                ? pointRain.linkageId(PointRainService.LINKAGE_METHOD, radiusM).orElse(null)
+                : repo.sensorLinkage(radiusM).map(RainEventReadRepository.SensorLinkage::id).orElse(null);
         Map<String, Set<UUID>> runs = new TreeMap<>();
         Map<String, Integer> revisions = new TreeMap<>();
 
@@ -186,7 +194,17 @@ public class RainEventServiceImpl implements RainEventService {
             RainStation st = station.get();
             String stationId = st.id();
 
-            List<HourRow> rainRows = repo.hourly(st.source(), stationId, "precipitation", seriesFirst, seriesLast);
+            Map<Instant, PointRainRepository.StoredHour> composite = new HashMap<>();
+            List<HourRow> rainRows;
+            if (p.source().composite()) {
+                rainRows = new ArrayList<>();
+                for (var h : pointRain.pointHours(pt.getId(), PointRainService.RULE_VERSION, seriesFirst, seriesLast)) {
+                    composite.put(h.hourEndUtc(), h);
+                    rainRows.add(new HourRow(h.hourEndUtc(), h.value(), h.value() == null ? 0 : 1, 1, List.of(), 0));
+                }
+            } else {
+                rainRows = repo.hourly(st.source(), stationId, "precipitation", seriesFirst, seriesLast);
+            }
             List<HourSample> series = grid(rainRows, seriesFirst, seriesLast, st.readingsPerHour());
             coverage.put(slug, coverageOf(series, windowFirstHourEnd, windowLastHourEnd));
             for (HourRow r : rainRows) {
@@ -219,7 +237,8 @@ public class RainEventServiceImpl implements RainEventService {
             for (int k = 0; k < series.size(); k++) hourIndex.put(series.get(k).hourEnd(), k);
 
             for (DetectedEvent e : detected) {
-                events.add(row(p, slug, st, radiusM, river.orElse(null), alert, e, series,
+                events.add(row(p, slug, p.source().composite() ? peakStation(st, e, composite) : st, radiusM,
+                        river.orElse(null), alert, e, series,
                         hourIndex, sub, tide, tideIndex, soil, riverLevel, terrain.orElse(null), occs));
                 // proveniência do contexto usado pelo evento
                 for (Instant h = e.startUtc(); !h.isAfter(e.endUtc()); h = h.plus(HOUR)) {
@@ -248,6 +267,10 @@ public class RainEventServiceImpl implements RainEventService {
 
     private Optional<RainStation> rainStation(RainEventParams p, FloodPoint pt, double radiusM) {
         if (!p.source().measured()) return Optional.of(reanalysis(pt, "REANALYSIS"));
+        if (p.source().composite()) {
+            return Optional.of(new RainStation(p.source().pipelineSource, null, null, "MEASURED_MAX_VALID", 1, false,
+                    p.source().resolution));
+        }
         var src = p.source();
         var near = repo.nearestStation(src.pipelineSource, "precipitation", src.resolution, pt.getLatitude(),
                 pt.getLongitude());
@@ -256,6 +279,19 @@ public class RainEventServiceImpl implements RainEventService {
                     round(near.get().distanceM(), 1), "MEASURED", src.readingsPerHour, src.subHourly(), src.resolution));
         }
         return Optional.of(reanalysis(pt, "REANALYSIS_FALLBACK"));
+    }
+
+    /** Estação e distância da hora de maior chuva do evento na série composta (empate: a primeira hora). */
+    static RainStation peakStation(RainStation st, DetectedEvent e, Map<Instant, PointRainRepository.StoredHour> hours) {
+        PointRainRepository.StoredHour best = null;
+        for (Instant h = e.startUtc().plus(HOUR); !h.isAfter(e.endUtc()); h = h.plus(HOUR)) {
+            var r = hours.get(h);
+            if (r == null || r.value() == null) continue;
+            if (best == null || r.value() > best.value()) best = r;
+        }
+        if (best == null) return st;
+        return new RainStation(st.source(), best.stationId(), best.stationDistanceM(), st.origin(),
+                st.readingsPerHour(), st.subHourly(), st.resolution());
     }
 
     private RainStation reanalysis(FloodPoint pt, String origin) {
@@ -462,6 +498,10 @@ public class RainEventServiceImpl implements RainEventService {
                 "ANA (ANA_SOAP): pluviômetro mais próximo dentro do raio do ADR 0018; hora com menos de 4 leituras de 15 min "
                         + "é lacuna. As estações ANA da RMR ficam a 11 km ou mais dos pontos: fora do raio de 5 km.",
                 "CEMADEN: soma dos blocos de 10/60 min com fim na hora (V22); max15minMmH vazio.",
+                "CEMADEN_PED: série do ponto (ADR 0022), maior valor entre estações aprovadas no mês a até 5 km; a "
+                        + "seleção do máximo tende a elevar o pico e a contagem de eventos fortes em relação a uma só "
+                        + "estação. Bloco depois de lacuna > 60 min fica na quarentena (ADR 0021). max15minMmH vazio. "
+                        + "DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC.",
                 "OPEN_METEO_ARCHIVE: reanálise em grade (ERA5 via Open-Meteo), chuva horária suavizada no espaço e no "
                         + "tempo; o pico e a contagem de eventos fortes ficam abaixo do pluviômetro. max15minMmH vazio.",
                 "Maré prevista (tábua), não medida; alturas em NR DHN, não comparáveis à cota do MDT (ADR 0009). Sem "

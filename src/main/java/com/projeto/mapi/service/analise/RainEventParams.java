@@ -31,7 +31,12 @@ public record RainEventParams(String slug, Instant from, Instant to, RainSource 
         ANA("ANA_SOAP", "PT15M", 4),
         /** Blocos de 10/60 min somados na hora (V22); a view declara 1 leitura esperada por hora. */
         CEMADEN("CEMADEN", "EVENT", 1),
-        OPEN_METEO_ARCHIVE("OPEN_METEO_ARCHIVE", "PT1H", 1);
+        OPEN_METEO_ARCHIVE("OPEN_METEO_ARCHIVE", "PT1H", 1),
+        /**
+         * Cemaden pela PED (ADR 0021), série do PONTO (ADR 0022): maior valor horário entre as estações aprovadas na
+         * checagem espacial do mês, dentro do raio; lida de point_rain_hourly.
+         */
+        CEMADEN_PED("CEMADEN_PED", "EVENT", 1);
 
         public final String pipelineSource;
         public final String resolution;
@@ -44,6 +49,9 @@ public record RainEventParams(String slug, Instant from, Instant to, RainSource 
         }
 
         public boolean subHourly() { return readingsPerHour > 1; }
+
+        /** Série composta por ponto (várias estações), não a de uma estação. */
+        public boolean composite() { return this == CEMADEN_PED; }
 
         /** Pluviômetro (sujeito ao raio do ADR 0018) ou reanálise. */
         public boolean measured() { return this != OPEN_METEO_ARCHIVE; }

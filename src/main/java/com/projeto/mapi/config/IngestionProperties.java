@@ -103,4 +103,46 @@ public class IngestionProperties {
      * Somam-se a elas os códigos numéricos de 8 dígitos dos pluviômetros ligados aos pontos críticos.
      */
     private List<String> anaHistoricalStations = List.of("39187800", "39370100", "39167000", "39084000");
+
+    /** Cemaden pela Plataforma de Entrega de Dados (ADR 0021). Prefixo {@code mapi.ingestion.cemaden-ped}. */
+    private CemadenPed cemadenPed = new CemadenPed();
+
+    @Data
+    public static class CemadenPed {
+        /** Base dos webservices da PED (swagger em https://sws.cemaden.gov.br/PED/api/ui/). */
+        private String baseUrl = "https://sws.cemaden.gov.br/PED/rest";
+        /** Emissão do token JWT (fora do swagger da PED; verificado em 2026-11-09). */
+        private String tokenUrl = "https://sgaa.cemaden.gov.br/SGAA/rest/controle-token/tokens";
+        /** Credenciais da conta na PED; vêm do ambiente ({@code CEMADEN_PED_EMAIL}, {@code CEMADEN_PED_SENHA}). */
+        private String email;
+        private String password;
+        /**
+         * Municípios (IBGE) cujo cadastro é lido: Recife, Jaboatão dos Guararapes, Olinda e Camaragibe, os quatro com
+         * estação a até 10 km de algum ponto crítico (levantamento de 2026-11-09, docs/extratos/cemaden-ped.md).
+         */
+        private List<String> ibgeCodes = List.of("2611606", "2607901", "2609600", "2603454");
+        /**
+         * Estações baixadas: as que ficam a até este raio (m) de algum ponto ativo. Maior que o raio do vínculo (5 km)
+         * para que a checagem espacial tenha vizinhos dos dois lados ({@code [sem fonte]}, ADR 0022).
+         */
+        private double stationSelectionRadiusM = 10000.0;
+        /** Janela por requisição; a {@code dados_pcd} aceita no máximo 30 dias. */
+        private int windowDays = 29;
+        /**
+         * Quanto antes do início da janela a requisição começa, para conhecer a leitura anterior à primeira da janela.
+         * Maior que o bloco máximo (60 min): sem leitura anterior nesse intervalo, o bloco é de duração > 60 min.
+         */
+        private int lookbackMinutes = 70;
+        /** Pula as janelas já gravadas em {@code ped_fetch_window} (carga retomável). */
+        private boolean resume = true;
+        /**
+         * Intervalo mínimo entre requisições. A PED limita usuário externo a 12 por minuto e bloqueia quem passa;
+         * 6 s = 10 por minuto, com folga, e sem rajada na virada do minuto.
+         */
+        private long minIntervalMs = 6000;
+        /** Tentativas para erro transitório (rede, 429, 5xx) antes de falhar o run (que pode ser retomado). */
+        private int maxAttempts = 4;
+        /** Espera base entre tentativas (dobra a cada uma). */
+        private long retryBackoffMs = 30000;
+    }
 }

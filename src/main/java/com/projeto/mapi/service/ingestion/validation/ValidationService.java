@@ -21,10 +21,23 @@ public class ValidationService {
 
     private static final Set<String> RESOLUTIONS = Set.of("PT5M", "PT10M", "PT15M", "PT1H", "P1D", "EVENT");
 
+    /**
+     * Bloco mais longo aceito numa leitura por bloco com duração conhecida (ADR 0021): 60 min, o bloco seco do Cemaden.
+     * Leitura cujo bloco passa disso veio depois de uma lacuna; a chuva dela pode ter caído em qualquer ponto do
+     * intervalo, então vai para a quarentena (GAP / AFTER_GAP), não para a série.
+     */
+    public static final Duration DEFAULT_MAX_BLOCK = Duration.ofMinutes(60);
+
     private final List<Double> sentinels;
+    private final Duration maxBlock;
 
     public ValidationService(List<Double> sentinels) {
+        this(sentinels, DEFAULT_MAX_BLOCK);
+    }
+
+    public ValidationService(List<Double> sentinels, Duration maxBlock) {
         this.sentinels = List.copyOf(sentinels);
+        this.maxBlock = maxBlock;
     }
 
     /**
@@ -89,6 +102,15 @@ public class ValidationService {
                 if ("P1D".equals(d.resolution())) {
                     start = base;
                     ts = TimestampNormalizer.endOfLocalDay(raw.sourceTsNorm(), tz.tz());
+                } else if ("EVENT".equals(d.resolution()) && d.window() != null) {
+                    if (d.window().isNegative() || d.window().isZero() || d.window().compareTo(maxBlock) > 0) {
+                        rejections.add(new Rejection("GAP", "AFTER_GAP", detail("variable", d.variable(),
+                                "windowMin", d.window().toMinutes(), "maxBlockMin", maxBlock.toMinutes(),
+                                "value", converted)));
+                        continue;
+                    }
+                    ts = base;
+                    start = base.minus(d.window());
                 } else if ("EVENT".equals(d.resolution()) || "INSTANT".equals(rule.intervalConvention())) {
                     ts = base;
                     start = base;
@@ -100,7 +122,9 @@ public class ValidationService {
                 rejections.add(new Rejection("TS", "TS_UNPARSEABLE", detail("sourceTsText", raw.sourceTsText())));
                 continue;
             }
-            String hash = Hashing.sha256(Double.toString(converted) + "|" + rule.canonicalUnit() + "|" + d.qualifier());
+            // a janela do bloco entra no hash só quando existe: o hash das fontes antigas não muda
+            String hash = Hashing.sha256(Double.toString(converted) + "|" + rule.canonicalUnit() + "|" + d.qualifier()
+                    + (d.window() == null ? "" : "|w=" + d.window()));
             valid.add(new ValidObservation(d.variable(), d.resolution(), ts, start, converted,
                     rule.canonicalUnit(), d.qualifier(), hash));
         }

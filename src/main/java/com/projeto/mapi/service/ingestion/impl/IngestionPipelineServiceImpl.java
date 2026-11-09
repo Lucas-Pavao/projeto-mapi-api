@@ -265,6 +265,7 @@ public class IngestionPipelineServiceImpl implements IngestionPipelineService {
         raws.insertAll(runId, now, inserts);
         st.counters.addRawInserted(inserts.size());
         process(runId, adapter, items, now, st.counters);
+        if (batch.inTransaction() != null) batch.inTransaction().run();
     }
 
     private void revalidate(UUID runId, SourceAdapter adapter, IngestionRequest req, RunState st) {

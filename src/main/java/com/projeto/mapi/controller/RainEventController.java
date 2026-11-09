@@ -59,7 +59,7 @@ public class RainEventController {
             @Parameter(description = "Slug do ponto crítico ou 'all'", required = true) @RequestParam String slug,
             @Parameter(description = "Início da janela, instante UTC", required = true) @RequestParam Instant from,
             @Parameter(description = "Fim da janela, instante UTC", required = true) @RequestParam Instant to,
-            @Parameter(description = "ANA ou OPEN_METEO_ARCHIVE") @RequestParam(defaultValue = "ANA") String source,
+            @Parameter(description = "ANA, CEMADEN, CEMADEN_PED (série do ponto, ADR 0022) ou OPEN_METEO_ARCHIVE") @RequestParam(defaultValue = "ANA") String source,
             @RequestParam(defaultValue = "" + RainEventParams.DEFAULT_DRY_GAP_HOURS) int dryGapHours,
             @RequestParam(defaultValue = "" + RainEventParams.DEFAULT_MIN_EVENT_MM) double minEventMm,
             @Parameter(description = "IDF ou METEOROLOGICA") @RequestParam(defaultValue = "IDF") String classification,
