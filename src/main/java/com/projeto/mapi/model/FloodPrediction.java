@@ -94,6 +94,18 @@ public class FloodPrediction {
     @Column(name = "issued_at")
     private Instant issuedAt;
 
-    public record Contributor(String featureId, Double contribution) {
+    /** Proveniência do modelo (V26, Etapa 8 do IN1165); NULL em linhas anteriores. */
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "model_info", columnDefinition = "jsonb")
+    private ModelInfo modelInfo;
+
+    /** {@code value}/{@code unit} só a partir do modelo v2 (SHAP em unidade física); nulos em linhas antigas. */
+    public record Contributor(String featureId, Double contribution, Double value, String unit) {
+    }
+
+    public record ModelInfo(String rainSource, String trainingData, String syntheticWarning, Thresholds riskThresholds) {
+    }
+
+    public record Thresholds(Double medium, Double high, String source) {
     }
 }

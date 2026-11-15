@@ -137,3 +137,21 @@ este ADR, não por código.
   experimental — modelo não validado" junto da classe, e a legenda explica o significado.
 - Compatibilidade: campo novo e opcional; o front tolera a ausência (trata como `NOT_VALIDATED`).
 - Decisor: Arquiteto, pela autorização durável do Lucas.
+
+## Emenda 2 (2026-11-15) — limiares, fonte da chuva e aviso de dado sintético (IN1165, Etapa 8)
+
+- Contexto: o modelo `xgb_v2` (projeto-mapi-ai, `docs/handoff/etapas1a7.json`) foi treinado com rótulo **sintético**
+  (0 ocorrências de alagamento a 500 m dos pontos e nenhuma com hora). Os limiares LOW/MEDIUM/HIGH passaram a ser
+  escolhidos na validação e gravados em `models/metadata.json` da IA (MEDIUM 0,0159 e HIGH 0,2441).
+- Decisão, só por adição:
+  - a IA envia `thresholds {medium, high, source}`, `rain_source`, `training_data`, `synthetic_warning` e
+    `top_contributors[].value/unit`;
+  - o backend repassa como `riskThresholds`, `rainSource`, `trainingData`, `syntheticWarning` e
+    `contributors[].value/unit`, e grava tudo em `flood_predictions.model_info` (V26), para as leituras (GET, série,
+    SSE) devolverem a mesma etiqueta;
+  - `trainingData = SYNTHETIC` sem texto da IA recebe um aviso padrão do backend: risco sintético nunca circula sem
+    etiqueta.
+- Limiar num lugar só: o metadata da IA. O backend e o front não têm corte próprio; o `app.py` da IA mantém 0,5/0,8
+  apenas para o artefato legado, sem metadata.
+- Compatibilidade: todos os campos são opcionais; previsões antigas voltam com eles nulos.
+- Decisor: Claude, pela autonomia da revisão (registrado no PROGRESSO).

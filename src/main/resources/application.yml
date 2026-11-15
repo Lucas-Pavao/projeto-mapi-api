@@ -2,7 +2,7 @@ spring:
   application:
     name: projeto-mapi-api
   datasource:
-    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/tide_db}
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/mapi_db}
     username: ${POSTGRES_USER:mapi_user}
     password: ${POSTGRES_PASSWORD:mapi123}
     driver-class-name: org.postgresql.Driver
@@ -73,10 +73,17 @@ app:
       # Histórico APAC/ANA baixa tabelas HTML de períodos longos: respostas maiores e mais lentas.
       apac-historical:
         read-timeout: 30s
+      # PED do Cemaden: até 30 dias de uma estação (sensor 10) por resposta, ~10 a 130 kB.
+      cemaden-ped:
+        read-timeout: 120s
       # Autenticação da ANA chegou a levar ~30s quando funcionava (ver AnaDataClientImpl.ensureToken);
       # 30s evita contar como falha um login lento porém válido.
       ana:
         read-timeout: 30s
+      # ListaEstacoesTelemetricas devolve ~4 MB de XML. Pela rota IPv4 a ANA entregou a ~70 kB/s (~50 s) em
+      # 2026-10-21, e o container só tem IPv4; com 30 s a descoberta falhava em todo ciclo. Roda 1 vez a cada 24 h.
+      ana-discovery:
+        read-timeout: 120s
       # Série de 15 min de um mês inteiro (~1 MB de XML) pelo serviço legado (F2-DADOS-07).
       ana-historical:
         read-timeout: 120s
@@ -256,3 +263,10 @@ management:
       # responder "como se comportam os casos extremos".
       percentiles-histogram:
         http.server.requests: true
+
+mapi:
+  ingestion:
+    # Cemaden PED (ADR 0021): credenciais só pelo ambiente, nunca versionadas (como ANA_IDENTIFICADOR/ANA_SENHA).
+    cemaden-ped:
+      email: ${CEMADEN_PED_EMAIL:}
+      password: ${CEMADEN_PED_SENHA:}

@@ -30,7 +30,8 @@ class IngestionAdminServiceImplTest {
                 new SourceRunSummary("CKAN_RECIFE", null, null, null, null, null, null, 0),
                 run("ANA_SOAP", "FAILED", 0, 0, NOW.minusSeconds(60)),
                 run("CEMADEN", "OK", 100, 0, NOW.minusSeconds(120)),
-                run("APAC_METEO24H", "OK", 5, 0, NOW.minusSeconds(3 * 3600)),
+                // run de 3 h atrás que quarentenou tudo: o atraso da coleta vem antes da quarentena
+                run("APAC_METEO24H", "OK", 0, 5, NOW.minusSeconds(3 * 3600)),
                 run("TABUA_MARE", "OK", 0, 12, NOW.minusSeconds(3600)),
                 run("OPEN_METEO_ARCHIVE", "OK", 50, 0, NOW.minusSeconds(86400 * 30L)));
         // Subclasse em vez de mock: a classe é concreta e o Mockito inline não suporta o JDK do ambiente.

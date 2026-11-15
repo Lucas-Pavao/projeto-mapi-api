@@ -28,6 +28,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /** Grupo 6: /api/events/timeline e /api/admin/ingestion/runs|sources. */
 class TimelineAndIngestionAdminIntegrationTest extends AbstractApiIntegrationTest {
 
+    /** sensor_data e flood_events guardam a hora local de Recife, como as fontes gravam. */
+    private static final ZoneId RECIFE = ZoneId.of("America/Recife");
+
+
     @Autowired FloodPointRepository pointRepository;
     @Autowired FloodEventRepository eventRepository;
     @Autowired FloodPredictionRepository predictionRepository;
@@ -45,14 +49,14 @@ class TimelineAndIngestionAdminIntegrationTest extends AbstractApiIntegrationTes
         pointRepository.deleteAll();
         FloodPoint p = pointRepository.save(FloodPoint.builder().slug("p-tl").name("Ponto TL").latitude(-8.05).longitude(-34.88)
                 .pluviometerStationIds(Set.of("APAC-PLUVIO-261160-PLUV-TL")).riverLevelStationIds(Set.of("RIO-TL")).build());
-        base = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS).minusHours(2);
+        base = LocalDateTime.now(RECIFE).truncatedTo(ChronoUnit.HOURS).minusHours(2);
         // chuva: duas leituras no mesmo balde de 10 min (vale o máximo) e uma em outro balde
         // chuva: somas horárias de observation.precipitation, servidas como vêm (decisão 45)
         // O contêiner é compartilhado: chuva perto de agora gravada por outro teste entraria na contagem de séries.
         jdbc.update("DELETE FROM observation WHERE variable = 'precipitation'");
         ObservationFixtures.clear(jdbc, "TST_TL");
         java.util.UUID run = ObservationFixtures.run(jdbc, "TST_TL");
-        Instant h = base.atZone(ZoneId.systemDefault()).toInstant().truncatedTo(ChronoUnit.HOURS);
+        Instant h = base.atZone(RECIFE).toInstant().truncatedTo(ChronoUnit.HOURS);
         ObservationFixtures.precipitation(jdbc, run, "TST_TL", "261160-PLUV-TL", h.plus(1, ChronoUnit.HOURS), 5.0);
         ObservationFixtures.precipitation(jdbc, run, "TST_TL", "261160-PLUV-TL", h.plus(2, ChronoUnit.HOURS), 1.5);
         ObservationFixtures.precipitation(jdbc, run, "TST_TL", "PLUV-OUTRO", h.plus(1, ChronoUnit.HOURS), 9.0);
@@ -60,15 +64,15 @@ class TimelineAndIngestionAdminIntegrationTest extends AbstractApiIntegrationTes
         sensorRepository.save(SensorData.builder().sensorId("RIO-TL").waterLevel(4.0).timestamp(base.plusMinutes(4)).build());
         eventRepository.save(FloodEvent.builder().floodPoint(p).startTime(base.plusMinutes(20)).severity(FloodEvent.Severity.HIGH)
                 .confirmedBy("t").build());
-        Instant issued = base.atZone(ZoneId.systemDefault()).toInstant().plusSeconds(600);
+        Instant issued = base.atZone(RECIFE).toInstant().plusSeconds(600);
         jdbc.update("INSERT INTO flood_predictions (\"timestamp\", issued_at, flood_point_id, latitude, longitude, flood_probability, "
                         + "risk_level, status, model_version, model_version_full, horizon_hours) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
                 base.plusMinutes(10), java.sql.Timestamp.from(issued), p.getId(), -8.05, -34.88, 0.7, "MEDIUM", "SUCCESS", "m1", "m1+abc", 3);
     }
 
     private String url(String extra) {
-        Instant from = base.atZone(ZoneId.systemDefault()).toInstant().minus(30, ChronoUnit.MINUTES);
-        Instant to = base.atZone(ZoneId.systemDefault()).toInstant().plus(3, ChronoUnit.HOURS);
+        Instant from = base.atZone(RECIFE).toInstant().minus(30, ChronoUnit.MINUTES);
+        Instant to = base.atZone(RECIFE).toInstant().plus(3, ChronoUnit.HOURS);
         return "/api/events/timeline?from=" + from + "&to=" + to + extra;
     }
 
@@ -155,9 +159,13 @@ class TimelineAndIngestionAdminIntegrationTest extends AbstractApiIntegrationTes
     // ---------- ingestão ----------
 
     private void run(String source, String status, int minutesAgo) {
+        run(source, "LIVE", status, minutesAgo);
+    }
+
+    private void run(String source, String kind, String status, int minutesAgo) {
         jdbc.update("INSERT INTO ingestion_run (id, source, kind, code_version, parser_version, rule_version, started_at, finished_at, status, obs_inserted) "
-                        + "VALUES (?,?,'LIVE','t','t','t', now() - (? * interval '1 minute'), now() - (? * interval '1 minute'), ?, 7)",
-                UUID.randomUUID(), source, minutesAgo, minutesAgo, status);
+                        + "VALUES (?,?,?,'t','t','t', now() - (? * interval '1 minute'), now() - (? * interval '1 minute'), ?, 7)",
+                UUID.randomUUID(), source, kind, minutesAgo, minutesAgo, status);
     }
 
     @Test
@@ -188,5 +196,14 @@ class TimelineAndIngestionAdminIntegrationTest extends AbstractApiIntegrationTes
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[?(@.source=='TST_SRC')].status").value("FAILING"))
                 .andExpect(jsonPath("$[?(@.source=='CKAN_RECIFE')]").exists());
+    }
+
+    @Test
+    void sources_revalidateNaoEscondeColetaAoVivoComFalha() throws Exception {
+        run("TST_LIVE", "LIVE", "FAILED", 30);
+        run("TST_LIVE", "REPROCESS", "OK", 1);
+        mockMvc.perform(as(get("/api/admin/ingestion/sources"), adminToken()))
+                .andExpect(jsonPath("$[?(@.source=='TST_LIVE')].status").value("FAILING"))
+                .andExpect(jsonPath("$[?(@.source=='TST_LIVE')].lastSuccessAt").value(org.hamcrest.Matchers.contains(org.hamcrest.Matchers.nullValue())));
     }
 }

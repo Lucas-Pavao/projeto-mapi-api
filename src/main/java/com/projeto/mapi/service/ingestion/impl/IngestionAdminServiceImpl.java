@@ -49,12 +49,13 @@ public class IngestionAdminServiceImpl implements IngestionAdminService {
             status = "IDLE";
         } else if ("FAILED".equals(s.lastStatus())) {
             status = "FAILING";
+        } else if (expected != null && (s.lastSuccessAt() == null
+                || Duration.between(s.lastSuccessAt(), now).compareTo(Duration.ofMinutes(2L * expected)) > 0)) {
+            // antes da quarentena: um run velho que quarentenou tudo não diz que a coleta está viva
+            status = "DELAYED";
         } else if (s.lastQuarantined() != null && s.lastQuarantined() > 0
                 && (s.lastValid() == null || s.lastValid() == 0)) {
             status = "QUARANTINED";
-        } else if (expected != null && (s.lastSuccessAt() == null
-                || Duration.between(s.lastSuccessAt(), now).compareTo(Duration.ofMinutes(2L * expected)) > 0)) {
-            status = "DELAYED";
         } else {
             status = "OK";
         }

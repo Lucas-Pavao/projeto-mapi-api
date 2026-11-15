@@ -74,14 +74,16 @@ public class AnaSoapAdapter extends SensorEnvelopeAdapter {
     /**
      * O legado entrega {@code Nivel} em centímetros (ex.: 239,00 = 2,39 m); o catálogo de {@code water_level} é em
      * metros. O bruto guarda o número como veio; a conversão é daqui (e o qualificador {@code UNIT_UNVERIFIED} sai,
-     * pois a unidade deste endpoint é conhecida). Envelopes de outra origem (coletor ao vivo) não são convertidos.
+     * pois a unidade deste endpoint é conhecida). O coletor ao vivo (Hidro-WebService) manda {@code Cota_Adotada},
+     * também em centímetros (ex.: Paudalho 190 = 1,90 m), e passa pela mesma conversão.
      */
     @Override
     public List<DraftValue> extract(RawRecord record) {
         boolean legado = ORIGEM_LEGADO.equals(record.payload().path("origem").asText());
+        boolean cotaEmCm = legado || record.payload().hasNonNull("Cota_Adotada");
         List<DraftValue> out = new ArrayList<>();
         for (DraftValue d : super.extract(record)) {
-            if (legado && "water_level".equals(d.variable()) && d.value() != null) {
+            if (cotaEmCm && "water_level".equals(d.variable()) && d.value() != null) {
                 out.add(new DraftValue(d.variable(), d.resolution(), d.value() / 100.0, d.unit(), null));
             } else if (legado && "precipitation".equals(d.variable())) {
                 // F2-DADOS-11: incremento (mm) da janela de 15 min que termina no carimbo (norma ANA 2012 4.2(b) +
@@ -96,7 +98,7 @@ public class AnaSoapAdapter extends SensorEnvelopeAdapter {
 
     @Override
     public String parserVersion() {
-        return "ana-soap/4";
+        return "ana-soap/5";
     }
 
     /** Estações da carga: lista configurada mais os pluviômetros de 8 dígitos ligados aos pontos. */

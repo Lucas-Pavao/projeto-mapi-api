@@ -30,7 +30,11 @@ public record FloodPredictionResponseDTO(
         List<ImputedFeature> imputedFeatures,
         @Deprecated String estimatedTimeToEvent,
         String message,
-        ModelValidationStatus modelValidationStatus) {
+        ModelValidationStatus modelValidationStatus,
+        RiskThresholds riskThresholds,
+        String rainSource,
+        String trainingData,
+        String syntheticWarning) {
 
     public FloodPredictionResponseDTO {
         modelValidationStatus = modelValidationStatus == null ? ModelValidationStatus.NOT_VALIDATED : modelValidationStatus;
@@ -45,8 +49,21 @@ public record FloodPredictionResponseDTO(
         return i == null ? null : i.truncatedTo(ChronoUnit.SECONDS);
     }
 
-    /** Fator que mais pesou na previsão; {@code label} vem do catálogo fixo em português. */
-    public record Contributor(String featureId, String label, Double contribution) {
+    /**
+     * Fator que mais pesou na previsão; {@code label} vem do catálogo fixo em português. {@code value} e {@code unit}
+     * (Etapa 8 do IN1165) trazem o valor da feature em unidade física; nulos quando a IA não os envia.
+     */
+    public record Contributor(String featureId, String label, Double contribution, Double value, String unit) {
+        public Contributor(String featureId, String label, Double contribution) {
+            this(featureId, label, contribution, null, null);
+        }
+    }
+
+    /**
+     * Limiares de probabilidade que produziram a faixa (Etapa 8 do IN1165). Vêm do metadata do modelo, pela IA:
+     * o backend não tem limiar próprio. {@code source} = {@code metadata} (escolhidos na validação) ou {@code legacy}.
+     */
+    public record RiskThresholds(Double medium, Double high, String source) {
     }
 
     /** Variável que o backend (ou a IA) preencheu por imputação, em vez de medir. */

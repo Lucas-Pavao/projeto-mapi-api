@@ -55,4 +55,13 @@ class TimezoneConversionTest {
         assertThat(TimestampNormalizer.normalize("2026-10-10 14:00:00")).isEqualTo(TimestampNormalizer.normalize("2026-10-10T14:00"));
         assertThat(TimestampNormalizer.normalize("10/10/2026 14:00")).isEqualTo("2026-10-10T14:00");
     }
+
+    @Test
+    void anaComFracaoDeSegundoNormalizaEConverte() {
+        assertThat(TimestampNormalizer.normalize("2026-10-21 01:00:00.0")).isEqualTo("2026-10-21T01:00");
+        assertThat(TimestampNormalizer.normalize("2026-10-21 01:03:22.207")).isEqualTo("2026-10-21T01:03:22.207");
+        // bruto gravado antes da correção guarda o texto como veio em source_ts_norm
+        assertThat(TimestampNormalizer.toInstant("2026-10-12 19:30:00.0", "America/Recife"))
+                .isEqualTo(Instant.parse("2026-10-12T22:30:00Z"));
+    }
 }

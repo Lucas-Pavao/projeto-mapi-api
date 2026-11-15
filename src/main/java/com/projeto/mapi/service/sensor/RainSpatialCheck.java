@@ -34,7 +34,7 @@ public final class RainSpatialCheck {
         return out;
     }
 
-    static boolean isIsolatedPeak(HourlyRainRow r, List<HourlyRainRow> all) {
+    public static boolean isIsolatedPeak(HourlyRainRow r, List<HourlyRainRow> all) {
         if (r.mm() < SUSPECT_MM || r.lat() == null || r.lon() == null) return false;
         int neighbors = 0;
         for (HourlyRainRow n : all) {

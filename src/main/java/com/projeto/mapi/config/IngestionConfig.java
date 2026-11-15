@@ -9,6 +9,8 @@ public class IngestionConfig {
 
     @Bean
     public ValidationService validationService(IngestionProperties props) {
-        return new ValidationService(props.getSentinels());
+        return new ValidationService(props.getSentinels(), ValidationService.DEFAULT_MAX_BLOCK,
+                java.util.Map.of(com.projeto.mapi.service.ingestion.adapter.ped.CemadenPedAdapter.SOURCE,
+                        java.util.Set.copyOf(props.getCemadenPed().getSuspectQualifiers())));
     }
 }

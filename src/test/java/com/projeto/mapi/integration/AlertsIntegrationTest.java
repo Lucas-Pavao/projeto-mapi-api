@@ -69,7 +69,7 @@ class AlertsIntegrationTest extends AbstractApiIntegrationTest {
     private void previsao(RiskLevel level, DegradationReason reason) {
         when(predictionQuery.latestPerActivePoint()).thenReturn(List.of(new PredictionSummaryDTO("p-alerta", level,
                 level == RiskLevel.UNKNOWN ? null : 0.9, Instant.now(), null, 3, "m1", reason, null,
-                ModelValidationStatus.NOT_VALIDATED)));
+                ModelValidationStatus.NOT_VALIDATED, null, null, null)));
     }
 
     private static com.projeto.mapi.service.sensor.HourlyRainService.StationRain rain(String id, double mm) {

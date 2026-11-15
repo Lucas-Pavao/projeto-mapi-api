@@ -8,7 +8,8 @@ import java.util.Locale;
 /**
  * Intervalo esperado de cada fonte, lido da mesma configuração dos jobs agendados
  * ({@code SensorCollectionTask}). Um sensor está "sem resposta" (stale) quando a idade da última
- * leitura passa de 2 vezes esse intervalo (contrato SensorFreshness).
+ * leitura passa de 2 vezes o maior entre esse intervalo e o ritmo em que a fonte publica a leitura
+ * (contrato SensorFreshness).
  */
 @Component
 public class SensorFreshnessPolicy {
@@ -48,7 +49,21 @@ public class SensorFreshnessPolicy {
         return ms / 1000;
     }
 
+    /**
+     * Ritmo de publicação da leitura, que não é o do job: a CEMADEN fecha blocos de 10 min com chuva e de 60 min
+     * sem chuva; a telemetria da ANA mede a cada 15 min, mas publica com atraso mediano de ~65 min (teste de relógio
+     * de 2026-10-21); a APAC meteorologia24h publica blocos de 10 a 20 min.
+     */
+    public long readingIntervalSeconds(String canonicalSource) {
+        long reading = switch (canonicalSource == null ? "" : canonicalSource) {
+            case "CEMADEN", "ANA" -> 3600;
+            case "APAC" -> 1800;
+            default -> 0;
+        };
+        return Math.max(reading, expectedIntervalSeconds(canonicalSource));
+    }
+
     public boolean isStale(String canonicalSource, long ageSeconds) {
-        return ageSeconds > STALE_FACTOR * expectedIntervalSeconds(canonicalSource);
+        return ageSeconds > STALE_FACTOR * readingIntervalSeconds(canonicalSource);
     }
 }

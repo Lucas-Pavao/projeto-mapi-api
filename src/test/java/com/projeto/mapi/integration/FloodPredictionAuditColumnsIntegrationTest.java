@@ -140,6 +140,39 @@ class FloodPredictionAuditColumnsIntegrationTest extends AbstractTimescaleIntegr
     }
 
     @Test
+    void etapa8_proveniencia_do_modelo_volta_na_leitura_com_aviso_de_sintetico() {
+        Instant t = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+        FloodPredictionResponseDTO r = FloodPredictionResponseDTO.builder()
+                .riskLevel(RiskLevel.HIGH).floodProbability(0.6).modelVersion("xgb_v2").issuedAt(t)
+                .contributors(List.of(catalog.contributor("rainfall_3h_accumulated", 0.31, 42.0, "mm")))
+                .riskThresholds(new FloodPredictionResponseDTO.RiskThresholds(0.0159, 0.2441, "metadata"))
+                .rainSource("MEASURED").trainingData("SYNTHETIC").syntheticWarning("Modelo treinado com rótulo SINTÉTICO")
+                .build();
+        history.record(req(), new PredictionResult(r, "xgb_v2"), ponto.getId());
+
+        assertThat(jdbc.queryForObject("SELECT model_info->>'trainingData' FROM flood_predictions", String.class))
+                .isEqualTo("SYNTHETIC");
+        FloodPredictionResponseDTO lido = history.findLatest(ponto.getId(), -8.05, -34.88).orElseThrow();
+        assertThat(lido.trainingData()).isEqualTo("SYNTHETIC");
+        assertThat(lido.syntheticWarning()).contains("SINTÉTICO");
+        assertThat(lido.rainSource()).isEqualTo("MEASURED");
+        assertThat(lido.riskThresholds().high()).isEqualTo(0.2441);
+        assertThat(lido.contributors().get(0).value()).isEqualTo(42.0);
+        assertThat(lido.contributors().get(0).unit()).isEqualTo("mm");
+        assertThat(lido.contributors().get(0).label()).isEqualTo("Chuva acumulada em 3 horas");
+    }
+
+    @Test
+    void etapa8_linha_antiga_sem_model_info_le_campos_nulos() {
+        Instant t = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+        history.record(req(), sucesso(t), ponto.getId());
+        FloodPredictionResponseDTO lido = history.findLatest(ponto.getId(), -8.05, -34.88).orElseThrow();
+        assertThat(lido.trainingData()).isNull();
+        assertThat(lido.syntheticWarning()).isNull();
+        assertThat(lido.riskThresholds()).isNull();
+    }
+
+    @Test
     void leituraDevolveAuditoriaDasColunas() {
         Instant t = Instant.now().truncatedTo(ChronoUnit.SECONDS);
         history.record(req(), sucesso(t), ponto.getId());

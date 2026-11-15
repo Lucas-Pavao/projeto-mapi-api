@@ -139,7 +139,8 @@ class AnaSoapAdapterTest {
     }
 
     @Test
-    void nivelDeEnvelopeDeOutraOrigemNaoEConvertido() {
+    void cotaDoHidroWebServiceEmCentimetrosViraMetros() {
+        // Paudalho (39150010), 2026-10-21 17:00: Cota_Adotada ao vivo 190.00 = Nivel do legado 190.00 (cm)
         AnaSoapAdapter a = adapter(Set.of());
         com.fasterxml.jackson.databind.node.ObjectNode env = new ObjectMapper().createObjectNode();
         env.put("codigo", "39187800");
@@ -148,8 +149,8 @@ class AnaSoapAdapterTest {
         env.put("origem", "Hidro-WebService");
         List<DraftValue> v = a.extract(a.toRaw(env, Instant.parse("2026-10-10T16:00:00Z")));
         assertThat(v).singleElement().satisfies(d -> {
-            assertThat(d.value()).isEqualTo(239.0);
-            assertThat(d.qualifier()).isEqualTo("UNIT_UNVERIFIED");
+            assertThat(d.value()).isCloseTo(2.39, org.assertj.core.data.Offset.offset(1e-9));
+            assertThat(d.qualifier()).isNull();
         });
     }
 

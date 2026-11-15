@@ -18,6 +18,9 @@
 | ANA (HidroWeb / Hidro-WebService) | Telemetria hidrológica (nível, vazão, chuva) | Termo da API não localizado; política do app HidroWeb Mobile proíbe cópia sem autorização | Não localizada | Cadastro obrigatório (CPF/CNPJ) para acesso automatizado | Termo não localizado (ver seção 4) |
 | APAC | Pluviometria e nível (rede estadual) | Termo não localizado | Não localizada | Não localizada | Termo não localizado (ver seção 5) |
 | Cemaden | Pluviômetros | Termo de dados não localizado; conteúdo do site sob CC BY-ND 3.0 BR | Não localizada para os dados; citação usual "CEMADEN" (uso acadêmico) | Cláusula "sem derivações" pode alcançar dados transformados | Termo não localizado (ver seção 6) |
+| APAC — histórico pluviométrico (2026-11-08) | Total diário por posto (convencionais desde pelo menos 2016; PCD APAC/CEMADEN desde 2024-02), formulário com exportação XLSX em `dados.apac.pe.gov.br:41120/boletins/historico-pluviometrico/` | Termo não localizado | Não localizada | Não publicar derivado até o termo | Termo não localizado (ver seção 5) |
+| Cemaden — PED (2026-11-09) | Chuva por bloco (10 a 60 min) das PCDs, API `sws.cemaden.gov.br/PED/rest` com token de cadastro; fonte `CEMADEN_PED` (ADR 0021) | Regras da plataforma: citação obrigatória; 12 requisições/min; conta inativa por 1 ano é removida | **Obrigatória**: "DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC" | Cadastro obrigatório; limite de requisições | Licença das séries não localizada (ver seção 6) |
+| Prefeitura do Recife (CKAN) — 156 da Emlurb e Dados Vivos (2026-11-08) | Demandas de drenagem (data, sem hora) e recorte da Sedec com hora (173 registros); investigados, não usados como rótulo | ODbL (portal) | Atribuição à fonte e indicação da ODbL | Share-alike; LGPD (endereços) | https://dados.recife.pe.gov.br/dataset/central-de-atendimento-de-servicos-da-emlurb-156 |
 | Open-Meteo | Previsão (forecast), histórico (archive) e marine | CC BY 4.0 para os dados; API gratuita apenas não comercial | Crédito ao Open-Meteo com link para a licença; ECMWF/Copernicus para ERA5 | API gratuita: uso não comercial; limites de chamadas | https://open-meteo.com/en/terms |
 | DHN / Centro de Hidrografia da Marinha | Tábuas das marés (previsão) | Termo não localizado | Não localizada | Não localizada | Termo não localizado (ver seção 8) |
 | TabuaMare (API de terceiros) | Tábuas das marés reorganizadas a partir dos PDFs da DHN | Código do projeto: MIT. Termos da API não localizados | Não localizada; origem dos dados é a DHN | Dados originais são da Marinha | https://github.com/Ddiidev/tabua_mare_convert_pdf2db |
@@ -82,6 +85,13 @@
 - Licença do site: o rodapé diz que todo o conteúdo do site está sob "Creative Commons Atribuição-SemDerivações 3.0 Não Adaptada" (CC BY-ND 3.0 Brasil). Não está claro se isso cobre as séries de dados brutos.
 - Citação usual (não exigência oficial): "CEMADEN (2024)", como usada em trabalho do SBRH (busca).
 - Restrição: a cláusula "sem derivações" pode alcançar médias, gráficos e bases transformadas. Não confirmado.
+
+### 6.1 Plataforma de Entrega de Dados (PED), 2026-11-09
+
+- Acesso: conta pessoal em https://ped.cemaden.gov.br; token JWT emitido em `sgaa.cemaden.gov.br/SGAA/rest/controle-token/tokens`; webservices documentados em https://sws.cemaden.gov.br/PED/api/ui/ (swagger, versão 2.0.2). Credenciais em `.env` (`CEMADEN_PED_EMAIL`, `CEMADEN_PED_SENHA`), fora do git.
+- **Citação obrigatória** em qualquer uso ou publicação dos dados: **"DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC"**. Vale para a dissertação, para o front e para qualquer tabela, gráfico ou CSV derivado da fonte `CEMADEN_PED`. O manifesto da tabela de eventos já leva o texto nas limitações.
+- Regras de uso informadas pela plataforma: 12 requisições por minuto para usuário externo, com bloqueio temporário de quem passa (o MAPi faz 10 por minuto, `docs/INGESTAO.md`); arquivo de requisição agendada disponível por 30 dias; **conta inativa por um ano é removida** (renovar o uso antes de 2027-11; a carga de 2026-11-09 conta como uso); todos os dados em UTC.
+- Licença das séries (redistribuição, uso comercial): não localizada. Até confirmar, não publicar a série bruta; publicar só derivados com a citação acima.
 
 ## 7. Open-Meteo — previsão, histórico (archive) e marine
 
@@ -167,7 +177,7 @@
 ### Para o rodapé do front
 
 ```
-Mapa base © OpenStreetMap contributors (ODbL) e © CARTO. Previsão do tempo: Open-Meteo.com (CC BY 4.0), dados ERA5 contendo informação modificada do Copernicus Climate Change Service [ano]. Geocodificação: Nominatim/OpenStreetMap. Dados de alagamento: Prefeitura do Recife, Defesa Civil (ODbL). Maré: DHN/Marinha do Brasil (via TabuaMare). Pluviometria e nível: APAC, ANA e Cemaden [a confirmar].
+Mapa base © OpenStreetMap contributors (ODbL) e © CARTO. Previsão do tempo: Open-Meteo.com (CC BY 4.0), dados ERA5 contendo informação modificada do Copernicus Climate Change Service [ano]. Geocodificação: Nominatim/OpenStreetMap. Dados de alagamento: Prefeitura do Recife, Defesa Civil (ODbL). Maré: DHN/Marinha do Brasil (via TabuaMare). Pluviometria e nível: APAC, ANA e Cemaden [a confirmar]. DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC.
 ```
 
 Notas para o rodapé:
@@ -187,6 +197,7 @@ Formato sugerido, um item por fonte:
 - CARTO. Basemap Terms. Acesso em 2026-10-10: https://carto.com/legal/basemap-terms/.
 - Marinha do Brasil, Diretoria de Hidrografia e Navegação. Tábuas das Marés. Acesso em 2026-10-10. Termo de uso: pendente (ver seção 8).
 - Governo de Pernambuco. Programa Pernambuco Tridimensional (PE3D), MDT LiDAR 2016, 1 m. Acesso em 2026-10-10. Termo: pendente (ver seção 1).
+- Cemaden/MCTI. Rede observacional de PCDs, Plataforma de Entrega de Dados (https://ped.cemaden.gov.br), acesso em 2026-11-09. Texto obrigatório: "DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC".
 
 ## Pendências
 

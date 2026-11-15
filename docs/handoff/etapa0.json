@@ -1,0 +1,127 @@
+{
+  "bloco": "API",
+  "etapa": "0",
+  "data": "2026-11-15",
+  "repositorio": "projeto-mapi-api",
+  "branch": "feat/cemaden-ped",
+  "adr": "docs/adr/0023-estacao-canonica-e-acumulado-medido.md",
+  "citacao_obrigatoria": "DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC",
+  "banco": {
+    "host": "127.0.0.1",
+    "porta": 5433,
+    "database": "mapi_db",
+    "usuario": "mapi_user",
+    "fuso": "UTC em todas as colunas timestamptz; America/Recife só na exibição (ADR 0001)"
+  },
+  "acumulado_por_estacao": {
+    "rota": "GET /api/stations/rain-accumulations",
+    "auth": "autenticado (Bearer ou cookie accessToken), qualquer papel",
+    "status_http": {"200": "OK", "503": "primeira leitura da PED ainda não concluída (~1,5 min depois de subir a API)"},
+    "atualizacao": "a cada 10 min, fora da requisição; campo stale = true se a última busca tem mais de 30 min",
+    "unidade": "mm",
+    "fuso": "UTC (Instant ISO-8601 com Z)",
+    "rainOrigin": "MEASURED",
+    "envelope": {
+      "computedAtUtc": "instante do cálculo na PED (não é a última leitura)",
+      "fetchedAtUtc": "Instant",
+      "stale": "boolean",
+      "timezone": "\"UTC\"",
+      "unit": "\"mm\"",
+      "rainOrigin": "\"MEASURED\"",
+      "source": "\"CEMADEN_PED\"",
+      "attribution": "\"DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC\"",
+      "municipalitiesQueried": "string[] (IBGE 7 dígitos)",
+      "municipalitiesWithoutData": "string[]: HTTP 202, sem dado, não é erro",
+      "municipalitiesFailed": "string[]",
+      "stations": "StationAccumulationDTO[]"
+    },
+    "estacao": {
+      "canonicalId": "string | null (null = estação fora do cadastro do MAPi, sem coordenada)",
+      "stationCode": "string | null (código devolvido pela PED; null = PED não devolveu a estação)",
+      "name": "string | null",
+      "municipality": "string | null",
+      "lat": "number | null",
+      "lon": "number | null",
+      "aliases": "string[] no formato SOURCE:station_id (mostrar só no detalhe)",
+      "status": "\"OK\" | \"NO_DATA\"",
+      "lastReadingUtc": "Instant | null: última leitura de chuva gravada pelo MAPi (as duas fontes), últimos 5 dias",
+      "acc1hMm": "number | null",
+      "acc3hMm": "number | null",
+      "acc6hMm": "number | null",
+      "acc12hMm": "number | null",
+      "acc24hMm": "number | null",
+      "acc48hMm": "number | null",
+      "acc72hMm": "number | null",
+      "acc96hMm": "number | null",
+      "acc120hMm": "number | null"
+    },
+    "regra_sem_dado": "acumulado null = sem leitura na janela; status NO_DATA = nenhum acumulado; nunca tratar como 0.0. 0.0 = mediu e não choveu.",
+    "medida_2026_11_15": "81 estações (68 canônicas + 13 fora do cadastro), 14 municípios, 0 sem dado, 0 falhas"
+  },
+  "estacao_canonica": {
+    "rota": "GET /api/stations/canonical",
+    "tabela": "station_canonical",
+    "view": "station_canonical_v",
+    "colunas": {
+      "canonical_id": "varchar, PK; código PED quando existe, senão o da coleta ao vivo",
+      "name": "varchar",
+      "lat": "double",
+      "lon": "double",
+      "municipality": "varchar",
+      "ibge_code": "varchar(7)",
+      "primary_source": "CEMADEN_PED | CEMADEN",
+      "rule_version": "estacao-canonica-v1",
+      "aliases": "text[] SOURCE:station_id (só na view)"
+    },
+    "campo_de_apelidos": "aliases (view e DTO); tabela station_alias (source, station_id, canonical_id, distance_m, name_similarity)",
+    "regra": "estação ao vivo a até 150 m da estação PED mais próxima vira apelido dela; duas da mesma fonte nunca se fundem; nome só no registro",
+    "serie_horaria": "canonical_rain_hourly_v (canonical_id, hour_end_utc, value, source, station_id, n_readings, blocks_covered_min): com as duas fontes na mesma hora, fica a PED"
+  },
+  "serie_por_ponto": {
+    "tabela": "point_rain_hourly",
+    "rule_version_em_uso": "chuva-ponto-v4",
+    "periodo": "2021-09-01T01:00Z a 2026-10-08T00:00Z, uma linha por hora e ponto, inclusive lacunas (value null)",
+    "fonte": "só CEMADEN_PED (não usa a coleta ao vivo)",
+    "colunas": {
+      "flood_point_id": "bigint (flood_points.id)",
+      "hour_end_utc": "timestamptz, hora rotulada pelo fim do intervalo (t-1h, t]",
+      "value": "double | null, mm na hora",
+      "source": "CEMADEN_PED",
+      "station_id": "estação que forneceu o valor",
+      "station_distance_m": "double",
+      "n_candidates": "int",
+      "n_valid": "int",
+      "n_valid_with_value": "int",
+      "n_blocks": "int | null",
+      "blocks_covered_min": "double | null",
+      "linkage_config_id": "bigint",
+      "rule_version": "varchar"
+    },
+    "regra_de_selecao": "dentro de 5 km do ponto, maior valor horário entre as estações aprovadas na checagem espacial do mês (station_month_check); empate = mais próxima; pico isolado (>=10 mm com 2 vizinhas a 6 km abaixo de 1 mm) sai antes; qualificação 0002 em quarentena (ADRs 0021 e 0022)",
+    "derivados": {
+      "view": "point_rain_accum_v",
+      "filtro": "WHERE rule_version = 'chuva-ponto-v4'",
+      "colunas": ["flood_point_id", "slug", "rule_version", "hour_end_utc", "source", "station_id", "station_distance_m", "n_valid", "n_valid_with_value", "rain_1h_mm", "rain_3h_mm", "rain_6h_mm", "rain_12h_mm", "rain_24h_mm", "rain_3h_n", "rain_6h_n", "rain_12h_n", "rain_24h_n"],
+      "regra": "rain_<N>h_mm = soma das N horas terminadas em hour_end_utc; NULL se qualquer hora da janela não tem valor; rain_<N>h_n = horas com valor"
+    },
+    "pontos": {"1": "AV_RECIFE_IBURA", "2": "CIN_UFPE", "3": "AGAMENON_DERBY", "4": "JABOATAO_CENTRO", "5": "MASCARENHAS_IMBIRIBEIRA"},
+    "reanalise_para_ablacao": "observation_hourly_v com source = 'OPEN_METEO_ARCHIVE', variable = 'precipitation', station_id = coordenada do ponto (station.source = 'OPEN_METEO_ARCHIVE'); mesma grade hour_end_utc"
+  },
+  "rotulos_no_banco": {
+    "flood_scenario_labels": "0 linhas (2026-11-15)",
+    "flood_occurrence": "225 ocorrências CKAN Recife, 2021-05-13 a 2024-06-26, 18 dias distintos, 0 com hora (temporal_precision = DAY)",
+    "occurrence_point_match": "0 linhas; PROGRESSO 2026-11-08: 0 ocorrências a 500 m dos pontos no banco recarregado (a contagem antiga de 3 eventos-dia a 500 m é do snapshot de 2026-10-10)",
+    "consequencia": "sem rótulo com hora; o piso de 30 positivos da Etapa 1 não é atingível com estes dados"
+  },
+  "nomes_que_mudaram": {
+    "ai": "nada removido ou renomeado. Novo: point_rain_accum_v (rain_3h_mm etc.). O ai hoje lê flood_scenario_labels (vazia) e usa rainfall_3h_accumulated no contrato /v1/predict/flood: esse nome não muda; mapear rain_3h_mm -> rainfall_3h_accumulated no ai.",
+    "front": "nada removido ou renomeado. Novo: GET /api/stations/rain-accumulations e GET /api/stations/canonical. No front, accumulated3h…48h é tipo de UnifiedDataDTO (GET /api/export/ia-dataset/{slug}); o mapa usa /api/environmental-data (MapiResponseDTO) e accumulatedPrecipitation de /api/sensors/latest. Nada disso muda, e nenhum é o acumulado medido por estação; qual deles é reanálise na tela o bloco FRONT confirma no próprio código. A rota antiga /api/sensors/cemaden/accumulated (painel público) continua."
+  },
+  "verificacao": {
+    "testes_novos": "StationMatcherTest (6), MeasuredRainAccumulationServiceImplTest (3), StationUnificationIntegrationTest (4, Testcontainers): verdes",
+    "suite_completa": "428 testes, 0 falhas, 7 erros, todos em CemadenPedAdapterTest: Mockito não instrumenta classe concreta no JDK 25 local; os mesmos 7 erros no HEAD sem esta mudança (worktree limpo, 2026-11-15)",
+    "migracao": "V25 aplicada no mapi_db (flyway_schema_history, success = t)",
+    "openapi": "84 operações em 78 caminhos (docs/openapi/openapi-2026-11-15.json)",
+    "pendente_com_admin": "unify com chamada HTTP e PED no período da coleta ao vivo para medir divergência: o agente não tem credencial ADMIN"
+  }
+}

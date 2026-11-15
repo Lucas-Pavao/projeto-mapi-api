@@ -58,6 +58,11 @@ public class FeatureCatalog {
         return new Contributor(featureId, label(featureId), contribution);
     }
 
+    /** Com o valor da feature em unidade física (SHAP do modelo v2). */
+    public Contributor contributor(String featureId, Double contribution, Double value, String unit) {
+        return new Contributor(featureId, label(featureId), contribution, value, unit);
+    }
+
     public List<ImputedFeature> imputed(Collection<String> featureIds) {
         if (featureIds == null) return List.of();
         return featureIds.stream().distinct().map(id -> new ImputedFeature(id, label(id))).toList();

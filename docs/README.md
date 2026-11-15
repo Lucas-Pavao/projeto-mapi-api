@@ -11,12 +11,14 @@ Comece por `VISAO-GERAL.md`. O estado da revisão e as decisões ficam em `../.c
 | `arquitetura/api.md`, `ai.md`, `front.md` | Arquitetura de cada repositório |
 | `API.md`, `openapi/openapi-integracao-fase2.json` | Rotas da API e contrato (o JSON é o snapshot de referência citado no API.md) |
 | `INGESTAO.md` | Pipeline de ingestão (fontes, quarentena, versões, proveniência) |
+| `REVISAO-INGESTAO-2026-11.md` | Fontes novas de chuva e de rótulo, mapa de estações por ponto, inventário de rótulos, plano de recarga e troca para `mapi_db` (ADRs 0018–0020) |
+| `EVENTOS-DE-CHUVA.md` | Tabela de eventos de chuva e resumo por tipo (insumo do modelo da galeria); definição no ADR 0017 |
 | `MODELO-DE-DADOS.md` | Tabelas e migrações |
 | `TERRENO-PE3D.md` | Processamento do MDT, atributos por ponto, validação da hidrologia |
 | `SEGURANCA-LOCAL.md` | O que é seguro só em ambiente local |
 | `CHECKLIST-RELEASE.md` | Verificações antes de uma entrega |
 | `GLOSSARIO.md` | Termos e nomes de campos |
-| `adr/` | Decisões de arquitetura (0001–0009), com emendas |
+| `adr/` | Decisões de arquitetura (0001–0020), com emendas |
 | `snapshots/` | Manifesto de cada dump do banco (hash e contagens); os dumps estão no Google Drive, pasta "MAPI — backup" |
 
 ## Dados externos e pendências

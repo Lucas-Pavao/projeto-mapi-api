@@ -30,7 +30,7 @@ public abstract class AbstractTimescaleIntegrationTest {
 
     protected static final PostgreSQLContainer<?> DB = new PostgreSQLContainer<>(
             DockerImageName.parse(IMAGE).asCompatibleSubstituteFor("postgres"))
-            .withDatabaseName("tide_db")
+            .withDatabaseName("mapi_db")
             .withUsername("mapi_user")
             .withPassword("mapi123");
 
