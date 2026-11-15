@@ -130,3 +130,35 @@ Uma chamada com tudo do card. `at` = instante de referência (padrão: agora); b
 - `note`: o aviso do `state` (um só), com os números do caso; `null` em `NORMAL`.
 - `uses`: pontos críticos a até 5 km; `role` = `USED` | `LOWER` (com `usedStationName`) | `EXCLUDED` (mês FAIL/OFFLINE) | `NO_VALUE`, na hora de `at` (série do ponto quando houver; senão o valor horário canônico).
 - 404 se a canônica não existe.
+
+## B7 — `GET /api/locations/analysis?lat=&lon=&at=` (análise de local, seção 5.4)
+
+Substitui o uso de `/api/environmental-data` no painel "Análise de local" do mapa. Cache de 10 min por célula de ~200 m.
+
+```json
+{
+  "lat": -8.1039, "lon": -34.9509, "at": "...Z", "inArea": true, "isSea": false,
+  "rain": {
+    "mode": "MEASURED",
+    "nowMmH": 3.2, "acc3hMm": 5.0, "acc24hMm": null,
+    "station": { "stationId": "261160615A", "name": "Ibura", "distanceM": 2400 },
+    "candidates": [ { "stationId": "...", "name": "...", "distanceM": 2400, "valueMmH": 3.2,
+                      "monthStatus": "OK", "reasons": [], "role": "USED", "lat": -8.12, "lon": -34.95 } ],
+    "nValid": 3
+  },
+  "nearestPoint": { "slug": "AV_RECIFE_IBURA", "name": "...", "distanceKm": 1.8, "riskLevel": "LOW", "probability": 0.002,
+                    "degradationReason": null },
+  "tide": { "levelM": 1.81, "rising": true, "harbor": "Porto do Recife", "verticalReference": "NR DHN" },
+  "river": null,
+  "terrain": { "elevationM": 4.2, "distanceToCoastKm": 3.1 },
+  "weather": { "temperatureC": 27.1, "humidityPct": 76, "windKmh": 14, "source": "OPEN_METEO" },
+  "attribution": "DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC"
+}
+```
+
+- `rain.mode`: `MEASURED` (há estação válida no raio de 5 km com valor na hora) | `GAP` (há estação válida, nenhuma com valor: **não** troca por estimativa; valores `null`) | `ESTIMATED` (nenhuma estação válida no raio: valores do Open-Meteo, `station = null`). Regra do ADR 0022: maior valor entre as válidas.
+- `candidates`: todas as estações a até 5 km, com `role` `USED | LOWER | EXCLUDED | NO_VALUE` e coordenadas (o mapa desenha as linhas).
+- `nearestPoint`: ponto crítico mais próximo, com a última previsão (UNKNOWN sem `probability`).
+- `river`: régua mais próxima a até 6 km `{stationId, name, levelM, distanceKm, outsideModel: true}` ou `null`.
+- `terrain`: `null` fora da cobertura PE3D. `isSea`/`inArea`: `isSea` = altitude ≤ 0 fora do MDT e a leste da costa; `inArea` = dentro do retângulo da RMR usado hoje (documentar a regra no código). Fora da área: `rain.mode = ESTIMATED`, `terrain = null`.
+- 400 se lat/lon inválidos.
