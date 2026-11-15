@@ -77,7 +77,9 @@ public class FloodPredictionHistoryServiceImpl implements FloodPredictionHistory
                     .imputedFeatures(p.imputedFeatures().stream()
                             .map(FloodPredictionResponseDTO.ImputedFeature::featureId).toList())
                     .topContributors(p.contributors().stream()
-                            .map(c -> new FloodPrediction.Contributor(c.featureId(), c.contribution())).toList())
+                            .map(c -> new FloodPrediction.Contributor(c.featureId(), c.contribution(), c.value(), c.unit()))
+                            .toList())
+                    .modelInfo(modelInfoOf(p))
                     .build();
             repository.save(row);
         } catch (Exception e) {
@@ -137,7 +139,7 @@ public class FloodPredictionHistoryServiceImpl implements FloodPredictionHistory
                     row.getHorizonHours(), row.getDegradationReason(),
                     row.getImputedFeatures() == null ? List.of() : row.getImputedFeatures(),
                     row.getTopContributors() == null ? List.of() : row.getTopContributors().stream()
-                            .map(c -> new AuditContributor(c.featureId(), c.contribution())).toList());
+                            .map(c -> new AuditContributor(c.featureId(), c.contribution(), c.value(), c.unit())).toList());
         }
         return parseLegacyAudit(row.getMessage());
     }
@@ -162,8 +164,12 @@ public class FloodPredictionHistoryServiceImpl implements FloodPredictionHistory
                     .validUntil(validUntil)
                     .lastValidIssuedAt(lastValid)
                     .contributors(audit.contributors() == null ? List.of() : audit.contributors().stream()
-                            .map(c -> catalog.contributor(c.featureId(), c.contribution())).toList())
+                            .map(c -> catalog.contributor(c.featureId(), c.contribution(), c.value(), c.unit())).toList())
                     .imputedFeatures(catalog.imputed(audit.imputedFeatures()))
+                    .riskThresholds(thresholdsOf(row.getModelInfo()))
+                    .rainSource(row.getModelInfo() == null ? null : row.getModelInfo().rainSource())
+                    .trainingData(row.getModelInfo() == null ? null : row.getModelInfo().trainingData())
+                    .syntheticWarning(row.getModelInfo() == null ? null : row.getModelInfo().syntheticWarning())
                     .build();
         }
 
@@ -179,6 +185,21 @@ public class FloodPredictionHistoryServiceImpl implements FloodPredictionHistory
                 .imputedFeatures(audit == null ? List.of() : catalog.imputed(audit.imputedFeatures()))
                 .message(reason.message())
                 .build();
+    }
+
+    private static FloodPrediction.ModelInfo modelInfoOf(FloodPredictionResponseDTO p) {
+        if (p.rainSource() == null && p.trainingData() == null && p.syntheticWarning() == null && p.riskThresholds() == null) {
+            return null;
+        }
+        FloodPredictionResponseDTO.RiskThresholds t = p.riskThresholds();
+        return new FloodPrediction.ModelInfo(p.rainSource(), p.trainingData(), p.syntheticWarning(),
+                t == null ? null : new FloodPrediction.Thresholds(t.medium(), t.high(), t.source()));
+    }
+
+    private static FloodPredictionResponseDTO.RiskThresholds thresholdsOf(FloodPrediction.ModelInfo info) {
+        if (info == null || info.riskThresholds() == null) return null;
+        FloodPrediction.Thresholds t = info.riskThresholds();
+        return new FloodPredictionResponseDTO.RiskThresholds(t.medium(), t.high(), t.source());
     }
 
     private Audit parseLegacyAudit(String json) {
@@ -205,6 +226,6 @@ public class FloodPredictionHistoryServiceImpl implements FloodPredictionHistory
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    record AuditContributor(String featureId, Double contribution) {
+    record AuditContributor(String featureId, Double contribution, Double value, String unit) {
     }
 }

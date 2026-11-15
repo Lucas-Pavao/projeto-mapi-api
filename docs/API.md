@@ -153,6 +153,12 @@ A rota antiga `GET /api/sensors/cemaden/accumulated` (painel público, sem coord
 - `estimatedTimeToEvent` segue `null` (obsoleto). `modelVersion` leva só a parte semântica; o hash git fica no log.
 - HTTP: 200 inclusive para `UNKNOWN` (descrição da operação no OpenAPI). O snapshot antigo também listava só `200`; o ADR 0007 registra que o código anterior respondia 201 em falha, ponto a conferir (pendência 9).
 
+- Etapa 8 do IN1165 (ADR 0007, emenda 2), só por adição: `riskThresholds` (`medium`, `high`, `source`), `rainSource`
+  (`MEASURED`), `trainingData` (`SYNTHETIC` no modelo `xgb_v2`), `syntheticWarning` (texto obrigatório quando o treino
+  é sintético) e `contributors[].value`/`unit` (valor da feature em unidade física). `PredictionSummaryDTO` (série, SSE,
+  linha do tempo) ganha `riskThresholds`, `trainingData` e `syntheticWarning`. Gravados em `flood_predictions.model_info`
+  (V26).
+
 ### 3.2 Proveniência e export (ADR 0006)
 
 - `provenanceId` (string, UUID do `ingestion_run` que produziu o valor vigente) e `revision` (inteiro) estão em `SensorResponseDTO` e `WeatherResponseDTO`. Nos dois DTOs o OpenAPI os declara como `string` e `integer`. O ADR 0006 não os põe por linha do export, porque a linha é agregada.

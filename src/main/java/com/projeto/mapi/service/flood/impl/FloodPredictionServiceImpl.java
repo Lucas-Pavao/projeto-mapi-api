@@ -151,7 +151,7 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
                     problem = "top_contributors com item inválido";
                     break;
                 }
-                contributors.add(catalog.contributor(c.featureId, c.contribution));
+                contributors.add(catalog.contributor(c.featureId, c.contribution, c.value, c.unit));
             }
         }
 
@@ -186,6 +186,11 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
                 .contributors(contributors)
                 .imputedFeatures(catalog.imputed(imputedIds))
                 .modelValidationStatus(validation)
+                .riskThresholds(ai.thresholds == null ? null : new FloodPredictionResponseDTO.RiskThresholds(
+                        ai.thresholds.medium, ai.thresholds.high, ai.thresholds.source))
+                .rainSource(ai.rainSource)
+                .trainingData(ai.trainingData)
+                .syntheticWarning(syntheticWarning(ai.trainingData, ai.syntheticWarning))
                 .build();
 
         // Cinto e suspensório: o que sai daqui nunca viola o §2.
@@ -194,6 +199,15 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
             return unknown(DegradationReason.AI_ERROR, now, imputedIds);
         }
         return new PredictionResult(response, fullVersion);
+    }
+
+    /** Texto do backend se a IA declarar treino sintético sem mandar o aviso: risco sintético nunca circula sem etiqueta. */
+    public static final String DEFAULT_SYNTHETIC_WARNING = "Modelo treinado com rótulo SINTÉTICO (experimento "
+            + "controlado): a probabilidade não foi validada contra alagamento real.";
+
+    static String syntheticWarning(String trainingData, String fromAi) {
+        if (!"SYNTHETIC".equalsIgnoreCase(trainingData == null ? "" : trainingData.trim())) return fromAi;
+        return fromAi == null || fromAi.isBlank() ? DEFAULT_SYNTHETIC_WARNING : fromAi;
     }
 
     private PredictionResult unknown(DegradationReason reason, Instant now, Collection<String> imputedIds) {
@@ -235,6 +249,26 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
 
         @JsonProperty("imputed_features")
         private List<String> imputedFeatures;
+
+        // Etapa 8 do IN1165: campos novos da IA, todos opcionais (por adição).
+        private AiThresholds thresholds;
+
+        @JsonProperty("rain_source")
+        private String rainSource;
+
+        @JsonProperty("training_data")
+        private String trainingData;
+
+        @JsonProperty("synthetic_warning")
+        private String syntheticWarning;
+    }
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class AiThresholds {
+        private Double medium;
+        private Double high;
+        private String source;
     }
 
     @Data
@@ -244,5 +278,7 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
         private String featureId;
 
         private Double contribution;
+        private Double value;
+        private String unit;
     }
 }

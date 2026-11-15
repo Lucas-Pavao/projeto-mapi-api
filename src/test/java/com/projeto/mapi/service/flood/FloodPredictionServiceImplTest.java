@@ -101,6 +101,33 @@ class FloodPredictionServiceImplTest {
     }
 
     @Test
+    void etapa8_respostaDoModeloV2_trazLimiaresFonteEAviso() {
+        iaResponde("""
+                {"flood_probability":0.31,"risk_level":"HIGH","model_version":"xgb_v2","model_validation_status":"NOT_VALIDATED",
+                 "thresholds":{"medium":0.0159,"high":0.2441,"source":"metadata"},"rain_source":"MEASURED",
+                 "training_data":"SYNTHETIC","synthetic_warning":"Modelo treinado com rótulo SINTÉTICO (experimento controlado)",
+                 "calibrated":false,
+                 "top_contributors":[{"feature_id":"rainfall_3h_accumulated","contribution":0.21,"value":60.0,"unit":"mm"},
+                                     {"feature_id":"tide_level","contribution":0.05,"value":2.2,"unit":"m (NR DHN)"}]}""");
+        FloodPredictionResponseDTO r = predizEConfere();
+        assertThat(r.riskLevel()).isEqualTo(RiskLevel.HIGH);
+        assertThat(r.riskThresholds()).isEqualTo(new FloodPredictionResponseDTO.RiskThresholds(0.0159, 0.2441, "metadata"));
+        assertThat(r.rainSource()).isEqualTo("MEASURED");
+        assertThat(r.trainingData()).isEqualTo("SYNTHETIC");
+        assertThat(r.syntheticWarning()).contains("SINTÉTICO");
+        assertThat(r.contributors()).extracting("label").containsExactly("Chuva acumulada em 3 horas", "Nível da maré");
+        assertThat(r.contributors()).extracting("value").containsExactly(60.0, 2.2);
+        assertThat(r.contributors()).extracting("unit").containsExactly("mm", "m (NR DHN)");
+    }
+
+    @Test
+    void etapa8_treinoSinteticoSemAviso_backendPoeOAviso() {
+        iaResponde("{\"flood_probability\":0.1,\"risk_level\":\"LOW\",\"model_version\":\"xgb_v2\",\"training_data\":\"SYNTHETIC\"}");
+        FloodPredictionResponseDTO r = predizEConfere();
+        assertThat(r.syntheticWarning()).isEqualTo(FloodPredictionServiceImpl.DEFAULT_SYNTHETIC_WARNING);
+    }
+
+    @Test
     void camposOpcionaisAusentesSaoAceitos() {
         iaResponde("{\"flood_probability\":0.1,\"risk_level\":\"LOW\",\"model_version\":\"unversioned\"}");
         FloodPredictionResponseDTO r = predizEConfere();

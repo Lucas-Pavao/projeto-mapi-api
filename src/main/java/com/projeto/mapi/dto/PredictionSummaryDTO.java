@@ -19,5 +19,9 @@ public record PredictionSummaryDTO(
         String modelVersion,
         DegradationReason degradationReason,
         Instant lastValidIssuedAt,
-        ModelValidationStatus modelValidationStatus) {
+        ModelValidationStatus modelValidationStatus,
+        // Etapa 8 do IN1165 (por adição): o stream e a série não podem tirar a etiqueta de modelo sintético.
+        FloodPredictionResponseDTO.RiskThresholds riskThresholds,
+        String trainingData,
+        String syntheticWarning) {
 }

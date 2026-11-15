@@ -205,6 +205,10 @@ As séries se relacionam com `flood_points` só por convenção: `sensor_data.se
 
 Tabelas derivadas, refeitas por `POST /api/admin/stations/unify`: `station_canonical` (`canonical_id` PK, `name`, `lat`, `lon`, `municipality`, `ibge_code`, `primary_source`, `n_aliases`, `rule_version`), `station_alias` (`source`, `station_id` PK e FK para `station`; `canonical_id`, `source_name`, `distance_m`, `name_similarity`) e `station_hour_divergence` (`canonical_id`, `hour_end_utc`, valor mantido e descartado, `diff_mm`, `tolerance_mm`). Views: `station_canonical_v` (apelidos em `aliases text[]`), `canonical_rain_hourly_v` (PED primeiro) e `point_rain_accum_v` (3, 6, 12 e 24 h sobre `point_rain_hourly`, `NULL` com lacuna na janela).
 
+## Proveniência do modelo na previsão (V26, ADR 0007 emenda 2)
+
+`flood_predictions.model_info jsonb` (anulável): `rainSource`, `trainingData`, `syntheticWarning`, `riskThresholds {medium, high, source}`. `top_contributors` passa a guardar também `value` e `unit`.
+
 ## Alvo
 
 O modelo-alvo (proveniência, idempotência, séries por fonte, terreno por ponto) está no
