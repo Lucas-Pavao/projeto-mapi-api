@@ -102,3 +102,31 @@
 `synthetic {n, positiveRate, seed}`, `thresholds`, `calibration`, `rows[] {id, name, prAuc, rocAuc, brier}`,
 `ablations[] {label, delta, lo, hi}`, `xai {top5[], jaccard, spearman, lime10, delShap, delLime, delRandom, planBSpearman}`,
 `sources {arquivo: sha256}`.
+
+## B6 — `GET /api/stations/{canonicalId}/card?at=` (card do pluviômetro, seção 5.1)
+
+Uma chamada com tudo do card. `at` = instante de referência (padrão: agora); blocos de 10 min das 3 h anteriores.
+
+```json
+{
+  "canonicalId": "261160621A", "name": "Areias", "aliases": ["CEMADEN:261160621A", "CEMADEN_PED:261160621A"],
+  "aliasDistanceM": 12, "sources": ["CEMADEN", "CEMADEN_PED"], "pedOnly": false,
+  "state": "DIVERGENT",
+  "nowMmH": 3.2, "nowSource": "CEMADEN_PED", "liveMmH": 2.0, "pedMmH": 3.2, "pedPending": false,
+  "blocks": [ { "endUtc": "...Z", "mm": 0.4, "source": "CEMADEN_PED", "peakRemoved": false } ],
+  "acc1hMm": 2.1, "acc3hMm": 5.0, "acc24hMm": null,
+  "note": { "kind": "DIVERGENT", "hourEndUtc": "...Z", "liveMm": 2.0, "pedMm": 3.2, "diffMm": 1.2 },
+  "monthCheck": { "monthStartUtc": "...Z", "status": "OK", "reasons": [] },
+  "quarantineToday": { "GAP": 0, "AFTER_GAP": 1, "SUSPECT_QUALIFIER": 0 },
+  "uses": [ { "slug": "AV_RECIFE_IBURA", "name": "Av. Recife - Entrada do Ibura", "distanceM": 688,
+              "role": "USED", "usedStationName": null } ],
+  "lastReadingUtc": "...Z", "attribution": "DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC"
+}
+```
+
+- `blocks`: uma entrada por bloco de 10 min das 3 h (18), inclusive sem dado (`mm = null`, `source = null`). Fonte por bloco: PED se houver; senão ao vivo.
+- Acumulados: `null` ("incompleto") se qualquer bloco/hora da janela faltar. Nunca 0 por ausência.
+- `state` (prioridade, o primeiro que vale): `NO_RESPONSE` (sem leitura há > 60 min) → `GAP_NOW` (bloco atual sem dado nas duas fontes) → `FAIL_MONTH` → `DIVERGENT` (divergência > 0,5 mm nas últimas 2 h) → `PEAK_REMOVED` (pico isolado nas 3 h) → `UNCHECKED` → `NORMAL`. `pedOnly` é etiqueta à parte.
+- `note`: o aviso do `state` (um só), com os números do caso; `null` em `NORMAL`.
+- `uses`: pontos críticos a até 5 km; `role` = `USED` | `LOWER` (com `usedStationName`) | `EXCLUDED` (mês FAIL/OFFLINE) | `NO_VALUE`, na hora de `at` (série do ponto quando houver; senão o valor horário canônico).
+- 404 se a canônica não existe.
