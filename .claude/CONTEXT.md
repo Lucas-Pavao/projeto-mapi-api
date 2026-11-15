@@ -60,3 +60,8 @@ hypertables, EXPLAIN — nenhum container do banco estava rodando.
 - Banco real sem V16–V20: não subir o compose com a branch da F2 sem dump e aprovação.
 - F6 e PWA ficam para depois da F5.
 
+
+## Acréscimo 2026-11-16 (novos cenários, sem push)
+- Branches `feat/novos-cenarios` em api (worktree `.claude/worktrees/novos-cenarios`), front (worktree idem) e ia. Contrato: `docs/redesign/CONTRATO-novos-cenarios.md`.
+- Divergências do canvas (versão 36) com os docs, a decidir pelo Lucas: KPI "horas de chuva forte" (no doc são eventos); subtítulo "Abril 2022 → hoje" (dados out/2021 → out/2026); linha 25 mm/h (doc: 25,15).
+- Limitação aberta: na inferência, a chuva de 24 h enviada ao modelo vem do Open-Meteo (o treino usou chuva medida).
