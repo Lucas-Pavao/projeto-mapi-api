@@ -1,6 +1,9 @@
 package com.projeto.mapi.service.station.impl;
 
 import com.projeto.mapi.dto.CanonicalStationDTO;
+import com.projeto.mapi.dto.MonthCheckDTO;
+import com.projeto.mapi.service.analise.PointRainService;
+import com.projeto.mapi.service.sensor.cemaden.impl.MeasuredRainAccumulationServiceImpl;
 import com.projeto.mapi.dto.StationUnificationReportDTO;
 import com.projeto.mapi.repository.station.StationCanonicalRepository;
 import com.projeto.mapi.repository.station.StationCanonicalRepository.AliasRow;
@@ -42,6 +45,8 @@ public class StationUnificationServiceImpl implements StationUnificationService 
     public static final String LIVE = CemadenAdapter.SOURCE;
     /** Abaixo disto a semelhança de nome vai para o log como aviso (a decisão continua sendo a distância). */
     private static final double LOW_NAME_SIMILARITY = 0.5;
+
+    private static final List<String> QUARANTINE_REASONS = List.of("GAP", "AFTER_GAP", "SUSPECT_QUALIFIER");
 
     private final StationCanonicalRepository repo;
 
@@ -135,8 +140,21 @@ public class StationUnificationServiceImpl implements StationUnificationService 
 
     @Override
     public List<CanonicalStationDTO> canonicalStations() {
-        return repo.canonicals().stream().map(c -> new CanonicalStationDTO(c.canonicalId(), c.name(), c.municipality(),
-                c.ibgeCode(), c.lat(), c.lon(), c.primarySource(), c.aliases())).toList();
+        Map<String, StationCanonicalRepository.MonthCheckView> checks = repo.latestMonthChecks(PointRainService.RULE_VERSION);
+        Map<String, Map<String, Integer>> quarantine = repo.openQuarantineByCanonical();
+        Map<String, Integer> divergences = repo.divergenceCounts();
+        return repo.canonicals().stream().map(c -> {
+            Map<String, Integer> q = new LinkedHashMap<>();
+            for (String reason : QUARANTINE_REASONS) q.put(reason, 0);
+            q.putAll(quarantine.getOrDefault(c.canonicalId(), Map.of()));
+            var m = checks.get(c.canonicalId());
+            MonthCheckDTO monthCheck = m == null ? null : new MonthCheckDTO(m.monthStartUtc(),
+                    "PASS".equals(m.status()) ? "OK" : m.status(), m.reasons(), m.ruleVersion());
+            List<String> sources = c.aliases().stream().map(a -> a.substring(0, a.indexOf(':'))).distinct().sorted().toList();
+            return new CanonicalStationDTO(c.canonicalId(), c.name(), c.municipality(), c.ibgeCode(), c.lat(), c.lon(),
+                    c.primarySource(), c.aliases(), sources, monthCheck, q, divergences.getOrDefault(c.canonicalId(), 0),
+                    MeasuredRainAccumulationServiceImpl.ATTRIBUTION);
+        }).toList();
     }
 
     /** Tira as etiquetas "[CEMADEN]"/"[APAC]" que a coleta ao vivo põe no nome. */

@@ -39,6 +39,10 @@ public class PointRainRepository {
     public record StoredHour(Instant hourEndUtc, Double value, String stationId, Double stationDistanceM, int nValid,
                              int nValidWithValue, Integer nBlocks, Double coveredMin) {}
 
+    public record MonthCheckRow(String stationId, String name, Instant monthStart, String status, List<String> reasons) {}
+
+    public record LinkedStation(String stationId, String name, double distanceM) {}
+
     private final JdbcTemplate jdbc;
     private final ObjectMapper mapper;
 
@@ -154,5 +158,40 @@ public class PointRainRepository {
                 rs.getObject(2, Double.class), rs.getString(3), rs.getObject(4, Double.class), rs.getInt(5),
                 rs.getInt(6), rs.getObject(7, Integer.class), rs.getObject(8, Double.class)),
                 pointId, ruleVersion, utc(from), utc(to));
+    }
+
+    /** Checagens mensais da fonte na regra pedida, com início de mês em [from, to). Status no vocabulário do banco. */
+    public List<MonthCheckRow> monthChecks(String source, String ruleVersion, Instant from, Instant to) {
+        return jdbc.query("""
+                SELECT c.station_id, s.name, c.month_start_utc, c.status, c.reasons
+                FROM station_month_check c
+                LEFT JOIN station s ON s.source = c.source AND s.station_id = c.station_id
+                WHERE c.source = ? AND c.rule_version = ? AND c.month_start_utc >= ? AND c.month_start_utc < ?
+                ORDER BY c.station_id, c.month_start_utc
+                """, (rs, i) -> {
+            java.sql.Array a = rs.getArray(5);
+            List<String> reasons = a == null ? List.of() : java.util.Arrays.asList((String[]) a.getArray());
+            return new MonthCheckRow(rs.getString(1), rs.getString(2), rs.getObject(3, OffsetDateTime.class).toInstant(),
+                    rs.getString(4), reasons);
+        }, source, ruleVersion, utc(from), utc(to));
+    }
+
+    /** Estações vinculadas ao ponto (MAX_VALID, chuva) cuja janela de vínculo cobre a hora que termina em {@code at}. */
+    public List<LinkedStation> linkedStations(long pointId, String source, Instant at) {
+        return jdbc.query("""
+                SELECT l.station_id, s.name, l.distance_m FROM point_station_link l
+                LEFT JOIN station s ON s.source = l.source AND s.station_id = l.station_id
+                WHERE l.flood_point_id = ? AND l.source = ? AND l.method = 'MAX_VALID' AND l.variable_scope = 'precipitation'
+                  AND l.valid_from < ? AND (l.valid_to IS NULL OR l.valid_to >= ?)
+                ORDER BY l.distance_m, l.station_id
+                """, (rs, i) -> new LinkedStation(rs.getString(1), rs.getString(2), rs.getDouble(3)),
+                pointId, source, utc(at), utc(at));
+    }
+
+    /** Última hora da série do ponto na regra (point_rain_hourly não é hypertable; a chave é ponto + regra + hora). */
+    public Optional<Instant> latestPointHour(long pointId, String ruleVersion) {
+        return jdbc.query("SELECT max(hour_end_utc) FROM point_rain_hourly WHERE flood_point_id = ? AND rule_version = ?",
+                (rs, i) -> rs.getObject(1, OffsetDateTime.class), pointId, ruleVersion).stream()
+                .filter(java.util.Objects::nonNull).map(OffsetDateTime::toInstant).findFirst();
     }
 }
