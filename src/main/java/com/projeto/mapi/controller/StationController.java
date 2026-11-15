@@ -2,7 +2,9 @@ package com.projeto.mapi.controller;
 
 import com.projeto.mapi.dto.CanonicalStationDTO;
 import com.projeto.mapi.dto.MeasuredRainAccumulationsDTO;
+import com.projeto.mapi.dto.StationCardDTO;
 import com.projeto.mapi.dto.StationHourlyDTO;
+import com.projeto.mapi.service.station.StationCardService;
 import com.projeto.mapi.service.station.StationHourlyService;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -33,6 +35,7 @@ public class StationController {
     private final StationUnificationService unification;
     private final MeasuredRainAccumulationService accumulations;
     private final StationHourlyService hourly;
+    private final StationCardService card;
 
     @GetMapping("/canonical")
     @Operation(summary = "Lista as estações canônicas com os apelidos de origem",
@@ -73,5 +76,22 @@ public class StationController {
         Instant end = to != null ? to : Instant.now().truncatedTo(ChronoUnit.HOURS);
         Instant start = from != null ? from : end.minus(24, ChronoUnit.HOURS);
         return ResponseEntity.ok(hourly.hourly(canonicalId, start, end));
+    }
+
+    @GetMapping("/{canonicalId}/card")
+    @Operation(summary = "Card do pluviômetro: blocos de 10 min das 3 h, acumulados, estado, aviso e pontos atendidos",
+            description = "Uma chamada com tudo da tela da estação. 'at' = instante de referência (padrão: agora). blocks traz 18 "
+                    + "blocos de 10 min (PED se houver, senão ao vivo; mm nulo sem dado ou pico isolado removido). Acumulados "
+                    + "nulos se qualquer bloco ou hora da janela faltar, nunca zero. state, na prioridade: NO_RESPONSE (sem leitura "
+                    + "há mais de 60 min), GAP_NOW, FAIL_MONTH, DIVERGENT (mais de 0,5 mm nas 2 últimas horas), PEAK_REMOVED (3 h), "
+                    + "UNCHECKED, NORMAL; note traz os números do estado. quarantineToday: linhas abertas no dia civil UTC de 'at'. "
+                    + "uses: pontos a até 5 km e o papel da estação na chuva de cada um. Instantes em UTC.")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @ApiResponse(responseCode = "400", description = "'at' inválido")
+    @ApiResponse(responseCode = "404", description = "Estação canônica não encontrada")
+    public ResponseEntity<StationCardDTO> card(@PathVariable String canonicalId,
+            @Parameter(description = "Instante de referência, ISO-8601 UTC; padrão: agora") @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant at) {
+        return ResponseEntity.ok(card.card(canonicalId, at));
     }
 }
