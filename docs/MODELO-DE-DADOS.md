@@ -201,6 +201,10 @@ e `wind_direction`; `geo_locations` omite `lat_direction`/`lng_direction`. A lis
 As séries se relacionam com `flood_points` só por convenção: `sensor_data.sensor_id` ↔
 `flood_point_*.station_id`, e `weather_data`/`flood_*` por latitude/longitude.
 
+## Estação canônica (V25, ADR 0023)
+
+Tabelas derivadas, refeitas por `POST /api/admin/stations/unify`: `station_canonical` (`canonical_id` PK, `name`, `lat`, `lon`, `municipality`, `ibge_code`, `primary_source`, `n_aliases`, `rule_version`), `station_alias` (`source`, `station_id` PK e FK para `station`; `canonical_id`, `source_name`, `distance_m`, `name_similarity`) e `station_hour_divergence` (`canonical_id`, `hour_end_utc`, valor mantido e descartado, `diff_mm`, `tolerance_mm`). Views: `station_canonical_v` (apelidos em `aliases text[]`), `canonical_rain_hourly_v` (PED primeiro) e `point_rain_accum_v` (3, 6, 12 e 24 h sobre `point_rain_hourly`, `NULL` com lacuna na janela).
+
 ## Alvo
 
 O modelo-alvo (proveniência, idempotência, séries por fonte, terreno por ponto) está no

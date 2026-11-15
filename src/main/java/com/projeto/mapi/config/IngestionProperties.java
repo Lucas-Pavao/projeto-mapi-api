@@ -151,5 +151,14 @@ public class IngestionProperties {
          * (docs/extratos/cemaden-ped.md). Reversível por REVALIDATE se a resposta mudar.
          */
         private List<String> suspectQualifiers = List.of("0002");
+        /**
+         * Acumulados recentes medidos ({@code /pcds-acum/acumulados-recentes}, ADR 0023): uma requisição por município a
+         * cada ciclo, pelo mesmo cliente e o mesmo limite de 10 por minuto da carga. A PED atualiza a cada 10 min.
+         */
+        private boolean accumulationEnabled = true;
+        private long accumulationRefreshMs = 600_000;
+        private long accumulationInitialDelayMs = 30_000;
+        /** Leitura mais velha que isto sai marcada {@code stale} (dois ciclos sem renovar). */
+        private long accumulationStaleAfterMs = 1_800_000;
     }
 }

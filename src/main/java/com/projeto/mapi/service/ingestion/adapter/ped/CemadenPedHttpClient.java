@@ -71,6 +71,13 @@ public class CemadenPedHttpClient implements CemadenPedClient {
         return get(url);
     }
 
+    @Override
+    public synchronized Response recentAccumulations(String ibgeCode) {
+        String url = UriComponentsBuilder.fromUriString(cfg().getBaseUrl() + "/pcds-acum/acumulados-recentes")
+                .queryParam("codibge", ibgeCode).build().toUriString();
+        return get(url);
+    }
+
     private IngestionProperties.CemadenPed cfg() {
         return props.getCemadenPed();
     }

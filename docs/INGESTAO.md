@@ -150,6 +150,46 @@ flowchart LR
 
 **Conta.** Conta da PED inativa por um ano é removida pela plataforma: usar a API pelo menos uma vez antes de 2027-11.
 
+## Estação canônica e acumulado medido (2026-11-15, ADR 0023)
+
+DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC.
+
+**Unificação.** A mesma estação física chega pela coleta ao vivo (`CEMADEN`) e pela PED (`CEMADEN_PED`). `POST /api/admin/stations/unify` refaz `station_canonical` e `station_alias`: cada estação ao vivo a até 150 m da estação PED mais próxima vira apelido dela; duas estações da mesma fonte nunca se fundem; nome só vai para o registro. Na API recém-migrada, o primeiro ciclo de acumulados roda a unificação sozinho se a tabela estiver vazia.
+
+Resultado em `mapi_db`, 2026-11-15 (log de `StationUnificationServiceImpl`; ensaio em SQL com o mesmo resultado):
+
+| Medida | Valor |
+|---|---|
+| Estações lidas: PED / ao vivo | 46 / 47 |
+| Canônicas | 68 |
+| Unificadas (PED + ao vivo) | 25, todas com o mesmo código, a 0 m |
+| Só PED / só ao vivo | 21 / 22 |
+| Menor distância de uma estação ao vivo não unificada até a PED | 1 039 m |
+| Horas comparadas / divergências (> 0,5 mm) | 0 / 0: sem sobreposição de horas (ao vivo de 2026-11-08 a 11-09; PED até 2026-10-07) |
+| Mesmo código, nome diferente | 1 (260960004A: "[APAC] Ouro Preto" × "Jardim Fragoso") |
+
+Para medir divergência é preciso a PED no período da coleta ao vivo: `run '{"source":"CEMADEN_PED","from":"2026-11-07T00:00:00Z","to":"2026-11-16T00:00:00Z","mode":"REFETCH","kind":"BACKFILL"}'` e depois `unify`.
+
+**Série canônica.** `canonical_rain_hourly_v`: por estação canônica e hora, o valor da PED quando existe; senão, o da coleta ao vivo. Filtrar por `canonical_id` e hora.
+
+**Acumulado medido.** `/pcds-acum/acumulados-recentes?codibge=` (um município por requisição; `uf` não é aceito, HTTP 400). Ciclo agendado a cada 10 min (`mapi.ingestion.cemaden-ped.accumulation-refresh-ms`), fora da requisição HTTP, pelo mesmo cliente da carga (uma requisição a cada 6 s). Municípios = os dos códigos das canônicas (14 na RMR). `null` numa janela = sem leitura; HTTP 202 = município sem dado; nenhum dos dois vira zero. `datahora` é o instante do cálculo em UTC, não a última leitura. Primeiro ciclo em 2026-11-15: 81 estações, 14 municípios, 0 sem dado, 0 falhas (13 estações fora do cadastro do MAPi, como a `A301` do INMET).
+
+**Acumulado por ponto.** `point_rain_accum_v` soma 3, 6, 12 e 24 h de `point_rain_hourly` (uma linha por hora, inclusive lacunas). Janela com qualquer hora sem valor = `NULL`; `rain_<N>h_n` diz quantas horas tinham valor.
+
+### Próxima recarga da PED: `/pcds/pcds-dados-pg` (registrado, não executado)
+
+A carga de 2026-11-09 usou `/pcds/dados_pcd`: uma estação e no máximo 30 dias por requisição, ~2 900 janelas e 5 a 6 h. A PED tem uma rota paginada (especificação em `https://sws.cemaden.gov.br/PED/api/ui/swagger.json`, lida em 2026-11-15):
+
+| Parâmetro | Uso |
+|---|---|
+| `rede` | obrigatório, `11` (Cemaden) |
+| `datainicio`, `datafim` | obrigatórios, `aaaaMMddHHmm` ou `aaaaMM`; sem o limite de 30 dias |
+| `uf` ou `codibge` | opcionais: o estado ou o município inteiro numa consulta |
+| `sensor` | opcional, `10` (chuva) |
+| `scroll` | identificador da página seguinte, devolvido na primeira; expira em 30 s |
+
+Caminho proposto: um município por consulta (`codibge`), `sensor=10`, período inteiro, seguindo o `scroll` até a última página. O `scroll` expira em 30 s, e o intervalo de 6 s entre requisições cabe nisso. A retomada passa a ser por (município, página), e não por (estação, janela); a duração do bloco continua vindo da leitura anterior da mesma estação, então as páginas de uma estação precisam ser ordenadas antes da validação. Antes de usar: conferir numa amostra que a rota devolve as mesmas leituras e a mesma `qualificacao` da `dados_pcd` (mesmo hash de bruto). Também existe `/pcds-acum/acumulados-historicos`, não avaliada.
+
 ## Retenção e compressão (resumo)
 
 Staging bruto e série consolidada **não têm `drop_chunks`**. Compressão (14 dias no bruto, 60 na consolidada) e continuous aggregates estão **adiados** (migração de compressão, número a definir): entram só se um limiar de medição for atingido (ADR 0006, seção 9). Apagar bruto exige exportar para arquivo com SHA-256 e aprovação explícita. Detalhe e volumes: ADR 0006, seção 9.

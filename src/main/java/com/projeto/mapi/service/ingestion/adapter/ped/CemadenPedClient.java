@@ -16,4 +16,11 @@ public interface CemadenPedClient {
 
     /** {@code /pcds/dados_pcd?rede=11&codigo=...&sensor=10}: chuva de uma estação em [from, to] (até 30 dias). */
     Response rain(String stationCode, Instant from, Instant to);
+
+    /**
+     * {@code /pcds-acum/acumulados-recentes?codibge=...}: acumulados de pluviômetro de 1 a 120 h por estação do
+     * município, calculados pela PED (ADR 0023). {@code null} numa janela = sem leitura; {@code datahora} é o instante
+     * do cálculo, em UTC sem sufixo (conferido em 2026-11-15 contra o relógio UTC da máquina).
+     */
+    Response recentAccumulations(String ibgeCode);
 }

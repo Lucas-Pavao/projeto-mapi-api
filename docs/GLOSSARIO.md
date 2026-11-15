@@ -76,6 +76,9 @@ Qualquer número de fichas deve dizer de qual unidade se trata.
 | Episódio | Dias a até 3 dias de distância entre si formam um episódio; é a unidade de independência nos intervalos de confiança (PRE-REGISTRO §2, MEMO §1.2). | — | — |
 | `modelValidationStatus` | Estado de validação do modelo que emitiu a predição: `NOT_VALIDATED` (padrão) ou `VALIDATED`. Só vira `VALIDATED` por ADR que cite uma avaliação pré-registrada positiva; com `NOT_VALIDATED` o painel mostra "Previsão experimental — modelo não validado" (ADR 0007, emenda 1). | enum | `modelValidationStatus` |
 | `degradationReason` | Motivo da degradação quando `riskLevel = UNKNOWN`: `INSUFFICIENT_DATA`, `AI_TIMEOUT`, `AI_UNAVAILABLE`, `AI_ERROR` (ADR 0007). Nulo com risco `LOW`, `MEDIUM` ou `HIGH`. | enum | `degradationReason` |
+| Estação canônica | Uma estação física, mesmo quando chega por mais de uma fonte (coleta ao vivo e PED do Cemaden). Os códigos de origem ficam como apelidos (`SOURCE:station_id`). Mesma estação = até 150 m (ADR 0023). | — | `canonicalId`, `aliases` |
+| Chuva medida × reanálise | Medida: pluviômetro (Cemaden, ANA), `rainOrigin = MEASURED`. Reanálise: modelo meteorológico (Open-Meteo), `REANALYSIS`; suaviza o pico (21,1 contra 62 mm/h). | mm | `rainOrigin` |
+| Sem dado × zero | Sem dado: a estação não mediu (acumulado `null`, status `NO_DATA`). Zero: mediu e não choveu (`0.0`). Nunca se convertem (ADR 0021, 0023). | mm | `status`, `acc<N>hMm` |
 | Proveniência | Metadados de origem de cada valor: fonte, identificador da estação, quando foi coletado, versão/correção da agência, raio de vínculo sensor↔ponto. | — | `provenance` |
 | Staging bruto (`raw_observation`) | Cópia append-only do que a fonte devolveu, com hash do payload e fuso de origem declarado. Nunca é editada (ADR 0006). | — | — |
 | Quarentena | Registro reprovado na validação (faixa, unidade, fuso não verificado), guardado com a regra e o motivo; não entra no dataset (ADR 0006). | — | — |
