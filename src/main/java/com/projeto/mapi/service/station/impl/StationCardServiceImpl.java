@@ -1,5 +1,6 @@
 package com.projeto.mapi.service.station.impl;
 
+import com.projeto.mapi.dto.LocationAnalysisDTO;
 import com.projeto.mapi.dto.MonthCheckDTO;
 import com.projeto.mapi.dto.PointRainCandidatesDTO;
 import com.projeto.mapi.dto.StationCardDTO;
@@ -18,6 +19,7 @@ import com.projeto.mapi.repository.station.StationCardRepository;
 import com.projeto.mapi.repository.station.StationCardRepository.BlockRow;
 import com.projeto.mapi.service.analise.PointRainCandidatesService;
 import com.projeto.mapi.service.analise.PointRainService;
+import com.projeto.mapi.service.location.LocationAnalysisService;
 import com.projeto.mapi.service.sensor.cemaden.impl.MeasuredRainAccumulationServiceImpl;
 import com.projeto.mapi.service.station.StationCardService;
 import com.projeto.mapi.service.station.StationHourlyService;
@@ -51,6 +53,8 @@ public class StationCardServiceImpl implements StationCardService {
     /** O bloco seco da coleta ao vivo dura 60 min (+10 de folga): sem leitura há mais que isso é lacuna. */
     static final Duration GAP_AFTER = Duration.ofMinutes(70);
     static final double USES_RADIUS_M = 5000;
+    /** Sem leitura nas 3 h (NO_RESPONSE), o card ainda diz quando a estação falou pela última vez, até 30 dias atrás. */
+    static final Duration LAST_READING_LOOKBACK = Duration.ofDays(30);
 
     private final StationCanonicalRepository canonicals;
     private final StationCardRepository cards;
@@ -58,6 +62,7 @@ public class StationCardServiceImpl implements StationCardService {
     private final StationHourlyService hourly;
     private final PointRainCandidatesService candidates;
     private final FloodPointRepository floodPoints;
+    private final LocationAnalysisService locations;
 
     @Override
     public StationCardDTO card(String canonicalId, Instant at) {
@@ -145,7 +150,8 @@ public class StationCardServiceImpl implements StationCardService {
                 List.copyOf(sources), sources.equals(new TreeSet<>(List.of(StationUnificationServiceImpl.PED))), state,
                 now == null ? null : now.valueMm(), now == null ? null : now.usedSource(), liveNow, pedNow, pedPending,
                 blocks, acc1h, acc3h, acc24h, note, month, quarantine, uses(c, pedId, hourFloor),
-                last, MeasuredRainAccumulationServiceImpl.ATTRIBUTION);
+                last != null ? last : cards.lastReading(aliases, ref.minus(LAST_READING_LOOKBACK), ref).orElse(null),
+                MeasuredRainAccumulationServiceImpl.ATTRIBUTION);
     }
 
     /** Soma por balde de 10 min (fim do balde) e por fonte; o valor vai ao balde do carimbo, os anteriores do bloco contam 0. */
@@ -223,7 +229,6 @@ public class StationCardServiceImpl implements StationCardService {
      */
     private List<Use> uses(CanonicalView c, String pedId, Instant hourEnd) {
         List<Use> out = new ArrayList<>();
-        if (pedId == null) return out;
         List<FloodPoint> near = new ArrayList<>();
         for (FloodPoint p : floodPoints.findByActiveTrue()) {
             if (p.getLatitude() != null && p.getLongitude() != null
@@ -231,10 +236,16 @@ public class StationCardServiceImpl implements StationCardService {
         }
         near.sort(java.util.Comparator.comparingDouble(p -> distanceM(c.lat(), c.lon(), p.getLatitude(), p.getLongitude())));
         for (FloodPoint p : near) {
-            PointRainCandidatesDTO dto = candidates.candidates(p.getSlug(), hourEnd);
-            PointRainCandidatesDTO.Candidate mine = dto.candidates().stream()
+            PointRainCandidatesDTO dto = pedId == null ? null : candidates.candidates(p.getSlug(), hourEnd);
+            PointRainCandidatesDTO.Candidate mine = dto == null ? null : dto.candidates().stream()
                     .filter(x -> x.stationId().equals(pedId)).findFirst().orElse(null);
-            if (mine == null) continue;
+            if (mine == null) {
+                // A série do ponto não cobre a hora (a carga PED parou) ou a estação é só da coleta ao vivo:
+                // vale o valor horário canônico, pela mesma regra da análise de local (contrato B6, `uses`).
+                Use canonical = canonicalUse(c, p, hourEnd);
+                if (canonical != null) out.add(canonical);
+                continue;
+            }
             String role = mine.role();
             String usedName = null;
             if (dto.usedStationId() == null && !"EXCLUDED".equals(role)) {
@@ -253,6 +264,16 @@ public class StationCardServiceImpl implements StationCardService {
                     role, usedName));
         }
         return out;
+    }
+
+    private Use canonicalUse(CanonicalView c, FloodPoint p, Instant hourEnd) {
+        LocationAnalysisDTO.Rain r = locations.measuredRain(p.getLatitude(), p.getLongitude(), hourEnd);
+        LocationAnalysisDTO.Candidate mine = r.candidates().stream()
+                .filter(x -> x.stationId().equals(c.canonicalId())).findFirst().orElse(null);
+        if (mine == null) return null;
+        String usedName = !"LOWER".equals(mine.role()) || r.station() == null ? null : r.station().name();
+        return new Use(p.getSlug(), p.getName(), Math.round(distanceM(c.lat(), c.lon(), p.getLatitude(), p.getLongitude())),
+                mine.role(), usedName);
     }
 
     private static double distanceM(double lat1, double lon1, double lat2, double lon2) {

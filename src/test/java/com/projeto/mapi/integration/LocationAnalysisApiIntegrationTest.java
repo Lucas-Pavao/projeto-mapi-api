@@ -96,6 +96,8 @@ class LocationAnalysisApiIntegrationTest extends AbstractApiIntegrationTest {
         assertThat(rain.get("candidates")).hasSize(2);
         assertThat(rain.get("candidates").get(0).get("role").asText()).isEqualTo("USED");
         assertThat(rain.get("candidates").get(1).get("role").asText()).isEqualTo("LOWER");
+        assertThat(rain.get("candidates").get(0).get("monthStatus").asText()).isEqualTo("OK");
+        assertThat(rain.get("candidates").get(1).get("monthStatus").asText()).isEqualTo("UNCHECKED"); // sem checagem: nunca null
         assertThat(r.get("terrain").get("elevationM").asDouble()).isEqualTo(4.2);
         assertThat(r.get("weather").get("temperatureC").asDouble()).isEqualTo(27.1);
         assertThat(r.get("river").isNull()).isTrue();

@@ -62,7 +62,7 @@ public class PointRainCandidatesServiceImpl implements PointRainCandidatesServic
         List<Candidate> out = new ArrayList<>();
         for (LinkedStation s : repo.linkedStations(point.getId(), PointRainService.SOURCE, hourEnd)) {
             MonthCheckRow chk = checks.get(s.stationId());
-            String status = chk == null ? null : "PASS".equals(chk.status()) ? "OK" : chk.status();
+            String status = chk == null ? "UNCHECKED" : "PASS".equals(chk.status()) ? "OK" : chk.status();
             List<String> reasons = chk == null ? List.of() : chk.reasons();
             Double mm = repo.hourly(PointRainService.SOURCE, s.stationId(), hourEnd.minus(1, ChronoUnit.HOURS), hourEnd)
                     .stream().filter(h -> h.hourEndUtc().equals(hourEnd)).map(HourRow::value)

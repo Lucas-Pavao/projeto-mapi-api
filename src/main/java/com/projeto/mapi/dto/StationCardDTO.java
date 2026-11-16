@@ -29,7 +29,7 @@ public record StationCardDTO(
         @Schema(description = "Checagem espacial do mês de 'at'; null se a estação PED não foi checada") MonthCheckDTO monthCheck,
         @Schema(description = "Linhas abertas na quarentena, por motivo, do dia civil UTC de 'at'") Map<String, Integer> quarantineToday,
         @Schema(description = "Pontos críticos a até 5 km e o papel desta estação na chuva de cada um") List<Use> uses,
-        @Schema(description = "Última leitura de chuva até 'at', UTC") Instant lastReadingUtc,
+        @Schema(description = "Última leitura de chuva até 'at', UTC. Em NO_RESPONSE, a última dos 30 dias anteriores; null se não houver") Instant lastReadingUtc,
         @Schema(description = "Citação obrigatória dos dados do Cemaden") String attribution) {
 
     @Schema(description = "Bloco de 10 min (fim em endUtc). mm null = sem dado nas duas fontes ou pico isolado removido")

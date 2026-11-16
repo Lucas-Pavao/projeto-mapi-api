@@ -151,7 +151,34 @@ class StationCardApiIntegrationTest extends AbstractApiIntegrationTest {
 
     @Test
     void semNenhumaLeituraNas3h_noResponse() throws Exception {
-        assertThat(card("PK1", 200).get("state").asText()).isEqualTo("NO_RESPONSE");
+        JsonNode c = card("PK1", 200);
+        assertThat(c.get("state").asText()).isEqualTo("NO_RESPONSE");
+        assertThat(c.get("lastReadingUtc").isNull()).isTrue();                     // nada em 30 dias
+    }
+
+    @Test
+    void uses_semSerieDoPontoNaHora_usaValorCanonico() throws Exception {
+        // A carga PED parou: o ponto não tem série nem vínculo na hora; só a coleta ao vivo mediu.
+        jdbc.update("DELETE FROM point_rain_hourly WHERE flood_point_id IN (SELECT id FROM flood_points WHERE slug = 'CARD_PONTO')");
+        jdbc.update("DELETE FROM flood_points WHERE slug = 'CARD_PONTO'");
+        jdbc.update("INSERT INTO flood_points (name, slug, latitude, longitude, active) VALUES ('Ponto do card', 'CARD_PONTO', -8.0, -34.9, true)");
+        blocks(live, "CEMADEN", "LIVE-PK1", AT.minusSeconds(3600), AT, 0.3, null);
+        JsonNode use = null;
+        for (JsonNode u : card("PK1", 200).get("uses")) if (u.get("slug").asText().equals("CARD_PONTO")) use = u;
+        assertThat(use).isNotNull();
+        assertThat(use.get("role").asText()).isEqualTo("USED");
+        JsonNode n1 = null;
+        for (JsonNode u : card("N1", 200).get("uses")) if (u.get("slug").asText().equals("CARD_PONTO")) n1 = u;
+        assertThat(n1.get("role").asText()).isEqualTo("NO_VALUE");             // sem leitura na hora: nunca zero
+    }
+
+    @Test
+    void noResponse_dizAUltimaLeituraAnteriorAJanela() throws Exception {
+        Instant ontem = AT.minus(java.time.Duration.ofHours(15));
+        ObservationFixtures.precipitation(jdbc, live, "CEMADEN", "LIVE-PK1", "PT1H", ontem, 0.4, "ACTIVE");
+        JsonNode c = card("PK1", 200);
+        assertThat(c.get("state").asText()).isEqualTo("NO_RESPONSE");
+        assertThat(Instant.parse(c.get("lastReadingUtc").asText())).isEqualTo(ontem);
     }
 
     @Test

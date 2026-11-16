@@ -110,6 +110,11 @@ public class LocationAnalysisServiceImpl implements LocationAnalysisService {
                 hit.tide(), hit.river(), hit.terrain(), hit.weather(), hit.attribution());
     }
 
+    @Override
+    public Rain measuredRain(double lat, double lon, Instant at) {
+        return rain(lat, lon, at != null ? at : Instant.now(), true, null);
+    }
+
     private LocationAnalysisDTO compute(double lat, double lon, Instant at) {
         double cLat = center(lat), cLon = center(lon);
         Instant ref = at != null ? at : Instant.now();
@@ -206,7 +211,7 @@ public class LocationAnalysisServiceImpl implements LocationAnalysisService {
         for (int i = 0; i < cs.size(); i++) {
             CanonicalView c = cs.get(i);
             MonthCheckRow chk = checks.get(i);
-            String status = chk == null ? null : "PASS".equals(chk.status()) ? "OK" : chk.status();
+            String status = chk == null ? "UNCHECKED" : "PASS".equals(chk.status()) ? "OK" : chk.status();
             Double v = values.get(i);
             List<String> reasons = new ArrayList<>(chk == null ? List.<String>of() : chk.reasons());
             if (isolated.contains(c.canonicalId())) reasons.add("ISOLATED_PEAK");
