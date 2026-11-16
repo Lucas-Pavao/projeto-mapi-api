@@ -17,6 +17,12 @@ public interface FloodPredictionService {
      */
     PredictionResult predict(FloodPredictionRequestDTO request, Collection<String> imputedFeatureIds);
 
+    /**
+     * Previsão indisponível por falta de dado, decidida pelo chamador sem consultar a IA (regra de degradação da chuva
+     * medida, ADR 0007 emenda 3): {@code UNKNOWN} com {@code INSUFFICIENT_DATA} e as entradas ausentes declaradas.
+     */
+    PredictionResult insufficientData(Collection<String> absentFeatureIds);
+
     default FloodPredictionResponseDTO getPrediction(FloodPredictionRequestDTO request) {
         return predict(request, List.of()).response();
     }

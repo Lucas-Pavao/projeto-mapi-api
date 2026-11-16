@@ -103,7 +103,20 @@ public class FloodPrediction {
     public record Contributor(String featureId, Double contribution, Double value, String unit) {
     }
 
-    public record ModelInfo(String rainSource, String trainingData, String syntheticWarning, Thresholds riskThresholds) {
+    public record ModelInfo(String rainSource, String trainingData, String syntheticWarning, Thresholds riskThresholds,
+                            RainInput rainInput) {
+    }
+
+    /** Chuva enviada ao modelo (ADR 0007, emenda 3); nulo em linhas anteriores à emenda. */
+    public record RainInput(String source, java.time.Instant hourEndUtc, java.time.Instant latestReadingUtc,
+                            Long ageMinutes, Integer validStations, java.util.List<RainValue> values) {
+    }
+
+    public record RainValue(String featureId, Double valueMm, Integer hours, Integer hoursWithValue,
+                            java.util.List<RainStation> stations) {
+    }
+
+    public record RainStation(String stationId, String name, String source) {
     }
 
     public record Thresholds(Double medium, Double high, String source) {

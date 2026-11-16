@@ -155,3 +155,27 @@ este ADR, não por código.
   apenas para o artefato legado, sem metadata.
 - Compatibilidade: todos os campos são opcionais; previsões antigas voltam com eles nulos.
 - Decisor: Claude, pela autonomia da revisão (registrado no PROGRESSO).
+
+## Emenda 3 (2026-11-16) — chuva da previsão ao vivo pela série medida (modelo v3, etapa A1)
+
+- Status: aprovado (decisão do Lucas no prompt do modelo v3, 2026-11-16: "aprovo a troca da chuva da previsão ao vivo para a série da PED, com lacuna declarada como imputada")
+
+**Contexto.** A previsão ao vivo mandava ao modelo os acumulados do Open-Meteo (`MapiServiceImpl.withLiveRain`) e, como "chuva agora", o maior valor dos sensores ao vivo próximos, com 0,0 quando não havia sensor. O `xgb_v2` foi treinado com a chuva medida do ponto (ADR 0022); com reanálise no lugar, a PR-AUC de teste caiu de 0,764 para 0,318 (`projeto-mapi-ai/reports/metrics.csv`). O 0,0 fabricado dizia "não choveu" onde o certo é "não sei".
+
+**Decisão.**
+
+1. **Montagem** (`PointRainInputService`): por hora, o maior valor entre as estações válidas a até 5 km (`mapi.ingestion.sensor-linkage-radius-m`), com a regra da `chuva-ponto-v4`:
+   - estações = canônicas ancoradas na PED (as do treino). Estação só da coleta ao vivo não entra: não tem checagem mensal e o modelo nunca a viu;
+   - valor da hora por estação = PED se houver; senão a coleta ao vivo da mesma estação física (ADR 0023). A hora mais recente vem do ao vivo, que chega antes;
+   - pico isolado sai da hora (`RainSpatialCheck`); estação `FAIL` ou `OFFLINE` no mês da hora fica fora. Mês ainda sem checagem usa a do mês anterior; sem nenhuma, a estação conta como válida.
+2. **Divergência PED × ao vivo, medida antes de ligar** (2026-11-16, horas com fim de 2026-11-08 01:00 a 2026-11-16 10:00 UTC, consulta em `docs/extratos/sql/divergencia-ped-aovivo.sql`): 1 640 horas-estação com valor nas duas fontes, em 23 estações; 0 divergentes acima de 0,5 mm (0,00%, limite de 5%). Ressalva: a semana foi seca; só 4 dessas horas tiveram chuva (0,8 mm no total nas duas fontes). A medida não cobre chuva forte e precisa ser repetida depois de um evento.
+3. **Lacuna nunca vira zero.** Hora sem valor vai como `null` no pedido à IA e o id da entrada entra em `imputedFeatures`. Acumulado de N h com qualquer hora sem valor é ausente, como em `point_rain_accum_v`.
+4. **Hora de referência.** A "chuva agora" é a da última hora fechada. Se ela ainda não tem valor e o fim da hora foi há menos de 30 min `[sem fonte]` (`prediction-rain.latency-grace-minutes`), a referência recua uma hora; `rainInput.hourEndUtc` e `ageMinutes` declaram isso.
+5. **Regra de degradação.** Sem a chuva da hora de referência e sem o acumulado de 3 h, a previsão é `UNKNOWN` com `INSUFFICIENT_DATA`, sem consultar o modelo. Como o acumulado de 3 h contém a hora de referência, a regra equivale a "hora de referência ausente". Fica assim até a etapa B2 (modelo treinado com lacunas) dizer se dá para prever sem a hora atual; a revisão entra aqui.
+6. **Open-Meteo fora da previsão.** O fallback existe (`prediction-rain.reanalysis-fallback-enabled`), desligado por padrão; ligado, a resposta declara `rainSource = REANALYSIS_FALLBACK`.
+7. **Resposta, por adição:** `rainSource` passa a dizer a chuva que entrou na previsão (`MEASURED` ou `REANALYSIS_FALLBACK`), e `rainInput` traz `hourEndUtc`, `latestReadingUtc`, `ageMinutes`, `validStations` e, por entrada, `valueMm` (nulo = ausente), `hours`, `hoursWithValue` e as estações (`stationId`, `name`, `source`) que forneceram as horas. Tudo gravado em `flood_predictions.model_info` (jsonb, sem migração).
+8. **Transição.** O `xgb_v2` em serviço recusa chuva nula na validação do FastAPI (422 sem `missing_features`). Com entrada de chuva declarada ausente, o backend trata esse 422 como `INSUFFICIENT_DATA`, não `AI_ERROR`. Até o v3 entrar, qualquer entrada de chuva ausente dá `UNKNOWN`.
+
+**Consequências.** Melhor: a entrada do modelo é a do treino; ausência é declarada. Pior: mais `UNKNOWN` enquanto o v2 serve (lacuna em qualquer janela de 24 h); o retrato da rede custa uma consulta por série (≈ 70 consultas, reaproveitado por 5 min). `tide_level` e `river_level` continuam imputados com 0,0 declarado (fora do escopo desta emenda).
+
+**Verificação.** `PointRainInputIntegrationTest` (6 testes): hora sem leitura vai ausente; todas as estações fora dá insuficiente; estação reprovada fica fora; ao vivo preenche a hora que a PED não tem e a PED vence na mesma hora; tolerância de latência.

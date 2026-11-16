@@ -62,9 +62,11 @@ class PredictionSideEffectsIntegrationTest extends AbstractTimescaleIntegrationT
     @MockitoBean private TabuaMareService tabuaMareService;
     @MockitoBean private MarineService marineService;
     @MockitoBean private DataExportService dataExportService;
+    @MockitoBean private com.projeto.mapi.service.flood.PointRainInputService rainInputs;
 
     @BeforeEach
     void semeia() {
+        when(rainInputs.inputsAt(anyDouble(), anyDouble(), any())).thenReturn(chuvaMedida(0.5, 1.5));
         // Mockito devolve 0.0 (não null) para Double; aqui "sem maré" precisa ser null de verdade.
         when(tideService.getCurrentTideHeight(anyDouble(), anyDouble())).thenReturn(null);
         when(tabuaMareService.getCurrentTideHeight(anyDouble(), anyDouble())).thenReturn(null);
@@ -125,8 +127,8 @@ class PredictionSideEffectsIntegrationTest extends AbstractTimescaleIntegrationT
         @SuppressWarnings("unchecked")
         ArgumentCaptor<Collection<String>> imputed = ArgumentCaptor.forClass(Collection.class);
         verify(floodPredictionService).predict(any(), imputed.capture());
-        assertThat(imputed.getValue()).contains("tide_level", "river_level", "rainfall_3h_accumulated",
-                "rainfall_6h_accumulated", "rainfall_12h_accumulated", "rainfall_24h_accumulated");
+        // Maré e rio seguem imputados e declarados; a chuva medida veio completa, então não entra na lista.
+        assertThat(imputed.getValue()).containsExactly("tide_level", "river_level");
 
         long antes = predictionRepository.count();
         FloodPredictionResponseDTO lida = mapiService.getFloodPointBySlug(SLUG).getFloodPrediction();
@@ -181,5 +183,35 @@ class PredictionSideEffectsIntegrationTest extends AbstractTimescaleIntegrationT
         assertThat(r.riskLevel()).isEqualTo(RiskLevel.UNKNOWN);
         assertThat(r.lastValidIssuedAt()).isNull();
         assertThat(predictionRepository.count()).isEqualTo(1);
+    }
+
+    @Test
+    void semChuvaDaHoraNemDe3h_viraUnknownSemConsultarOModelo() {
+        when(rainInputs.inputsAt(anyDouble(), anyDouble(), any())).thenReturn(chuvaMedida(null, null));
+        when(floodPredictionService.insufficientData(anyCollection())).thenReturn(new PredictionResult(
+                FloodPredictionResponseDTO.builder().riskLevel(RiskLevel.UNKNOWN).issuedAt(Instant.now())
+                        .degradationReason(com.projeto.mapi.dto.DegradationReason.INSUFFICIENT_DATA).build(), null));
+
+        mapiService.refreshPredictionsForActivePoints();
+
+        verify(floodPredictionService, never()).predict(any(), anyCollection());
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Collection<String>> absent = ArgumentCaptor.forClass(Collection.class);
+        verify(floodPredictionService).insufficientData(absent.capture());
+        assertThat(absent.getValue()).contains("current_rainfall", "rainfall_3h_accumulated", "rainfall_24h_accumulated");
+    }
+
+    /** Chuva medida completa (ADR 0007, emenda 3): 0,5 mm na hora e nas janelas; nada ausente. */
+    private static com.projeto.mapi.service.flood.PointRainInputs chuvaMedida(Double atual, Double acc3h) {
+        String[] ids = {"current_rainfall", "rainfall_3h_accumulated", "rainfall_6h_accumulated", "rainfall_12h_accumulated", "rainfall_24h_accumulated"};
+        Double[] v = {atual, acc3h, acc3h == null ? null : 3.0, acc3h == null ? null : 6.0, acc3h == null ? null : 12.0};
+        int[] h = {1, 3, 6, 12, 24};
+        List<com.projeto.mapi.service.flood.PointRainInputs.Value> values = new java.util.ArrayList<>();
+        for (int i = 0; i < ids.length; i++) {
+            values.add(new com.projeto.mapi.service.flood.PointRainInputs.Value(ids[i], v[i], h[i], v[i] == null ? 0 : h[i],
+                    List.of(new com.projeto.mapi.service.flood.PointRainInputs.Station("E1", "Estação 1", "CEMADEN_PED"))));
+        }
+        return new com.projeto.mapi.service.flood.PointRainInputs("MEASURED", Instant.parse("2026-10-11T23:00:00Z"), v[0], v[1], v[2],
+                v[3], v[4], values, Instant.parse("2026-10-11T22:50:00Z"), atual == null ? 0 : 1);
     }
 }

@@ -62,6 +62,25 @@ public class IngestionProperties {
      */
     private double sensorLinkageRadiusM = 5000.0;
 
+    /** Chuva da previsão ao vivo (ADR 0007, emenda 3). Prefixo {@code mapi.ingestion.prediction-rain}. */
+    private PredictionRain predictionRain = new PredictionRain();
+
+    @Data
+    public static class PredictionRain {
+        /**
+         * A última hora fechada ainda sem valor de nenhuma estação válida, dentro deste prazo depois do fim da hora, é
+         * tratada como "ainda não chegou": a referência recua uma hora e a idade da leitura é declarada. {@code [sem fonte]}
+         */
+        private int latencyGraceMinutes = 30;
+        /** Validade do retrato da rede (24 h de todas as estações PED), reaproveitado entre os pontos e os ciclos. */
+        private int snapshotTtlSeconds = 300;
+        /**
+         * Desligado por padrão: o modelo foi treinado com chuva medida. Ligado, a falta de chuva medida usa o Open-Meteo
+         * e a resposta declara {@code rainSource = REANALYSIS_FALLBACK}.
+         */
+        private boolean reanalysisFallbackEnabled = false;
+    }
+
     /** Registros por lote/transação. */
     private int batchSize = 1000;
 

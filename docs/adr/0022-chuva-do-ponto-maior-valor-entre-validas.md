@@ -68,3 +68,7 @@ O vínculo estação↔ponto vai para `point_station_link` (`method = MAX_VALID`
 - Sensibilidade mostrar que o máximo muda a conclusão (eventos acima da capacidade) e a opção B não.
 - Densidade de estações suficiente para interpolação com validação cruzada.
 - Rótulo de alagamento com hora (hoje 0 dias com hora e ponto) permitir comparar as opções contra o desfecho.
+
+## Nota de 2026-11-16 — a mesma regra na previsão ao vivo
+
+A previsão ao vivo passou a montar a chuva com esta regra (ADR 0007, emenda 3), sobre a série canônica (PED, com a coleta ao vivo da mesma estação física nas horas que a PED ainda não tem). `point_rain_hourly` continua lendo só a PED e é refeita a cada hora (ADR 0021, emenda de 2026-11-16). O padrão de lacunas da série está em `docs/extratos/lacunas-chuva-ponto.md`.

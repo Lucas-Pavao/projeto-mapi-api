@@ -34,7 +34,8 @@ public record FloodPredictionResponseDTO(
         RiskThresholds riskThresholds,
         String rainSource,
         String trainingData,
-        String syntheticWarning) {
+        String syntheticWarning,
+        RainInput rainInput) {
 
     public FloodPredictionResponseDTO {
         modelValidationStatus = modelValidationStatus == null ? ModelValidationStatus.NOT_VALIDATED : modelValidationStatus;
@@ -63,6 +64,21 @@ public record FloodPredictionResponseDTO(
      * Limiares de probabilidade que produziram a faixa (Etapa 8 do IN1165). Vêm do metadata do modelo, pela IA:
      * o backend não tem limiar próprio. {@code source} = {@code metadata} (escolhidos na validação) ou {@code legacy}.
      */
+    /**
+     * Chuva enviada ao modelo (ADR 0007, emenda 3): fonte, hora de referência, idade da leitura mais recente e, por
+     * entrada, o valor (nulo = ausente) e as estações que o forneceram. Nulo em previsões anteriores à emenda.
+     */
+    public record RainInput(String source, Instant hourEndUtc, Instant latestReadingUtc, Long ageMinutes,
+                            Integer validStations, List<RainValue> values) {
+    }
+
+    public record RainValue(String featureId, Double valueMm, Integer hours, Integer hoursWithValue,
+                            List<RainStation> stations) {
+    }
+
+    public record RainStation(String stationId, String name, String source) {
+    }
+
     public record RiskThresholds(Double medium, Double high, String source) {
     }
 

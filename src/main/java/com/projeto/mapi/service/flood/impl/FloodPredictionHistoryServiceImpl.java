@@ -170,6 +170,7 @@ public class FloodPredictionHistoryServiceImpl implements FloodPredictionHistory
                     .rainSource(row.getModelInfo() == null ? null : row.getModelInfo().rainSource())
                     .trainingData(row.getModelInfo() == null ? null : row.getModelInfo().trainingData())
                     .syntheticWarning(row.getModelInfo() == null ? null : row.getModelInfo().syntheticWarning())
+                    .rainInput(rainInputOf(row.getModelInfo()))
                     .build();
         }
 
@@ -188,12 +189,30 @@ public class FloodPredictionHistoryServiceImpl implements FloodPredictionHistory
     }
 
     private static FloodPrediction.ModelInfo modelInfoOf(FloodPredictionResponseDTO p) {
-        if (p.rainSource() == null && p.trainingData() == null && p.syntheticWarning() == null && p.riskThresholds() == null) {
+        if (p.rainSource() == null && p.trainingData() == null && p.syntheticWarning() == null && p.riskThresholds() == null
+                && p.rainInput() == null) {
             return null;
         }
         FloodPredictionResponseDTO.RiskThresholds t = p.riskThresholds();
         return new FloodPrediction.ModelInfo(p.rainSource(), p.trainingData(), p.syntheticWarning(),
-                t == null ? null : new FloodPrediction.Thresholds(t.medium(), t.high(), t.source()));
+                t == null ? null : new FloodPrediction.Thresholds(t.medium(), t.high(), t.source()), rainInputOf(p.rainInput()));
+    }
+
+    private static FloodPrediction.RainInput rainInputOf(FloodPredictionResponseDTO.RainInput r) {
+        if (r == null) return null;
+        return new FloodPrediction.RainInput(r.source(), r.hourEndUtc(), r.latestReadingUtc(), r.ageMinutes(), r.validStations(),
+                r.values() == null ? List.of() : r.values().stream().map(v -> new FloodPrediction.RainValue(v.featureId(),
+                        v.valueMm(), v.hours(), v.hoursWithValue(), v.stations() == null ? List.of() : v.stations().stream()
+                        .map(x -> new FloodPrediction.RainStation(x.stationId(), x.name(), x.source())).toList())).toList());
+    }
+
+    private static FloodPredictionResponseDTO.RainInput rainInputOf(FloodPrediction.ModelInfo info) {
+        FloodPrediction.RainInput r = info == null ? null : info.rainInput();
+        if (r == null) return null;
+        return new FloodPredictionResponseDTO.RainInput(r.source(), r.hourEndUtc(), r.latestReadingUtc(), r.ageMinutes(),
+                r.validStations(), r.values() == null ? List.of() : r.values().stream().map(v -> new FloodPredictionResponseDTO.RainValue(
+                        v.featureId(), v.valueMm(), v.hours(), v.hoursWithValue(), v.stations() == null ? List.of() : v.stations().stream()
+                        .map(x -> new FloodPredictionResponseDTO.RainStation(x.stationId(), x.name(), x.source())).toList())).toList());
     }
 
     private static FloodPredictionResponseDTO.RiskThresholds thresholdsOf(FloodPrediction.ModelInfo info) {

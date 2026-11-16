@@ -89,6 +89,13 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
                         request.getStationId(), e.getResponseBodyAsString());
                 return unknown(DegradationReason.INSUFFICIENT_DATA, now, imputedFeatureIds);
             }
+            // Modelo que ainda não aceita chuva ausente (v2) recusa o campo nulo na validação: com entrada de chuva
+            // declarada ausente pelo chamador, isso é dado insuficiente, não erro de integração.
+            if (e.getStatusCode().value() == HttpStatus.UNPROCESSABLE_ENTITY.value() && hasAbsentRain(request)) {
+                log.warn("IA recusou chuva ausente (estação {}): previsão indisponível por dado insuficiente",
+                        request.getStationId());
+                return unknown(DegradationReason.INSUFFICIENT_DATA, now, imputedFeatureIds);
+            }
             log.error("IA respondeu {} para a estação {}: {}", e.getStatusCode(), request.getStationId(), e.getMessage());
             return unknown(DegradationReason.AI_ERROR, now, imputedFeatureIds);
         } catch (HttpServerErrorException e) {
@@ -99,6 +106,16 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
             log.error("Falha ao chamar a IA (estação {}, motivo {}): {}", request.getStationId(), reason, e.toString());
             return unknown(reason, now, imputedFeatureIds);
         }
+    }
+
+    @Override
+    public PredictionResult insufficientData(Collection<String> absentFeatureIds) {
+        return unknown(DegradationReason.INSUFFICIENT_DATA, Instant.now(), absentFeatureIds);
+    }
+
+    private static boolean hasAbsentRain(FloodPredictionRequestDTO r) {
+        return r.getCurrentRainfall() == null || r.getRainfall3hAccumulated() == null || r.getRainfall6hAccumulated() == null
+                || r.getRainfall12hAccumulated() == null || r.getRainfall24hAccumulated() == null;
     }
 
     /** Classifica falhas de transporte (§4). Qualquer coisa não reconhecida é AI_ERROR. */
