@@ -1,0 +1,10 @@
+{
+  "fase": "2 — descoberta da previsão de chuva", "data": "2026-11-16",
+  "relatorio": "docs/extratos/fase2-previsao-de-chuva-descoberta.md", "medidas": "projeto-mapi-ai/analysis/fase2/",
+  "resposta": "a rede dá menos de 1 h de antecedência e nenhum produto de previsão da APAC ou do Cemaden tem histórico acessível por máquina",
+  "produtos_aprovados": [], "produto_a_confirmar": "previsão da APAC (api.apac.pe.gov.br/api.php/previsao_*, parâmetro data=): histórico não testado; texto por mesorregião e por dia",
+  "defasagem_mediana_min_por_setor": {"L": 10, "N": 0, "S": 0, "O": -20},
+  "entram_na_fase_3": ["rede da PED (46 estações)", "persistência como baseline", "Open-Meteo como OPEN_METEO_FORECAST"],
+  "nao_entram": ["avisos e previsão da APAC", "radar da APAC (o servidor guarda 1 a 4 dias)", "alertas do Cemaden"],
+  "acoes_que_dependem_do_lucas": ["gravar o radar da APAC a cada 10 min", "testar a previsão da APAC com data= passada e pedir o termo de uso"]
+}
