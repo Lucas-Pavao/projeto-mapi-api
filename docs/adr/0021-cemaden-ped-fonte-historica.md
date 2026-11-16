@@ -52,3 +52,18 @@ Opção B, fonte `CEMADEN_PED` no pipeline do ADR 0006, fuso UTC verificado.
 - O Cemaden informar que `0002` não é dado suspeito (devolve os 70 blocos à série) ou que outro código é.
 - A `dados_pcd` passar a recusar períodos antigos.
 - Evidência de que o bloco não termina no carimbo.
+
+## Emenda de 2026-11-16: carga periódica
+
+- Status: aprovado (pedido do Lucas em 2026-11-16: "retoma a carga da PED periódica")
+
+**Contexto.** A carga histórica foi rodada à mão e parou em 2026-10-07 23:50 UTC (`SELECT max(ts_utc) FROM observation WHERE source = 'CEMADEN_PED'`, 2026-11-16). A série de chuva dos pontos (`point_rain_hourly`, ADR 0022) parou junto, em 2026-10-08 00:00. A coleta ao vivo (`CEMADEN`, via APAC) seguiu, mas não entra na série do ponto.
+
+**Decisão.** `CemadenPedIncrementalTask` roda a cada hora (`mapi.ingestion.cemaden-ped.incremental-delay-ms`, padrão 3 600 000), no `taskExecutor`, sem sobrepor a si mesma:
+
+1. baixa `[última leitura PED gravada − 6 h, hora cheia atual)` pelo pipeline (REFETCH, BACKFILL), com o mesmo cliente e o mesmo limite de uma requisição a cada 6 s dos acumulados recentes (ADR 0023). A sobreposição de 6 h `[sem fonte]` cobre blocos que a PED completa com atraso; leitura igual não vira nova versão;
+2. se o run termina `OK` ou `PARTIAL`, recalcula a chuva dos pontos (`PointRainService.rebuild`) **desde o dia 1 do primeiro mês tocado**: a checagem espacial é por mês, e recalcular só a cauda trocaria a checagem do mês inteiro por uma de poucas horas.
+
+Banco sem PED recente: a carga periódica volta no máximo 60 dias (`incremental-max-catch-up-days`); o histórico continua pelo `POST /api/admin/ingestion/runs`.
+
+**Consequências.** A checagem do mês corrente passa a existir e é provisória: muda a cada ciclo até o mês fechar. Um ciclo com atraso de 40 dias faz 2 janelas × 46 estações ≈ 92 requisições (≈ 9 min a 6 s); um ciclo normal, 46 requisições (≈ 5 min). Desligar: `mapi.ingestion.cemaden-ped.incremental-enabled=false`.
