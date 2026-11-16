@@ -26,10 +26,16 @@ class TideObservationSyncTaskTest {
     private final IngestionPipelineService pipeline = mock(IngestionPipelineService.class);
     /** Extremos que o repositório devolve (o Mockito do JDK 25 não simula a classe concreta). */
     private List<TideExtremeRow> extremes = List.of();
+    private Instant lastHourly;
     private final ObservationReadRepository observations = new ObservationReadRepository(null) {
         @Override
         public List<TideExtremeRow> tideExtremes(Instant fromUtc, Instant toUtc) {
             return extremes;
+        }
+
+        @Override
+        public java.util.Optional<Instant> latestTs(String source, String variable, Instant since) {
+            return java.util.Optional.ofNullable(lastHourly);
         }
     };
 
@@ -57,8 +63,23 @@ class TideObservationSyncTaskTest {
     void coberturaSuficienteNaoChamaAFonte() {
         Instant now = Instant.parse("2026-10-22T01:00:00Z");
         extremes = List.of(row(now.minus(Duration.ofHours(5))), row(now.plus(Duration.ofDays(3)).plus(Duration.ofHours(2))));
+        lastHourly = now.plus(Duration.ofDays(3)).plus(Duration.ofHours(2));   // horária já em dia
         task(now.toString()).syncIfMissing();
         verify(pipeline, never()).execute(any());
+    }
+
+    @Test
+    void horariaAtrasadaEDerivadaAteOUltimoExtremo() {
+        // Caso de 2026-11-16: extremos até 26/11, horária parada em 14/11.
+        Instant now = Instant.parse("2026-11-16T12:00:00Z");
+        extremes = List.of(row(now.minus(Duration.ofHours(5))), row(Instant.parse("2026-11-26T01:36:00Z")));
+        lastHourly = Instant.parse("2026-11-14T21:00:00Z");
+        task(now.toString()).syncIfMissing();
+        ArgumentCaptor<IngestionRequest> req = ArgumentCaptor.forClass(IngestionRequest.class);
+        verify(pipeline).execute(req.capture());
+        assertThat(req.getValue().source()).isEqualTo(com.projeto.mapi.service.ingestion.adapter.tide.TideHourlyAdapter.SOURCE);
+        assertThat(req.getValue().from()).isEqualTo(Instant.parse("2026-11-14T21:00:00Z"));
+        assertThat(req.getValue().to()).isEqualTo(Instant.parse("2026-11-26T01:00:00Z"));
     }
 
     @Test
