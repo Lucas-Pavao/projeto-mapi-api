@@ -126,7 +126,7 @@ Uma chamada com tudo do card. `at` = instante de referência (padrão: agora); b
 
 - `blocks`: uma entrada por bloco de 10 min das 3 h (18), inclusive sem dado (`mm = null`, `source = null`). Fonte por bloco: PED se houver; senão ao vivo.
 - Acumulados: `null` ("incompleto") se qualquer bloco/hora da janela faltar. Nunca 0 por ausência.
-- `state` (prioridade, o primeiro que vale): `NO_RESPONSE` (sem leitura há > 60 min) → `GAP_NOW` (bloco atual sem dado nas duas fontes) → `FAIL_MONTH` → `DIVERGENT` (divergência > 0,5 mm nas últimas 2 h) → `PEAK_REMOVED` (pico isolado nas 3 h) → `UNCHECKED` → `NORMAL`. `pedOnly` é etiqueta à parte.
+- `state` (prioridade, o primeiro que vale): `NO_RESPONSE` (nenhuma leitura de nenhuma fonte nas 3 h) → `GAP_NOW` (nenhuma leitura de nenhuma fonte em (at − 70 min, at], com alguma nas 3 h: o bloco seco da coleta ao vivo dura 60 min, então "bloco de 10 min vazio" não é lacuna) → `FAIL_MONTH` → `DIVERGENT` (divergência > 0,5 mm nas últimas 2 h) → `PEAK_REMOVED` (pico isolado nas 3 h) → `UNCHECKED` → `NORMAL`. `pedOnly` é etiqueta à parte.
 - `note`: o aviso do `state` (um só), com os números do caso; `null` em `NORMAL`.
 - `uses`: pontos críticos a até 5 km; `role` = `USED` | `LOWER` (com `usedStationName`) | `EXCLUDED` (mês FAIL/OFFLINE) | `NO_VALUE`, na hora de `at` (série do ponto quando houver; senão o valor horário canônico).
 - 404 se a canônica não existe.
@@ -161,4 +161,7 @@ Substitui o uso de `/api/environmental-data` no painel "Análise de local" do ma
 - `nearestPoint`: ponto crítico mais próximo, com a última previsão (UNKNOWN sem `probability`).
 - `river`: régua mais próxima a até 6 km `{stationId, name, levelM, distanceKm, outsideModel: true}` ou `null`.
 - `terrain`: `null` fora da cobertura PE3D. `isSea`/`inArea`: `isSea` = altitude ≤ 0 fora do MDT e a leste da costa; `inArea` = dentro do retângulo da RMR usado hoje (documentar a regra no código). Fora da área: `rain.mode = ESTIMATED`, `terrain = null`.
+- `lat`/`lon` da resposta = coordenada pedida (o cache pode ser por célula de ~200 m, mas o eco é do clique).
+- Pico isolado (≥ 10 mm, ≥ 2 vizinhas < 1 mm a até 6 km) sai antes da escolha da `USED`, como no B2/B3 (ADR 0022).
+- `terrain.distanceToCoastKm`: `null` enquanto não houver linha de costa no sistema (limitação registrada).
 - 400 se lat/lon inválidos.
