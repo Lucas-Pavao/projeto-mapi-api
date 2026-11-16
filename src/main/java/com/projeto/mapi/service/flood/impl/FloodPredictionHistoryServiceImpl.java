@@ -200,16 +200,34 @@ public class FloodPredictionHistoryServiceImpl implements FloodPredictionHistory
 
     private static FloodPrediction.RainInput rainInputOf(FloodPredictionResponseDTO.RainInput r) {
         if (r == null) return null;
-        return new FloodPrediction.RainInput(r.source(), r.hourEndUtc(), r.latestReadingUtc(), r.ageMinutes(), r.validStations(),
+        return new FloodPrediction.RainInput(r.source(), iso(r.hourEndUtc()), iso(r.latestReadingUtc()), r.ageMinutes(), r.validStations(),
                 r.values() == null ? List.of() : r.values().stream().map(v -> new FloodPrediction.RainValue(v.featureId(),
                         v.valueMm(), v.hours(), v.hoursWithValue(), v.stations() == null ? List.of() : v.stations().stream()
                         .map(x -> new FloodPrediction.RainStation(x.stationId(), x.name(), x.source())).toList())).toList());
     }
 
+    private static String iso(java.time.Instant i) {
+        return i == null ? null : i.toString();
+    }
+
+    /** Aceita ISO-8601 e, nas poucas linhas gravadas em 2026-11-16 antes do ajuste, segundos desde a época. */
+    private static java.time.Instant instant(String s) {
+        if (s == null || s.isBlank()) return null;
+        try {
+            return java.time.Instant.parse(s);
+        } catch (java.time.format.DateTimeParseException e) {
+            try {
+                return java.time.Instant.ofEpochSecond((long) Double.parseDouble(s));
+            } catch (NumberFormatException n) {
+                return null;
+            }
+        }
+    }
+
     private static FloodPredictionResponseDTO.RainInput rainInputOf(FloodPrediction.ModelInfo info) {
         FloodPrediction.RainInput r = info == null ? null : info.rainInput();
         if (r == null) return null;
-        return new FloodPredictionResponseDTO.RainInput(r.source(), r.hourEndUtc(), r.latestReadingUtc(), r.ageMinutes(),
+        return new FloodPredictionResponseDTO.RainInput(r.source(), instant(r.hourEndUtc()), instant(r.latestReadingUtc()), r.ageMinutes(),
                 r.validStations(), r.values() == null ? List.of() : r.values().stream().map(v -> new FloodPredictionResponseDTO.RainValue(
                         v.featureId(), v.valueMm(), v.hours(), v.hoursWithValue(), v.stations() == null ? List.of() : v.stations().stream()
                         .map(x -> new FloodPredictionResponseDTO.RainStation(x.stationId(), x.name(), x.source())).toList())).toList());

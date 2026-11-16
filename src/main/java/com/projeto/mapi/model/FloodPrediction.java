@@ -107,8 +107,8 @@ public class FloodPrediction {
                             RainInput rainInput) {
     }
 
-    /** Chuva enviada ao modelo (ADR 0007, emenda 3); nulo em linhas anteriores à emenda. */
-    public record RainInput(String source, java.time.Instant hourEndUtc, java.time.Instant latestReadingUtc,
+    /** Chuva enviada ao modelo (ADR 0007, emenda 3); nulo em linhas anteriores à emenda. Instantes em ISO-8601 UTC. */
+    public record RainInput(String source, String hourEndUtc, String latestReadingUtc,
                             Long ageMinutes, Integer validStations, java.util.List<RainValue> values) {
     }
 
