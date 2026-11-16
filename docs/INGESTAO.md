@@ -211,3 +211,26 @@ Staging bruto e série consolidada **não têm `drop_chunks`**. Compressão (14 
 - Verificação do fuso de APAC meteorologia24h (ANA: V14; Cemaden ao vivo: V13; Cemaden PED: V24).
 - Decisão sobre os ~4 semanas de dados de desenvolvimento (ADR 0006, seção 4).
 - ADR 0005 (banco) aprovado.
+
+## Previsão de chuva (2026-11-16, V30)
+
+DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC. Relatório do modelo: `projeto-mapi-ai/reports/v4/rain/RELATORIO.md`.
+
+```mermaid
+flowchart LR
+    O[observation: blocos da PED e da coleta ao vivo] --> B[canonical_rain_block_v]
+    B --> N[point_rain_neighbors_v: até 40 km do ponto]
+    OM[Open-Meteo, rodada da véspera] --> H[open_meteo_forecast_hour]
+    N --> S[RainForecastService]
+    H --> S
+    S -->|POST /v1/forecast/rain| IA[MAPI AI, rain_v1]
+    IA --> R[rain_forecast]
+    R -->|job diário| C[observed_mm, conferida contra o medido]
+```
+
+- **Quando roda.** No ciclo de previsão, antes da previsão de alagamento de cada ponto ativo. Falha não impede a de alagamento.
+- **Entradas.** Blocos de chuva das últimas 6 h 30 min das estações de origem PED a até 40 km (as 46 do treino). Por estação e hora vale uma fonte: a PED quando tem bloco, senão a coleta ao vivo. Sem leitura nenhuma, a previsão não é emitida.
+- **Open-Meteo.** Fonte `OPEN_METEO_FORECAST`, separada da reanálise. Guarda só a rodada da véspera, com `issued_before_utc` = hora prevista menos 24 h; na montagem só vale o que foi emitido até `t`. É previsão: fica em `open_meteo_forecast_hour`, fora de `observation`.
+- **Conferência.** Todo dia às 03:30 UTC (`mapi.rain-forecast.verify-cron`), 2 h depois de a janela vencer. Medida = maior acumulado entre as estações a até 5 km com leitura nos 70 min antes do início e do fim da janela. Sem estação assim, a linha fica `NO_MEASURE`; não vira zero.
+- **Leitura.** `GET /api/rain-forecast/latest` e `GET /api/rain-forecast/accuracy?days=30`.
+- **Desligar.** `mapi.rain-forecast.enabled=false`; só o Open-Meteo: `mapi.rain-forecast.open-meteo-enabled=false`.
