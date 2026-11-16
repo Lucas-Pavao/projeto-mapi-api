@@ -329,3 +329,26 @@ Testes de integração com a imagem fixada no ADR 0005 (PostgreSQL + TimescaleDB
 - Uma agência fornecer versão/revisão explícita no payload (a `revision` passaria a usar o valor da fonte).
 - Volume real de staging ao vivo exceder o disco antes de existir política de arquivamento.
 - Verificação do fuso mostrar que uma fonte muda de fuso ao longo do tempo (exigiria `source_tz` por período).
+
+## Emenda de 2026-11-16 — idade máxima por fonte e alarme de fonte velha (plano de melhorias, item 1.4)
+
+- Status: proposto (valores à espera da confirmação do Lucas; a estrutura está no ar)
+
+**Contexto.** A carga da PED ficou 40 dias parada, a reanálise parou em 2026-11-01 e a maré horária em 2026-11-14 sem aviso. A meteorologia de 24 h da APAC teve 302 execuções em 7 dias e 0 leituras aceitas: o resumo de saúde olhava a **execução** e a mostrava como em dia.
+
+**Decisão.** `source_registry` ganha `max_age_minutes` e `min_coverage_ahead_minutes` (V29). O critério é a **leitura aceita** mais nova (`observation`, status ACTIVE), não a execução: fonte que roda e só gera quarentena fica `NO_DATA`. Estados: `FRESH`, `STALE`, `NO_DATA` (nada aceito em 60 dias), `COVERAGE_LOW` (previsão de maré cobre menos que o mínimo à frente), `UNMONITORED` (carga manual). Um job a cada 10 min abre alerta `SOURCE_STALE` (sem regra; `CRITICAL` se a fonte entra no modelo), um por episódio, lembrete a cada 24 h. `/api/admin/ingestion/sources` devolve o estado `STALE` e o bloco `freshness`, por adição.
+
+**Valores propostos** (frequência medida em 2026-11-16):
+
+| Fonte | Coleta | Idade máxima aceita | Por quê |
+|---|---|---|---|
+| `CEMADEN` (feed da APAC) | 3 min | 90 min | hora seca chega em bloco de 60 min; idade máxima vista na previsão: 64 min |
+| `CEMADEN_PED` | 1 h | 180 min | a PED publica com ~1 h de atraso, mais o ciclo de 1 h |
+| `ANA_SOAP` | 15 min | 120 min | telemetria de 15 min; atraso de até ~1 h visto |
+| `APAC_METEO24H` | 5 min | 60 min | 12 ciclos sem nada aceito |
+| `OPEN_METEO_ARCHIVE`, `OPEN_METEO_ERA5LAND` | manual | 10 dias | a reanálise tem ~5 dias de atraso natural |
+| `TABUAMARE_PE02` | 6 h | 30 dias de cobertura à frente | a sincronização passa a carregar 45 dias (antes 10) |
+| `TIDE_PE02_HOURLY` | derivada | 2 dias de cobertura à frente | falha da derivação |
+| demais | manual | não monitoradas | sem frequência esperada |
+
+**Consequência conhecida.** De 1º de dezembro em diante a tábua da TabuaMare (só serve o ano corrente) cobre menos de 30 dias e o alarme dispara até a tábua do ano seguinte ser carregada (DHN, à mão). É o aviso certo.
