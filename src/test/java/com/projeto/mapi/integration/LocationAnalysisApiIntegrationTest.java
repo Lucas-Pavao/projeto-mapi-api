@@ -129,6 +129,19 @@ class LocationAnalysisApiIntegrationTest extends AbstractApiIntegrationTest {
     }
 
     @Test
+    void mare_mesmaFonteDoMapa_extremosInterpolados() throws Exception {
+        jdbc.update("DELETE FROM observation WHERE source = 'DHN_TABUA_PE02'");
+        UUID dhn = ObservationFixtures.run(jdbc, "DHN_TABUA_PE02");
+        Instant at = AT;
+        ObservationFixtures.tideExtreme(jdbc, dhn, at.minus(java.time.Duration.ofHours(3)), 0.4);  // baixa-mar
+        ObservationFixtures.tideExtreme(jdbc, dhn, at.plus(java.time.Duration.ofHours(3)), 2.2);   // preamar
+        JsonNode tide = call(URL, 200).get("tide");
+        assertThat(tide.get("levelM").asDouble()).isEqualTo(1.3);                 // meio do caminho, cosseno
+        assertThat(tide.get("rising").asBoolean()).isTrue();
+        assertThat(tide.get("harbor").asText()).isEqualTo("Porto do Recife");
+    }
+
+    @Test
     void gap_estacaoValidaSemValor_naoEstima() throws Exception {
         station("PK1", "Pico", -8.0, -34.9);
         unify();

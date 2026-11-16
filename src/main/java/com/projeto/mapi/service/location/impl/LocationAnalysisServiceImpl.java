@@ -12,6 +12,8 @@ import com.projeto.mapi.repository.FloodPointRepository;
 import com.projeto.mapi.repository.analise.PointRainRepository;
 import com.projeto.mapi.repository.analise.PointRainRepository.HourRow;
 import com.projeto.mapi.repository.analise.PointRainRepository.MonthCheckRow;
+import com.projeto.mapi.repository.ingestion.ObservationReadRepository;
+import com.projeto.mapi.service.event.TideInterpolation;
 import com.projeto.mapi.repository.station.StationCanonicalRepository;
 import com.projeto.mapi.repository.station.StationCanonicalRepository.CanonicalView;
 import com.projeto.mapi.service.analise.PointRainComposer;
@@ -73,6 +75,8 @@ public class LocationAnalysisServiceImpl implements LocationAnalysisService {
     static final double RAIN_RADIUS_M = 5000;
     static final double RIVER_RADIUS_KM = 6.0;
     static final ZoneId TIDE_ZONE = ZoneId.of("America/Recife");
+    static final java.time.Duration TIDE_WINDOW = java.time.Duration.ofHours(12);
+    static final java.time.Duration TIDE_STEP = java.time.Duration.ofMinutes(10);
 
     private final StationCanonicalRepository canonicals;
     private final PointRainRepository rain;
@@ -83,6 +87,7 @@ public class LocationAnalysisServiceImpl implements LocationAnalysisService {
     private final TideService tideService;
     private final SensorService sensorService;
     private final CacheManager cacheManager;
+    private final ObservationReadRepository observations;
 
     /** Chave do cache: célula de ~200 m e instante pedido. */
     public static String cellKey(double lat, double lon) {
@@ -286,7 +291,23 @@ public class LocationAnalysisServiceImpl implements LocationAnalysisService {
                 last.floodProbability(), last.degradationReason() == null ? null : last.degradationReason().name());
     }
 
+    /**
+     * Maré prevista no instante: a mesma fonte do mapa e da linha do tempo (extremos da TabuaMare/DHN em
+     * {@code observation}, interpolados por {@link TideInterpolation}); sem extremos, a tábua local do TideService.
+     */
     private LocationAnalysisDTO.Tide tide(double lat, double lon, Instant ref) {
+        try {
+            List<TideInterpolation.Extreme> ex = observations.tideExtremes(ref.minus(TIDE_WINDOW), ref.plus(TIDE_WINDOW)).stream()
+                    .map(e -> new TideInterpolation.Extreme(e.tsUtc(), e.level())).toList();
+            List<TideInterpolation.Sample> s = TideInterpolation.sample(ex, ref, ref.plus(TIDE_STEP.multipliedBy(2)), TIDE_STEP);
+            Double now = s.isEmpty() ? null : s.get(0).v();
+            Double next = s.size() < 2 ? null : s.get(1).v();
+            if (now != null) {
+                return new LocationAnalysisDTO.Tide(round(now), next == null ? null : next > now, "Porto do Recife", "NR DHN");
+            }
+        } catch (RuntimeException e) {
+            log.warn("Extremos de maré indisponíveis para a análise de local: {}", e.getMessage());
+        }
         try {
             LocalDateTime t = LocalDateTime.ofInstant(ref, TIDE_ZONE);
             Double level = tideService.getStoredTideHeightAt(lat, lon, t);
