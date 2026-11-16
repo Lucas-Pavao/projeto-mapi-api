@@ -20,10 +20,11 @@ public class CacheConfig {
     // tideDataLocal (TideServiceImpl), tideDataExternal (TabuaMareServiceImpl),
     // tideNearestHarbor / tideTableDaily (TabuaMareServiceImpl - external lookups reused across
     // every hour of a given day/coordinate by exportUnifiedDataWithAccumulated),
+    // locationAnalysis (LocationAnalysisServiceImpl - uma entrada por celula de ~200 m e instante),
     // floodPoints (SensorServiceImpl#getFloodPointsCache - also evicted on demand via
     // MapiServiceImpl#createFloodPoint, but included here too since repairStationMappings/
     // syncSensors mutate FloodPoint rows without evicting this cache).
-    @CacheEvict(value = {"marineData", "weatherData", "tideDataLocal", "tideDataExternal", "floodPoints"}, allEntries = true)
+    @CacheEvict(value = {"marineData", "weatherData", "tideDataLocal", "tideDataExternal", "floodPoints", "locationAnalysis"}, allEntries = true)
     @Scheduled(fixedRate = 600000)
     public void evictAllCaches() {
         // Scheduled task to clear caches

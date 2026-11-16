@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class PublicRiskServiceImpl implements PublicRiskService {
 
-    static final double LAT_MIN = -8.4, LAT_MAX = -7.8, LON_MIN = -35.2, LON_MAX = -34.8;
+    public static final double LAT_MIN = -8.4, LAT_MAX = -7.8, LON_MIN = -35.2, LON_MAX = -34.8;
     static final double POINT_RADIUS_KM = 1.0;
     /** Raio de busca do pluviômetro; o ADR 0013 não fixa um, usa-se o de 3 km dos demais vínculos do sistema. */
     static final double RAIN_RADIUS_KM = 3.0;
