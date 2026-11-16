@@ -85,7 +85,8 @@ class LocationAnalysisApiIntegrationTest extends AbstractApiIntegrationTest {
         JsonNode r = call(URL, 200);
         assertThat(r.get("inArea").asBoolean()).isTrue();
         assertThat(r.get("isSea").asBoolean()).isFalse();
-        assertThat(r.get("lat").asDouble()).isEqualTo(-7.999);                 // centro da célula de ~200 m
+        assertThat(r.get("lat").asDouble()).isEqualTo(-8.0);                   // eco da coordenada pedida
+        assertThat(call("/api/locations/analysis?lat=-8.0005&lon=-34.9&at=" + AT, 200).get("lat").asDouble()).isEqualTo(-8.0005); // mesma célula, outro eco
         JsonNode rain = r.get("rain");
         assertThat(rain.get("mode").asText()).isEqualTo("MEASURED");
         assertThat(rain.get("nowMmH").asDouble()).isEqualTo(3.2);
@@ -99,6 +100,30 @@ class LocationAnalysisApiIntegrationTest extends AbstractApiIntegrationTest {
         assertThat(r.get("weather").get("temperatureC").asDouble()).isEqualTo(27.1);
         assertThat(r.get("river").isNull()).isTrue();
         assertThat(r.get("attribution").asText()).isEqualTo(ATTR);
+    }
+
+    @Test
+    void picoIsolado_naoEscolheUSED_perdeParaASegunda() throws Exception {
+        station("PK1", "Pico", -8.0, -34.9);
+        station("N1", "Vizinha 1", -8.005, -34.9);
+        station("N2", "Vizinha 2", -8.0, -34.905);
+        unify();
+        UUID ped = ObservationFixtures.run(jdbc, "CEMADEN_PED");
+        ObservationFixtures.precipitation(jdbc, ped, "CEMADEN_PED", "PK1", AT, 12.0);   // >= 10 mm, vizinhas secas
+        ObservationFixtures.precipitation(jdbc, ped, "CEMADEN_PED", "N1", AT, 0.4);
+        ObservationFixtures.precipitation(jdbc, ped, "CEMADEN_PED", "N2", AT, 0.0);
+        JsonNode rain = call(URL, 200).get("rain");
+        assertThat(rain.get("mode").asText()).isEqualTo("MEASURED");
+        assertThat(rain.get("nowMmH").asDouble()).isEqualTo(0.4);
+        assertThat(rain.get("station").get("stationId").asText()).isEqualTo("N1");
+        JsonNode pk1 = rain.get("candidates").get(0);          // a mais próxima (distância zero)
+        assertThat(pk1.get("stationId").asText()).isEqualTo("PK1");
+        assertThat(pk1.get("valueMmH").isNull()).isTrue();
+        assertThat(pk1.get("role").asText()).isEqualTo("NO_VALUE");
+        assertThat(pk1.get("reasons").toString()).isEqualTo("[\"ISOLATED_PEAK\"]");
+        for (JsonNode c : rain.get("candidates")) {
+            if (c.get("stationId").asText().equals("N1")) assertThat(c.get("role").asText()).isEqualTo("USED");
+        }
     }
 
     @Test

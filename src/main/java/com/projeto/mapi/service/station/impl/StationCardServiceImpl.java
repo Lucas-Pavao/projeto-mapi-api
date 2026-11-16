@@ -48,7 +48,8 @@ public class StationCardServiceImpl implements StationCardService {
 
     static final int BLOCKS = 18;
     static final long BLOCK_S = 600;
-    static final Duration NO_RESPONSE_AFTER = Duration.ofMinutes(60);
+    /** O bloco seco da coleta ao vivo dura 60 min (+10 de folga): sem leitura há mais que isso é lacuna. */
+    static final Duration GAP_AFTER = Duration.ofMinutes(70);
     static final double USES_RADIUS_M = 5000;
 
     private final StationCanonicalRepository canonicals;
@@ -77,10 +78,9 @@ public class StationCardServiceImpl implements StationCardService {
 
         // --- blocos de 10 min das 3 h ---
         Instant lastBlockEnd = Instant.ofEpochSecond(Math.floorDiv(ref.getEpochSecond(), BLOCK_S) * BLOCK_S);
-        Instant windowStart = lastBlockEnd.minusSeconds(BLOCKS * BLOCK_S);
+        Instant windowStart = lastBlockEnd.minusSeconds(BLOCKS * BLOCK_S);  // lastReading usa a mesma janela de 3 h
         Map<String, Map<Instant, Double>> bySource = bucketize(cards.blocks(aliases, windowStart, lastBlockEnd));
         List<Block> blocks = new ArrayList<>();
-        boolean currentHasData = false;
         for (int i = 0; i < BLOCKS; i++) {
             Instant end = windowStart.plusSeconds((i + 1) * BLOCK_S);
             Double ped = bySource.getOrDefault(StationUnificationServiceImpl.PED, Map.of()).get(end);
@@ -88,7 +88,6 @@ public class StationCardServiceImpl implements StationCardService {
             String src = ped != null ? StationUnificationServiceImpl.PED : live != null ? StationUnificationServiceImpl.LIVE : null;
             StationHourlyDTO.Hour h = hours.get(hourEndOf(end));
             boolean peak = h != null && h.isolatedPeakRemoved();
-            if (i == BLOCKS - 1) currentHasData = src != null;
             blocks.add(new Block(end, peak ? null : ped != null ? ped : live, src, peak));
         }
 
@@ -106,7 +105,7 @@ public class StationCardServiceImpl implements StationCardService {
         Map<String, Integer> quarantine = new java.util.LinkedHashMap<>();
         Map<String, Integer> open = cards.openQuarantine(aliases, day, day.plus(1, ChronoUnit.DAYS));
         for (String r : List.of("GAP", "AFTER_GAP", "SUSPECT_QUALIFIER")) quarantine.put(r, open.getOrDefault(r, 0));
-        Instant last = cards.lastReading(aliases, ref.minus(3, ChronoUnit.DAYS), ref).orElse(null);
+        Instant last = cards.lastReading(aliases, windowStart, ref).orElse(null);
 
         // --- estado (prioridade escrita no contrato B6) e aviso ---
         String state;
@@ -114,13 +113,13 @@ public class StationCardServiceImpl implements StationCardService {
         StationHourlyDTO.Hour div = latestDivergent(hours, hourFloor);
         Block peakBlock = null;
         for (Block b : blocks) if (b.peakRemoved()) peakBlock = b;
-        if (last == null || Duration.between(last, ref).compareTo(NO_RESPONSE_AFTER) > 0) {
-            state = "NO_RESPONSE";
-            note = new Note(state, null, null, null, null, null, null, last,
-                    last == null ? null : Duration.between(last, ref).toMinutes(), null);
-        } else if (!currentHasData) {
-            state = "GAP_NOW";
-            note = new Note(state, null, lastBlockEnd, null, null, null, null, last, null, null);
+        if (last == null) {
+            state = "NO_RESPONSE";                      // nenhuma leitura de nenhuma fonte nas 3 h
+            note = new Note(state, null, null, null, null, null, null, null, null, null);
+        } else if (Duration.between(last, ref).compareTo(GAP_AFTER) >= 0) {
+            state = "GAP_NOW";                          // nenhuma leitura em (at - 70 min, at], com alguma nas 3 h
+            note = new Note(state, null, lastBlockEnd, null, null, null, null, last,
+                    Duration.between(last, ref).toMinutes(), null);
         } else if (month != null && ("FAIL".equals(month.status()) || "OFFLINE".equals(month.status()))) {
             state = "FAIL_MONTH";
             note = new Note(state, null, null, null, null, null, null, null, null, month.reasons());

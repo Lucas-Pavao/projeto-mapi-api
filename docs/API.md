@@ -152,7 +152,7 @@ DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC.
 
 | Método | Caminho | Auth | O que faz | Resposta |
 |---|---|---|---|---|
-| GET | `/api/locations/analysis?lat=&lon=&at=` | autenticado | Chuva do raio de 5 km pela regra do ponto (`rain.mode` MEASURED, GAP sem estimativa ou ESTIMATED só sem estação válida, via Open-Meteo), `nearestPoint` com a última previsão gravada, `tide`, `river` (régua da APAC a até 6 km ou null), `terrain` (MDT do PE3D, null fora da cobertura) e `weather`. `inArea` = retângulo da RMR; `isSea` = dentro da área, fora do MDT e altitude do Open-Meteo <= 0. Calculado no centro da célula de ~200 m, com cache de 10 min. 400 se lat/lon inválidos | `LocationAnalysisDTO` |
+| GET | `/api/locations/analysis?lat=&lon=&at=` | autenticado | Chuva do raio de 5 km pela regra do ponto (`rain.mode` MEASURED, GAP sem estimativa ou ESTIMATED só sem estação válida, via Open-Meteo), `nearestPoint` com a última previsão gravada, `tide`, `river` (régua da APAC a até 6 km ou null), `terrain` (MDT do PE3D, null fora da cobertura) e `weather`. `inArea` = retângulo da RMR; `isSea` = dentro da área, fora do MDT e altitude do Open-Meteo <= 0. Cálculo no centro da célula de ~200 m (a resposta ecoa a coordenada pedida), cache de 10 min, pico isolado (RainSpatialCheck) fora da escolha da USED. 400 se lat/lon inválidos | `LocationAnalysisDTO` |
 
 ### 3.1 Predição (ADR 0007) — `POST /api/flood-predictions`
 

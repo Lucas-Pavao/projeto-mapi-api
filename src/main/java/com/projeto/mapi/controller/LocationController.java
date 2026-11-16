@@ -30,7 +30,7 @@ public class LocationController {
             description = "Chuva pela regra do ponto (chuva-ponto-v4, maior valor entre as estações válidas até 5 km): "
                     + "MEASURED, GAP (há estação válida sem valor; não estima) ou ESTIMATED (nenhuma estação válida; Open-Meteo). "
                     + "nearestPoint traz a última previsão gravada (não chama a IA). river: régua da APAC a até 6 km ou null. "
-                    + "terrain: cota do MDT do PE3D, null fora da cobertura. A resposta é calculada no centro da célula de ~200 m "
+                    + "terrain: cota do MDT do PE3D, null fora da cobertura. O cálculo usa o centro da célula de ~200 m "
                     + "da coordenada, com cache de 10 min. inArea = retângulo da RMR; isSea = dentro da área, fora do MDT e "
                     + "altitude do Open-Meteo <= 0. Instantes em UTC; ausente = null, nunca zero.")
     @ApiResponse(responseCode = "200", description = "OK")

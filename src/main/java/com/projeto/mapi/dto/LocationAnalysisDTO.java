@@ -9,10 +9,10 @@ import java.util.List;
  * Análise de um local qualquer do mapa: chuva (regra do ponto, raio de 5 km), ponto crítico mais próximo com a última
  * previsão gravada, maré, régua de rio, terreno e clima. Ausência = null, nunca zero.
  */
-@Schema(description = "Análise de local. lat/lon devolvem o centro da célula de ~200 m usada no cálculo e no cache de 10 min")
+@Schema(description = "Análise de local. lat/lon ecoam a coordenada pedida; cálculo e cache de 10 min são por célula de ~200 m")
 public record LocationAnalysisDTO(
-        @Schema(description = "Latitude do centro da célula de ~200 m") double lat,
-        @Schema(description = "Longitude do centro da célula de ~200 m") double lon,
+        @Schema(description = "Latitude pedida (o cálculo usa o centro da célula de ~200 m)") double lat,
+        @Schema(description = "Longitude pedida") double lon,
         @Schema(description = "Instante de referência (UTC); a chuva vale para a última hora fechada até ele") Instant at,
         @Schema(description = "Dentro do retângulo da RMR (lat -8.4 a -7.8, lon -35.2 a -34.8), o mesmo da avaliação pública de risco (PublicRiskService)") boolean inArea,
         @Schema(description = "Mar: dentro da área, fora do MDT do PE3D e com altitude do Open-Meteo menor ou igual a 0") boolean isSea,

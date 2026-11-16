@@ -19,6 +19,8 @@ import com.projeto.mapi.service.analise.PointRainService;
 import com.projeto.mapi.service.flood.FloodPredictionHistoryService;
 import com.projeto.mapi.service.location.LocationAnalysisService;
 import com.projeto.mapi.service.publico.impl.PublicRiskServiceImpl;
+import com.projeto.mapi.service.sensor.RainSpatialCheck;
+import com.projeto.mapi.repository.ingestion.ObservationReadRepository.HourlyRainRow;
 import com.projeto.mapi.service.sensor.SensorFreshnessPolicy;
 import com.projeto.mapi.service.sensor.SensorService;
 import com.projeto.mapi.service.sensor.cemaden.impl.MeasuredRainAccumulationServiceImpl;
@@ -29,7 +31,8 @@ import com.projeto.mapi.service.weather.WeatherService;
 import com.projeto.mapi.util.GeoUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -45,8 +48,8 @@ import java.util.Map;
 import java.util.OptionalDouble;
 
 /**
- * Análise de local. Tudo é calculado no CENTRO da célula de ~200 m (0,002 grau) que contém a coordenada, e é isso que
- * a resposta devolve em lat/lon; o cache de 10 min (despejo em {@code CacheConfig}) é por célula e por {@code at}.
+ * Análise de local. Tudo é calculado no CENTRO da célula de ~200 m (0,002 grau) que contém a coordenada; a resposta
+ * ecoa a coordenada pedida. O cache de 10 min (despejo em {@code CacheConfig}) é por célula e por {@code at}.
  *
  * <p><b>inArea / isSea.</b> {@code inArea}: a coordenada está dentro do retângulo da RMR já usado pela avaliação
  * pública ({@link PublicRiskServiceImpl#LAT_MIN} a {@code LAT_MAX}, {@code LON_MIN} a {@code LON_MAX}). {@code isSea}:
@@ -56,7 +59,8 @@ import java.util.OptionalDouble;
  * {@code null} e a chuva é sempre estimada.
  *
  * <p><b>Chuva.</b> Candidatas = estações canônicas a até 5 km (valor da hora: PED, senão ao vivo, ADR 0023); válidas =
- * mês OK ou sem checagem (ADR 0022); vale o maior valor entre as válidas ({@link PointRainComposer}). Há válida sem
+ * mês OK ou sem checagem (ADR 0022); hora com pico isolado ({@link RainSpatialCheck}, mesma regra da série horária) sai
+ * do valor da candidata (fica NO_VALUE, motivo ISOLATED_PEAK) antes de escolher; vale o maior valor entre as válidas ({@link PointRainComposer}). Há válida sem
  * nenhum valor: GAP, valores nulos, nunca estimativa. Sem nenhuma válida: ESTIMATED, pelo Open-Meteo. A "hora" é a
  * última hora fechada até {@code at}.
  */
@@ -78,8 +82,9 @@ public class LocationAnalysisServiceImpl implements LocationAnalysisService {
     private final LocalElevationService elevation;
     private final TideService tideService;
     private final SensorService sensorService;
+    private final CacheManager cacheManager;
 
-    /** Chave do cache: célula de ~200 m. Usada pela SpEL de {@code @Cacheable}. */
+    /** Chave do cache: célula de ~200 m e instante pedido. */
     public static String cellKey(double lat, double lon) {
         return Math.floor(lat / CELL_DEG) + "," + Math.floor(lon / CELL_DEG);
     }
@@ -89,12 +94,23 @@ public class LocationAnalysisServiceImpl implements LocationAnalysisService {
     }
 
     @Override
-    @Cacheable(value = "locationAnalysis",
-            key = "T(com.projeto.mapi.service.location.impl.LocationAnalysisServiceImpl).cellKey(#lat, #lon) + '|' + (#at == null ? 'now' : #at)")
     public LocationAnalysisDTO analyze(double lat, double lon, Instant at) {
         if (!Double.isFinite(lat) || !Double.isFinite(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
             throw new InvalidRequestException("lat deve estar entre -90 e 90 e lon entre -180 e 180");
         }
+        // Cache manual (não @Cacheable) para devolver a coordenada PEDIDA mesmo com a entrada de outra coordenada da célula.
+        Cache cache = cacheManager.getCache("locationAnalysis");
+        String key = cellKey(lat, lon) + "|" + (at == null ? "now" : at);
+        LocationAnalysisDTO hit = cache == null ? null : cache.get(key, LocationAnalysisDTO.class);
+        if (hit == null) {
+            hit = compute(lat, lon, at);
+            if (cache != null) cache.put(key, hit);
+        }
+        return new LocationAnalysisDTO(lat, lon, hit.at(), hit.inArea(), hit.isSea(), hit.rain(), hit.nearestPoint(),
+                hit.tide(), hit.river(), hit.terrain(), hit.weather(), hit.attribution());
+    }
+
+    private LocationAnalysisDTO compute(double lat, double lon, Instant at) {
         double cLat = center(lat), cLon = center(lon);
         Instant ref = at != null ? at : Instant.now();
         boolean inArea = cLat >= PublicRiskServiceImpl.LAT_MIN && cLat <= PublicRiskServiceImpl.LAT_MAX
@@ -132,6 +148,13 @@ public class LocationAnalysisServiceImpl implements LocationAnalysisService {
             near.add(new Near(c, d, pedId == null ? null : checks.get(pedId), series(c, hourEnd)));
         }
         near.sort(Comparator.comparingDouble(Near::distanceM));
+        java.util.Set<String> isolated = new java.util.HashSet<>();
+        for (Near n : near) {
+            if (isIsolatedPeak(n.c(), n.series().get(hourEnd), hourEnd)) {
+                isolated.add(n.c().canonicalId());
+                n.series().remove(hourEnd);
+            }
+        }
 
         List<PointRainComposer.Candidate> inputs = new ArrayList<>();
         for (Near n : near) {
@@ -142,11 +165,11 @@ public class LocationAnalysisServiceImpl implements LocationAnalysisService {
         PointRainComposer.Hour composed = PointRainComposer.compose(inputs);
         if (composed.nValid() == 0) return estimated(weather, toCandidates(near.stream().map(n -> n.c()).toList(),
                 near.stream().map(Near::distanceM).toList(), near.stream().map(Near::check).toList(),
-                near.stream().map(n -> n.series().get(hourEnd)).toList(), null));
+                near.stream().map(n -> n.series().get(hourEnd)).toList(), null, isolated));
 
         List<Candidate> candidates = toCandidates(near.stream().map(n -> n.c()).toList(),
                 near.stream().map(Near::distanceM).toList(), near.stream().map(Near::check).toList(),
-                near.stream().map(n -> n.series().get(hourEnd)).toList(), composed.stationId());
+                near.stream().map(n -> n.series().get(hourEnd)).toList(), composed.stationId(), isolated);
         if (composed.stationId() == null) {
             return new Rain("GAP", null, null, null, null, candidates, composed.nValid());
         }
@@ -157,21 +180,39 @@ public class LocationAnalysisServiceImpl implements LocationAnalysisService {
                 candidates, composed.nValid());
     }
 
+    /** Pico isolado da hora (RainSpatialCheck): vizinhas = demais canônicas a até 6 km com valor na mesma hora. */
+    private boolean isIsolatedPeak(CanonicalView c, Double value, Instant hourEnd) {
+        if (value == null || value < RainSpatialCheck.SUSPECT_MM) return false;
+        String src = StationUnificationServiceImpl.PED;
+        HourlyRainRow self = new HourlyRainRow(src, c.canonicalId(), hourEnd, value, c.lat(), c.lon());
+        List<HourlyRainRow> rows = new ArrayList<>();
+        rows.add(self);
+        for (CanonicalView o : canonicals.canonicals()) {
+            if (o.canonicalId().equals(c.canonicalId())
+                    || GeoUtils.calculateDistance(c.lat(), c.lon(), o.lat(), o.lon()) > RainSpatialCheck.RADIUS_KM) continue;
+            Double v = series(o, hourEnd).get(hourEnd);
+            if (v != null) rows.add(new HourlyRainRow(src, o.canonicalId(), hourEnd, v, o.lat(), o.lon()));
+        }
+        return RainSpatialCheck.isIsolatedPeak(self, rows);
+    }
+
     private static boolean valid(MonthCheckRow check) {
         return check == null || "PASS".equals(check.status()) || "UNCHECKED".equals(check.status());
     }
 
     private static List<Candidate> toCandidates(List<CanonicalView> cs, List<Double> dist, List<MonthCheckRow> checks,
-                                                List<Double> values, String usedId) {
+                                                List<Double> values, String usedId, java.util.Set<String> isolated) {
         List<Candidate> out = new ArrayList<>();
         for (int i = 0; i < cs.size(); i++) {
             CanonicalView c = cs.get(i);
             MonthCheckRow chk = checks.get(i);
             String status = chk == null ? null : "PASS".equals(chk.status()) ? "OK" : chk.status();
             Double v = values.get(i);
+            List<String> reasons = new ArrayList<>(chk == null ? List.<String>of() : chk.reasons());
+            if (isolated.contains(c.canonicalId())) reasons.add("ISOLATED_PEAK");
             String role = !valid(chk) ? "EXCLUDED" : v == null ? "NO_VALUE" : c.canonicalId().equals(usedId) ? "USED" : "LOWER";
             out.add(new Candidate(c.canonicalId(), c.name(), Math.round(dist.get(i)), v, status,
-                    chk == null ? List.of() : chk.reasons(), role, c.lat(), c.lon()));
+                    reasons, role, c.lat(), c.lon()));
         }
         return out;
     }

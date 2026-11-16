@@ -127,16 +127,31 @@ class StationCardApiIntegrationTest extends AbstractApiIntegrationTest {
     }
 
     @Test
-    void gapNow_blocoAtualSemDado_acumuladosNulos() throws Exception {
-        blocks(ped, "CEMADEN_PED", "PK1", START, AT.minusSeconds(600), 0.1, null);
+    void gapNow_semLeituraHaMaisDe70Min_acumuladosNulos() throws Exception {
+        blocks(ped, "CEMADEN_PED", "PK1", START, AT.minusSeconds(75 * 60), 0.1, null);   // última leitura 12:40
         JsonNode c = card("PK1", 200);
         assertThat(c.get("state").asText()).isEqualTo("GAP_NOW");
         assertThat(c.get("blocks").get(17).get("mm").isNull()).isTrue();
-        assertThat(c.get("blocks").get(17).get("source").isNull()).isTrue();
         assertThat(c.get("acc1hMm").isNull()).isTrue();
         assertThat(c.get("acc3hMm").isNull()).isTrue();
         assertThat(c.get("note").get("kind").asText()).isEqualTo("GAP_NOW");
-        assertThat(c.get("note").get("blockEndUtc").asText()).isEqualTo(AT.toString());
+        assertThat(c.get("note").get("minutesSinceLastReading").asLong()).isEqualTo(80);
+    }
+
+    @Test
+    void estacaoSecaComBlocoDe60MinHa30Min_ehNormal() throws Exception {
+        ObservationFixtures.precipitation(jdbc, live, "CEMADEN", "LIVE-PK1", "PT1H", AT.minusSeconds(30 * 60), 0.0, "ACTIVE");
+        JsonNode c = card("PK1", 200);
+        assertThat(c.get("state").asText()).isEqualTo("NORMAL");
+        assertThat(c.get("blocks").get(17).get("mm").isNull()).isTrue();         // bloco atual ainda não chegou
+        assertThat(c.get("blocks").get(15).get("mm").asDouble()).isZero();       // 13:30, fim do bloco seco
+        assertThat(c.get("blocks").get(10).get("mm").asDouble()).isZero();       // coberto pelo bloco de 60 min
+        assertThat(c.get("note").isNull()).isTrue();
+    }
+
+    @Test
+    void semNenhumaLeituraNas3h_noResponse() throws Exception {
+        assertThat(card("PK1", 200).get("state").asText()).isEqualTo("NO_RESPONSE");
     }
 
     @Test
