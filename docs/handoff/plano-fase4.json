@@ -1,15 +1,67 @@
 {
-  "fase": "4 — a previsão de chuva no modelo de alagamento", "data": "2026-11-16",
+  "fase": "4 — a previsão de chuva no modelo de alagamento",
+  "data": "2026-11-16",
   "etiqueta": "RÓTULO DO MODELO FÍSICO (balde M1a), não alagamento observado",
-  "relatorio": "projeto-mapi-ai/reports/v4/RELATORIO.md", "numeros": ["reports/v4/bucket_label_frequency.json", "reports/v4/experiment_p1.json"],
-  "frequencia_do_balde_central": {"AV_RECIFE_IBURA": 0, "CIN_UFPE": 0, "AGAMENON_DERBY": 0, "MASCARENHAS_IMBIRIBEIRA": 0, "anos_por_ponto": 5.0},
+  "relatorio": "projeto-mapi-ai/reports/v4/RELATORIO.md",
+  "numeros": [
+    "reports/v4/bucket_label_frequency.json",
+    "reports/v4/experiment_p1.json"
+  ],
+  "frequencia_do_balde_central": {
+    "AV_RECIFE_IBURA": 0,
+    "CIN_UFPE": 0,
+    "AGAMENON_DERBY": 0,
+    "MASCARENHAS_IMBIRIBEIRA": 0,
+    "anos_por_ponto": 5.0
+  },
   "frequencia_real_declarada": "cerca de 4 por ano (18 dias com alagamento registrado em 5 anos, CKAN Recife, cidade inteira, sem hora)",
   "parametro_ajustado": "nenhum",
-  "resposta_em_uma_linha": "sem número: com os parâmetros de fonte o balde não produz evento em 5 anos; o v4 não é treinável no cenário central",
-  "experimento_p1": {"codigo": "mapi_ai/v4/experiment.py", "estado": "pronto; rodado só no cenário central (não treinável)",
-    "bloqueio": "rodar a faixa pré-registrada de capacidade da galeria (--sensibilidade) depende do ok do Lucas"},
-  "api_front": {"resposta": "rainForecast {issuedAt, modelVersion, sources, usedByModel, horizons[]} por adição, gravado em model_info",
-    "pedido_a_ia": "rain_forecast {q50_1h ... pFORTE_6h}", "usedByModel": "false enquanto o modelo servido for o logreg_v3",
-    "front": "RainForecastSummary nos três cartões do ponto; aba 'Previsão de chuva' na tela Modelo"},
-  "modelo_servido": "logreg_v3 (o v4 não foi implantado)"
+  "resposta_em_uma_linha": "CONDICIONAL à capacidade da galeria (sem fonte): no orçamento alto de alertas a previsão de chuva não dá antecedência (0 min, IC 0–0, f=0,2, 30 eventos); no orçamento médio, 240 min (IC 90–300) contra 180 (IC 0–270) sem previsão; o teto com chuva futura verdadeira é 360 min. No central (f=1,0) não há evento.",
+  "experimento_p1": {
+    "codigo": "mapi_ai/v4/experiment.py",
+    "estado": "rodado na faixa pré-registrada; treinável em f=0,4 (5 eventos no teste, IC 0–360) e f=0,2"
+  },
+  "api_front": {
+    "resposta": "rainForecast {issuedAt, modelVersion, sources, usedByModel, horizons[]} por adição, gravado em model_info",
+    "pedido_a_ia": "rain_forecast {q50_1h ... pFORTE_6h}",
+    "usedByModel": "false enquanto o modelo servido for o logreg_v3",
+    "front": "RainForecastSummary nos três cartões do ponto; aba 'Previsão de chuva' na tela Modelo"
+  },
+  "modelo_servido": "logreg_v3 (o v4 não foi implantado)",
+  "sensibilidade": {
+    "rodada": "2026-11-16, ok do Lucas",
+    "eventos_treino_val_teste": {
+      "1.0": [
+        0,
+        0,
+        0
+      ],
+      "0.8": [
+        1,
+        0,
+        0
+      ],
+      "0.6": [
+        7,
+        2,
+        0
+      ],
+      "0.4": [
+        41,
+        5,
+        5
+      ],
+      "0.2": [
+        162,
+        29,
+        30
+      ]
+    },
+    "treinaveis": [
+      "0.4",
+      "0.2"
+    ],
+    "parametro_ajustado": "nenhum; faixa inteira reportada",
+    "detalhe": "projeto-mapi-ai/reports/v4/RELATORIO.md §4.2, experiment_p1.json"
+  }
 }
