@@ -129,6 +129,9 @@ Uma chamada com tudo do card. `at` = instante de referência (padrão: agora); b
 - `state` (prioridade, o primeiro que vale): `NO_RESPONSE` (nenhuma leitura de nenhuma fonte nas 3 h) → `GAP_NOW` (nenhuma leitura de nenhuma fonte em (at − 70 min, at], com alguma nas 3 h: o bloco seco da coleta ao vivo dura 60 min, então "bloco de 10 min vazio" não é lacuna) → `FAIL_MONTH` → `DIVERGENT` (divergência > 0,5 mm nas últimas 2 h) → `PEAK_REMOVED` (pico isolado nas 3 h) → `UNCHECKED` → `NORMAL`. `pedOnly` é etiqueta à parte.
 - `note`: o aviso do `state` (um só), com os números do caso; `null` em `NORMAL`.
 - `uses`: pontos críticos a até 5 km; `role` = `USED` | `LOWER` (com `usedStationName`) | `EXCLUDED` (mês FAIL/OFFLINE) | `NO_VALUE`, na hora de `at` (série do ponto quando houver; senão o valor horário canônico).
+- `pedPending`: `true` só se a PED não tem valor na hora, a coleta ao vivo tem, e há leitura PED nas 3 h anteriores. PED parada há mais tempo não é atraso (conferência com dado real, 2026-11-16: a carga PED parou em 2026-10-07).
+- `lastReadingUtc`: última leitura até `at`. Em `NO_RESPONSE`, procura nos 30 dias anteriores; `null` se não houver.
+- `monthCheck`: mês de `at`; `null` enquanto o mês não foi checado (a checagem roda sobre o mês fechado). Candidata sem checagem sai com `monthStatus = UNCHECKED` em B3 e B7, nunca `null`.
 - 404 se a canônica não existe.
 
 ## B7 — `GET /api/locations/analysis?lat=&lon=&at=` (análise de local, seção 5.4)

@@ -173,6 +173,17 @@ class StationCardApiIntegrationTest extends AbstractApiIntegrationTest {
     }
 
     @Test
+    void pedPending_soQuandoAPedEstaChegando() throws Exception {
+        blocks(live, "CEMADEN", "LIVE-PK1", AT.minusSeconds(3600), AT, 0.2, null);
+        // PED parada há dias: não é atraso
+        ObservationFixtures.precipitation(jdbc, ped, "CEMADEN_PED", "PK1", AT.minus(java.time.Duration.ofDays(10)), 0.0);
+        assertThat(card("PK1", 200).get("pedPending").asBoolean()).isFalse();
+        // PED com leitura há 1 h e nada na hora atual: está chegando
+        ObservationFixtures.precipitation(jdbc, ped, "CEMADEN_PED", "PK1", AT.minusSeconds(3600 + 600), 0.0);
+        assertThat(card("PK1", 200).get("pedPending").asBoolean()).isTrue();
+    }
+
+    @Test
     void noResponse_dizAUltimaLeituraAnteriorAJanela() throws Exception {
         Instant ontem = AT.minus(java.time.Duration.ofHours(15));
         ObservationFixtures.precipitation(jdbc, live, "CEMADEN", "LIVE-PK1", "PT1H", ontem, 0.4, "ACTIVE");

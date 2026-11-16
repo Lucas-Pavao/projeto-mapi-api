@@ -55,6 +55,7 @@ public class StationCardServiceImpl implements StationCardService {
     static final double USES_RADIUS_M = 5000;
     /** Sem leitura nas 3 h (NO_RESPONSE), o card ainda diz quando a estação falou pela última vez, até 30 dias atrás. */
     static final Duration LAST_READING_LOOKBACK = Duration.ofDays(30);
+    static final Duration PED_PENDING_WINDOW = Duration.ofHours(3);
 
     private final StationCanonicalRepository canonicals;
     private final StationCardRepository cards;
@@ -102,7 +103,11 @@ public class StationCardServiceImpl implements StationCardService {
 
         StationHourlyDTO.Hour now = hours.get(hourFloor);
         Double pedNow = now == null ? null : now.pedMm(), liveNow = now == null ? null : now.liveMm();
-        boolean pedPending = pedId != null && pedNow == null && liveNow != null;
+        // "PED ainda não chegou" só quando a PED está chegando: leitura PED nas últimas PED_PENDING_WINDOW.
+        // Carga PED parada há dias não é atraso; aí a PED só fica sem dado.
+        boolean pedPending = pedId != null && pedNow == null && liveNow != null
+                && cards.lastReading(List.of(StationUnificationServiceImpl.PED + ":" + pedId),
+                        ref.minus(PED_PENDING_WINDOW), ref).isPresent();
 
         // --- mês, quarentena, última leitura ---
         MonthCheckDTO month = monthCheck(pedId, ref);
