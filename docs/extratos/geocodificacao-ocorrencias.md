@@ -10,7 +10,7 @@ As 225 ocorrências de alagamento do CKAN têm só endereço; a coordenada vem d
 
 - Tabela `geocode_cache`: endereço saneado, bairro e cidade normalizados → coordenada, nível, fonte, origem, data e versão. Uma linha ativa por chave.
 - A carga de ocorrências lê o cache (`GeocodeCacheService`) e só chama o Nominatim para endereço novo; o resultado é gravado com fonte e data. Falha do geocodificador não entra no cache.
-- Na subida da aplicação com o cache vazio, ele é preenchido com as coordenadas de `flood_occurrence` (182 chaves distintas de endereço e bairro; nenhuma com duas coordenadas), que são as dos casamentos vigentes. A origem de cada linha diz a carga de onde veio.
+- Na subida da aplicação com o cache vazio, ele é preenchido com as coordenadas de `flood_occurrence` que são as dos casamentos vigentes. Em 2026-11-16: 182 combinações brutas de endereço e bairro viraram 117 chaves depois do saneamento, e as 225 ocorrências resolvem pelo cache para a coordenada que têm gravada (nenhuma a mais de 50 m). A origem de cada linha diz a carga de onde veio.
 
 ## Snapshot de 2026-10-10: não recuperado
 
