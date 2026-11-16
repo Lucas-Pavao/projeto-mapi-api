@@ -40,6 +40,24 @@ public class FloodPredictionRequestDTO {
     @JsonProperty("river_level")
     private Double riverLevel;
 
+    // Entradas físicas do modelo v3 (etapa A3), por adição. Nulo = ausente (nunca zero); o modelo declara em
+    // imputed_features as que usa e não recebeu. Mesmas regras de point_physical_inputs_v (V27).
+    // Previsão de chuva do ponto (rain_v1), por adição: chaves q50_1h, q80_1h, q95_1h, pMEDIA_1h, pFORTE_1h e as de 3 h e
+    // 6 h. Nulo quando não houve previsão; o modelo que a usa declara o uso em rain_forecast_used.
+    @JsonProperty("rain_forecast")
+    private java.util.Map<String, Double> rainForecast;
+    @JsonProperty("rain_max_10min_mm")
+    private Double rainMax10minMm;
+    @JsonProperty("tide_trend_m_h")
+    private Double tideTrendMH;
+    @JsonProperty("river_level_m")
+    private Double riverLevelM;
+    @JsonProperty("soil_moisture")
+    private Double soilMoisture;
+    /** Fim da hora de referência das entradas de chuva (UTC, ISO-8601). */
+    @JsonProperty("rain_hour_end_utc")
+    private String rainHourEndUtc;
+
     // Variáveis meteorológicas e de onda exigidas pela IA na inferência. Ausente = null: a IA responde
     // 422 com missing_features (ADR 0007 §3); o backend não imputa estes campos.
     @JsonProperty("wind_speed")

@@ -76,6 +76,10 @@ public class OccurrenceIngestionServiceImpl implements OccurrenceIngestionServic
     private final ObjectMapper mapper;
     private final TransactionTemplate tx;
 
+    /** Opcional (injeção por campo): testes unitários constroem o serviço sem o cache (aí a carga geocodifica direto). */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.projeto.mapi.service.geocoding.GeocodeCacheService geocodeCache;
+
     public OccurrenceIngestionServiceImpl(IngestionRunRepository runs, RawObservationRepository raws,
                                           OccurrenceRepository occurrences, QuarantineRepository quarantine,
                                           FloodPointRepository floodPoints, GeocodingService geocoding,
@@ -283,7 +287,10 @@ public class OccurrenceIngestionServiceImpl implements OccurrenceIngestionServic
         // endereço ilegível mas bairro conhecido: geocodifica no nível do bairro (honesto no geocode_level)
         if (clean.isBlank() && !hasNeighborhood) return Optional.empty();
         try {
-            return geocoding.geocodeWithLevel(clean, cls.neighborhood(), "Recife");
+            // Endereço já visto devolve a coordenada do cache versionado (V28); só endereço novo vai ao geocodificador.
+            if (geocodeCache == null) return geocoding.geocodeWithLevel(clean, cls.neighborhood(), "Recife");
+            return geocodeCache.resolve(clean, cls.neighborhood(), "Recife",
+                    () -> geocoding.geocodeWithLevel(clean, cls.neighborhood(), "Recife"));
         } catch (RuntimeException e) {
             log.warn("Geocoding falhou para '{}': {}", clean, e.getMessage());
             return Optional.empty();

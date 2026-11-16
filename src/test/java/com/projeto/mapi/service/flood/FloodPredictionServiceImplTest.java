@@ -47,7 +47,8 @@ class FloodPredictionServiceImplTest {
     }
 
     private FloodPredictionRequestDTO request() {
-        return FloodPredictionRequestDTO.builder().stationId("S1").latitude(-8.05).longitude(-34.9).build();
+        return FloodPredictionRequestDTO.builder().stationId("S1").latitude(-8.05).longitude(-34.9).currentRainfall(0.0)
+                .rainfall3hAccumulated(0.0).rainfall6hAccumulated(0.0).rainfall12hAccumulated(0.0).rainfall24hAccumulated(0.0).build();
     }
 
     private void iaResponde(String json) {
@@ -71,6 +72,28 @@ class FloodPredictionServiceImplTest {
     }
 
     // ---- sucesso ----
+
+    @Test
+    void v3_repassaHorizonteEProbabilidadeCorrigida() {
+        iaResponde("""
+                {"flood_probability":0.0123,"risk_level":"LOW","model_version":"logreg_v3","horizon_hours":6,
+                 "probability_kind":"PRIOR_CORRECTED","flood_probability_uncorrected":0.31,"training_data":"SYNTHETIC",
+                 "imputed_features":["rain_12_24h"]}""");
+        FloodPredictionResponseDTO r = predizEConfere();
+        assertThat(r.riskLevel()).isEqualTo(RiskLevel.LOW);
+        assertThat(r.horizonHours()).isEqualTo(6);
+        assertThat(r.validUntil()).isEqualTo(r.issuedAt().plus(6, java.time.temporal.ChronoUnit.HOURS));
+        assertThat(r.probabilityKind()).isEqualTo("PRIOR_CORRECTED");
+        assertThat(r.floodProbabilityUncorrected()).isEqualTo(0.31);
+        assertThat(r.modelVersion()).isEqualTo("logreg_v3");
+        assertThat(r.imputedFeatures()).extracting("featureId").containsExactly("rain_12_24h");
+    }
+
+    @Test
+    void v2_semCampoDeProbabilidade_eRaw() {
+        iaResponde("{\"flood_probability\":0.1,\"risk_level\":\"LOW\",\"model_version\":\"xgb_v2\"}");
+        assertThat(predizEConfere().probabilityKind()).isEqualTo("RAW");
+    }
 
     @Test
     void sucessoCompletoTraduzOContrato() {
@@ -197,6 +220,26 @@ class FloodPredictionServiceImplTest {
                 withStatus(HttpStatus.UNPROCESSABLE_ENTITY).contentType(MediaType.APPLICATION_JSON)
                         .body("{\"detail\":[{\"type\":\"string_type\",\"loc\":[\"body\",\"nearby_sensors\",0,\"unit\"],\"msg\":\"" + SEGREDO + "\"}]}"));
         assertUnknown(predizEConfere(), DegradationReason.AI_ERROR);
+    }
+
+    @Test
+    void http422DeValidacaoComChuvaAusenteViraInsufficientData() {
+        // Modelo que ainda não aceita chuva nula (v2): a recusa do campo é dado insuficiente, não erro de integração.
+        server.expect(requestTo(URL)).andRespond(
+                withStatus(HttpStatus.UNPROCESSABLE_ENTITY).contentType(MediaType.APPLICATION_JSON)
+                        .body("{\"detail\":[{\"type\":\"float_type\",\"loc\":[\"body\",\"rainfall_24h_accumulated\"],\"msg\":\"" + SEGREDO + "\"}]}"));
+        FloodPredictionRequestDTO semChuva24h = request();
+        semChuva24h.setRainfall24hAccumulated(null);
+        FloodPredictionResponseDTO r = service.predict(semChuva24h, List.of("rainfall_24h_accumulated")).response();
+        server.verify();
+        assertUnknown(r, DegradationReason.INSUFFICIENT_DATA);
+        assertThat(r.imputedFeatures()).extracting("featureId").containsExactly("rainfall_24h_accumulated");
+    }
+
+    @Test
+    void semDadoDecididoPeloChamadorNaoConsultaAIa() {
+        FloodPredictionResponseDTO r = service.insufficientData(List.of("current_rainfall")).response();
+        assertUnknown(r, DegradationReason.INSUFFICIENT_DATA);
     }
 
     @Test

@@ -37,6 +37,15 @@ weather:
   apiUrl: https://api.open-meteo.com/v1
 
 mapi:
+  # Previsão de chuva: chamaria a IA e o Open-Meteo de verdade no ciclo; os testes ligam onde precisam.
+  rain-forecast:
+    enabled: false
   terrain:
     # TerrainStartupLoader carregaria ../terreno de verdade (existe quando os testes rodam do checkout principal).
     load-on-startup: false
+  ingestion:
+    geocode-cache:
+      # Nos testes o cache fica desligado e não é semeado na subida: o banco do contêiner é compartilhado entre as
+      # classes de teste, e um endereço geocodificado numa valeria na seguinte. GeocodeCacheIntegrationTest liga.
+      enabled: false
+      seed-on-startup: false

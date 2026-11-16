@@ -24,6 +24,10 @@ public class IngestionAdminServiceImpl implements IngestionAdminService {
     private final SensorFreshnessPolicy freshness;
     private final Clock clock;
 
+    /** Opcional (injeção por campo): o teste unitário constrói o serviço sem o banco. */
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.projeto.mapi.service.ingestion.freshness.SourceFreshnessService freshnessService;
+
     @Override
     public PageResponseDTO<IngestionRunView> listRuns(String source, String status, int page, int size) {
         return new PageResponseDTO<>(page, size, runs.count(source, status),
@@ -33,13 +37,27 @@ public class IngestionAdminServiceImpl implements IngestionAdminService {
     @Override
     public List<IngestionSourceStatusDTO> sources() {
         Instant now = clock.instant();
-        return runs.sourceSummaries(now.minus(Duration.ofHours(24))).stream().map(s -> toDto(s, now)).toList();
+        Map<String, IngestionSourceStatusDTO.Freshness> fresh = freshnessService == null ? Map.of() : freshnessService.freshness();
+        return runs.sourceSummaries(now.minus(Duration.ofHours(24))).stream()
+                .map(s -> withFreshness(toDto(s, now), fresh.get(s.source()))).toList();
     }
 
     /** Fontes com ciclo agendado: intervalo vem da mesma configuração dos jobs. As demais não têm "atraso". */
     private Integer expectedMinutes(String source) {
         String canonical = Map.of("CEMADEN", "CEMADEN", "APAC_METEO24H", "APAC", "ANA_SOAP", "ANA").get(source);
         return canonical == null ? null : (int) (freshness.expectedIntervalSeconds(canonical) / 60);
+    }
+
+    /**
+     * STALE quando a leitura ACEITA mais nova passou da idade máxima (ou a tábua cobre menos que o mínimo): vale sobre
+     * DELAYED, QUARANTINED e OK, porque execução bem-sucedida que não aceita nada não é coleta viva. FAILING continua acima.
+     */
+    static IngestionSourceStatusDTO withFreshness(IngestionSourceStatusDTO d, IngestionSourceStatusDTO.Freshness f) {
+        if (f == null) return d;
+        boolean stale = java.util.Set.of("STALE", "NO_DATA", "COVERAGE_LOW").contains(f.state());
+        String status = stale && !"FAILING".equals(d.status()) ? "STALE" : d.status();
+        return new IngestionSourceStatusDTO(d.source(), status, d.expectedEveryMinutes(), d.lastSuccessAt(), d.lastRunId(),
+                d.lastError(), d.rowsLast24h(), f);
     }
 
     private IngestionSourceStatusDTO toDto(SourceRunSummary s, Instant now) {
@@ -60,6 +78,6 @@ public class IngestionAdminServiceImpl implements IngestionAdminService {
             status = "OK";
         }
         return new IngestionSourceStatusDTO(s.source(), status, expected, s.lastSuccessAt(),
-                s.lastRunId() == null ? null : s.lastRunId().toString(), s.lastError(), s.rowsLast24h());
+                s.lastRunId() == null ? null : s.lastRunId().toString(), s.lastError(), s.rowsLast24h(), null);
     }
 }

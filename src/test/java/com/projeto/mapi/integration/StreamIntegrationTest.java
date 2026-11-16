@@ -73,7 +73,7 @@ class StreamIntegrationTest extends AbstractApiIntegrationTest {
     @Test
     void fimDeCicloPublicaPredictionERiskSummary() throws Exception {
         when(predictionQuery.latestPerActivePoint()).thenReturn(List.of(new PredictionSummaryDTO("p-x", RiskLevel.UNKNOWN,
-                null, Instant.now(), null, null, null, null, null, ModelValidationStatus.NOT_VALIDATED, null, null, null)));
+                null, Instant.now(), null, null, null, null, null, ModelValidationStatus.NOT_VALIDATED, null, null, null, null, null)));
         when(predictionQuery.riskSummary()).thenReturn(new RiskSummaryDTO(0, 0, 0, 1, Instant.now()));
         MvcResult r = open("sse_cycle", Role.USER, null);
 

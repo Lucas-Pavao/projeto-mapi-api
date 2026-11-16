@@ -37,6 +37,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 
+import com.projeto.mapi.model.FloodPrediction;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyCollection;
@@ -63,9 +65,14 @@ class PredictionCycleTideIntegrationTest extends AbstractTimescaleIntegrationTes
     @MockitoBean private TabuaMareService tabuaMareService;
     @MockitoBean private MarineService marineService;
     @MockitoBean private DataExportService dataExportService;
+    @MockitoBean private com.projeto.mapi.service.flood.PointRainInputService rainInputs;
+    @MockitoBean private com.projeto.mapi.service.flood.PointPhysicalInputService physicalInputs;
+    @MockitoBean private com.projeto.mapi.service.tide.TideLevelService tideLevel;
 
     @BeforeEach
     void semeia() {
+        when(rainInputs.inputsAt(anyDouble(), anyDouble(), any())).thenReturn(chuvaMedida(0.5, 1.5));
+        when(physicalInputs.inputsAt(anyDouble(), anyDouble(), any())).thenReturn(new com.projeto.mapi.service.flood.PointPhysicalInputs(0.2, -0.3, null, null));
         when(tabuaMareService.getCurrentTideHeight(anyDouble(), anyDouble())).thenReturn(null);
         eventRepository.deleteAll();
         predictionRepository.deleteAll();
@@ -142,7 +149,8 @@ class PredictionCycleTideIntegrationTest extends AbstractTimescaleIntegrationTes
     }
 
     @Test
-    void semGradeDaReanaliseOsAcumuladosVemDoForecastENaoSaoImputados() {
+    void openMeteoNaoEntraNaChuvaDaPrevisao_valeAMedida() {
+        // O Open-Meteo traz 2,0 mm/h nas últimas horas; a previsão não usa (fallback desligado por padrão).
         java.time.LocalDateTime inicio = java.time.LocalDateTime.parse("2026-10-10T20:00");
         List<String> horas = new java.util.ArrayList<>();
         List<Double> chuva = new java.util.ArrayList<>();
@@ -162,9 +170,27 @@ class PredictionCycleTideIntegrationTest extends AbstractTimescaleIntegrationTes
         @SuppressWarnings("unchecked")
         ArgumentCaptor<Collection<String>> imputed = ArgumentCaptor.forClass(Collection.class);
         verify(floodPredictionService).predict(req.capture(), imputed.capture());
-        // Horas fechadas até 20:15: 20:00 (2,0), 19:00 (2,0), 18:00 (2,0) e 21 horas de 0,5 antes.
-        assertThat(req.getValue().getRainfall3hAccumulated()).isEqualTo(6.0);
-        assertThat(req.getValue().getRainfall24hAccumulated()).isEqualTo(6.0 + 21 * 0.5);
+        assertThat(req.getValue().getCurrentRainfall()).isEqualTo(0.5);          // medida, não os 2,0 do Open-Meteo
+        assertThat(req.getValue().getRainfall3hAccumulated()).isEqualTo(1.5);
+        assertThat(req.getValue().getRainfall24hAccumulated()).isEqualTo(12.0);
         assertThat(imputed.getValue()).doesNotContain("rainfall_3h_accumulated", "rainfall_24h_accumulated");
+        FloodPrediction row = predictionRepository.findAll().get(0);
+        assertThat(row.getModelInfo().rainSource()).isEqualTo("MEASURED");
+        assertThat(row.getModelInfo().rainInput().values()).hasSize(5);
+        assertThat(row.getModelInfo().rainInput().values().get(0).stations().get(0).stationId()).isEqualTo("E1");
+    }
+
+    /** Chuva medida completa (ADR 0007, emenda 3): 0,5 mm na hora e nas janelas; nada ausente. */
+    private static com.projeto.mapi.service.flood.PointRainInputs chuvaMedida(Double atual, Double acc3h) {
+        String[] ids = {"current_rainfall", "rainfall_3h_accumulated", "rainfall_6h_accumulated", "rainfall_12h_accumulated", "rainfall_24h_accumulated"};
+        Double[] v = {atual, acc3h, acc3h == null ? null : 3.0, acc3h == null ? null : 6.0, acc3h == null ? null : 12.0};
+        int[] h = {1, 3, 6, 12, 24};
+        List<com.projeto.mapi.service.flood.PointRainInputs.Value> values = new java.util.ArrayList<>();
+        for (int i = 0; i < ids.length; i++) {
+            values.add(new com.projeto.mapi.service.flood.PointRainInputs.Value(ids[i], v[i], h[i], v[i] == null ? 0 : h[i],
+                    List.of(new com.projeto.mapi.service.flood.PointRainInputs.Station("E1", "Estação 1", "CEMADEN_PED"))));
+        }
+        return new com.projeto.mapi.service.flood.PointRainInputs("MEASURED", Instant.parse("2026-10-11T23:00:00Z"), v[0], v[1], v[2],
+                v[3], v[4], values, Instant.parse("2026-10-11T22:50:00Z"), atual == null ? 0 : 1);
     }
 }

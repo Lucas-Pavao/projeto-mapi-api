@@ -31,6 +31,9 @@ public class StationCanonicalRepository {
     public record CanonicalView(String canonicalId, String name, double lat, double lon, String municipality,
                                 String ibgeCode, String primarySource, List<String> aliases) {}
 
+    /** Último mês checado de uma estação canônica; {@code status} no vocabulário do banco (PASS, FAIL, ...). */
+    public record MonthCheckView(Instant monthStartUtc, String status, List<String> reasons, String ruleVersion) {}
+
     public record HourValue(Instant hourEndUtc, double value) {}
 
     private final JdbcTemplate jdbc;
@@ -142,6 +145,53 @@ public class StationCanonicalRepository {
             while (rs.next()) m.put(rs.getString(1), rs.getObject(2, OffsetDateTime.class).toInstant());
             return m;
         }, utc(since));
+    }
+
+    /**
+     * Última checagem mensal de cada canônica, pela estação PED do grupo, na versão de regra pedida. A tabela tem uma
+     * linha por estação e mês; o corte por {@code rule_version} usa a chave primária.
+     */
+    public Map<String, MonthCheckView> latestMonthChecks(String ruleVersion) {
+        return jdbc.query("""
+                SELECT DISTINCT ON (a.canonical_id) a.canonical_id, c.month_start_utc, c.status, c.reasons, c.rule_version
+                FROM station_month_check c
+                JOIN station_alias a ON a.source = c.source AND a.station_id = c.station_id
+                WHERE c.source = 'CEMADEN_PED' AND c.rule_version = ?
+                ORDER BY a.canonical_id, c.month_start_utc DESC
+                """, rs -> {
+            Map<String, MonthCheckView> m = new java.util.HashMap<>();
+            while (rs.next()) {
+                m.put(rs.getString(1), new MonthCheckView(rs.getObject(2, OffsetDateTime.class).toInstant(),
+                        rs.getString(3), strings(rs.getArray(4)), rs.getString(5)));
+            }
+            return m;
+        }, ruleVersion);
+    }
+
+    /**
+     * Linhas ABERTAS da quarentena por canônica e motivo, somando todos os apelidos. A junção com o bruto usa a chave
+     * completa (id, ingested_at), a da hypertable.
+     */
+    public Map<String, Map<String, Integer>> openQuarantineByCanonical() {
+        return jdbc.query("""
+                SELECT a.canonical_id, q.reason, count(*) FROM ingestion_quarantine q
+                JOIN raw_observation r ON r.id = q.raw_id AND r.ingested_at = q.raw_ingested_at
+                JOIN station_alias a ON a.source = r.source AND a.station_id = r.station_id
+                WHERE q.resolved_at IS NULL
+                GROUP BY a.canonical_id, q.reason
+                """, rs -> {
+            Map<String, Map<String, Integer>> m = new java.util.HashMap<>();
+            while (rs.next()) m.computeIfAbsent(rs.getString(1), k -> new java.util.HashMap<>()).put(rs.getString(2), rs.getInt(3));
+            return m;
+        });
+    }
+
+    public Map<String, Integer> divergenceCounts() {
+        return jdbc.query("SELECT canonical_id, count(*) FROM station_hour_divergence GROUP BY canonical_id", rs -> {
+            Map<String, Integer> m = new java.util.HashMap<>();
+            while (rs.next()) m.put(rs.getString(1), rs.getInt(2));
+            return m;
+        });
     }
 
     private static List<String> strings(Array a) throws java.sql.SQLException {

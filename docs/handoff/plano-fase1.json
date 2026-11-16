@@ -1,0 +1,18 @@
+{
+  "fase": "1 — fechar o que está aberto", "data": "2026-11-16", "branch": "feat/modelo-v3 (api, ai, front)",
+  "idade_maxima_por_fonte": {
+    "onde": "source_registry.max_age_minutes e min_coverage_ahead_minutes (V29); ADR 0006, emenda de 2026-11-16",
+    "criterio": "leitura ACEITA mais nova, não execução bem-sucedida",
+    "valores": {"CEMADEN": "90 min", "CEMADEN_PED": "180 min", "ANA_SOAP": "120 min", "APAC_METEO24H": "60 min",
+      "OPEN_METEO_ARCHIVE e OPEN_METEO_ERA5LAND": "10 dias", "TABUAMARE_PE02": "cobertura de 30 dias à frente",
+      "TIDE_PE02_HOURLY": "cobertura de 2 dias à frente", "demais": "não monitoradas"},
+    "estado": "proposta no ar; falta o ok do Lucas para fixar"
+  },
+  "causas": {
+    "mare": "a tábua até 26/11 era a janela rolante de 10 dias (não era defeito); o defeito era a maré horária, derivada só à mão; agora deriva no mesmo job e a janela é de 45 dias. A previsão lia a maré de fonte vazia: corrigido (TideLevelService, extremos gravados)",
+    "login": "o segredo do token é fixo; a causa era o front, que tratava o 502 do nginx durante o reinício como sessão encerrada (corrigido em 8d360da)"
+  },
+  "v3_no_ar": "logreg_v3, horizonte de 6 h, probabilidade PRIOR_CORRECTED, chuva medida com estações e idade, maré pelos extremos",
+  "commits": {"api": ["6fc9c08", "6a9d533", "5b8be9e", "3782250", "0a8b2f3", "957ae7d"], "ai": ["c40a089"], "front": ["8d360da", "2c1a3d3", "85b18bb", "8975023", "1baa4fa"]},
+  "pendencias": ["a tábua de maré de 2027 (a TabuaMare só serve o ano corrente: o alarme dispara em dezembro)", "ok do Lucas na tabela de idade máxima"]
+}

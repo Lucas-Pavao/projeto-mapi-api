@@ -1,0 +1,30 @@
+{
+  "fase": "3 — modelo de previsão de chuva", "data": "2026-11-16", "branch": "feat/modelo-v3 (api, ai, front)",
+  "atribuicao": "DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC", "alvo": "chuva MEDIDA; sem etiqueta de sintético",
+  "relatorio": "projeto-mapi-ai/reports/v4/rain/RELATORIO.md", "metadata": "projeto-mapi-ai/models/v4/rain/metadata.json",
+  "resposta_em_uma_linha": "a rede avisa um evento FORTE 20 min antes em mediana (IC 95%: 10 a 40; modelo de 1 h, 20 de 28 eventos), sempre com a chuva já caindo no ponto",
+  "modelo_por_horizonte": {"1h": "gb_rede", "3h": "gb_rede_om", "6h": "gb_rede_om"},
+  "pinball_teste_mm": {"1h": 0.144, "3h": 0.381, "6h": 0.725}, "cobertura_q95_teste": {"1h": 0.964, "3h": 0.971, "6h": 0.970},
+  "negativos": ["o modelo não prevê o início da chuva: recall de FORTE de 0% a 5% quando ainda não chove", "o Open-Meteo sozinho não vence a climatologia em 1 h e 6 h"],
+  "api": {
+    "migracao": "V30__previsao_de_chuva.sql (só adição)",
+    "visoes": {"canonical_rain_block_v": "blocos por estação canônica; por hora, a PED quando existe, senão a coleta ao vivo",
+      "point_rain_neighbors_v": "estações PED a até 40 km do ponto, com km, anel e setor"},
+    "tabelas": {"rain_forecast": "uma linha por ponto, emissão e horizonte, com observed_mm depois da conferência",
+      "open_meteo_forecast_hour": "rodada da véspera; issued_before_utc = hora prevista menos 24 h"},
+    "fonte_nova": "OPEN_METEO_FORECAST (DECLARED), separada da reanálise",
+    "rotas": ["GET /api/rain-forecast/latest", "GET /api/rain-forecast/accuracy?days=30"],
+    "job": "conferência diária às 03:30 UTC (mapi.rain-forecast.verify-cron) e 1 h depois da subida",
+    "propriedades": ["mapi.rain-forecast.enabled", "mapi.rain-forecast.open-meteo-enabled", "app.weather.previous-runs-url"]
+  },
+  "ia": {"rota": "POST /v1/forecast/rain", "entrada": "latitude, longitude, readings[{station_id, latitude, longitude, ts, mm}], open_meteo[{hour_end_utc, mm}]",
+    "saida": "horizons[{horizon_hours, quantiles_mm{q50,q80,q95}, prob_media, prob_forte, forte_alert, model}], sources, missing_inputs, latest_reading_age_minutes",
+    "sem_estacao_valida_a_5_km": "HTTP 422 com missing_features"},
+  "desvios_do_pedido": [
+    "anel de 15 a 40 km fora da RMR não carregado: a carga da PED exige token ADMIN",
+    "as entradas de vizinhança são calculadas pelo MESMO código Python no treino e no serviço (mapi_ai/rain/features.py); a view do banco entrega os blocos com distância, anel e setor, e não as entradas prontas, para não haver uma segunda implementação em SQL",
+    "o Open-Meteo usado é a rodada da véspera (emissão garantida antes de t), não a previsão emendada",
+    "open_meteo_forecast_hour fica fora do pipeline de observation: é previsão, não medição"
+  ],
+  "pendencias": ["medir a idade da leitura em dia de chuva", "carregar o anel de 15 a 40 km (precisa de token ADMIN)"]
+}

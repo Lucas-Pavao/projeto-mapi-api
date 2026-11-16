@@ -22,7 +22,7 @@
 
 ## 2. Endpoints por grupo
 
-Em 2026-11-15 o código tem **84 operações em 78 caminhos** (fonte: contagem em `docs/openapi/openapi-2026-11-15.json`, gerado de `/v3/api-docs` no branch `feat/cemaden-ped`); as 6 a mais que em 2026-11-08 são as 4 de estações (2.9), `POST /api/admin/chuva-ponto/rebuild` e `POST /api/admin/ingestion/occurrences/clusters`. Total: 52 operações em 51 caminhos (fonte: contagem em `openapi-integracao-fase2.json`). Em 2026-11-08 o código tem **78 operações em 72 caminhos** (fonte: contagem em `docs/openapi/openapi-2026-11-08.json`, gerado de `/v3/api-docs` no branch `fix/saude-sensores-dados`, perfil sem `dev`); 2 são os endpoints de eventos de chuva (2.8) e as outras 24 entraram depois do snapshot (redesign V16–V22 e correções). As tabelas 2.1–2.7 seguem o snapshot da Fase 2. "Auth" segue a seção 1. "Novo" marca o que não existia no snapshot da Fase 1.
+Com os endpoints do contrato dos novos cenários (5 novos, em 2.9 e 2.10) o código passa a **89 operações em 83 caminhos** (fonte: contagem em `docs/openapi/openapi-2026-11-16.json`, regerado de `/v3/api-docs` no branch `feat/novos-cenarios` com `GET /api/stations/{canonicalId}/card` e `GET /api/locations/analysis`). Em 2026-11-15 o snapshot tinha **84 operações em 78 caminhos** (fonte: contagem em `docs/openapi/openapi-2026-11-15.json`, gerado de `/v3/api-docs` no branch `feat/cemaden-ped`); as 6 a mais que em 2026-11-08 são as 4 de estações (2.9), `POST /api/admin/chuva-ponto/rebuild` e `POST /api/admin/ingestion/occurrences/clusters`. Total: 52 operações em 51 caminhos (fonte: contagem em `openapi-integracao-fase2.json`). Em 2026-11-08 o código tem **78 operações em 72 caminhos** (fonte: contagem em `docs/openapi/openapi-2026-11-08.json`, gerado de `/v3/api-docs` no branch `fix/saude-sensores-dados`, perfil sem `dev`); 2 são os endpoints de eventos de chuva (2.8) e as outras 24 entraram depois do snapshot (redesign V16–V22 e correções). As tabelas 2.1–2.7 seguem o snapshot da Fase 2. "Auth" segue a seção 1. "Novo" marca o que não existia no snapshot da Fase 1.
 
 ### 2.1 Autenticação (`auth-controller`)
 
@@ -127,7 +127,11 @@ DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC.
 
 | Método | Caminho | Auth | O que faz | Resposta |
 |---|---|---|---|---|
-| GET | `/api/stations/canonical` | autenticado | Uma linha por estação física, com os apelidos `SOURCE:station_id` | `CanonicalStationDTO[]` |
+| GET | `/api/stations/canonical` | autenticado | Uma linha por estação física, com os apelidos `SOURCE:station_id`, as fontes, a checagem do último mês, a quarentena aberta por motivo e a contagem de horas divergentes | `CanonicalStationDTO[]` |
+| GET | `/api/stations/{canonicalId}/hourly?from=&to=` | autenticado | Chuva horária da canônica (janela máxima de 7 dias, padrão 24 h; 400 acima disso, 404 sem a canônica), com `usedSource`, `pedMm`, `liveMm`, `divergent` e `isolatedPeakRemoved`; hora sem dado = `valueMm` nulo | `StationHourlyDTO` |
+| GET | `/api/stations/{canonicalId}/card?at=` | autenticado | Card do pluviômetro numa chamada: 18 blocos de 10 min das 3 h (PED senão ao vivo; `mm` nulo sem dado ou pico isolado), `acc1hMm`/`acc3hMm`/`acc24hMm` (nulos se faltar bloco ou hora), `state` (`NO_RESPONSE`, `GAP_NOW`, `FAIL_MONTH`, `DIVERGENT`, `PEAK_REMOVED`, `UNCHECKED`, `NORMAL`), `note` com os números, `quarantineToday` (dia civil UTC de `at`), `uses[]` (pontos a até 5 km com `role`); 404 sem a canônica | `StationCardDTO` |
+| GET | `/api/pontos/{slug}/rain-candidates?at=` | autenticado | Estações candidatas da chuva do ponto (até 5 km) na hora `at` (fim da hora, UTC; padrão: última hora com série), com `role` USED, LOWER, EXCLUDED ou NO_VALUE; 404 sem o ponto | `PointRainCandidatesDTO` |
+| GET | `/api/admin/stations/month-checks?from=&to=` | ADMIN | Grade estação × mês da checagem espacial (máx. 24 meses, padrão 6) | `StationMonthChecksDTO` |
 | GET | `/api/stations/rain-accumulations` | autenticado | Acumulados medidos de 1 a 120 h por estação canônica (PED do Cemaden); 503 até a primeira leitura | `MeasuredRainAccumulationsDTO` |
 | POST | `/api/admin/stations/unify` | ADMIN | Refaz a unificação e a contagem de divergências | `StationUnificationReportDTO` |
 | POST | `/api/admin/stations/rain-accumulations/refresh` | ADMIN | Busca os acumulados agora (síncrono, ~6 s por município) | `MeasuredRainAccumulationsDTO` |
@@ -136,9 +140,19 @@ DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC.
 
 `StationAccumulationDTO`: `canonicalId` (nulo se a estação não está no cadastro do MAPi), `stationCode`, `name`, `municipality`, `lat`, `lon` (nulos fora do cadastro), `aliases[]`, `status` (`OK` ou `NO_DATA`), `lastReadingUtc` (última leitura gravada pelo MAPi, entre as duas fontes, nos últimos 5 dias), `acc1hMm`, `acc3hMm`, `acc6hMm`, `acc12hMm`, `acc24hMm`, `acc48hMm`, `acc72hMm`, `acc96hMm`, `acc120hMm`. Acumulado nulo = sem leitura na janela, nunca zero.
 
+`CanonicalStationDTO` ganhou, por adição: `sources[]`, `monthCheck` (`monthStartUtc`, `status` OK, UNCHECKED, FAIL ou OFFLINE, `reasons[]`, `ruleVersion`; nulo se nunca checada), `quarantine` (linhas abertas por motivo GAP, AFTER_GAP, SUSPECT_QUALIFIER, somando os apelidos), `divergenceCount` e `attribution`. `PredictionSummaryDTO` ganhou `rainSource`. Formas completas em `docs/redesign/CONTRATO-novos-cenarios.md`.
+
 A rota antiga `GET /api/sensors/cemaden/accumulated` (painel público, sem coordenada nem código) continua.
 
 ## 3. Contratos que importam para a dissertação
+
+### 2.10 Análise de local (novo)
+
+DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC.
+
+| Método | Caminho | Auth | O que faz | Resposta |
+|---|---|---|---|---|
+| GET | `/api/locations/analysis?lat=&lon=&at=` | autenticado | Chuva do raio de 5 km pela regra do ponto (`rain.mode` MEASURED, GAP sem estimativa ou ESTIMATED só sem estação válida, via Open-Meteo), `nearestPoint` com a última previsão gravada, `tide`, `river` (régua da APAC a até 6 km ou null), `terrain` (MDT do PE3D, null fora da cobertura) e `weather`. `inArea` = retângulo da RMR; `isSea` = dentro da área, fora do MDT e altitude do Open-Meteo <= 0. Cálculo no centro da célula de ~200 m (a resposta ecoa a coordenada pedida), cache de 10 min, pico isolado (RainSpatialCheck) fora da escolha da USED. 400 se lat/lon inválidos | `LocationAnalysisDTO` |
 
 ### 3.1 Predição (ADR 0007) — `POST /api/flood-predictions`
 

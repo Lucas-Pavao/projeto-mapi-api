@@ -103,7 +103,30 @@ public class FloodPrediction {
     public record Contributor(String featureId, Double contribution, Double value, String unit) {
     }
 
-    public record ModelInfo(String rainSource, String trainingData, String syntheticWarning, Thresholds riskThresholds) {
+    public record ModelInfo(String rainSource, String trainingData, String syntheticWarning, Thresholds riskThresholds,
+                            RainInput rainInput, String probabilityKind, Double floodProbabilityUncorrected,
+                            RainForecastInfo rainForecast) {
+    }
+
+    /** Previsão de chuva do ponto no mesmo ciclo (plano de 16/11, fase 4); nulo em linhas anteriores. */
+    public record RainForecastInfo(String issuedAt, String modelVersion, java.util.List<String> sources, boolean usedByModel,
+                                   java.util.List<RainForecastHorizon> horizons) {
+    }
+
+    public record RainForecastHorizon(int horizonHours, double q50Mm, double q80Mm, double q95Mm, double probMedia,
+                                      double probForte) {
+    }
+
+    /** Chuva enviada ao modelo (ADR 0007, emenda 3); nulo em linhas anteriores à emenda. Instantes em ISO-8601 UTC. */
+    public record RainInput(String source, String hourEndUtc, String latestReadingUtc,
+                            Long ageMinutes, Integer validStations, java.util.List<RainValue> values) {
+    }
+
+    public record RainValue(String featureId, Double valueMm, Integer hours, Integer hoursWithValue,
+                            java.util.List<RainStation> stations) {
+    }
+
+    public record RainStation(String stationId, String name, String source) {
     }
 
     public record Thresholds(Double medium, Double high, String source) {

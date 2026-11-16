@@ -34,7 +34,14 @@ public record FloodPredictionResponseDTO(
         RiskThresholds riskThresholds,
         String rainSource,
         String trainingData,
-        String syntheticWarning) {
+        String syntheticWarning,
+        RainInput rainInput,
+        // Modelo v3 (C1), por adição: que probabilidade floodProbability é (PRIOR_CORRECTED = calibrada e corrigida
+        // para a prevalência real declarada; RAW no v2) e a não corrigida, para o relatório.
+        String probabilityKind,
+        Double floodProbabilityUncorrected,
+        // Plano de 16/11, fase 4, por adição: a previsão de chuva do ponto emitida no mesmo ciclo. Nulo se não houve.
+        RainForecastUsed rainForecast) {
 
     public FloodPredictionResponseDTO {
         modelValidationStatus = modelValidationStatus == null ? ModelValidationStatus.NOT_VALIDATED : modelValidationStatus;
@@ -63,6 +70,34 @@ public record FloodPredictionResponseDTO(
      * Limiares de probabilidade que produziram a faixa (Etapa 8 do IN1165). Vêm do metadata do modelo, pela IA:
      * o backend não tem limiar próprio. {@code source} = {@code metadata} (escolhidos na validação) ou {@code legacy}.
      */
+    /**
+     * Chuva enviada ao modelo (ADR 0007, emenda 3): fonte, hora de referência, idade da leitura mais recente e, por
+     * entrada, o valor (nulo = ausente) e as estações que o forneceram. Nulo em previsões anteriores à emenda.
+     */
+    public record RainInput(String source, Instant hourEndUtc, Instant latestReadingUtc, Long ageMinutes,
+                            Integer validStations, List<RainValue> values) {
+    }
+
+    public record RainValue(String featureId, Double valueMm, Integer hours, Integer hoursWithValue,
+                            List<RainStation> stations) {
+    }
+
+    public record RainStation(String stationId, String name, String source) {
+    }
+
+    /**
+     * Previsão de chuva do ponto no ciclo desta previsão (modelo rain_v1; alvo medido, sem etiqueta de sintético).
+     * {@code usedByModel}: verdadeiro só quando o modelo de alagamento servido a recebe como entrada e declara o uso;
+     * o logreg_v3 não a usa.
+     */
+    public record RainForecastUsed(Instant issuedAt, String modelVersion, List<String> sources, boolean usedByModel,
+                                   List<RainForecastHorizon> horizons) {
+    }
+
+    public record RainForecastHorizon(int horizonHours, double q50Mm, double q80Mm, double q95Mm, double probMedia,
+                                      double probForte) {
+    }
+
     public record RiskThresholds(Double medium, Double high, String source) {
     }
 

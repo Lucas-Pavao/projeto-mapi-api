@@ -45,6 +45,11 @@ public class MapiServiceImpl implements MapiService {
     private final FloodScenarioLabelRepository floodScenarioLabelRepository;
     private final SensorDataRepository sensorDataRepository;
     private final com.projeto.mapi.service.terrain.LocalElevationService localElevationService;
+    private final com.projeto.mapi.service.flood.PointRainInputService rainInputs;
+    private final com.projeto.mapi.service.flood.PointPhysicalInputService physicalInputs;
+    private final com.projeto.mapi.service.tide.TideLevelService tideLevel;
+    private final com.projeto.mapi.config.IngestionProperties ingestionProperties;
+    private final com.projeto.mapi.service.flood.RainForecastService rainForecast;
 
     private static final double MAX_SENSOR_RADIUS_KM = 20.0;
 
@@ -119,7 +124,7 @@ public class MapiServiceImpl implements MapiService {
     @Override
     public com.projeto.mapi.dto.FloodPredictionResponseDTO createFloodPrediction(double latitude, double longitude) {
         MapiResponseDTO environmentalData = getEnvironmentalData(latitude, longitude);
-        return predictAndStore(null, environmentalData.getPreciseData(), environmentalData.getNearestSensor(), latitude, longitude);
+        return predictAndStore(null, environmentalData.getPreciseData(), environmentalData.getNearestSensor(), latitude, longitude, null);
     }
 
     // Leitura pura (ADR 0007 §7): dado ambiental + ÚLTIMA previsão gravada do ponto. Não chama a IA
@@ -144,7 +149,10 @@ public class MapiServiceImpl implements MapiService {
         for (FloodPoint point : floodPointRepository.findByActiveTrue()) {
             try {
                 MapiResponseDTO env = getEnvironmentalData(point.getLatitude(), point.getLongitude());
-                predictAndStore(point.getId(), env.getPreciseData(), env.getNearestSensor(), point.getLatitude(), point.getLongitude());
+                // Previsão de chuva do ponto (V30): gravada para conferência; falha aqui não impede a de alagamento.
+                com.projeto.mapi.dto.RainForecastDTO rainFc = rainForecast
+                        .forecastAndStore(point.getId(), point.getSlug(), point.getLatitude(), point.getLongitude()).orElse(null);
+                predictAndStore(point.getId(), env.getPreciseData(), env.getNearestSensor(), point.getLatitude(), point.getLongitude(), rainFc);
                 done++;
             } catch (Exception e) {
                 log.error("Falha ao atualizar a previsão do ponto {}: {}", point.getSlug(), e.getMessage());
@@ -158,31 +166,46 @@ public class MapiServiceImpl implements MapiService {
     // flood_predictions. Único ponto de escrita de previsões: usado pelo POST /api/flood-predictions
     // e pelo passo agendado do ciclo de coleta.
     private com.projeto.mapi.dto.FloodPredictionResponseDTO predictAndStore(
-            Long floodPointId, MapiResponseDTO.PreciseData preciseData, SensorResponseDTO nearestSensor, double latitude, double longitude) {
+            Long floodPointId, MapiResponseDTO.PreciseData preciseData, SensorResponseDTO nearestSensor, double latitude, double longitude,
+            com.projeto.mapi.dto.RainForecastDTO rainFc) {
         try {
-            // Acumulados reais do ponto (regional, raio de 3 km), calculados em determinePreciseData.
-            // Onde falta dado o payload leva 0.0; cada 0.0 imputado é DECLARADO em imputedFeatures
-            // (ADR 0007 §5). O valor enviado à IA não muda.
-            MapiResponseDTO.Aggregates aggregates = preciseData.getHistoricalAggregates();
+            // Chuva pela série medida, com a regra do treino (ADR 0007 emenda 3, ADR 0022). Ausente vai como nulo
+            // para a IA e é declarado em imputedFeatures; nunca vira zero. O Open-Meteo só entra pelo fallback
+            // (desligado por padrão), com a origem declarada.
             List<String> imputed = new java.util.ArrayList<>();
-            Double acc3h = orImpute(aggregates != null ? aggregates.getRain3h() : null, "rainfall_3h_accumulated", imputed);
-            Double acc6h = orImpute(aggregates != null ? aggregates.getRain6h() : null, "rainfall_6h_accumulated", imputed);
-            Double acc12h = orImpute(aggregates != null ? aggregates.getRain12h() : null, "rainfall_12h_accumulated", imputed);
-            Double acc24h = orImpute(aggregates != null ? aggregates.getRain24h() : null, "rainfall_24h_accumulated", imputed);
-            Double tide = orImpute(preciseData.getTideHeight(), "tide_level", imputed);
-            Double river = orImpute(preciseData.getWaterLevel(), "river_level", imputed);
+            com.projeto.mapi.service.flood.PointRainInputs rainIn = rainInputs.inputsAt(latitude, longitude, java.time.Instant.now());
+            if (rainIn.insufficient() && ingestionProperties.getPredictionRain().isReanalysisFallbackEnabled()) {
+                rainIn = reanalysisFallback(preciseData, rainIn);
+            }
+            imputed.addAll(rainIn.absent());
+            com.projeto.mapi.dto.FloodPredictionResponseDTO.RainInput rainInput = toRainInput(rainIn);
+            Double acc3h = rainIn.acc3h(), acc6h = rainIn.acc6h(), acc12h = rainIn.acc12h(), acc24h = rainIn.acc24h();
+            com.projeto.mapi.service.flood.PointPhysicalInputs phys = physicalInputs.inputsAt(latitude, longitude, rainIn);
+            // Maré e rio ausentes vão ausentes (null), declarados; nunca 0,0 — maré 0,0 m é um nível físico plausível,
+            // o que tornava esse zero pior que o da chuva (ADR 0007, emenda 4).
+            // Maré da previsão: extremos gravados (mesma fonte do mapa); a do contexto ambiental só se não houver.
+            Double tideNow = tideLevel.at(java.time.Instant.now()).map(com.projeto.mapi.service.tide.TideLevelService.Level::levelM)
+                    .orElse(preciseData.getTideHeight());
+            Double tide = absentIfNull(tideNow, "tide_level", imputed);
+            Double river = absentIfNull(preciseData.getWaterLevel(), "river_level", imputed);
 
             com.projeto.mapi.dto.FloodPredictionRequestDTO predictionRequest = com.projeto.mapi.dto.FloodPredictionRequestDTO.builder()
                     .stationId(nearestSensor != null ? nearestSensor.getSensorId() : "VIRTUAL_STATION")
                     .latitude(latitude)
                     .longitude(longitude)
-                    .currentRainfall(preciseData.getPrecipitation())
+                    .currentRainfall(rainIn.current())
                     .rainfall3hAccumulated(acc3h)
                     .rainfall6hAccumulated(acc6h)
                     .rainfall12hAccumulated(acc12h)
                     .rainfall24hAccumulated(acc24h)
                     .tideLevel(tide)
                     .riverLevel(river)
+                    .rainForecast(rainForecastMap(rainFc))
+                    .rainMax10minMm(phys.rainMax10minMm())
+                    .tideTrendMH(phys.tideTrendMH())
+                    .riverLevelM(phys.riverLevelM())
+                    .soilMoisture(phys.soilMoisture())
+                    .rainHourEndUtc(rainIn.hourEndUtc() == null ? null : rainIn.hourEndUtc().toString())
                     .windSpeed(preciseData.getWindSpeed())
                     .temperature(preciseData.getTemperature())
                     .apparentTemperature(preciseData.getApparentTemperature())
@@ -196,7 +219,15 @@ public class MapiServiceImpl implements MapiService {
                     .timestamp(LocalDateTime.now())
                     .build();
 
-            com.projeto.mapi.service.flood.PredictionResult result = floodPredictionService.predict(predictionRequest, imputed);
+            // Regra de degradação: sem a chuva da hora e sem a de 3 h, ou sem maré, UNKNOWN sem consultar o modelo.
+            com.projeto.mapi.service.flood.PredictionResult result = rainIn.insufficient() || tide == null
+                    ? floodPredictionService.insufficientData(imputed)
+                    : floodPredictionService.predict(predictionRequest, imputed);
+            // rainSource passa a dizer a chuva que ENTROU na previsão (não a do treino), com as estações e a idade.
+            result = new com.projeto.mapi.service.flood.PredictionResult(
+                    result.response().toBuilder().rainSource(rainIn.source()).rainInput(rainInput)
+                            .rainForecast(rainForecastUsed(rainFc, result.rainForecastUsed())).build(), result.auditModelVersion(),
+                    result.rainForecastUsed());
             predictionHistory.record(predictionRequest, result, floodPointId);
 
             com.projeto.mapi.dto.FloodPredictionResponseDTO prediction = result.response();
@@ -218,10 +249,58 @@ public class MapiServiceImpl implements MapiService {
         }
     }
 
-    private static Double orImpute(Double value, String featureId, List<String> imputed) {
-        if (value != null) return value;
-        imputed.add(featureId);
-        return 0.0;
+    private static com.projeto.mapi.dto.FloodPredictionResponseDTO.RainInput toRainInput(com.projeto.mapi.service.flood.PointRainInputs r) {
+        java.time.Instant now = java.time.Instant.now();
+        Long age = r.latestReadingUtc() == null ? null : java.time.Duration.between(r.latestReadingUtc(), now).toMinutes();
+        return new com.projeto.mapi.dto.FloodPredictionResponseDTO.RainInput(r.source(), r.hourEndUtc(), r.latestReadingUtc(), age,
+                r.nValid(), r.values().stream().map(v -> new com.projeto.mapi.dto.FloodPredictionResponseDTO.RainValue(v.featureId(),
+                        v.valueMm(), v.hours(), v.hoursWithValue(), v.stations().stream()
+                        .map(x -> new com.projeto.mapi.dto.FloodPredictionResponseDTO.RainStation(x.stationId(), x.name(), x.source()))
+                        .toList())).toList());
+    }
+
+    /** Fallback (desligado por padrão): acumulados do Open-Meteo, declarados como REANALYSIS_FALLBACK. */
+    private static com.projeto.mapi.service.flood.PointRainInputs reanalysisFallback(
+            MapiResponseDTO.PreciseData d, com.projeto.mapi.service.flood.PointRainInputs measured) {
+        MapiResponseDTO.Aggregates a = d.getHistoricalAggregates();
+        Double[] v = {d.getPrecipitation(), a == null ? null : a.getRain3h(), a == null ? null : a.getRain6h(),
+                a == null ? null : a.getRain12h(), a == null ? null : a.getRain24h()};
+        List<com.projeto.mapi.service.flood.PointRainInputs.Value> values = new java.util.ArrayList<>();
+        for (int i = 0; i < v.length; i++) {
+            com.projeto.mapi.service.flood.PointRainInputs.Value m = measured.values().get(i);
+            values.add(new com.projeto.mapi.service.flood.PointRainInputs.Value(m.featureId(), v[i], m.hours(),
+                    v[i] == null ? 0 : m.hours(), List.of()));
+        }
+        return new com.projeto.mapi.service.flood.PointRainInputs(com.projeto.mapi.service.flood.PointRainInputs.REANALYSIS_FALLBACK,
+                measured.hourEndUtc(), v[0], v[1], v[2], v[3], v[4], values, null, 0);
+    }
+
+    /** Chaves com os nomes das entradas do modelo de alagamento: q50_1h, q80_1h, q95_1h, pMEDIA_1h, pFORTE_1h, ... */
+    private static java.util.Map<String, Double> rainForecastMap(com.projeto.mapi.dto.RainForecastDTO f) {
+        if (f == null) return null;
+        java.util.Map<String, Double> m = new java.util.LinkedHashMap<>();
+        for (com.projeto.mapi.dto.RainForecastDTO.Horizon h : f.horizons()) {
+            String s = "_" + h.horizonHours() + "h";
+            m.put("q50" + s, h.q50Mm());
+            m.put("q80" + s, h.q80Mm());
+            m.put("q95" + s, h.q95Mm());
+            m.put("pMEDIA" + s, h.probMedia());
+            m.put("pFORTE" + s, h.probForte());
+        }
+        return m;
+    }
+
+    private static com.projeto.mapi.dto.FloodPredictionResponseDTO.RainForecastUsed rainForecastUsed(
+            com.projeto.mapi.dto.RainForecastDTO f, boolean usedByModel) {
+        if (f == null) return null;
+        return new com.projeto.mapi.dto.FloodPredictionResponseDTO.RainForecastUsed(f.issuedAt(), f.modelVersion(), f.sources(),
+                usedByModel, f.horizons().stream().map(h -> new com.projeto.mapi.dto.FloodPredictionResponseDTO.RainForecastHorizon(
+                        h.horizonHours(), h.q50Mm(), h.q80Mm(), h.q95Mm(), h.probMedia(), h.probForte())).toList());
+    }
+
+    private static Double absentIfNull(Double value, String featureId, List<String> imputed) {
+        if (value == null) imputed.add(featureId);
+        return value;
     }
 
     @Override

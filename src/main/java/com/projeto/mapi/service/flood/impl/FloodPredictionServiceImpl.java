@@ -89,6 +89,13 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
                         request.getStationId(), e.getResponseBodyAsString());
                 return unknown(DegradationReason.INSUFFICIENT_DATA, now, imputedFeatureIds);
             }
+            // Modelo que ainda não aceita chuva ausente (v2) recusa o campo nulo na validação: com entrada de chuva
+            // declarada ausente pelo chamador, isso é dado insuficiente, não erro de integração.
+            if (e.getStatusCode().value() == HttpStatus.UNPROCESSABLE_ENTITY.value() && hasAbsentRain(request)) {
+                log.warn("IA recusou chuva ausente (estação {}): previsão indisponível por dado insuficiente",
+                        request.getStationId());
+                return unknown(DegradationReason.INSUFFICIENT_DATA, now, imputedFeatureIds);
+            }
             log.error("IA respondeu {} para a estação {}: {}", e.getStatusCode(), request.getStationId(), e.getMessage());
             return unknown(DegradationReason.AI_ERROR, now, imputedFeatureIds);
         } catch (HttpServerErrorException e) {
@@ -99,6 +106,16 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
             log.error("Falha ao chamar a IA (estação {}, motivo {}): {}", request.getStationId(), reason, e.toString());
             return unknown(reason, now, imputedFeatureIds);
         }
+    }
+
+    @Override
+    public PredictionResult insufficientData(Collection<String> absentFeatureIds) {
+        return unknown(DegradationReason.INSUFFICIENT_DATA, Instant.now(), absentFeatureIds);
+    }
+
+    private static boolean hasAbsentRain(FloodPredictionRequestDTO r) {
+        return r.getCurrentRainfall() == null || r.getRainfall3hAccumulated() == null || r.getRainfall6hAccumulated() == null
+                || r.getRainfall12hAccumulated() == null || r.getRainfall24hAccumulated() == null;
     }
 
     /** Classifica falhas de transporte (§4). Qualquer coisa não reconhecida é AI_ERROR. */
@@ -191,6 +208,8 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
                 .rainSource(ai.rainSource)
                 .trainingData(ai.trainingData)
                 .syntheticWarning(syntheticWarning(ai.trainingData, ai.syntheticWarning))
+                .probabilityKind(ai.probabilityKind == null ? "RAW" : ai.probabilityKind)
+                .floodProbabilityUncorrected(ai.floodProbabilityUncorrected)
                 .build();
 
         // Cinto e suspensório: o que sai daqui nunca viola o §2.
@@ -198,7 +217,7 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
             log.error("Payload montado violou a coerência: {}", PredictionCoherence.violation(response).get());
             return unknown(DegradationReason.AI_ERROR, now, imputedIds);
         }
-        return new PredictionResult(response, fullVersion);
+        return new PredictionResult(response, fullVersion, Boolean.TRUE.equals(ai.rainForecastUsed));
     }
 
     /** Texto do backend se a IA declarar treino sintético sem mandar o aviso: risco sintético nunca circula sem etiqueta. */
@@ -261,6 +280,15 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
 
         @JsonProperty("synthetic_warning")
         private String syntheticWarning;
+
+        // Modelo v3 (C1), opcionais.
+        @JsonProperty("probability_kind")
+        private String probabilityKind;
+        @JsonProperty("rain_forecast_used")
+        private Boolean rainForecastUsed;
+
+        @JsonProperty("flood_probability_uncorrected")
+        private Double floodProbabilityUncorrected;
     }
 
     @Data

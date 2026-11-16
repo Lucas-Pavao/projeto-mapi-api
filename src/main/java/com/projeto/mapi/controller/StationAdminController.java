@@ -4,6 +4,12 @@ import com.projeto.mapi.dto.MeasuredRainAccumulationsDTO;
 import com.projeto.mapi.dto.StationUnificationReportDTO;
 import com.projeto.mapi.service.sensor.cemaden.MeasuredRainAccumulationService;
 import com.projeto.mapi.service.station.StationUnificationService;
+import com.projeto.mapi.dto.StationMonthChecksDTO;
+import com.projeto.mapi.service.analise.StationMonthChecksService;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import java.time.Instant;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,6 +28,7 @@ public class StationAdminController {
 
     private final StationUnificationService unification;
     private final MeasuredRainAccumulationService accumulations;
+    private final StationMonthChecksService monthChecks;
 
     @PostMapping("/unify")
     @Operation(summary = "Refaz a unificação das estações do Cemaden (ao vivo × PED) e a contagem de divergências",
@@ -41,5 +48,18 @@ public class StationAdminController {
     public ResponseEntity<MeasuredRainAccumulationsDTO> refreshAccumulations() {
         accumulations.refresh();
         return ResponseEntity.ok(accumulations.current());
+    }
+
+    @GetMapping("/month-checks")
+    @Operation(summary = "Grade estação x mês da checagem espacial da PED (regra vigente)",
+            description = "Meses com início em [from, to), no máximo 24; padrão: últimos 6 meses. Status OK | UNCHECKED | FAIL | "
+                    + "OFFLINE; célula ausente = mês não checado. Instantes em UTC.")
+    @ApiResponse(responseCode = "200", description = "Grade")
+    @ApiResponse(responseCode = "400", description = "Janela inválida ou maior que 24 meses")
+    @ApiResponse(responseCode = "403", description = "Sem perfil ADMIN")
+    public ResponseEntity<StationMonthChecksDTO> monthChecks(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to) {
+        return ResponseEntity.ok(monthChecks.grid(from, to));
     }
 }

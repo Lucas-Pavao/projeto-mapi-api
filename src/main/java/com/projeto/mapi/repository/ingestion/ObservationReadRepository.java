@@ -151,4 +151,13 @@ public class ObservationReadRepository {
         Object[] raw = (Object[]) array.getArray();
         return java.util.Arrays.stream(raw).map(o -> UUID.fromString(o.toString())).toList();
     }
+
+    /** Instante da leitura vigente mais nova de uma fonte e variável a partir de {@code since} (filtro no índice de tempo). */
+    public java.util.Optional<Instant> latestTs(String source, String variable, Instant since) {
+        return jdbc.query("SELECT max(ts_utc) FROM observation_current WHERE source = ? AND variable = ? AND ts_utc >= ? "
+                        + "AND value IS NOT NULL",
+                (rs, i) -> rs.getObject(1, OffsetDateTime.class), source, variable,
+                OffsetDateTime.ofInstant(since, java.time.ZoneOffset.UTC)).stream()
+                .filter(java.util.Objects::nonNull).map(OffsetDateTime::toInstant).findFirst();
+    }
 }

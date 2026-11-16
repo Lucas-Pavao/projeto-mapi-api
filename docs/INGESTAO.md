@@ -176,6 +176,17 @@ Para medir divergência é preciso a PED no período da coleta ao vivo: `run '{"
 
 **Acumulado por ponto.** `point_rain_accum_v` soma 3, 6, 12 e 24 h de `point_rain_hourly` (uma linha por hora, inclusive lacunas). Janela com qualquer hora sem valor = `NULL`; `rain_<N>h_n` diz quantas horas tinham valor.
 
+**Entradas físicas por ponto (V27, modelo v3).** `point_physical_inputs_v` fica ao lado de `point_rain_accum_v`, na mesma grade (`hour_end_utc`, hora rotulada pelo fim), cada entrada com sua coluna de origem; ausente é `NULL`.
+
+| Coluna | Unidade | Origem | Regra | Cobertura (medida em 2026-11-16) |
+|---|---|---|---|---|
+| `rain_max_10min_mm` | mm | blocos de 10 min da PED, da mesma estação que deu o valor horário | maior bloco da hora; `NULL` se algum bloco maior que 10 min tem chuva (pico desconhecido); bloco longo com 0 mm vale 0 | 100% das horas secas; 19,9% das horas com menos de 1 mm; 28,4% de 1 a 5 mm; 42,7% de 5 a 10 mm; 59,6% com 10 mm ou mais |
+| `tide_trend_m_h` | m/h | `TIDE_PE02_HOURLY` | nível na hora menos o da hora anterior; positivo = enchendo | de 2021-10-01 a 2026-11-14 |
+| `river_level_m` | m | régua do Duas Unas (APAC, `APAC-RIO-260790119H`) | média da hora; só para ponto a até 1 km da régua (hoje, `JABOATAO_CENTRO`, a 556 m) | **só desde 2026-11-09** (12 leituras): não há histórico para treino |
+| `soil_moisture` | m³/m³ | ERA5-Land, 0–7 cm (**reanálise**) | valor da hora anterior | de 2021-01-01 a 2026-11-01: chega com cerca de duas semanas de atraso, **ausente ao vivo** |
+
+A previsão ao vivo manda as mesmas quatro, com as mesmas regras (`PointPhysicalInputService`), nos campos `rain_max_10min_mm`, `tide_trend_m_h`, `river_level_m` e `soil_moisture` do pedido à IA.
+
 ### Próxima recarga da PED: `/pcds/pcds-dados-pg` (registrado, não executado)
 
 A carga de 2026-11-09 usou `/pcds/dados_pcd`: uma estação e no máximo 30 dias por requisição, ~2 900 janelas e 5 a 6 h. A PED tem uma rota paginada (especificação em `https://sws.cemaden.gov.br/PED/api/ui/swagger.json`, lida em 2026-11-15):
@@ -200,3 +211,26 @@ Staging bruto e série consolidada **não têm `drop_chunks`**. Compressão (14 
 - Verificação do fuso de APAC meteorologia24h (ANA: V14; Cemaden ao vivo: V13; Cemaden PED: V24).
 - Decisão sobre os ~4 semanas de dados de desenvolvimento (ADR 0006, seção 4).
 - ADR 0005 (banco) aprovado.
+
+## Previsão de chuva (2026-11-16, V30)
+
+DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC. Relatório do modelo: `projeto-mapi-ai/reports/v4/rain/RELATORIO.md`.
+
+```mermaid
+flowchart LR
+    O[observation: blocos da PED e da coleta ao vivo] --> B[canonical_rain_block_v]
+    B --> N[point_rain_neighbors_v: até 40 km do ponto]
+    OM[Open-Meteo, rodada da véspera] --> H[open_meteo_forecast_hour]
+    N --> S[RainForecastService]
+    H --> S
+    S -->|POST /v1/forecast/rain| IA[MAPI AI, rain_v1]
+    IA --> R[rain_forecast]
+    R -->|job diário| C[observed_mm, conferida contra o medido]
+```
+
+- **Quando roda.** No ciclo de previsão, antes da previsão de alagamento de cada ponto ativo. Falha não impede a de alagamento.
+- **Entradas.** Blocos de chuva das últimas 6 h 30 min das estações de origem PED a até 40 km (as 46 do treino). Por estação e hora vale uma fonte: a PED quando tem bloco, senão a coleta ao vivo. Sem leitura nenhuma, a previsão não é emitida.
+- **Open-Meteo.** Fonte `OPEN_METEO_FORECAST`, separada da reanálise. Guarda só a rodada da véspera, com `issued_before_utc` = hora prevista menos 24 h; na montagem só vale o que foi emitido até `t`. É previsão: fica em `open_meteo_forecast_hour`, fora de `observation`.
+- **Conferência.** Todo dia às 03:30 UTC (`mapi.rain-forecast.verify-cron`), 2 h depois de a janela vencer. Medida = maior acumulado entre as estações a até 5 km com leitura nos 70 min antes do início e do fim da janela. Sem estação assim, a linha fica `NO_MEASURE`; não vira zero.
+- **Leitura.** `GET /api/rain-forecast/latest` e `GET /api/rain-forecast/accuracy?days=30`.
+- **Desligar.** `mapi.rain-forecast.enabled=false`; só o Open-Meteo: `mapi.rain-forecast.open-meteo-enabled=false`.

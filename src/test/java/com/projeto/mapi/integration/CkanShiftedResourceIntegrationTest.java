@@ -39,6 +39,7 @@ class CkanShiftedResourceIntegrationTest extends AbstractIngestionTest {
         jdbc.execute("TRUNCATE flood_point_pluviometers, flood_point_river_levels, flood_point_weather_stations, "
                 + "flood_events, flood_points CASCADE");
         jdbc.update("DELETE FROM linkage_config WHERE created_by = 'pipeline'");
+        jdbc.update("DELETE FROM geocode_cache");   // o cache (V28) persiste entre testes no mesmo banco
         // a rua existe no geocodificador (nível rua); o resto cai no centróide do bairro
         when(geocoding.geocodeWithLevel(any(), any(), any())).thenAnswer(inv -> {
             String addr = inv.getArgument(0);

@@ -23,5 +23,9 @@ public record PredictionSummaryDTO(
         // Etapa 8 do IN1165 (por adição): o stream e a série não podem tirar a etiqueta de modelo sintético.
         FloodPredictionResponseDTO.RiskThresholds riskThresholds,
         String trainingData,
-        String syntheticWarning) {
+        String syntheticWarning,
+        // NC-BACK B5: origem da chuva usada pelo modelo (por adição).
+        String rainSource,
+        // Modelo v3 (C1), por adição: a série distingue v2 e v3 por modelVersion e diz que probabilidade é.
+        String probabilityKind) {
 }

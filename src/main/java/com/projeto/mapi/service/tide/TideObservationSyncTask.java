@@ -7,6 +7,7 @@ import com.projeto.mapi.service.ingestion.IngestionPipelineService;
 import com.projeto.mapi.service.ingestion.IngestionRequest;
 import com.projeto.mapi.service.ingestion.IngestionRunView;
 import com.projeto.mapi.service.ingestion.adapter.tide.TabuaMareApiAdapter;
+import com.projeto.mapi.service.ingestion.adapter.tide.TideHourlyAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -18,6 +19,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,10 +37,11 @@ public class TideObservationSyncTask {
     static final ZoneId LOCAL = ZoneId.of("America/Recife");
     /** Dias locais carregados antes de hoje e depois de hoje. */
     static final int DAYS_BACK = 3;
-    static final int DAYS_AHEAD = 10;
-    /** Cobertura mínima para não recarregar: um extremo nas últimas 12 h e outro a pelo menos 3 dias à frente. */
+    /** 45 dias à frente (até 31/12): o alarme de cobertura (V29) pede 30 dias de tábua. */
+    static final int DAYS_AHEAD = 45;
+    /** Cobertura mínima para não recarregar: um extremo nas últimas 12 h e outro a pelo menos 31 dias à frente. */
     static final Duration NEED_BACK = Duration.ofHours(12);
-    static final Duration NEED_AHEAD = Duration.ofDays(3);
+    static final Duration NEED_AHEAD = Duration.ofDays(31);
 
     private final IngestionPipelineService pipeline;
     private final ObservationReadRepository observations;
@@ -50,22 +53,49 @@ public class TideObservationSyncTask {
         MDC.put("requestId", "tide-obs-" + UUID.randomUUID().toString().substring(0, 8));
         try {
             Instant now = clock.instant();
-            if (covered(now)) return;
-            LocalDate today = LocalDate.ofInstant(now, LOCAL);
-            LocalDate first = today.minusDays(DAYS_BACK);
-            // A TabuaMare só serve o ano corrente: a janela não passa de 31/12 (o adaptador falharia no ano seguinte).
-            LocalDate last = today.plusDays(DAYS_AHEAD);
-            if (last.getYear() != today.getYear()) last = LocalDate.of(today.getYear(), 12, 31);
-            Instant from = first.atStartOfDay(LOCAL).toInstant();
-            Instant to = last.plusDays(1).atStartOfDay(LOCAL).toInstant();
-            IngestionRunView run = pipeline.execute(new IngestionRequest(TabuaMareApiAdapter.SOURCE, from, to,
-                    IngestionMode.REFETCH, IngestionKind.LIVE));
-            log.info("Maré prevista em observation recarregada: run {} {} ({} a {}, {} novas)", run.id(), run.status(),
-                    first, last, run.obsInserted());
+            if (!covered(now)) loadExtremes(now);
+            deriveHourly(now);
         } catch (Exception e) {
             log.error("Falha ao recarregar a maré prevista em observation: {}", e.getMessage(), e);
         } finally {
             MDC.remove("requestId");
+        }
+    }
+
+    private void loadExtremes(Instant now) {
+        LocalDate today = LocalDate.ofInstant(now, LOCAL);
+        LocalDate first = today.minusDays(DAYS_BACK);
+        // A TabuaMare só serve o ano corrente: a janela não passa de 31/12 (o adaptador falharia no ano seguinte).
+        LocalDate last = today.plusDays(DAYS_AHEAD);
+        if (last.getYear() != today.getYear()) last = LocalDate.of(today.getYear(), 12, 31);
+        Instant from = first.atStartOfDay(LOCAL).toInstant();
+        Instant to = last.plusDays(1).atStartOfDay(LOCAL).toInstant();
+        IngestionRunView run = pipeline.execute(new IngestionRequest(TabuaMareApiAdapter.SOURCE, from, to,
+                IngestionMode.REFETCH, IngestionKind.LIVE));
+        log.info("Maré prevista em observation recarregada: run {} {} ({} a {}, {} novas)", run.id(), run.status(),
+                first, last, run.obsInserted());
+    }
+
+    /**
+     * Série horária derivada ({@code TIDE_PE02_HOURLY}, {@link TideHourlyAdapter}) até o último extremo carregado. Antes
+     * ela só era gerada à mão e parou em 2026-11-14, enquanto os extremos seguiam até 26/11; o modelo e a view das
+     * entradas físicas (V27) leem a horária. Recalcula a partir da última hora gravada (no máximo {@value #DAYS_BACK}
+     * dias atrás), só quando há extremo depois dela.
+     */
+    void deriveHourly(Instant now) {
+        List<ObservationReadRepository.TideExtremeRow> ahead =
+                observations.tideExtremes(now.minus(Duration.ofDays(DAYS_BACK)), now.plus(Duration.ofDays(DAYS_AHEAD + 2L)));
+        if (ahead.isEmpty()) return;
+        Instant lastExtreme = ahead.get(ahead.size() - 1).tsUtc();
+        Instant floor = now.minus(Duration.ofDays(DAYS_BACK)).truncatedTo(ChronoUnit.HOURS);
+        Instant lastHourly = observations.latestTs(TideHourlyAdapter.SOURCE, "tide_height_hourly", floor).orElse(floor);
+        Instant from = lastHourly.isBefore(floor) ? floor : lastHourly.truncatedTo(ChronoUnit.HOURS);
+        Instant to = lastExtreme.truncatedTo(ChronoUnit.HOURS);
+        if (!to.isAfter(from.plus(Duration.ofHours(1)))) return;
+        IngestionRunView run = pipeline.execute(new IngestionRequest(TideHourlyAdapter.SOURCE, from, to,
+                IngestionMode.REFETCH, IngestionKind.LIVE));
+        if (run != null) {
+            log.info("Maré horária derivada: run {} {} ({} a {}, {} novas)", run.id(), run.status(), from, to, run.obsInserted());
         }
     }
 
