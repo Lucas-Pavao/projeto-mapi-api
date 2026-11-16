@@ -37,6 +37,7 @@ class OccurrenceIngestionIntegrationTest extends AbstractIngestionTest {
         jdbc.execute("TRUNCATE flood_point_pluviometers, flood_point_river_levels, flood_point_weather_stations, "
                 + "flood_events, flood_points CASCADE");
         jdbc.update("DELETE FROM linkage_config WHERE created_by = 'pipeline'");
+        jdbc.update("DELETE FROM geocode_cache");   // o cache (V28) persiste entre testes no mesmo banco
         points.save(FloodPoint.builder().slug("p1").name("P1").latitude(-8.0500).longitude(-34.9000).build());
         // o sanitizador legado ("rua perto, 10" -> "rua perto, , 10") é preservado; casa pelo trecho do nome
         when(geocoding.geocodeWithLevel(any(), any(), any())).thenAnswer(inv -> {
