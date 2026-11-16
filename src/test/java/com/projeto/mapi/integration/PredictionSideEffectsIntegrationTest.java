@@ -70,7 +70,7 @@ class PredictionSideEffectsIntegrationTest extends AbstractTimescaleIntegrationT
         when(rainInputs.inputsAt(anyDouble(), anyDouble(), any())).thenReturn(chuvaMedida(0.5, 1.5));
         when(physicalInputs.inputsAt(anyDouble(), anyDouble(), any())).thenReturn(new com.projeto.mapi.service.flood.PointPhysicalInputs(0.2, -0.3, null, null));
         // Mockito devolve 0.0 (não null) para Double; aqui "sem maré" precisa ser null de verdade.
-        when(tideService.getCurrentTideHeight(anyDouble(), anyDouble())).thenReturn(null);
+        when(tideService.getCurrentTideHeight(anyDouble(), anyDouble())).thenReturn(1.2);
         when(tabuaMareService.getCurrentTideHeight(anyDouble(), anyDouble())).thenReturn(null);
         eventRepository.deleteAll();
         predictionRepository.deleteAll();
@@ -125,12 +125,14 @@ class PredictionSideEffectsIntegrationTest extends AbstractTimescaleIntegrationT
 
         assertThat(feitos).isEqualTo(1);
         assertThat(predictionRepository.count()).isEqualTo(1);
-        // Imputações declaradas: sem sensores nem clima, tudo que virou 0.0 é registrado.
+        // Ausências declaradas: o rio não tem sensor (vai null); maré e chuva vieram.
         @SuppressWarnings("unchecked")
         ArgumentCaptor<Collection<String>> imputed = ArgumentCaptor.forClass(Collection.class);
-        verify(floodPredictionService).predict(any(), imputed.capture());
-        // Maré e rio seguem imputados e declarados; a chuva medida veio completa, então não entra na lista.
-        assertThat(imputed.getValue()).containsExactly("tide_level", "river_level");
+        ArgumentCaptor<FloodPredictionRequestDTO> req = ArgumentCaptor.forClass(FloodPredictionRequestDTO.class);
+        verify(floodPredictionService).predict(req.capture(), imputed.capture());
+        assertThat(imputed.getValue()).containsExactly("river_level");
+        assertThat(req.getValue().getRiverLevel()).isNull();                    // ausente, não 0,0
+        assertThat(req.getValue().getTideLevel()).isEqualTo(1.2);
 
         long antes = predictionRepository.count();
         FloodPredictionResponseDTO lida = mapiService.getFloodPointBySlug(SLUG).getFloodPrediction();
@@ -201,6 +203,23 @@ class PredictionSideEffectsIntegrationTest extends AbstractTimescaleIntegrationT
         ArgumentCaptor<Collection<String>> absent = ArgumentCaptor.forClass(Collection.class);
         verify(floodPredictionService).insufficientData(absent.capture());
         assertThat(absent.getValue()).contains("current_rainfall", "rainfall_3h_accumulated", "rainfall_24h_accumulated");
+    }
+
+    @Test
+    void semMare_viraUnknownSemConsultarOModelo_eMareNaoViraZero() {
+        when(tideService.getCurrentTideHeight(anyDouble(), anyDouble())).thenReturn(null);
+        when(tabuaMareService.getCurrentTideHeight(anyDouble(), anyDouble())).thenReturn(null);
+        when(floodPredictionService.insufficientData(anyCollection())).thenReturn(new PredictionResult(
+                FloodPredictionResponseDTO.builder().riskLevel(RiskLevel.UNKNOWN).issuedAt(Instant.now())
+                        .degradationReason(com.projeto.mapi.dto.DegradationReason.INSUFFICIENT_DATA).build(), null));
+
+        mapiService.refreshPredictionsForActivePoints();
+
+        verify(floodPredictionService, never()).predict(any(), anyCollection());
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Collection<String>> absent = ArgumentCaptor.forClass(Collection.class);
+        verify(floodPredictionService).insufficientData(absent.capture());
+        assertThat(absent.getValue()).contains("tide_level");
     }
 
     /** Chuva medida completa (ADR 0007, emenda 3): 0,5 mm na hora e nas janelas; nada ausente. */

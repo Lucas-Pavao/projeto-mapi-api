@@ -179,3 +179,13 @@ este ADR, não por código.
 **Consequências.** Melhor: a entrada do modelo é a do treino; ausência é declarada. Pior: mais `UNKNOWN` enquanto o v2 serve (lacuna em qualquer janela de 24 h); o retrato da rede custa uma consulta por série (≈ 70 consultas, reaproveitado por 5 min). `tide_level` e `river_level` continuam imputados com 0,0 declarado (fora do escopo desta emenda).
 
 **Verificação.** `PointRainInputIntegrationTest` (6 testes): hora sem leitura vai ausente; todas as estações fora dá insuficiente; estação reprovada fica fora; ao vivo preenche a hora que a PED não tem e a PED vence na mesma hora; tolerância de latência.
+
+## Emenda 4 (2026-11-16) — maré e rio ausentes vão ausentes (plano de melhorias, item P5)
+
+- Status: aprovado (prompt do plano de melhorias de 2026-11-16, item 1.3)
+
+**Contexto.** `MapiServiceImpl.orImpute` mandava 0,0 declarado para maré e rio ausentes. Maré de 0,0 m sobre o NR da DHN é um nível físico plausível (baixa-mar de sizígia), então o modelo não tinha como distinguir "não sei" de "maré baixa".
+
+**Decisão.** Mesma regra da chuva (emenda 3): maré e rio ausentes vão como `null` no pedido à IA e entram em `imputedFeatures`. A regra de degradação passa a contar a maré: **sem maré, a previsão é `UNKNOWN` com `INSUFFICIENT_DATA`, sem consultar o modelo** (o v2 e o v3 têm a maré como entrada obrigatória). O rio não entra no modelo em uso e não muda a regra.
+
+**Verificação.** `PredictionSideEffectsIntegrationTest.semMare_viraUnknownSemConsultarOModelo_eMareNaoViraZero`; o pedido leva `river_level = null`, não 0,0.

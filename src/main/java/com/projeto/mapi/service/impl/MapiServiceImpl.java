@@ -175,8 +175,10 @@ public class MapiServiceImpl implements MapiService {
             com.projeto.mapi.dto.FloodPredictionResponseDTO.RainInput rainInput = toRainInput(rainIn);
             Double acc3h = rainIn.acc3h(), acc6h = rainIn.acc6h(), acc12h = rainIn.acc12h(), acc24h = rainIn.acc24h();
             com.projeto.mapi.service.flood.PointPhysicalInputs phys = physicalInputs.inputsAt(latitude, longitude, rainIn);
-            Double tide = orImpute(preciseData.getTideHeight(), "tide_level", imputed);
-            Double river = orImpute(preciseData.getWaterLevel(), "river_level", imputed);
+            // Maré e rio ausentes vão ausentes (null), declarados; nunca 0,0 — maré 0,0 m é um nível físico plausível,
+            // o que tornava esse zero pior que o da chuva (ADR 0007, emenda 4).
+            Double tide = absentIfNull(preciseData.getTideHeight(), "tide_level", imputed);
+            Double river = absentIfNull(preciseData.getWaterLevel(), "river_level", imputed);
 
             com.projeto.mapi.dto.FloodPredictionRequestDTO predictionRequest = com.projeto.mapi.dto.FloodPredictionRequestDTO.builder()
                     .stationId(nearestSensor != null ? nearestSensor.getSensorId() : "VIRTUAL_STATION")
@@ -207,8 +209,8 @@ public class MapiServiceImpl implements MapiService {
                     .timestamp(LocalDateTime.now())
                     .build();
 
-            // Regra de degradação: sem a chuva da hora e sem a de 3 h, UNKNOWN sem consultar o modelo.
-            com.projeto.mapi.service.flood.PredictionResult result = rainIn.insufficient()
+            // Regra de degradação: sem a chuva da hora e sem a de 3 h, ou sem maré, UNKNOWN sem consultar o modelo.
+            com.projeto.mapi.service.flood.PredictionResult result = rainIn.insufficient() || tide == null
                     ? floodPredictionService.insufficientData(imputed)
                     : floodPredictionService.predict(predictionRequest, imputed);
             // rainSource passa a dizer a chuva que ENTROU na previsão (não a do treino), com as estações e a idade.
@@ -261,10 +263,9 @@ public class MapiServiceImpl implements MapiService {
                 measured.hourEndUtc(), v[0], v[1], v[2], v[3], v[4], values, null, 0);
     }
 
-    private static Double orImpute(Double value, String featureId, List<String> imputed) {
-        if (value != null) return value;
-        imputed.add(featureId);
-        return 0.0;
+    private static Double absentIfNull(Double value, String featureId, List<String> imputed) {
+        if (value == null) imputed.add(featureId);
+        return value;
     }
 
     @Override
