@@ -49,6 +49,7 @@ public class MapiServiceImpl implements MapiService {
     private final com.projeto.mapi.service.flood.PointPhysicalInputService physicalInputs;
     private final com.projeto.mapi.service.tide.TideLevelService tideLevel;
     private final com.projeto.mapi.config.IngestionProperties ingestionProperties;
+    private final com.projeto.mapi.service.flood.RainForecastService rainForecast;
 
     private static final double MAX_SENSOR_RADIUS_KM = 20.0;
 
@@ -148,6 +149,8 @@ public class MapiServiceImpl implements MapiService {
         for (FloodPoint point : floodPointRepository.findByActiveTrue()) {
             try {
                 MapiResponseDTO env = getEnvironmentalData(point.getLatitude(), point.getLongitude());
+                // Previsão de chuva do ponto (V30): gravada para conferência; falha aqui não impede a de alagamento.
+                rainForecast.forecastAndStore(point.getId(), point.getSlug(), point.getLatitude(), point.getLongitude());
                 predictAndStore(point.getId(), env.getPreciseData(), env.getNearestSensor(), point.getLatitude(), point.getLongitude());
                 done++;
             } catch (Exception e) {
