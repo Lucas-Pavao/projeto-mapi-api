@@ -42,6 +42,10 @@ public class FloodPredictionRequestDTO {
 
     // Entradas físicas do modelo v3 (etapa A3), por adição. Nulo = ausente (nunca zero); o modelo declara em
     // imputed_features as que usa e não recebeu. Mesmas regras de point_physical_inputs_v (V27).
+    // Previsão de chuva do ponto (rain_v1), por adição: chaves q50_1h, q80_1h, q95_1h, pMEDIA_1h, pFORTE_1h e as de 3 h e
+    // 6 h. Nulo quando não houve previsão; o modelo que a usa declara o uso em rain_forecast_used.
+    @JsonProperty("rain_forecast")
+    private java.util.Map<String, Double> rainForecast;
     @JsonProperty("rain_max_10min_mm")
     private Double rainMax10minMm;
     @JsonProperty("tide_trend_m_h")

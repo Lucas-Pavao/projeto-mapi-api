@@ -217,7 +217,7 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
             log.error("Payload montado violou a coerência: {}", PredictionCoherence.violation(response).get());
             return unknown(DegradationReason.AI_ERROR, now, imputedIds);
         }
-        return new PredictionResult(response, fullVersion);
+        return new PredictionResult(response, fullVersion, Boolean.TRUE.equals(ai.rainForecastUsed));
     }
 
     /** Texto do backend se a IA declarar treino sintético sem mandar o aviso: risco sintético nunca circula sem etiqueta. */
@@ -284,6 +284,8 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
         // Modelo v3 (C1), opcionais.
         @JsonProperty("probability_kind")
         private String probabilityKind;
+        @JsonProperty("rain_forecast_used")
+        private Boolean rainForecastUsed;
 
         @JsonProperty("flood_probability_uncorrected")
         private Double floodProbabilityUncorrected;

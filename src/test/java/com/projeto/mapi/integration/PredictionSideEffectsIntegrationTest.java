@@ -65,6 +65,7 @@ class PredictionSideEffectsIntegrationTest extends AbstractTimescaleIntegrationT
     @MockitoBean private com.projeto.mapi.service.flood.PointRainInputService rainInputs;
     @MockitoBean private com.projeto.mapi.service.flood.PointPhysicalInputService physicalInputs;
     @MockitoBean private com.projeto.mapi.service.tide.TideLevelService tideLevel;
+    @MockitoBean private com.projeto.mapi.service.flood.RainForecastService rainForecast;
 
     @BeforeEach
     void semeia() {
@@ -152,6 +153,46 @@ class PredictionSideEffectsIntegrationTest extends AbstractTimescaleIntegrationT
         assertThat(daLista).isEqualTo(lida);
         // A coluna é String: o enum só existe na borda, sem migração.
         assertThat(predictionRepository.findAll().get(0).getRiskLevel()).isEqualTo("MEDIUM");
+    }
+
+    @Test
+    void previsaoDeChuvaDoCiclo_vaiNoPedido_eARespostaADeclara_semDizerQueOModeloUsou() {
+        Instant t1 = Instant.now().truncatedTo(ChronoUnit.SECONDS).minus(10, ChronoUnit.MINUTES);
+        com.projeto.mapi.dto.RainForecastDTO fc = new com.projeto.mapi.dto.RainForecastDTO(1L, SLUG, t1, "rain_v1",
+                List.of("CEMADEN_PED", "OPEN_METEO_FORECAST"), List.of(), t1, 8.0,
+                List.of(new com.projeto.mapi.dto.RainForecastDTO.Horizon(1, t1.plus(1, ChronoUnit.HOURS), 0.2, 1.1, 4.0, 0.05, 0.001, false, "gb_rede"),
+                        new com.projeto.mapi.dto.RainForecastDTO.Horizon(3, t1.plus(3, ChronoUnit.HOURS), 0.6, 3.2, 11.5, 0.15, 0.004, false, "gb_rede_om")),
+                com.projeto.mapi.dto.RainForecastDTO.ATTRIBUTION);
+        when(rainForecast.forecastAndStore(org.mockito.ArgumentMatchers.anyLong(), any(), anyDouble(), anyDouble()))
+                .thenReturn(java.util.Optional.of(fc));
+        when(floodPredictionService.predict(any(FloodPredictionRequestDTO.class), anyCollection())).thenReturn(sucesso(t1));
+
+        mapiService.refreshPredictionsForActivePoints();
+
+        ArgumentCaptor<FloodPredictionRequestDTO> req = ArgumentCaptor.forClass(FloodPredictionRequestDTO.class);
+        verify(floodPredictionService).predict(req.capture(), anyCollection());
+        assertThat(req.getValue().getRainForecast()).containsEntry("q80_3h", 3.2).containsEntry("pFORTE_1h", 0.001).hasSize(10);
+
+        FloodPredictionResponseDTO lida = mapiService.getFloodPointBySlug(SLUG).getFloodPrediction();
+        assertThat(lida.rainForecast()).isNotNull();
+        assertThat(lida.rainForecast().modelVersion()).isEqualTo("rain_v1");
+        assertThat(lida.rainForecast().sources()).containsExactly("CEMADEN_PED", "OPEN_METEO_FORECAST");
+        assertThat(lida.rainForecast().issuedAt()).isEqualTo(t1);
+        assertThat(lida.rainForecast().horizons()).extracting("horizonHours").containsExactly(1, 3);
+        assertThat(lida.rainForecast().horizons().get(1).q95Mm()).isEqualTo(11.5);
+        // o modelo servido não declarou o uso: a resposta não pode dizer que usou
+        assertThat(lida.rainForecast().usedByModel()).isFalse();
+    }
+
+    @Test
+    void semPrevisaoDeChuva_aRespostaNaoTrazOCampo_eOPedidoVaiSemEle() {
+        Instant t1 = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+        when(floodPredictionService.predict(any(FloodPredictionRequestDTO.class), anyCollection())).thenReturn(sucesso(t1));
+        mapiService.refreshPredictionsForActivePoints();
+        ArgumentCaptor<FloodPredictionRequestDTO> req = ArgumentCaptor.forClass(FloodPredictionRequestDTO.class);
+        verify(floodPredictionService).predict(req.capture(), anyCollection());
+        assertThat(req.getValue().getRainForecast()).isNull();
+        assertThat(mapiService.getFloodPointBySlug(SLUG).getFloodPrediction().rainForecast()).isNull();
     }
 
     @Test

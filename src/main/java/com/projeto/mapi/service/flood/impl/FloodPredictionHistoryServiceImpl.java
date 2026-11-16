@@ -173,6 +173,7 @@ public class FloodPredictionHistoryServiceImpl implements FloodPredictionHistory
                     .rainInput(rainInputOf(row.getModelInfo()))
                     .probabilityKind(row.getModelInfo() == null ? null : row.getModelInfo().probabilityKind())
                     .floodProbabilityUncorrected(row.getModelInfo() == null ? null : row.getModelInfo().floodProbabilityUncorrected())
+                    .rainForecast(rainForecastOf(row.getModelInfo()))
                     .build();
         }
 
@@ -192,13 +193,28 @@ public class FloodPredictionHistoryServiceImpl implements FloodPredictionHistory
 
     private static FloodPrediction.ModelInfo modelInfoOf(FloodPredictionResponseDTO p) {
         if (p.rainSource() == null && p.trainingData() == null && p.syntheticWarning() == null && p.riskThresholds() == null
-                && p.rainInput() == null && p.probabilityKind() == null) {
+                && p.rainInput() == null && p.probabilityKind() == null && p.rainForecast() == null) {
             return null;
         }
         FloodPredictionResponseDTO.RiskThresholds t = p.riskThresholds();
         return new FloodPrediction.ModelInfo(p.rainSource(), p.trainingData(), p.syntheticWarning(),
                 t == null ? null : new FloodPrediction.Thresholds(t.medium(), t.high(), t.source()), rainInputOf(p.rainInput()),
-                p.probabilityKind(), p.floodProbabilityUncorrected());
+                p.probabilityKind(), p.floodProbabilityUncorrected(), rainForecastOf(p.rainForecast()));
+    }
+
+    private static FloodPrediction.RainForecastInfo rainForecastOf(FloodPredictionResponseDTO.RainForecastUsed r) {
+        if (r == null) return null;
+        return new FloodPrediction.RainForecastInfo(iso(r.issuedAt()), r.modelVersion(), r.sources(), r.usedByModel(),
+                r.horizons() == null ? List.of() : r.horizons().stream().map(h -> new FloodPrediction.RainForecastHorizon(
+                        h.horizonHours(), h.q50Mm(), h.q80Mm(), h.q95Mm(), h.probMedia(), h.probForte())).toList());
+    }
+
+    private static FloodPredictionResponseDTO.RainForecastUsed rainForecastOf(FloodPrediction.ModelInfo info) {
+        FloodPrediction.RainForecastInfo r = info == null ? null : info.rainForecast();
+        if (r == null) return null;
+        return new FloodPredictionResponseDTO.RainForecastUsed(instant(r.issuedAt()), r.modelVersion(), r.sources(), r.usedByModel(),
+                r.horizons() == null ? List.of() : r.horizons().stream().map(h -> new FloodPredictionResponseDTO.RainForecastHorizon(
+                        h.horizonHours(), h.q50Mm(), h.q80Mm(), h.q95Mm(), h.probMedia(), h.probForte())).toList());
     }
 
     private static FloodPrediction.RainInput rainInputOf(FloodPredictionResponseDTO.RainInput r) {
