@@ -64,6 +64,7 @@ class PredictionSideEffectsIntegrationTest extends AbstractTimescaleIntegrationT
     @MockitoBean private DataExportService dataExportService;
     @MockitoBean private com.projeto.mapi.service.flood.PointRainInputService rainInputs;
     @MockitoBean private com.projeto.mapi.service.flood.PointPhysicalInputService physicalInputs;
+    @MockitoBean private com.projeto.mapi.service.tide.TideLevelService tideLevel;
 
     @BeforeEach
     void semeia() {
@@ -220,6 +221,17 @@ class PredictionSideEffectsIntegrationTest extends AbstractTimescaleIntegrationT
         ArgumentCaptor<Collection<String>> absent = ArgumentCaptor.forClass(Collection.class);
         verify(floodPredictionService).insufficientData(absent.capture());
         assertThat(absent.getValue()).contains("tide_level");
+    }
+
+    @Test
+    void mareDaPrevisaoVemDosExtremosGravados_comoNoMapa() {
+        when(tideLevel.at(any())).thenReturn(java.util.Optional.of(new com.projeto.mapi.service.tide.TideLevelService.Level(1.47, true)));
+        when(floodPredictionService.predict(any(FloodPredictionRequestDTO.class), anyCollection()))
+                .thenReturn(sucesso(Instant.now().truncatedTo(ChronoUnit.SECONDS)));
+        mapiService.refreshPredictionsForActivePoints();
+        ArgumentCaptor<FloodPredictionRequestDTO> req = ArgumentCaptor.forClass(FloodPredictionRequestDTO.class);
+        verify(floodPredictionService).predict(req.capture(), anyCollection());
+        assertThat(req.getValue().getTideLevel()).isEqualTo(1.47);              // não o 1,2 do contexto ambiental
     }
 
     /** Chuva medida completa (ADR 0007, emenda 3): 0,5 mm na hora e nas janelas; nada ausente. */

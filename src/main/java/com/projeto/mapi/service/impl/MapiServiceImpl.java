@@ -47,6 +47,7 @@ public class MapiServiceImpl implements MapiService {
     private final com.projeto.mapi.service.terrain.LocalElevationService localElevationService;
     private final com.projeto.mapi.service.flood.PointRainInputService rainInputs;
     private final com.projeto.mapi.service.flood.PointPhysicalInputService physicalInputs;
+    private final com.projeto.mapi.service.tide.TideLevelService tideLevel;
     private final com.projeto.mapi.config.IngestionProperties ingestionProperties;
 
     private static final double MAX_SENSOR_RADIUS_KM = 20.0;
@@ -177,7 +178,10 @@ public class MapiServiceImpl implements MapiService {
             com.projeto.mapi.service.flood.PointPhysicalInputs phys = physicalInputs.inputsAt(latitude, longitude, rainIn);
             // Maré e rio ausentes vão ausentes (null), declarados; nunca 0,0 — maré 0,0 m é um nível físico plausível,
             // o que tornava esse zero pior que o da chuva (ADR 0007, emenda 4).
-            Double tide = absentIfNull(preciseData.getTideHeight(), "tide_level", imputed);
+            // Maré da previsão: extremos gravados (mesma fonte do mapa); a do contexto ambiental só se não houver.
+            Double tideNow = tideLevel.at(java.time.Instant.now()).map(com.projeto.mapi.service.tide.TideLevelService.Level::levelM)
+                    .orElse(preciseData.getTideHeight());
+            Double tide = absentIfNull(tideNow, "tide_level", imputed);
             Double river = absentIfNull(preciseData.getWaterLevel(), "river_level", imputed);
 
             com.projeto.mapi.dto.FloodPredictionRequestDTO predictionRequest = com.projeto.mapi.dto.FloodPredictionRequestDTO.builder()

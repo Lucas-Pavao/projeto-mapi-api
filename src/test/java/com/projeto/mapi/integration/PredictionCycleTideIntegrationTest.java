@@ -67,6 +67,7 @@ class PredictionCycleTideIntegrationTest extends AbstractTimescaleIntegrationTes
     @MockitoBean private DataExportService dataExportService;
     @MockitoBean private com.projeto.mapi.service.flood.PointRainInputService rainInputs;
     @MockitoBean private com.projeto.mapi.service.flood.PointPhysicalInputService physicalInputs;
+    @MockitoBean private com.projeto.mapi.service.tide.TideLevelService tideLevel;
 
     @BeforeEach
     void semeia() {
