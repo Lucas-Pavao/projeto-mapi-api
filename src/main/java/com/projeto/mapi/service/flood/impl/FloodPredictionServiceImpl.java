@@ -208,6 +208,8 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
                 .rainSource(ai.rainSource)
                 .trainingData(ai.trainingData)
                 .syntheticWarning(syntheticWarning(ai.trainingData, ai.syntheticWarning))
+                .probabilityKind(ai.probabilityKind == null ? "RAW" : ai.probabilityKind)
+                .floodProbabilityUncorrected(ai.floodProbabilityUncorrected)
                 .build();
 
         // Cinto e suspensório: o que sai daqui nunca viola o §2.
@@ -278,6 +280,13 @@ public class FloodPredictionServiceImpl implements FloodPredictionService {
 
         @JsonProperty("synthetic_warning")
         private String syntheticWarning;
+
+        // Modelo v3 (C1), opcionais.
+        @JsonProperty("probability_kind")
+        private String probabilityKind;
+
+        @JsonProperty("flood_probability_uncorrected")
+        private Double floodProbabilityUncorrected;
     }
 
     @Data

@@ -74,6 +74,28 @@ class FloodPredictionServiceImplTest {
     // ---- sucesso ----
 
     @Test
+    void v3_repassaHorizonteEProbabilidadeCorrigida() {
+        iaResponde("""
+                {"flood_probability":0.0123,"risk_level":"LOW","model_version":"logreg_v3","horizon_hours":6,
+                 "probability_kind":"PRIOR_CORRECTED","flood_probability_uncorrected":0.31,"training_data":"SYNTHETIC",
+                 "imputed_features":["rain_12_24h"]}""");
+        FloodPredictionResponseDTO r = predizEConfere();
+        assertThat(r.riskLevel()).isEqualTo(RiskLevel.LOW);
+        assertThat(r.horizonHours()).isEqualTo(6);
+        assertThat(r.validUntil()).isEqualTo(r.issuedAt().plus(6, java.time.temporal.ChronoUnit.HOURS));
+        assertThat(r.probabilityKind()).isEqualTo("PRIOR_CORRECTED");
+        assertThat(r.floodProbabilityUncorrected()).isEqualTo(0.31);
+        assertThat(r.modelVersion()).isEqualTo("logreg_v3");
+        assertThat(r.imputedFeatures()).extracting("featureId").containsExactly("rain_12_24h");
+    }
+
+    @Test
+    void v2_semCampoDeProbabilidade_eRaw() {
+        iaResponde("{\"flood_probability\":0.1,\"risk_level\":\"LOW\",\"model_version\":\"xgb_v2\"}");
+        assertThat(predizEConfere().probabilityKind()).isEqualTo("RAW");
+    }
+
+    @Test
     void sucessoCompletoTraduzOContrato() {
         iaResponde("""
                 {"flood_probability":0.42,"risk_level":"MEDIUM","model_version":"xgb-h3-2026.11.0+a1b2c3d",

@@ -171,6 +171,8 @@ public class FloodPredictionHistoryServiceImpl implements FloodPredictionHistory
                     .trainingData(row.getModelInfo() == null ? null : row.getModelInfo().trainingData())
                     .syntheticWarning(row.getModelInfo() == null ? null : row.getModelInfo().syntheticWarning())
                     .rainInput(rainInputOf(row.getModelInfo()))
+                    .probabilityKind(row.getModelInfo() == null ? null : row.getModelInfo().probabilityKind())
+                    .floodProbabilityUncorrected(row.getModelInfo() == null ? null : row.getModelInfo().floodProbabilityUncorrected())
                     .build();
         }
 
@@ -190,12 +192,13 @@ public class FloodPredictionHistoryServiceImpl implements FloodPredictionHistory
 
     private static FloodPrediction.ModelInfo modelInfoOf(FloodPredictionResponseDTO p) {
         if (p.rainSource() == null && p.trainingData() == null && p.syntheticWarning() == null && p.riskThresholds() == null
-                && p.rainInput() == null) {
+                && p.rainInput() == null && p.probabilityKind() == null) {
             return null;
         }
         FloodPredictionResponseDTO.RiskThresholds t = p.riskThresholds();
         return new FloodPrediction.ModelInfo(p.rainSource(), p.trainingData(), p.syntheticWarning(),
-                t == null ? null : new FloodPrediction.Thresholds(t.medium(), t.high(), t.source()), rainInputOf(p.rainInput()));
+                t == null ? null : new FloodPrediction.Thresholds(t.medium(), t.high(), t.source()), rainInputOf(p.rainInput()),
+                p.probabilityKind(), p.floodProbabilityUncorrected());
     }
 
     private static FloodPrediction.RainInput rainInputOf(FloodPredictionResponseDTO.RainInput r) {

@@ -35,7 +35,11 @@ public record FloodPredictionResponseDTO(
         String rainSource,
         String trainingData,
         String syntheticWarning,
-        RainInput rainInput) {
+        RainInput rainInput,
+        // Modelo v3 (C1), por adição: que probabilidade floodProbability é (PRIOR_CORRECTED = calibrada e corrigida
+        // para a prevalência real declarada; RAW no v2) e a não corrigida, para o relatório.
+        String probabilityKind,
+        Double floodProbabilityUncorrected) {
 
     public FloodPredictionResponseDTO {
         modelValidationStatus = modelValidationStatus == null ? ModelValidationStatus.NOT_VALIDATED : modelValidationStatus;

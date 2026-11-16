@@ -104,7 +104,7 @@ public class FloodPrediction {
     }
 
     public record ModelInfo(String rainSource, String trainingData, String syntheticWarning, Thresholds riskThresholds,
-                            RainInput rainInput) {
+                            RainInput rainInput, String probabilityKind, Double floodProbabilityUncorrected) {
     }
 
     /** Chuva enviada ao modelo (ADR 0007, emenda 3); nulo em linhas anteriores à emenda. Instantes em ISO-8601 UTC. */

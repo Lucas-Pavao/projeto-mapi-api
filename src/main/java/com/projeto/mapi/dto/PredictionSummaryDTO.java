@@ -25,5 +25,7 @@ public record PredictionSummaryDTO(
         String trainingData,
         String syntheticWarning,
         // NC-BACK B5: origem da chuva usada pelo modelo (por adição).
-        String rainSource) {
+        String rainSource,
+        // Modelo v3 (C1), por adição: a série distingue v2 e v3 por modelVersion e diz que probabilidade é.
+        String probabilityKind) {
 }
