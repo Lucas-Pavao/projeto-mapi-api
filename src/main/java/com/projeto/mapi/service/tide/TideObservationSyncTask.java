@@ -37,10 +37,11 @@ public class TideObservationSyncTask {
     static final ZoneId LOCAL = ZoneId.of("America/Recife");
     /** Dias locais carregados antes de hoje e depois de hoje. */
     static final int DAYS_BACK = 3;
-    static final int DAYS_AHEAD = 10;
-    /** Cobertura mínima para não recarregar: um extremo nas últimas 12 h e outro a pelo menos 3 dias à frente. */
+    /** 45 dias à frente (até 31/12): o alarme de cobertura (V29) pede 30 dias de tábua. */
+    static final int DAYS_AHEAD = 45;
+    /** Cobertura mínima para não recarregar: um extremo nas últimas 12 h e outro a pelo menos 31 dias à frente. */
     static final Duration NEED_BACK = Duration.ofHours(12);
-    static final Duration NEED_AHEAD = Duration.ofDays(3);
+    static final Duration NEED_AHEAD = Duration.ofDays(31);
 
     private final IngestionPipelineService pipeline;
     private final ObservationReadRepository observations;
@@ -93,7 +94,9 @@ public class TideObservationSyncTask {
         if (!to.isAfter(from.plus(Duration.ofHours(1)))) return;
         IngestionRunView run = pipeline.execute(new IngestionRequest(TideHourlyAdapter.SOURCE, from, to,
                 IngestionMode.REFETCH, IngestionKind.LIVE));
-        log.info("Maré horária derivada: run {} {} ({} a {}, {} novas)", run.id(), run.status(), from, to, run.obsInserted());
+        if (run != null) {
+            log.info("Maré horária derivada: run {} {} ({} a {}, {} novas)", run.id(), run.status(), from, to, run.obsInserted());
+        }
     }
 
     boolean covered(Instant now) {

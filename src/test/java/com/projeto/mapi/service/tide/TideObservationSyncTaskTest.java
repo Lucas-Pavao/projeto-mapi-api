@@ -48,7 +48,7 @@ class TideObservationSyncTaskTest {
     }
 
     @Test
-    void semMareCarregaDeTresDiasAtrasADezAFrenteEmDiasLocais() {
+    void semMareCarregaDeTresDiasAtrasAQuarentaECincoAFrenteEmDiasLocais() {
         task("2026-10-22T01:00:00Z").syncIfMissing(); // 21/10 22:00 local
 
         ArgumentCaptor<IngestionRequest> req = ArgumentCaptor.forClass(IngestionRequest.class);
@@ -56,14 +56,14 @@ class TideObservationSyncTaskTest {
         assertThat(req.getValue().source()).isEqualTo(TabuaMareApiAdapter.SOURCE);
         assertThat(req.getValue().mode()).isEqualTo(IngestionMode.REFETCH);
         assertThat(req.getValue().from()).isEqualTo(Instant.parse("2026-10-18T03:00:00Z"));
-        assertThat(req.getValue().to()).isEqualTo(Instant.parse("2026-11-01T03:00:00Z"));
+        assertThat(req.getValue().to()).isEqualTo(Instant.parse("2026-12-06T03:00:00Z"));
     }
 
     @Test
     void coberturaSuficienteNaoChamaAFonte() {
         Instant now = Instant.parse("2026-10-22T01:00:00Z");
-        extremes = List.of(row(now.minus(Duration.ofHours(5))), row(now.plus(Duration.ofDays(3)).plus(Duration.ofHours(2))));
-        lastHourly = now.plus(Duration.ofDays(3)).plus(Duration.ofHours(2));   // horária já em dia
+        extremes = List.of(row(now.minus(Duration.ofHours(5))), row(now.plus(Duration.ofDays(31)).plus(Duration.ofHours(2))));
+        lastHourly = now.plus(Duration.ofDays(31)).plus(Duration.ofHours(2));   // horária já em dia
         task(now.toString()).syncIfMissing();
         verify(pipeline, never()).execute(any());
     }
@@ -74,7 +74,7 @@ class TideObservationSyncTaskTest {
         Instant now = Instant.parse("2026-11-16T12:00:00Z");
         extremes = List.of(row(now.minus(Duration.ofHours(5))), row(Instant.parse("2026-11-26T01:36:00Z")));
         lastHourly = Instant.parse("2026-11-14T21:00:00Z");
-        task(now.toString()).syncIfMissing();
+        task(now.toString()).deriveHourly(now);
         ArgumentCaptor<IngestionRequest> req = ArgumentCaptor.forClass(IngestionRequest.class);
         verify(pipeline).execute(req.capture());
         assertThat(req.getValue().source()).isEqualTo(com.projeto.mapi.service.ingestion.adapter.tide.TideHourlyAdapter.SOURCE);
