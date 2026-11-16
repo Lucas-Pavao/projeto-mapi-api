@@ -46,6 +46,7 @@ public class MapiServiceImpl implements MapiService {
     private final SensorDataRepository sensorDataRepository;
     private final com.projeto.mapi.service.terrain.LocalElevationService localElevationService;
     private final com.projeto.mapi.service.flood.PointRainInputService rainInputs;
+    private final com.projeto.mapi.service.flood.PointPhysicalInputService physicalInputs;
     private final com.projeto.mapi.config.IngestionProperties ingestionProperties;
 
     private static final double MAX_SENSOR_RADIUS_KM = 20.0;
@@ -173,6 +174,7 @@ public class MapiServiceImpl implements MapiService {
             imputed.addAll(rainIn.absent());
             com.projeto.mapi.dto.FloodPredictionResponseDTO.RainInput rainInput = toRainInput(rainIn);
             Double acc3h = rainIn.acc3h(), acc6h = rainIn.acc6h(), acc12h = rainIn.acc12h(), acc24h = rainIn.acc24h();
+            com.projeto.mapi.service.flood.PointPhysicalInputs phys = physicalInputs.inputsAt(latitude, longitude, rainIn);
             Double tide = orImpute(preciseData.getTideHeight(), "tide_level", imputed);
             Double river = orImpute(preciseData.getWaterLevel(), "river_level", imputed);
 
@@ -187,6 +189,11 @@ public class MapiServiceImpl implements MapiService {
                     .rainfall24hAccumulated(acc24h)
                     .tideLevel(tide)
                     .riverLevel(river)
+                    .rainMax10minMm(phys.rainMax10minMm())
+                    .tideTrendMH(phys.tideTrendMH())
+                    .riverLevelM(phys.riverLevelM())
+                    .soilMoisture(phys.soilMoisture())
+                    .rainHourEndUtc(rainIn.hourEndUtc() == null ? null : rainIn.hourEndUtc().toString())
                     .windSpeed(preciseData.getWindSpeed())
                     .temperature(preciseData.getTemperature())
                     .apparentTemperature(preciseData.getApparentTemperature())

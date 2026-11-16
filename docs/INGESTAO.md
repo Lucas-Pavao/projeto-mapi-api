@@ -176,6 +176,17 @@ Para medir divergência é preciso a PED no período da coleta ao vivo: `run '{"
 
 **Acumulado por ponto.** `point_rain_accum_v` soma 3, 6, 12 e 24 h de `point_rain_hourly` (uma linha por hora, inclusive lacunas). Janela com qualquer hora sem valor = `NULL`; `rain_<N>h_n` diz quantas horas tinham valor.
 
+**Entradas físicas por ponto (V27, modelo v3).** `point_physical_inputs_v` fica ao lado de `point_rain_accum_v`, na mesma grade (`hour_end_utc`, hora rotulada pelo fim), cada entrada com sua coluna de origem; ausente é `NULL`.
+
+| Coluna | Unidade | Origem | Regra | Cobertura (medida em 2026-11-16) |
+|---|---|---|---|---|
+| `rain_max_10min_mm` | mm | blocos de 10 min da PED, da mesma estação que deu o valor horário | maior bloco da hora; `NULL` se algum bloco maior que 10 min tem chuva (pico desconhecido); bloco longo com 0 mm vale 0 | 100% das horas secas; 19,9% das horas com menos de 1 mm; 28,4% de 1 a 5 mm; 42,7% de 5 a 10 mm; 59,6% com 10 mm ou mais |
+| `tide_trend_m_h` | m/h | `TIDE_PE02_HOURLY` | nível na hora menos o da hora anterior; positivo = enchendo | de 2021-10-01 a 2026-11-14 |
+| `river_level_m` | m | régua do Duas Unas (APAC, `APAC-RIO-260790119H`) | média da hora; só para ponto a até 1 km da régua (hoje, `JABOATAO_CENTRO`, a 556 m) | **só desde 2026-11-09** (12 leituras): não há histórico para treino |
+| `soil_moisture` | m³/m³ | ERA5-Land, 0–7 cm (**reanálise**) | valor da hora anterior | de 2021-01-01 a 2026-11-01: chega com cerca de duas semanas de atraso, **ausente ao vivo** |
+
+A previsão ao vivo manda as mesmas quatro, com as mesmas regras (`PointPhysicalInputService`), nos campos `rain_max_10min_mm`, `tide_trend_m_h`, `river_level_m` e `soil_moisture` do pedido à IA.
+
 ### Próxima recarga da PED: `/pcds/pcds-dados-pg` (registrado, não executado)
 
 A carga de 2026-11-09 usou `/pcds/dados_pcd`: uma estação e no máximo 30 dias por requisição, ~2 900 janelas e 5 a 6 h. A PED tem uma rota paginada (especificação em `https://sws.cemaden.gov.br/PED/api/ui/swagger.json`, lida em 2026-11-15):

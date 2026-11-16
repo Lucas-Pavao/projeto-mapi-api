@@ -63,10 +63,12 @@ class PredictionSideEffectsIntegrationTest extends AbstractTimescaleIntegrationT
     @MockitoBean private MarineService marineService;
     @MockitoBean private DataExportService dataExportService;
     @MockitoBean private com.projeto.mapi.service.flood.PointRainInputService rainInputs;
+    @MockitoBean private com.projeto.mapi.service.flood.PointPhysicalInputService physicalInputs;
 
     @BeforeEach
     void semeia() {
         when(rainInputs.inputsAt(anyDouble(), anyDouble(), any())).thenReturn(chuvaMedida(0.5, 1.5));
+        when(physicalInputs.inputsAt(anyDouble(), anyDouble(), any())).thenReturn(new com.projeto.mapi.service.flood.PointPhysicalInputs(0.2, -0.3, null, null));
         // Mockito devolve 0.0 (não null) para Double; aqui "sem maré" precisa ser null de verdade.
         when(tideService.getCurrentTideHeight(anyDouble(), anyDouble())).thenReturn(null);
         when(tabuaMareService.getCurrentTideHeight(anyDouble(), anyDouble())).thenReturn(null);
