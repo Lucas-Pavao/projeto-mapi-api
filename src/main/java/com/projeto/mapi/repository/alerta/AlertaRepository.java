@@ -169,12 +169,18 @@ public class AlertaRepository {
     }
 
     /**
-     * Atraso por trecho (item 2.1), por leitura usada no ciclo: estação→coleta, coleta→banco, banco→ciclo, ciclo→IA,
+     * Atraso por trecho (item 2.1), por leitura, no primeiro ciclo que a usou: estação→coleta, coleta→banco, banco→ciclo, ciclo→IA,
      * IA→estado, estado→SSE e o total estação→SSE. Só ciclos com SSE enviado e leitura com instante de recebimento.
      */
     public List<LatencyStat> latency(Instant from, Instant to) {
         return jdbc.query("""
-                WITH c AS (
+                WITH f AS (
+                    -- cada leitura conta uma vez: o primeiro ciclo que a usou (os seguintes só a repetem)
+                    SELECT DISTINCT ON (flood_point_id, reading_ts) *
+                    FROM alert_point_cycle
+                    WHERE evaluated_at >= ? AND evaluated_at <= ? AND reading_received_at IS NOT NULL AND sse_sent_at IS NOT NULL
+                    ORDER BY flood_point_id, reading_ts, evaluated_at
+                ), c AS (
                     SELECT coalesce(wet_hour, false) AS wet,
                            extract(epoch FROM reading_received_at - reading_ts) AS s1,
                            extract(epoch FROM reading_ingested_at - reading_received_at) AS s2,
@@ -183,8 +189,7 @@ public class AlertaRepository {
                            extract(epoch FROM state_written_at - ai_responded_at) AS s5,
                            extract(epoch FROM sse_sent_at - state_written_at) AS s6,
                            extract(epoch FROM sse_sent_at - reading_ts) AS total
-                    FROM alert_point_cycle
-                    WHERE evaluated_at >= ? AND evaluated_at <= ? AND reading_received_at IS NOT NULL AND sse_sent_at IS NOT NULL
+                    FROM f
                 ), u AS (
                     SELECT wet, 'estacao_coleta' seg, s1 v FROM c UNION ALL SELECT wet, 'coleta_banco', s2 FROM c
                     UNION ALL SELECT wet, 'banco_ciclo', s3 FROM c UNION ALL SELECT wet, 'ciclo_ia', s4 FROM c
