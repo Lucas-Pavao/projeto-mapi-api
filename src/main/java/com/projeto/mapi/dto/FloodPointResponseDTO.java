@@ -27,4 +27,8 @@ public class FloodPointResponseDTO {
     private Boolean active;
     private Double tideHeight;
     private String tideUnit;
+    @io.swagger.v3.oas.annotations.media.Schema(allowableValues = {"OFFICIAL", "HARMONIC"}, nullable = true,
+            description = "Fonte da maré em tideHeight: OFFICIAL (tábua oficial TabuaMare/DHN) ou HARMONIC (reserva harmônica, "
+                    + "quando não há tábua oficial; vale se qualquer extremo interpolado for harmônico); null sem maré")
+    private String tideSource;
 }

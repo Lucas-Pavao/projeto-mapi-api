@@ -515,6 +515,8 @@ public class MapiServiceImpl implements MapiService {
                         .build())
                 .active(fp.getActive())
                 .tideHeight(currentTide)
+                // currentTide vem da tábua local/API TabuaMare (TideService), sempre oficial; a reserva harmônica só existe em observation
+                .tideSource(currentTide == null ? null : com.projeto.mapi.service.tide.TideSource.OFFICIAL.name())
                 .tideUnit("m");
 
         if (includeLiveData) {

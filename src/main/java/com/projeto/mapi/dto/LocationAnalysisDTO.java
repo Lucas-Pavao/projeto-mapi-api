@@ -49,7 +49,10 @@ public record LocationAnalysisDTO(
                                Double probability, String degradationReason) {
     }
 
-    public record Tide(Double levelM, Boolean rising, String harbor, String verticalReference) {
+    public record Tide(Double levelM, Boolean rising, String harbor, String verticalReference,
+                       @Schema(description = "Fonte da maré: OFFICIAL (tábua oficial TabuaMare/DHN) | HARMONIC (reserva harmônica, "
+                               + "se qualquer extremo interpolado for harmônico); null sem maré",
+                               allowableValues = {"OFFICIAL", "HARMONIC"}, nullable = true) String tideSource) {
     }
 
     public record River(String stationId, String name, Double levelM, double distanceKm,
