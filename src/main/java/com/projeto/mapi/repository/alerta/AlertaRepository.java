@@ -191,8 +191,8 @@ public class AlertaRepository {
                     UNION ALL SELECT wet, 'ia_estado', s5 FROM c UNION ALL SELECT wet, 'estado_sse', s6 FROM c
                     UNION ALL SELECT wet, 'total', total FROM c
                 )
-                SELECT seg, wet, count(v), percentile_cont(0.5) WITHIN GROUP (ORDER BY v),
-                       percentile_cont(0.9) WITHIN GROUP (ORDER BY v), max(v)
+                SELECT seg, wet, count(v), percentile_cont(0.5) WITHIN GROUP (ORDER BY v)::float8,
+                       percentile_cont(0.9) WITHIN GROUP (ORDER BY v)::float8, max(v)::float8
                 FROM u WHERE v IS NOT NULL GROUP BY seg, wet ORDER BY seg, wet
                 """, (rs, i) -> new LatencyStat(rs.getString(1), rs.getBoolean(2), rs.getLong(3), rs.getObject(4, Double.class),
                 rs.getObject(5, Double.class), rs.getObject(6, Double.class)), utc(from), utc(to));

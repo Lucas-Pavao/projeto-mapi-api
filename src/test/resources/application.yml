@@ -40,6 +40,9 @@ weather:
   apiUrl: https://api.open-meteo.com/v1
 
 mapi:
+  # Radar da APAC (O1): o coletor iria à rede nos testes.
+  radar:
+    enabled: false
   # Previsão de chuva: chamaria a IA e o Open-Meteo de verdade no ciclo; os testes ligam onde precisam.
   rain-forecast:
     enabled: false

@@ -89,7 +89,7 @@ public class LiveQualityControlImpl implements LiveQualityControl {
             cov.put(id, c);
         }
         jdbc.query("""
-                SELECT canonical_id, hour_end_utc, value, blocks_covered_min FROM canonical_rain_hourly_v
+                SELECT canonical_id, hour_end_utc, value, blocks_covered_min, source FROM canonical_rain_hourly_v
                 WHERE hour_end_utc > ? AND hour_end_utc <= ?
                 """, rs -> {
             double[] a = mm.get(rs.getString(1));
@@ -99,7 +99,10 @@ public class LiveQualityControlImpl implements LiveQualityControl {
             if (i < 0 || i >= n) return;
             a[i] = rs.getDouble(3);
             Object c = rs.getObject(4);
-            cov.get(rs.getString(1))[i] = c == null ? Double.NaN : ((Number) c).doubleValue();
+            // A coleta ao vivo grava interval_start = ts (bloco sem duração): a cobertura da hora é desconhecida e não
+            // pode reprovar a estação por cobertura parcial. Conta como hora coberta; os outros critérios continuam.
+            boolean live = "CEMADEN".equals(rs.getString(5));
+            cov.get(rs.getString(1))[i] = live ? 60.0 : c == null ? Double.NaN : ((Number) c).doubleValue();
         }, OffsetDateTime.ofInstant(start, ZoneOffset.UTC), OffsetDateTime.ofInstant(end, ZoneOffset.UTC));
         List<StationMonthChecker.StationMonth> sm = new ArrayList<>();
         for (Map.Entry<String, double[]> e : pos.entrySet()) {

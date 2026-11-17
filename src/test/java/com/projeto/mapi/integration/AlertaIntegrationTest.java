@@ -216,8 +216,22 @@ class AlertaIntegrationTest extends AbstractTimescaleIntegrationTest {
         when(rainClient.forecastOutcome(anyDouble(), anyDouble(), anyList(), any())).thenReturn(forecast(0.01));
         when(bucketClient.evaluate(anyList(), any(), anyDouble(), anyDouble(), any(), any())).thenReturn(bucket(0.0, null));
         cycle.run("teste");
+        // linha completa (com recebimento e SSE) para exercitar a conta de cada trecho
+        jdbc.update("UPDATE alert_point_cycle SET reading_ts = evaluated_at - interval '9 minutes', "
+                + "reading_received_at = evaluated_at - interval '5 minutes', reading_ingested_at = evaluated_at - interval '5 minutes', "
+                + "sse_sent_at = state_written_at");
         admin();
         var lat = controller.latency(7).getBody();
+        assertThat(lat.segments()).anySatisfy(s -> {
+            assertThat(s.segment()).isEqualTo("estacao_coleta");
+            assertThat(s.medianS()).isEqualTo(240.0);
+        });
+        // estação -> SSE = 9 min (a leitura é de 9 min antes do ciclo): fora do orçamento de 5 min
+        assertThat(lat.segments()).anySatisfy(s -> {
+            assertThat(s.segment()).isEqualTo("total");
+            assertThat(s.medianS()).isBetween(539.0, 545.0);
+        });
+        assertThat(lat.withinBudgetDry()).isFalse();
         assertThat(lat.withinBudgetWet()).isNull();
         assertThat(lat.note()).contains("Sem hora com chuva");
         assertThat(lat.budgetP90Minutes()).isEqualTo(5);
