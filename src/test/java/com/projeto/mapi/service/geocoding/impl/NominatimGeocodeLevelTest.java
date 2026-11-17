@@ -38,4 +38,17 @@ class NominatimGeocodeLevelTest {
         assertThat(NominatimGeocodingServiceImpl.levelOf("", null, null, GeocodeLevel.STREET))
                 .isEqualTo(GeocodeLevel.STREET);
     }
+
+    @Test
+    void houseNumberPromoveParaAddress() {
+        assertThat(NominatimGeocodingServiceImpl.levelOf("house", "yes", "building",
+                java.util.Map.of("house_number", "120", "road", "Av. Recife"), GeocodeLevel.STREET))
+                .isEqualTo(GeocodeLevel.ADDRESS);
+        assertThat(NominatimGeocodingServiceImpl.levelOf("road", "residential", "highway",
+                java.util.Map.of("road", "Av. Recife"), GeocodeLevel.STREET))
+                .isEqualTo(GeocodeLevel.STREET);
+        assertThat(NominatimGeocodingServiceImpl.levelOf("suburb", "suburb", "place",
+                java.util.Map.of("house_number", "120"), GeocodeLevel.STREET))
+                .isEqualTo(GeocodeLevel.NEIGHBORHOOD);
+    }
 }

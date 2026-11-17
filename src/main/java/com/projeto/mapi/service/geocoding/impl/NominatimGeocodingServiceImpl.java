@@ -87,18 +87,32 @@ public class NominatimGeocodingServiceImpl implements GeocodingService {
      * Sem tipo reconhecível, vale o nível da consulta que o encontrou (níveis 1 e 2: rua; nível 3: bairro).
      */
     static GeocodeLevel levelOf(String addressType, String type, String osmClass, GeocodeLevel queryLevel) {
+        return levelOf(addressType, type, osmClass, null, queryLevel);
+    }
+
+    static GeocodeLevel levelOf(String addressType, String type, String osmClass, Map<String, String> address,
+                                GeocodeLevel queryLevel) {
         String t = addressType != null && !addressType.isBlank() ? addressType : type;
         if (t != null && !t.isBlank()) {
             String k = t.toLowerCase(Locale.ROOT);
             if (CITY_TYPES.contains(k)) return GeocodeLevel.CITY;
             if (AREA_TYPES.contains(k)) return GeocodeLevel.NEIGHBORHOOD;
+            if (hasHouseNumber(address)) return GeocodeLevel.ADDRESS;
             // qualquer outro objeto que não seja área administrativa/lugar (via, edificação, comércio...) é pontual
             if (osmClass != null && !osmClass.equalsIgnoreCase("boundary") && !osmClass.equalsIgnoreCase("place")) {
                 return GeocodeLevel.STREET;
             }
             if ("road".equals(k) || "house".equals(k) || "building".equals(k)) return GeocodeLevel.STREET;
+        } else if (hasHouseNumber(address)) {
+            return GeocodeLevel.ADDRESS;
         }
         return queryLevel;
+    }
+
+    private static boolean hasHouseNumber(Map<String, String> address) {
+        if (address == null) return false;
+        String num = address.get("house_number");
+        return num != null && !num.isBlank();
     }
 
     private Optional<GeocodeResult> fetchFromNominatim(String query, GeocodeLevel queryLevel, boolean[] transientFailure) {
@@ -113,6 +127,7 @@ public class NominatimGeocodingServiceImpl implements GeocodingService {
                                 .path("/search")
                                 .queryParam("q", query)
                                 .queryParam("format", "json")
+                                .queryParam("addressdetails", 1)
                                 .queryParam("limit", 1)
                                 .build())
                         .retrieve()
@@ -121,7 +136,7 @@ public class NominatimGeocodingServiceImpl implements GeocodingService {
                 if (results != null && !results.isEmpty()) {
                     NominatimResult res = results.get(0);
                     return Optional.of(new GeocodeResult(Double.parseDouble(res.getLat()), Double.parseDouble(res.getLon()),
-                            levelOf(res.getAddresstype(), res.getType(), res.getOsmClass(), queryLevel)));
+                            levelOf(res.getAddresstype(), res.getType(), res.getOsmClass(), res.getAddress(), queryLevel)));
                 }
                 return Optional.empty(); // Se retornou lista vazia, o endereço não existe mesmo
             } catch (Exception e) {
@@ -147,5 +162,6 @@ public class NominatimGeocodingServiceImpl implements GeocodingService {
         private String addresstype;
         @JsonProperty("class")
         private String osmClass;
+        private Map<String, String> address;
     }
 }
