@@ -234,3 +234,28 @@ flowchart LR
 - **Conferência.** Todo dia às 03:30 UTC (`mapi.rain-forecast.verify-cron`), 2 h depois de a janela vencer. Medida = maior acumulado entre as estações a até 5 km com leitura nos 70 min antes do início e do fim da janela. Sem estação assim, a linha fica `NO_MEASURE`; não vira zero.
 - **Leitura.** `GET /api/rain-forecast/latest` e `GET /api/rain-forecast/accuracy?days=30`.
 - **Desligar.** `mapi.rain-forecast.enabled=false`; só o Open-Meteo: `mapi.rain-forecast.open-meteo-enabled=false`.
+
+## Alerta por ponto: frescor, atraso e radar (2026-11-17, ADRs 0026 a 0028)
+
+DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC.
+
+- **Formato ao vivo = PED.** A coleta ao vivo entrega as mesmas leituras da PED (2.142 blocos iguais, 0 diferentes na
+  sobreposição de 2026-11-08 a 11-17); ela só chega depois, ou não chega quando o coletor para. Na coleta ao vivo,
+  `interval_start_utc = ts_utc`: o tamanho do bloco vem da leitura anterior da mesma estação.
+- **Frescor do alerta: 15 min** (`mapi.alerta.freshness-minutes`), mais restrito que os 70 min da série. Nos 30 dias
+  até 2026-11-16 ele deixaria os pontos em SEM_DADO de 39% a 83% do tempo (29% a 59% nas horas com chuva; com 70 min, 0%),
+  porque estação seca e boa parte das horas com chuva mandam bloco de 60 min. Valor em configuração; decisão em aberto.
+- **Ciclo do alerta**: a cada coleta da APAC/Cemaden (3 min), separado do ciclo de alagamento; 5 pontos em ~2 s.
+- **Atraso por trecho** gravado por ponto e ciclo em `alert_point_cycle` (leitura, coleta, banco, ciclo, IA, estado,
+  SSE); rota `GET /api/alerta/latencia`; painel na tela Dados. Orçamento: p90 do total < 5 min em hora com chuva
+  (`mapi.alerta.latency.budget-p90-minutes`). Atraso de chegada em regime estável, dia seco: mediana 3,6 min, p90 7,7 min
+  (1.487 leituras). O relatório do primeiro dia com chuva acima de 10 mm sai sozinho (`alert_latency_report`).
+- **Controle de qualidade ao vivo** (ADR 0028): pico isolado na hora e estação suspeita em janela de 30 dias; só na
+  série medida do alerta. Leitura retirada em `live_qc_drop`.
+- **Radar da APAC** (V33): CAPPI 1 km e acumulado de 1 h a cada 10 min, volume `../radar-apac`, manifesto
+  `radar_image`, fonte velha de 30 min. Legenda e georreferenciamento: `docs/extratos/radar-apac.md`. Termo de uso
+  pendente: gravar e não publicar derivado.
+- **Maré de reserva** (V35, V36): `TIDE_HARMONIC_F41`, harmônica (UTide) carregada só onde não há tábua oficial; o
+  `TideObservationSyncTask` carrega o ano seguinte quando a janela de 45 dias passa de 31/12. 2027 carregado em
+  2026-11-17 (1.410 extremos).
+
