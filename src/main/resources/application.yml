@@ -106,6 +106,9 @@ app:
       # Avisos ativos do INMET (~460 kB com polígonos e ícones base64).
       inmet:
         read-timeout: 20s
+      # Radar da APAC: listagem do diretório (~500 kB) e PNG de 10 a 90 kB.
+      apac-radar:
+        read-timeout: 30s
   # Coleta interna de dados hidrometeorológicos reais (substitui o antigo fluxo MQTT vindo do
   # projeto Python "projeto-mapi"). A API agora busca esses dados diretamente, em jobs agendados
   # (ver SensorCollectionTask), em vez de depender de um processo externo publicando via broker.
@@ -292,6 +295,10 @@ management:
         http.server.requests: true
 
 mapi:
+  radar:
+    # Gravação das imagens do radar da APAC (V33). Volume próprio montado em /data/radar (docker-compose).
+    enabled: ${RADAR_COLLECTOR_ENABLED:true}
+    directory: ${RADAR_DIRECTORY:/data/radar}
   ingestion:
     # Cemaden PED (ADR 0021): credenciais só pelo ambiente, nunca versionadas (como ANA_IDENTIFICADOR/ANA_SENHA).
     cemaden-ped:

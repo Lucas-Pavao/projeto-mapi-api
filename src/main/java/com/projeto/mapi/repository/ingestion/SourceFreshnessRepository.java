@@ -45,6 +45,13 @@ public class SourceFreshnessRepository {
                     utc(now.minusSeconds(LOOKBACK_DAYS * 86400)), utc(now))
                     .stream().findFirst().orElse(new Readings(null, null));
         }
+        if ("APAC_RADAR".equals(source)) {
+            // Radar (V33): idade = instante da imagem mais nova gravada (status OK).
+            return jdbc.query("SELECT max(ts_utc) FROM radar_image WHERE status = 'OK' AND ts_utc >= ? AND ts_utc <= ?",
+                    (rs, i) -> new Readings(inst(rs.getObject(1, OffsetDateTime.class)), null),
+                    utc(now.minusSeconds(LOOKBACK_DAYS * 86400)), utc(now))
+                    .stream().findFirst().orElse(new Readings(null, null));
+        }
         return jdbc.query("""
                 SELECT max(ts_utc) FILTER (WHERE ts_utc <= ?), max(ts_utc)
                 FROM observation_current

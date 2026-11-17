@@ -91,6 +91,8 @@ services:
       - ../terreno:/terreno:ro
       - ../avaliacao-f1:/data/avaliacao-f1:ro
       - api_logs:/app/logs
+      # Imagens do radar da APAC (V33): volume próprio, gravável; backfill de 2026-11-17 já está aí.
+      - ../radar-apac:/data/radar
     healthcheck:
       # 9404, não 8080: com management.server.port setado (application.yml), o Actuator migra
       # inteiro pra essa porta — /actuator/health deixa de existir na 8080.
