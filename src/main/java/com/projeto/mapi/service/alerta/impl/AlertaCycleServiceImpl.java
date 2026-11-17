@@ -231,9 +231,15 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
             ev.put("shadow", props.isShadow());
             trs.add(ev);
         }
+        Instant[] receipt = new Instant[]{null, null};
+        if (series.newestReading() != null) {
+            PointRain10MinRepository.Block nb = blocks.stream().filter(x -> x.ts().equals(series.newestReading())
+                    && x.km() <= PointRain10MinComposer.NEAR_KM).findFirst().orElse(null);
+            if (nb != null) receipt = rainRepo.receipt(nb.source(), nb.stationId(), nb.ts());
+        }
         repo.insertPointCycle(new AlertaRepository.PointCycle(cycleId, p.getId(), now, d.rain().name(), name(d.rainReason()),
                 d.flood().name(), name(d.floodReason()), f.probForte1h(), rainTe, b.hNowMm(), b.hProjMaxQ50Mm(),
-                d.floodInMinutes(), d.eventId(), series.newestReading(), series.newestReceivedAt(), series.newestIngestedAt(),
+                d.floodInMinutes(), d.eventId(), series.newestReading(), receipt[0], receipt[1],
                 now, aiAt, written, rain60 != null && rain60 >= props.getLatency().getWetHourMm(), bucketMs, props.isShadow()));
         return new PointOutcome(st, trs, bucketMs);
     }

@@ -40,7 +40,20 @@ public class PointRain10MinRepository {
      * do pico isolado). A leitura anterior vem de uma janela 2 h maior, para o primeiro bloco também ter tamanho.
      */
     public List<Block> blocks(long floodPointId, Instant from, Instant to, double maxKm) {
-        return blocks(floodPointId, from, to, maxKm, true);
+        return blocks(floodPointId, from, to, maxKm, false);
+    }
+
+    /** Instantes de recebimento (coleta) e de entrada no banco de uma leitura (item 2.1). Uma consulta, chunks podados. */
+    public Instant[] receipt(String source, String stationId, Instant ts) {
+        List<Instant[]> r = jdbc.query("""
+                SELECT ro.collected_at, ro.ingested_at FROM observation_current oc
+                JOIN raw_observation ro ON ro.content_hash = oc.raw_hash AND ro.source = oc.source AND ro.station_id = oc.station_id
+                WHERE oc.source = ? AND oc.station_id = ? AND oc.variable = 'precipitation' AND oc.ts_utc = ?
+                  AND ro.ingested_at >= ? AND ro.ingested_at <= ?
+                ORDER BY ro.collected_at LIMIT 1
+                """, (rs, i) -> new Instant[]{inst(rs.getTimestamp(1)), inst(rs.getTimestamp(2))}, source, stationId, utc(ts),
+                utc(ts.minusSeconds(3600)), utc(ts.plusSeconds(3L * 86400)));
+        return r.isEmpty() ? new Instant[]{null, null} : r.get(0);
     }
 
     /** {@code withReceipt=false}: sem os instantes de recebimento (exportação do histórico, mais leve). */
