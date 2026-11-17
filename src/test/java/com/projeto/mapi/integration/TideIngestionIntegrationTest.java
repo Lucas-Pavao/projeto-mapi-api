@@ -92,7 +92,28 @@ class TideIngestionIntegrationTest extends AbstractIngestionTest {
     void anoSemTabuaFalhaEmVezDeRespostaVazia() {
         IngestionRunView r = run(DhnTabuaCsvAdapter.SOURCE, Instant.parse("2030-01-01T00:00:00Z"), Instant.parse("2030-01-02T00:00:00Z"));
         assertThat(r.status()).isEqualTo("FAILED");
-        assertThat(r.errorSummary()).contains("Sem tábua DHN");
+        assertThat(r.errorSummary()).contains("Sem tábua no recurso tide/dhn-pe02");
+    }
+
+    /** O3 (V36): a maré harmônica entra só como reserva, onde não há extremo oficial a até 12 h. */
+    @Test
+    void mareHarmonicaSoComoReserva() {
+        Instant a = Instant.parse("2027-01-01T03:00:00Z"), b = Instant.parse("2027-01-03T03:00:00Z");
+        IngestionRunView r = run(com.projeto.mapi.service.ingestion.adapter.tide.HarmonicTideCsvAdapter.SOURCE, a, b);
+        assertThat(r.status()).isEqualTo("OK");
+        com.projeto.mapi.repository.ingestion.ObservationReadRepository read =
+                new com.projeto.mapi.repository.ingestion.ObservationReadRepository(jdbc);
+        int harmonic = read.tideExtremes(a, b).size();
+        assertThat(harmonic).isGreaterThanOrEqualTo(6);
+        assertThat(read.tideExtremes(a, b)).allSatisfy(x -> assertThat(x.source()).isEqualTo("TIDE_HARMONIC_F41"));
+        // um extremo oficial no 1º dia esconde a harmônica a até 12 h dele
+        com.projeto.mapi.support.ObservationFixtures.tideExtreme(jdbc, r.id(), Instant.parse("2027-01-01T12:00:00Z"), 2.0);
+        var mixed = read.tideExtremes(a, b);
+        assertThat(mixed).anySatisfy(x -> assertThat(x.source()).isEqualTo("DHN_TABUA_PE02"));
+        assertThat(mixed).noneSatisfy(x -> {
+            assertThat(x.source()).isEqualTo("TIDE_HARMONIC_F41");
+            assertThat(java.time.Duration.between(x.tsUtc(), Instant.parse("2027-01-01T12:00:00Z")).abs().toHours()).isLessThanOrEqualTo(12);
+        });
     }
 
     // -------------------------------------------------------------------- série horária interpolada

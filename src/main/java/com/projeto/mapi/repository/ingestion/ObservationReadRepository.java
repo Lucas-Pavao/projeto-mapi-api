@@ -121,11 +121,17 @@ public class ObservationReadRepository {
     public List<TideExtremeRow> tideExtremes(Instant fromUtc, Instant toUtc) {
         return jdbc.query("""
                 SELECT DISTINCT ON (ts_utc) ts_utc, value, qualifier, source
-                FROM observation_current
+                FROM observation_current o
                 WHERE station_id = 'pe02' AND variable = 'tide_height' AND resolution = 'EVENT'
-                  AND source IN ('TABUAMARE_PE02', 'DHN_TABUA_PE02')
+                  AND (source IN ('TABUAMARE_PE02', 'DHN_TABUA_PE02')
+                       -- reserva (V36): a harmônica só onde não há extremo oficial a até 12 h
+                       OR (source = 'TIDE_HARMONIC_F41' AND NOT EXISTS (
+                            SELECT 1 FROM observation_current x
+                            WHERE x.station_id = 'pe02' AND x.variable = 'tide_height' AND x.resolution = 'EVENT'
+                              AND x.source IN ('TABUAMARE_PE02', 'DHN_TABUA_PE02') AND x.value IS NOT NULL
+                              AND x.ts_utc BETWEEN o.ts_utc - interval '12 hours' AND o.ts_utc + interval '12 hours')))
                   AND ts_utc >= ? AND ts_utc < ? AND value IS NOT NULL
-                ORDER BY ts_utc, CASE source WHEN 'TABUAMARE_PE02' THEN 0 ELSE 1 END
+                ORDER BY ts_utc, CASE source WHEN 'TABUAMARE_PE02' THEN 0 WHEN 'DHN_TABUA_PE02' THEN 1 ELSE 2 END
                 """, (rs, i) -> new TideExtremeRow(rs.getObject("ts_utc", OffsetDateTime.class).toInstant(),
                 rs.getDouble("value"), rs.getString("qualifier"), rs.getString("source")),
                 OffsetDateTime.ofInstant(fromUtc, java.time.ZoneOffset.UTC),
