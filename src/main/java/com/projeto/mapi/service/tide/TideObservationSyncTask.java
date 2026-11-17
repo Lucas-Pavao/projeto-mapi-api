@@ -54,6 +54,7 @@ public class TideObservationSyncTask {
         try {
             Instant now = clock.instant();
             if (!covered(now)) loadExtremes(now);
+            loadReserveAcrossYear(now);
             deriveHourly(now);
         } catch (Exception e) {
             log.error("Falha ao recarregar a maré prevista em observation: {}", e.getMessage(), e);
@@ -74,6 +75,28 @@ public class TideObservationSyncTask {
                 IngestionMode.REFETCH, IngestionKind.LIVE));
         log.info("Maré prevista em observation recarregada: run {} {} ({} a {}, {} novas)", run.id(), run.status(),
                 first, last, run.obsInserted());
+    }
+
+    /**
+     * Reserva (O3, V36): quando a janela de {@value #DAYS_AHEAD} dias passa de 31/12, carrega a maré harmônica do ano
+     * seguinte (a TabuaMare não serve o ano que vem e a tábua da DHN ainda não saiu). Idempotente; a leitura dos extremos
+     * só a usa onde não há extremo oficial a até 12 h, então a tábua oficial, quando chegar, prevalece sozinha.
+     */
+    void loadReserveAcrossYear(Instant now) {
+        LocalDate today = LocalDate.ofInstant(now, LOCAL);
+        LocalDate last = today.plusDays(DAYS_AHEAD);
+        if (last.getYear() == today.getYear()) return;
+        LocalDate first = LocalDate.of(last.getYear(), 1, 1);
+        if (new org.springframework.core.io.ClassPathResource("tide/harmonic-pe02-" + last.getYear() + ".csv").exists()) {
+            IngestionRunView run = pipeline.execute(new IngestionRequest(
+                    com.projeto.mapi.service.ingestion.adapter.tide.HarmonicTideCsvAdapter.SOURCE,
+                    first.atStartOfDay(LOCAL).toInstant(), last.plusDays(1).atStartOfDay(LOCAL).toInstant(),
+                    IngestionMode.REFETCH, IngestionKind.LIVE));
+            log.info("Maré harmônica (reserva) carregada para {} a {}: run {} {} ({} novas)", first, last, run.id(), run.status(),
+                    run.obsInserted());
+        } else {
+            log.warn("Sem tábua oficial nem harmônica para {}: a maré do ano seguinte vai faltar", last.getYear());
+        }
     }
 
     /**

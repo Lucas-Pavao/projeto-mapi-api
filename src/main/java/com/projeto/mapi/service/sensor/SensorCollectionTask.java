@@ -28,6 +28,13 @@ public class SensorCollectionTask {
     private final MeterRegistry meterRegistry;
     private final CollectorFreshness freshness;
     private final PredictionCycleRunner predictionRunner;
+    /** Ciclo do alerta (ADR 0026): a cada coleta da APAC/Cemaden. Opcional para os testes dos ciclos de coleta. */
+    private com.projeto.mapi.service.alerta.AlertaCycleRunner alertaRunner;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    public void setAlertaRunner(com.projeto.mapi.service.alerta.AlertaCycleRunner alertaRunner) {
+        this.alertaRunner = alertaRunner;
+    }
 
     @org.springframework.beans.factory.annotation.Autowired
     public SensorCollectionTask(AnaCollectorService anaCollectorService, ApacCollectorService apacCollectorService,
@@ -104,6 +111,9 @@ public class SensorCollectionTask {
             // bloqueia o agendador). Roda mesmo com a fonte fora: a previsão usa o dado já gravado.
             if (predictionRunner != null) {
                 predictionRunner.triggerAfterCycle(source);
+            }
+            if (alertaRunner != null && "apac_cemaden".equals(source)) {
+                alertaRunner.trigger(source);
             }
         }
     }

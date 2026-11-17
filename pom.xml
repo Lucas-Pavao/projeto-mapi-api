@@ -33,6 +33,11 @@
 		     padrão e é recusado por Docker Engine >= 29 (mínimo 1.44: "client version too old").
 		     Sobrescrevemos a versão do BOM (ADR 0004). -->
 		<testcontainers.version>1.21.4</testcontainers.version>
+		<!-- JDK 25 (O2, 2026-11-17): o Byte Buddy 1.15.10 do BOM 3.4.0 não instrumenta classes do JDK 25 ("Could not modify
+		     all classes [PedFetchWindowRepository, Object]"). 1.17.8 conhece o JDK 25. -->
+		<byte-buddy.version>1.17.8</byte-buddy.version>
+		<!-- Vazio por padrão; o JaCoCo, quando usado, preenche antes do surefire. -->
+		<argLine></argLine>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -200,6 +205,9 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
+					<!-- Mockito 5 no JDK 21+: carregar o Mockito como agente Java em vez da auto-anexação dinâmica
+					     (documentação do Mockito, "Mockito as Java agent"). O caminho vem do dependency:properties. -->
+					<argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar} -Xshare:off</argLine>
 					<systemPropertyVariables>
 						<!-- Docker Engine >= 29 exige API >= 1.44; o docker-java do Testcontainers anuncia 1.32
 						     por padrão e o daemon responde "client version too old". Fixamos a versão da API
@@ -207,6 +215,17 @@
 						<api.version>1.44</api.version>
 					</systemPropertyVariables>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>properties</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

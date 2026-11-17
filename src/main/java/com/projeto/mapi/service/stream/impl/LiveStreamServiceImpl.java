@@ -43,16 +43,24 @@ public class LiveStreamServiceImpl implements LiveStreamService {
     private final AtomicLong sequence = new AtomicLong();
     private final Deque<Buffered> buffer = new ArrayDeque<>();
 
-    private record Subscriber(String username, boolean receivesAlerts, SseEmitter emitter) {
+    private record Subscriber(String username, boolean receivesAlerts, boolean admin, SseEmitter emitter) {
     }
 
-    private record Buffered(long id, String name, Object data, boolean alertOnly) {
+    private record Buffered(long id, String name, Object data, boolean alertOnly, boolean adminOnly) {
+        Buffered(long id, String name, Object data, boolean alertOnly) {
+            this(id, name, data, alertOnly, false);
+        }
     }
 
     @Override
     public SseEmitter subscribe(String username, boolean receivesAlerts, String lastEventId) {
+        return subscribe(username, receivesAlerts, false, lastEventId);
+    }
+
+    @Override
+    public SseEmitter subscribe(String username, boolean receivesAlerts, boolean admin, String lastEventId) {
         SseEmitter emitter = new SseEmitter(EMITTER_TIMEOUT_MS);
-        Subscriber sub = new Subscriber(username, receivesAlerts, emitter);
+        Subscriber sub = new Subscriber(username, receivesAlerts, admin, emitter);
         synchronized (subscribers) {
             long open = subscribers.stream().filter(s -> s.username().equals(username)).count();
             if (open >= MAX_CONNECTIONS_PER_USER) {
@@ -103,6 +111,7 @@ public class LiveStreamServiceImpl implements LiveStreamService {
         }
         for (Buffered b : pending) {
             if (b.alertOnly() && !sub.receivesAlerts()) continue;
+            if (b.adminOnly() && !sub.admin()) continue;
             send(sub, b);
         }
     }
@@ -143,15 +152,26 @@ public class LiveStreamServiceImpl implements LiveStreamService {
         }
     }
 
+    @Override
+    public java.time.Instant publishAlertEvent(String name, Object data, boolean shadow) {
+        broadcast(name, data, false, shadow);
+        return clock.instant();
+    }
+
     private void broadcast(String name, Object data, boolean alertOnly) {
+        broadcast(name, data, alertOnly, false);
+    }
+
+    private void broadcast(String name, Object data, boolean alertOnly, boolean adminOnly) {
         long id = sequence.incrementAndGet();
-        Buffered b = new Buffered(id, name, data, alertOnly);
+        Buffered b = new Buffered(id, name, data, alertOnly, adminOnly);
         synchronized (buffer) {
             buffer.addLast(b);
             while (buffer.size() > BUFFER_SIZE) buffer.removeFirst();
         }
         for (Subscriber s : new ArrayList<>(subscribers)) {
             if (alertOnly && !s.receivesAlerts()) continue;
+            if (adminOnly && !s.admin()) continue;
             send(s, b);
         }
     }

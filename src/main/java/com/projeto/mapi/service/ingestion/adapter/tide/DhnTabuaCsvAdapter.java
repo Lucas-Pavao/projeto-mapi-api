@@ -47,12 +47,17 @@ public class DhnTabuaCsvAdapter extends AbstractTideExtremesAdapter {
         return "dhn-tabua-csv/1";
     }
 
+    /** Padrão do recurso por ano. A tábua harmônica (reserva, O3) usa outro arquivo no mesmo formato. */
+    protected String resourcePattern() {
+        return RESOURCE;
+    }
+
     @Override
     protected Loaded load(LocalDate firstDay, LocalDate lastDay, LocalDate coreFirst, LocalDate coreLast) {
         List<TideExtreme> out = new ArrayList<>();
         ArrayNode files = mapper.createArrayNode();
         for (int year = firstDay.getYear(); year <= lastDay.getYear(); year++) {
-            ClassPathResource res = new ClassPathResource(String.format(RESOURCE, year));
+            ClassPathResource res = new ClassPathResource(String.format(resourcePattern(), year));
             if (!res.exists()) continue;
             ObjectNode f = files.addObject();
             f.put("file", res.getPath());
@@ -76,8 +81,7 @@ public class DhnTabuaCsvAdapter extends AbstractTideExtremesAdapter {
             }
         }
         if (out.isEmpty()) {
-            throw new SourceUnavailableException("Sem tábua DHN no recurso para " + firstDay + " a " + lastDay
-                    + " (anos disponíveis: 2021 a 2026)");
+            throw new SourceUnavailableException("Sem tábua no recurso " + resourcePattern() + " para " + firstDay + " a " + lastDay);
         }
         ObjectNode req = mapper.createObjectNode();
         req.put("origin", "classpath tide/dhn-pe02-<ano>.csv (PDF oficial DHN/CHM)");

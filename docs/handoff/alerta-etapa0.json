@@ -1,0 +1,16 @@
+{
+  "tarefa": "ALERTA-20MIN Etapa 0 — retrato do caminho atual",
+  "data": "2026-11-17",
+  "branch": "alerta-20min (api, ai, front)",
+  "documento": "docs/extratos/caminho-do-alerta-atual.md",
+  "ciclo": {"gatilho": "fim de cada coleta (ANA 15 min, APAC/Cemaden 3 min, Meteo 5 min)", "descarta_se_rodando": true, "periodo_efetivo_min": 3},
+  "rain_v1": {"fonte": "canonical_rain_block_v (PED senão ao vivo), até 40 km", "lookback_min": 390, "regra_idade_min": 70,
+              "issued_at": "leitura mais nova arredondada a 10 min, não o relógio", "limiar_forte_1h": 0.10546652576991118,
+              "modelo_1h": "gb_rede (sem Open-Meteo)"},
+  "coleta_ao_vivo_dia_seco": {"periodo": "2026-11-17 01:30–12:00 UTC", "bloco_10min": {"leituras": 82, "atraso_mediana_min": 8.0, "p90": 14.0},
+                              "bloco_11_60min": {"leituras": 308, "atraso_mediana_min": 3.1, "p90": 16.1}, "interval_start_ao_vivo": "igual a ts_utc (achado)"},
+  "modelos_com_posicao": {"logreg_v3": false, "rain_v1": false, "xgb_v2_nao_servido": true, "legado_nao_servido": true},
+  "point_terrain_run": 2,
+  "pontos_sem_terreno_confiavel": {"JABOATAO_CENTRO": "NO_DATA (fora do PE3D)", "AGAMENON_DERBY": "area 62 m2, em revisao"},
+  "versao_em_producao": {"api": "ae41240 (=main em código)", "ai": "sem identificador", "front": "sem identificador"}
+}

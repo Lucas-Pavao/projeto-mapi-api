@@ -12,6 +12,19 @@ public interface LiveStreamService {
      */
     SseEmitter subscribe(String username, boolean receivesAlerts, String lastEventId);
 
+    /** Como o anterior; {@code admin} recebe também os eventos do alerta em modo sombra (ADR 0026). */
+    default SseEmitter subscribe(String username, boolean receivesAlerts, boolean admin, String lastEventId) {
+        return subscribe(username, receivesAlerts, lastEventId);
+    }
+
+    /**
+     * Publica um evento do alerta por ponto. {@code shadow} = só administradores recebem (modo sombra). Devolve o
+     * instante do envio (item 2.1).
+     */
+    default java.time.Instant publishAlertEvent(String name, Object data, boolean shadow) {
+        return null;
+    }
+
     int activeConnections();
 
     /** Encerra os streams abertos do usuário (perfil ou ativação mudou; o cliente reconecta com o token novo). */

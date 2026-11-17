@@ -1,0 +1,19 @@
+{
+  "tarefa": "ALERTA-E2 (API) — os 20 min existem em operação?",
+  "data": "2026-11-17",
+  "branch": "alerta-20min",
+  "estado": "PARADO no PARE da Etapa 2.3 (decisão do Lucas) e no PARE do O3",
+  "2_1_atraso": {"gravado_por_ciclo": "alert_point_cycle: leitura, coleta, banco, ciclo, IA, estado, SSE", "rota": "GET /api/alerta/latencia",
+                 "dia_seco_coleta": {"mediana_min": 3.6, "p90_min": 7.7, "max_min": 12.8, "n": 1487},
+                 "ciclo_alerta": {"duracao_ms": 1968, "balde_ms_total": 0.49, "pontos": 5},
+                 "pendente": ["painel na tela Dados", "job do relatório no primeiro dia com chuva > 10 mm"]},
+  "2_2_frescor": {"regra_min": 15, "sem_dado_ultimo_mes_pct": {"AGAMENON_DERBY": 38.6, "AV_RECIFE_IBURA": 66.0, "CIN_UFPE": 56.8, "JABOATAO_CENTRO": 65.5, "MASCARENHAS_IMBIRIBEIRA": 82.7},
+                  "sem_dado_quando_chove_pct": {"AGAMENON_DERBY": 29.2, "AV_RECIFE_IBURA": 48.4, "CIN_UFPE": 48.1, "JABOATAO_CENTRO": 47.4, "MASCARENHAS_IMBIRIBEIRA": 58.6},
+                  "com_70_min_pct": 0.0, "periodo": "2026-10-17 a 2026-11-16, passo de 10 min, chegada 4 min depois",
+                  "causa": "estação seca e boa parte das horas com chuva mandam bloco de 60 min"},
+  "2_3": "projeto-mapi-ai/reports/rain_v1b/SIMULACAO.md; 1 h: lab 20 (10–40), estável 16 (3–33), chuva 0 (0–8)",
+  "2_4": {"implementado": "LiveQualityControlImpl (30 dias, critérios do StationMonthChecker) + pico isolado no compositor; live_qc_drop",
+          "implantado": false, "motivo": "disco cheio no build (0 MB livres em /)", "pendente": "avaliação 2.4.3 nos 5 anos"},
+  "o1_radar": "docs/extratos/radar-apac.md: 689 CAPPI + 688 acumulado 1 h, 0 lacunas",
+  "o3_mare": "V35 registra TIDE_HARMONIC_F41 sem ligar; validação em projeto-mapi-ai/reports/tide/harmonica_2027.json"
+}

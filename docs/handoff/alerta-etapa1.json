@@ -1,0 +1,22 @@
+{
+  "tarefa": "ALERTA-E1 (API) — alerta por ponto, dois campos, balde a 10 min no ciclo",
+  "data": "2026-11-17",
+  "branch": "alerta-20min",
+  "adr": ["docs/adr/0026-alerta-por-ponto-como-produto-principal.md", "docs/adr/0027-balde-a-10-min-e-posicao-fora-de-modelo-aprendido.md"],
+  "migracoes": {"V33": "radar_image + APAC_RADAR (O1)", "V34": "alert_cycle, alert_point_state, alert_point_cycle, alert_transition, live_qc_drop, fonte MAPI_ALERTA (15 min)"},
+  "codigo": {
+    "serie_10min": "service/alerta/PointRain10MinComposer (puro) + repository/analise/PointRain10MinRepository",
+    "regras": "service/alerta/RainAlertRules (puro): níveis, motivos, histerese, duração mínima, expiração, cancelamento, evento",
+    "ciclo": "service/alerta/impl/AlertaCycleServiceImpl (Clock injetado), AlertaCycleRunner disparado a cada coleta apac_cemaden",
+    "rotas": "GET /api/alerta/pontos, /transicoes, /latencia, /serie-10min.csv"
+  },
+  "capacidade": {"tr_anos": 5, "te_min": 10, "lamina_mm": 20.9, "fonte": "Silva e Araújo (2013) Eq. 16"},
+  "limiar_atencao": "vem da IA (forte_alert_threshold do horizonte 1 h = 0,1055); mapi.alerta.rain.prob-on sobrepõe",
+  "parametros_neutros_ate_etapa3": {"prob_off": "= prob_on", "min_duration_minutes": 0, "expiry_minutes": 60, "event_gap_minutes": 60},
+  "frescor_alerta_min": 15,
+  "terreno_em_revisao": ["AGAMENON_DERBY"],
+  "bloco_longo_1_4_1": {"horas_chuva_ge_0_2mm": 49809, "pct_com_bloco_maior_que_10min": 86.9, "pct_nas_horas_ge_5mm": 59.7,
+                        "fonte": "point_rain_hourly rule_version chuva-ponto-v4, blocks_covered_min > 10 x n_blocks"},
+  "testes": {"api": "536, 0 falhas, 0 erros (antes 486 e 7 erros de Mockito)", "novos": ["RainAlertRulesTest (27)", "PointRain10MinComposerTest (8)", "AlertaIntegrationTest (6)", "RadarArchiveServiceImplTest (4)"]},
+  "o2_mockito": "Byte Buddy 1.17.8 + Mockito como agente no argLine; só o agente não basta (os 7 erros voltam com 1.15.10, classe PedFetchWindowRepository)"
+}
