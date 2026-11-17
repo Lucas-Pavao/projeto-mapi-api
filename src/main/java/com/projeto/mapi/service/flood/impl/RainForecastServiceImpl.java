@@ -8,6 +8,8 @@ import com.projeto.mapi.repository.analise.RainForecastRepository;
 import com.projeto.mapi.repository.analise.RainForecastRepository.OmHour;
 import com.projeto.mapi.repository.analise.RainForecastRepository.Reading;
 import com.projeto.mapi.repository.analise.RainForecastRepository.Stored;
+import com.projeto.mapi.service.alerta.RainAlertRules;
+import com.projeto.mapi.service.alerta.SemDadoMotivo;
 import com.projeto.mapi.service.flood.RainForecastClient;
 import com.projeto.mapi.service.flood.RainForecastService;
 import com.projeto.mapi.service.weather.OpenMeteoForecastClient;
@@ -53,19 +55,37 @@ public class RainForecastServiceImpl implements RainForecastService {
 
     @Override
     public Optional<RainForecastDTO> forecastAndStore(long floodPointId, String slug, double lat, double lon) {
-        if (!enabled) return Optional.empty();
+        Run r = run(floodPointId, slug, lat, lon);
+        return Optional.ofNullable(r.dto());
+    }
+
+    @Override
+    public RainAlertRules.Forecast forecastForAlert(long floodPointId, String slug, double lat, double lon) {
+        Run r = run(floodPointId, slug, lat, lon);
+        if (r.failure() != null) return RainAlertRules.Forecast.failed(r.failure());
+        RainForecastDTO.Horizon h1 = r.dto().horizons().stream().filter(h -> h.horizonHours() == 1).findFirst().orElse(null);
+        if (h1 == null) return RainAlertRules.Forecast.failed(SemDadoMotivo.PREVISAO_RECUSADA);
+        return new RainAlertRules.Forecast(h1.probForte(), h1.q50Mm(), h1.q80Mm(), r.threshold1h(), r.dto().modelVersion(), null);
+    }
+
+    private record Run(RainForecastDTO dto, SemDadoMotivo failure, Double threshold1h) {}
+
+    private Run run(long floodPointId, String slug, double lat, double lon) {
+        if (!enabled) return new Run(null, SemDadoMotivo.IA_INDISPONIVEL, null);
         try {
             Instant now = clock.instant();
             List<Reading> readings = repo.neighborReadings(floodPointId, now.minus(LOOKBACK), now);
             if (readings.isEmpty()) {
                 log.warn("Previsão de chuva do ponto {}: nenhuma leitura nas últimas 6 h; não emitida", slug);
-                return Optional.empty();
+                return new Run(null, SemDadoMotivo.SEM_ESTACAO_VALIDA, null);
             }
             Instant latest = readings.get(readings.size() - 1).ts();
             List<OmHour> om = openMeteoHours(floodPointId, slug, lat, lon, latest);
-            Optional<RainForecastClient.Result> res = client.forecast(lat, lon, readings, om);
-            if (res.isEmpty()) return Optional.empty();
-            RainForecastClient.Result r = res.get();
+            RainForecastClient.Outcome out = client.forecastOutcome(lat, lon, readings, om);
+            if (out.result() == null) {
+                return new Run(null, out.refused() ? SemDadoMotivo.PREVISAO_RECUSADA : SemDadoMotivo.IA_INDISPONIVEL, null);
+            }
+            RainForecastClient.Result r = out.result();
             String sources = mapper.writeValueAsString(r.sources());
             String missing = mapper.writeValueAsString(r.missingInputs());
             for (RainForecastClient.Horizon h : r.horizons()) {
@@ -73,13 +93,14 @@ public class RainForecastServiceImpl implements RainForecastService {
                         h.q95(), h.probMedia(), h.probForte(), h.forteAlert(), r.modelVersion(), h.model(), sources, missing,
                         r.latestReadingUtc(), r.latestReadingAgeMinutes()));
             }
-            return Optional.of(new RainForecastDTO(floodPointId, slug, r.issuedAt(), r.modelVersion(), r.sources(),
+            return new Run(new RainForecastDTO(floodPointId, slug, r.issuedAt(), r.modelVersion(), r.sources(),
                     r.missingInputs(), r.latestReadingUtc(), r.latestReadingAgeMinutes(), r.horizons().stream()
                     .map(h -> new RainForecastDTO.Horizon(h.horizonHours(), h.validUntil(), h.q50(), h.q80(), h.q95(),
-                            h.probMedia(), h.probForte(), h.forteAlert(), h.model())).toList(), RainForecastDTO.ATTRIBUTION));
+                            h.probMedia(), h.probForte(), h.forteAlert(), h.model())).toList(), RainForecastDTO.ATTRIBUTION),
+                    null, out.forteThreshold1h());
         } catch (Exception e) {
             log.error("Falha na previsão de chuva do ponto {}: {}", slug, e.toString());
-            return Optional.empty();
+            return new Run(null, SemDadoMotivo.IA_INDISPONIVEL, null);
         }
     }
 

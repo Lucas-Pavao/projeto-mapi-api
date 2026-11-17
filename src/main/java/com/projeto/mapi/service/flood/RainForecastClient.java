@@ -17,4 +17,12 @@ public interface RainForecastClient {
                   List<String> missingInputs, Instant latestReadingUtc, Double latestReadingAgeMinutes) {}
 
     Optional<Result> forecast(double lat, double lon, List<Reading> readings, List<OmHour> openMeteo);
+
+    /** Resultado com o motivo da falha: {@code refused} = HTTP 422 (falta entrada); {@code unavailable} = IA fora. */
+    record Outcome(Result result, boolean refused, boolean unavailable, Double forteThreshold1h, Integer stationsValidNear) {}
+
+    default Outcome forecastOutcome(double lat, double lon, List<Reading> readings, List<OmHour> openMeteo) {
+        return forecast(lat, lon, readings, openMeteo).map(r -> new Outcome(r, false, false, null, null))
+                .orElse(new Outcome(null, false, true, null, null));
+    }
 }

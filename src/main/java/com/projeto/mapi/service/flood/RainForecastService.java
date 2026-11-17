@@ -12,6 +12,22 @@ public interface RainForecastService {
     /** Emite e grava a previsão do ponto. Vazio se desligada, sem leitura recente ou IA indisponível. Não lança. */
     Optional<RainForecastDTO> forecastAndStore(long floodPointId, String slug, double lat, double lon);
 
+    /**
+     * Para o alerta (ADR 0026): emite e grava como {@link #forecastAndStore}, e devolve a probabilidade de FORTE em 1 h,
+     * os quantis de 1 h, o limiar da IA e o motivo da falha, se houver. Não lança.
+     */
+    default com.projeto.mapi.service.alerta.RainAlertRules.Forecast forecastForAlert(long floodPointId, String slug,
+                                                                                   double lat, double lon) {
+        return forecastAndStore(floodPointId, slug, lat, lon)
+                .map(d -> d.horizons().stream().filter(h -> h.horizonHours() == 1).findFirst()
+                        .map(h -> new com.projeto.mapi.service.alerta.RainAlertRules.Forecast(h.probForte(), h.q50Mm(), h.q80Mm(),
+                                null, d.modelVersion(), null))
+                        .orElse(com.projeto.mapi.service.alerta.RainAlertRules.Forecast.failed(
+                                com.projeto.mapi.service.alerta.SemDadoMotivo.PREVISAO_RECUSADA)))
+                .orElse(com.projeto.mapi.service.alerta.RainAlertRules.Forecast.failed(
+                        com.projeto.mapi.service.alerta.SemDadoMotivo.IA_INDISPONIVEL));
+    }
+
     /** Última previsão gravada de cada ponto. Leitura pura. */
     List<RainForecastDTO> latest();
 

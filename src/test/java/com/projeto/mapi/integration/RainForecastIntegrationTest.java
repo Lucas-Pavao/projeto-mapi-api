@@ -99,13 +99,13 @@ class RainForecastIntegrationTest extends AbstractTimescaleIntegrationTest {
         List<OpenMeteoForecastClient.Hour> om = new ArrayList<>();
         for (int i = -24; i <= 30; i++) om.add(new OpenMeteoForecastClient.Hour(h0.plus(Duration.ofHours(i)), i > 28 ? null : 0.3));
         when(openMeteo.previousDayRun(anyDouble(), anyDouble())).thenReturn(new OpenMeteoForecastClient.Batch(-8.05, -34.92, "c".repeat(64), om));
-        when(client.forecast(anyDouble(), anyDouble(), any(), any())).thenReturn(Optional.of(result(t)));
+        when(client.forecastOutcome(anyDouble(), anyDouble(), any(), any())).thenReturn(new RainForecastClient.Outcome(result(t), false, false, null, null));
 
         Optional<RainForecastDTO> out = service.forecastAndStore(pointId, "RF_PONTO", -8.05, -34.95);
 
         ArgumentCaptor<List<Reading>> readings = ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<List<OmHour>> omSent = ArgumentCaptor.forClass(List.class);
-        verify(client).forecast(anyDouble(), anyDouble(), readings.capture(), omSent.capture());
+        verify(client).forecastOutcome(anyDouble(), anyDouble(), readings.capture(), omSent.capture());
         assertThat(readings.getValue()).extracting(Reading::stationId).containsExactlyInAnyOrder("RF_PERTO", "RF_PERTO", "RF_OESTE");
         assertThat(readings.getValue()).extracting(Reading::mm).containsExactlyInAnyOrder(1.5, 0.4, 2.0);
         // Open-Meteo: horas de (h0, h0+7h], todas emitidas (valid - 24 h) antes de t; hora sem valor não é gravada
@@ -125,7 +125,7 @@ class RainForecastIntegrationTest extends AbstractTimescaleIntegrationTest {
     void semLeituraRecente_naoEmite_eNaoChamaAIA() {
         block("CEMADEN_PED", "RF_PERTO", now.minus(Duration.ofHours(9)), 3.0);
         assertThat(service.forecastAndStore(pointId, "RF_PONTO", -8.05, -34.95)).isEmpty();
-        verify(client, org.mockito.Mockito.never()).forecast(anyDouble(), anyDouble(), any(), any());
+        verify(client, org.mockito.Mockito.never()).forecastOutcome(anyDouble(), anyDouble(), any(), any());
     }
 
     @Test
@@ -133,7 +133,7 @@ class RainForecastIntegrationTest extends AbstractTimescaleIntegrationTest {
         when(openMeteo.previousDayRun(anyDouble(), anyDouble())).thenThrow(new IllegalStateException("fora"));
         // leitura recente só para a emissão acontecer; a IA devolve uma previsão emitida há 5 h
         block("CEMADEN_PED", "RF_PERTO", now.minus(Duration.ofMinutes(30)), 0.0);
-        when(client.forecast(anyDouble(), anyDouble(), any(), any())).thenReturn(Optional.of(result(issued)));
+        when(client.forecastOutcome(anyDouble(), anyDouble(), any(), any())).thenReturn(new RainForecastClient.Outcome(result(issued), false, false, null, null));
         assertThat(service.forecastAndStore(pointId, "RF_PONTO", -8.05, -34.95)).isPresent();
 
         // medido: RF_PERTO válida no início e no fim da janela de 1 h, com 4 + 30 mm; RF_PERTO2 sem leitura no início (fora)

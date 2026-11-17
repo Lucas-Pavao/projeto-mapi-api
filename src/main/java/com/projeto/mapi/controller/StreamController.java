@@ -34,6 +34,6 @@ public class StreamController {
     public SseEmitter stream(@AuthenticationPrincipal User user,
                              @RequestHeader(value = "Last-Event-ID", required = false) String lastEventId) {
         boolean alerts = user.getRole() == Role.OPERADOR || user.getRole() == Role.ADMIN;
-        return streamService.subscribe(user.getUsername(), alerts, lastEventId);
+        return streamService.subscribe(user.getUsername(), alerts, user.getRole() == Role.ADMIN, lastEventId);
     }
 }

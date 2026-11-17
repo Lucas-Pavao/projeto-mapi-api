@@ -24,8 +24,11 @@ services:
       retries: 5
 
   mapi-ai:
-    build: 
+    build:
       context: ../projeto-mapi-ai
+      args:
+        GIT_COMMIT: ${AI_GIT_COMMIT:-unknown-build-without-git}
+        GIT_DIRTY: ${AI_GIT_DIRTY:-unknown}
     container_name: mapi-ai
     environment:
       - DB_HOST=postgres
@@ -223,6 +226,8 @@ services:
       args:
         VITE_MAP_STYLE_LIGHT: ${VITE_MAP_STYLE_LIGHT:-https://basemaps.cartocdn.com/gl/positron-gl-style/style.json}
         VITE_MAP_STYLE_DARK: ${VITE_MAP_STYLE_DARK:-https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json}
+        GIT_COMMIT: ${FRONT_GIT_COMMIT:-unknown-build-without-git}
+        GIT_DIRTY: ${FRONT_GIT_DIRTY:-unknown}
     container_name: mapi-front
     # Tiles da camada de terreno (ADR 0008): o .pmtiles (≈ 21 MB) fica fora da imagem (.dockerignore) e
     # é servido pelo nginx em /terrain/ a partir deste volume somente leitura. Gerar com

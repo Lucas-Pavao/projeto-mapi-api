@@ -144,6 +144,19 @@ DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC.
 
 A rota antiga `GET /api/sensors/cemaden/accumulated` (painel público, sem coordenada nem código) continua.
 
+### 2.11 Alerta por ponto (novo, ADRs 0026 e 0027)
+
+DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC. Em modo sombra (`mapi.alerta.shadow=true`, padrão), `pontos` e `transicoes` respondem 403 para quem não é ADMIN.
+
+| Método e rota | Papel | O que devolve |
+|---|---|---|
+| `GET /api/alerta/pontos` | USER (ADMIN em modo sombra) | Estado atual por ponto: `rainAlert` (`NENHUM`, `ATENCAO`, `ALERTA`, `SEM_DADO`) e `pointFlood` (`NAO`, `PROVAVEL`, `SEM_DADO`), motivo e texto do motivo, `probForte1h`, `probOn`/`probOff`, `rainTeMm` e `capacityTeMm`, lâmina agora e projetada (`hNowCm`, `hProjQ50MaxCm`, `hProjQ80MaxCm`, `projection` por passo de 10 min), `floodInMinutes`, versões (`rainModelVersion`, `bucketVersion`), TR e Te, fontes, idade da leitura, `eventId`, `shadow`, `physicalModelLabel` |
+| `GET /api/alerta/transicoes?ponto=&horas=48&limite=200` | idem | Histórico: `LIGA`, `SOBE`, `DESCE`, `DESLIGA`, `CANCELA`, `EXPIRA`, `SEM_DADO`, `VOLTA_DADO`, por campo (`RAIN`, `FLOOD`), com `eventId` |
+| `GET /api/alerta/latencia?dias=7` | ADMIN | Mediana, p90 e máximo (s) por trecho (estação→coleta, coleta→banco, banco→ciclo, ciclo→IA, IA→estado, estado→SSE, total), hora com chuva e seca; orçamento p90 < 5 min em hora com chuva |
+| `GET /api/alerta/serie-10min.csv?ponto=&de=&ate=` | ADMIN | Série de chuva do ponto em passos de 10 min (mesma regra do alerta; passo sem estação vazio) |
+
+SSE (`/api/stream`): `alert-state` (um por ponto e ciclo) e `alert-transition`, só para ADMIN em modo sombra.
+
 ## 3. Contratos que importam para a dissertação
 
 ### 2.10 Análise de local (novo)

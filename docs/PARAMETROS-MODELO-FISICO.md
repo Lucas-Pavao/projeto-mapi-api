@@ -42,6 +42,22 @@ Cálculo sobre as Equações 16 [E1] e 3 [E2]. Lâmina em mm = intensidade × du
 
 Referência independente: Torres et al. (2025) via Fonseca Neto et al. (2026) dão 55 mm para TR 2 anos, 60 min [E3].
 
+### Intensidade na duração do tempo de entrada (10 min), para a capacidade da galeria do alerta (2026-11-17)
+
+A tabela acima não traz 10 min. Conta direta nas mesmas equações, com t = 10 min (Te central, item 10):
+
+- Silva e Araújo (2013), Eq. 16 [E1]: `I = 1380,2176 · TR^0,19369 / (10 + 22)^0,78201`, e `(32)^0,78201 = 15,04`.
+- EMLURB/PDDR, Eq. 3 [E2]: `i = 611,3425 · TR^0,1671 / (10 + 7,3069)^0,6348`, e `(17,3069)^0,6348 = 6,113`.
+
+| TR | Silva e Araújo: i (mm/h) / lâmina em 10 min (mm) | EMLURB-PDDR: i (mm/h) / lâmina em 10 min (mm) |
+|---|---|---|
+| 2 anos | 105,0 / 17,5 | 112,4 / 18,7 |
+| 5 anos | **125,4 / 20,9** | 130,9 / 21,8 |
+| 10 anos | 143,4 / 23,9 | 147,0 / 24,5 |
+
+Conferência: as mesmas fórmulas em t = 15 min reproduzem a linha de 15 min da tabela acima (23,4 / 28,0 / 32,0 mm), teste `test_idf_reproduz_a_tabela_de_15_min_do_documento` (projeto-mapi-ai) e `RainAlertRulesTest.capacidadeEmDezMinutosPelaIdfDeSilvaEAraujo` (API).
+Valor usado pelo alerta (ADR 0026) e pelo balde a 10 min (ADR 0027): Silva e Araújo, TR 5 anos, Te = 10 min, **20,9 mm em 10 min (125,4 mm/h)**. TR e Te ficam em configuração (`mapi.alerta.capacity`).
+
 ## Limiar da regra de chuva (baseline "chuva > X")
 
 **Recomendação: X = 55 mm em 1 h** (TR 2 anos, 60 min), com os níveis de sensibilidade 50% (27,5 mm) e 70% (38,5 mm) do mesmo limiar, fixados no manifesto antes da avaliação.
