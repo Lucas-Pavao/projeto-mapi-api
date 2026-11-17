@@ -295,6 +295,20 @@ management:
         http.server.requests: true
 
 mapi:
+  alerta:
+    # ADR 0026. Modo sombra ligado: só o Lucas desliga.
+    shadow: ${ALERTA_SHADOW:true}
+    freshness-minutes: 15
+    rain:
+      # L_liga: nulo = o limiar de maior CSI que a IA devolve (1 h: 0,1055, models/v4/rain/metadata.json).
+      # L_desliga = 0,3 x L_liga e duração mínima 0: escolhidos na VALIDAÇÃO da simulação do dado como chega, pela regra
+      # escrita antes (projeto-mapi-ai/mapi_ai/rain/alert_rules.py; reports/rain_v1b/regras_alerta.json).
+      prob-off: 0.0316
+      min-duration-minutes: 0
+      expiry-minutes: 60
+      cancel-dry-minutes: 30
+      dry-mm: 0.2
+      event-gap-minutes: 60
   radar:
     # Gravação das imagens do radar da APAC (V33). Volume próprio montado em /data/radar (docker-compose).
     enabled: ${RADAR_COLLECTOR_ENABLED:true}

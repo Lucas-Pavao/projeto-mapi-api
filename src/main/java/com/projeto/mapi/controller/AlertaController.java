@@ -31,6 +31,7 @@ public class AlertaController {
 
     private final AlertaQueryService service;
     private final com.projeto.mapi.service.alerta.PointRain10MinExportService export10;
+    private final com.projeto.mapi.service.alerta.AlertaConferenciaService conferencia;
 
     /** Em modo sombra o alerta só aparece para ADMIN, marcado "em teste" (ADR 0026). */
     private void checkShadow(Authentication auth) {
@@ -87,5 +88,32 @@ public class AlertaController {
         resp.setContentType("text/csv");
         resp.setCharacterEncoding("UTF-8");
         export10.writeCsv(ponto, de, ate, resp.getWriter());
+    }
+
+    @GetMapping("/conferencia")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Operation(summary = "Conferência diária do alerta nos últimos dias",
+            description = "Eventos FORTE medidos, quantos tiveram alerta antes, antecedência real, falsos por evento, tempo em "
+                    + "SEM_DADO e episódios de ALAGAMENTO_PROVAVEL por ponto (sem verdade de campo: guardados para cruzar com ocorrências).")
+    @ApiResponse(responseCode = "200", description = "OK")
+    public ResponseEntity<com.projeto.mapi.dto.AlertaConferenciaDTO> conferencia(@RequestParam(defaultValue = "30") @Min(1) @Max(365) int dias) {
+        return ResponseEntity.ok(conferencia.summary(dias));
+    }
+
+    @org.springframework.web.bind.annotation.PostMapping("/conferencia/{dia}")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Operation(summary = "Confere de novo um dia (UTC)", description = "Mesma conta da conferência diária das 03:35 UTC.")
+    @ApiResponse(responseCode = "200", description = "pontos conferidos")
+    public ResponseEntity<java.util.Map<String, Integer>> conferirDia(@org.springframework.web.bind.annotation.PathVariable java.time.LocalDate dia) {
+        return ResponseEntity.ok(java.util.Map.of("pontos", conferencia.checkDay(dia)));
+    }
+
+    @GetMapping("/latencia/relatorios")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Operation(summary = "Relatórios de atraso dos dias com chuva acima de 10 mm em algum ponto",
+            description = "Gerados sozinhos pela conferência diária; cada um traz mediana, p90 e máximo por trecho.")
+    @ApiResponse(responseCode = "200", description = "OK; vazio enquanto não houver dia com chuva")
+    public ResponseEntity<List<java.util.Map<String, Object>>> relatorios() {
+        return ResponseEntity.ok(conferencia.reports());
     }
 }
