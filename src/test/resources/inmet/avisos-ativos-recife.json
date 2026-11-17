@@ -1,0 +1,126 @@
+{
+  "hoje": [
+    {
+      "id": 56423,
+      "id_aviso": 28712,
+      "id_sequencia": 1,
+      "id_condicao_severa": 38,
+      "id_icone": 153,
+      "id_usuario": 105,
+      "codigo": "urn:oid:2.49.0.0.76.0.2026.28712.1",
+      "referencia": null,
+      "data_inicio": "2026-11-16T00:00:00.000Z",
+      "hora_inicio": "09:05",
+      "data_fim": "2026-11-16T00:00:00.000Z",
+      "hora_fim": "23:59",
+      "poligono": "{\"type\":\"Polygon\",\"coordinates\":[[[-39.990234,-20.030129],[-40.567017,-20.976828],[-40.654907,-21.094751],[-40.742798,-21.253542],[-40.841675,-21.626793],[-41.286621,-21.672744],[-41.863403,-21.42239],[-42.132568,-21.089625],[-41.868896,-20.334326],[-41.781006,-19.983674],[-41.539307,-19.580493],[-41.286621,-18.85431],[-41.19873,-18.437925],[-41.044922,-18.01008],[-40.539551,-17.382095],[-40.440674,-16.625665],[-41.11084,-16.299051],[-42.341309,-15.771109],[-44.472656,-15.24179],[-47.416992,-14.647368],[-50.888672,-13.795406],[-54.250488,-12.146746],[-54.470215,-11.436955],[-54.536133,-10.746969],[-54.008789,-9.882275],[-52.426758,-9.18887],[-51.306152,-8.885072],[-49.96582,-8.646196],[-48.208008,-8.928487],[-47.15332,-9.622414],[-46.164551,-10.293301],[-45.197754,-11.307708],[-44.824219,-12.007085],[-44.208984,-12.661778],[-43.330078,-13.090179],[-40.561523,-14.647368],[-39.155273,-15.029686],[-38.913574,-15.24179],[-38.770752,-15.845105],[-38.979492,-16.720385],[-39.034424,-17.125042],[-39.048157,-17.520963],[-38.7323,-17.748687],[-38.581238,-17.837604],[-38.553772,-17.997019],[-38.562012,-18.11714],[-39.056396,-18.01008],[-39.243164,-18.030975],[-39.512329,-18.20848],[-39.666138,-19.554614],[-39.990234,-20.030129]]]}",
+      "municipios": "Recife - PE (2611606),Jaboatão dos Guararapes - PE (2607901),Olinda - PE (2609600)",
+      "microrregioes": "Miracema do Tocantins,Afonso Cláudio,Barra de São Francisco,Salinas,Nova Venécia,Aimorés,Porto Seguro,Alegre,Guarapari,Gurupi,Dianópolis,Almenara,Altamira,Norte Araguaia,Manhuaçu,Porangatu,Chapada dos Veadeiros,Gerais de Balsas,Colatina,Vão do Paranã,Vitória da Conquista,Cotegipe,Muriaé,Porto Nacional,Cachoeiro de Itapemirim,Brumado,Linhares,Rio Formoso,Ilhéus-Itabuna,Teófilo Otoni,Barreiras,Nanuque,Bom Jesus da Lapa,Itaperuna,Januária,Pedra Azul,Guanambi,Santo Antônio de Pádua,Campos dos Goytacazes,Santa Maria da Vitória,Canarana,Vitória,Janaúba,Jalapão,Mantena,Médio Araguaia,São Mateus,Conceição do Araguaia,São Félix do Xingu,Livramento do Brumado,Itapetinga,Sinop,Entorno de Brasília,Unaí,Paranatinga,Santa Teresa,Itapemirim,Boquira,Colíder,Montanha,São Miguel do Araguaia,Alto Teles Pires,Governador Valadares,Montes Claros",
+      "mesorregioes": "Ocidental do Tocantins,Central Espírito-santense,Noroeste Espírito-santense,Norte de Minas,Vale do Rio Doce,Sul Baiano,Sul Espírito-santense,Oriental do Tocantins,Jequitinhonha,Sudoeste Paraense,Nordeste Mato-grossense,Zona da Mata,Norte Goiano,Sul Maranhense,Leste Goiano,Centro Sul Baiano,Extremo Oeste Baiano,Litoral Norte Espírito-santense,Vale do Mucuri,Vale São-Franciscano da Bahia,Noroeste Fluminense,Norte Fluminense,Sudeste Paraense,Norte Mato-grossense,Noroeste de Minas,Noroeste Goiano",
+      "estados": "Tocantins,Espírito Santo,Minas Gerais,Bahia,Pará,Mato Grosso,Goiás,Maranhão,Rio de Janeiro",
+      "regioes": "Norte,Sudeste,Nordeste,Centro-Oeste",
+      "geocodes": "2611606,2607901,2609600",
+      "alterado": false,
+      "encerrado": false,
+      "created_at": "2026-11-16T00:00:00.000Z",
+      "updated_at": "2026-11-16T00:00:00.000Z",
+      "inicio": "2026-11-16 09:05",
+      "fim": "2026-11-16 23:59",
+      "icone": "data:image/png;base64,iVBORw0KGgo=",
+      "descricao": "Tempestade",
+      "aviso_cor": "#F96602",
+      "id_severidade": 7,
+      "severidade": "Perigo",
+      "riscos": [
+        "Chuva entre 30 e 60 mm/h ou 50 e 100 mm/dia, ventos intensos (60-100 km/h), e queda de granizo. Risco de corte de energia elétrica, estragos em plantações,  queda de árvores e de alagamentos."
+      ],
+      "instrucoes": [
+        "Em caso de rajadas de vento: (não se abrigue debaixo de árvores, pois há risco de queda e descargas elétricas e não estacione veículos próximos a torres de transmissão e placas de propaganda). ",
+        "Se possível, desligue aparelhos elétricos e quadro geral de energia. ",
+        "Obtenha mais informações junto à Defesa Civil (telefone 199) e ao Corpo de Bombeiros (telefone 193)."
+      ]
+    },
+    {
+      "id": 56422,
+      "id_aviso": 28711,
+      "id_sequencia": 1,
+      "id_condicao_severa": 38,
+      "id_icone": 152,
+      "id_usuario": 105,
+      "codigo": "urn:oid:2.49.0.0.76.0.2026.28711.1",
+      "referencia": null,
+      "data_inicio": "2026-11-16T00:00:00.000Z",
+      "hora_inicio": "08:55",
+      "data_fim": "2026-11-16T00:00:00.000Z",
+      "hora_fim": "23:59",
+      "poligono": "{\"type\":\"Polygon\",\"coordinates\":[[[-62.797852,-8.102739],[-63.28125,-9.60075],[-63.237305,-11.135287],[-63.116455,-12.028576],[-62.841797,-12.854649],[-62.182617,-13.165074],[-61.875,-13.475106],[-60.88623,-13.581921],[-60.501709,-13.816744],[-60.400085,-13.968719],[-60.474243,-14.176523],[-60.306702,-14.607505],[-60.227051,-15.103946],[-60.545654,-15.10925],[-60.238037,-15.45368],[-60.128174,-16.267414],[-58.326416,-16.27796],[-58.425293,-16.657244],[-58.425293,-17.035777],[-58.304443,-17.240498],[-58.117676,-17.444992],[-57.766113,-17.523583],[-57.546387,-18.29195],[-57.711182,-18.682675],[-57.793579,-19.056926],[-58.112183,-19.761534],[-57.86499,-19.947533],[-58.156128,-20.174567],[-57.925415,-20.740703],[-57.837524,-21.186973],[-56.030273,-20.591652],[-55.288696,-19.875226],[-54.492187,-19.435514],[-53.701172,-19.419973],[-52.910156,-19.47695],[-51.459961,-19.849394],[-49.570312,-20.427013],[-48.383789,-21.012727],[-47.526855,-21.728886],[-45.86792,-23.135309],[-45.038452,-23.624395],[-44.044189,-23.286765],[-41.956787,-23.084785],[-41.577759,-22.466878],[-40.946045,-22.08055],[-40.764771,-21.181851],[-40.215454,-20.457896],[-40.001221,-19.978511],[-39.710083,-19.590844],[-39.605713,-19.093267],[-39.578247,-18.443136],[-39.446411,-18.140632],[-39.210205,-17.999632],[-38.897095,-18.030975],[-38.567505,-18.114529],[-38.572998,-17.858519],[-39.023438,-17.549772],[-39.056396,-17.20377],[-39.001465,-16.85712],[-38.770752,-15.919074],[-38.908081,-15.257689],[-38.814697,-13.651325],[-38.754272,-13.34152],[-38.572998,-13.127629],[-38.28186,-12.967089],[-37.935791,-12.677856],[-37.040405,-11.173013],[-36.853638,-10.752366],[-36.97998,-10.287896],[-37.622681,-8.129929],[-38.320312,-6.599131],[-39.023438,-6.337137],[-40.078125,-6.227934],[-42.099609,-6.293459],[-46.010742,-5.528511],[-48.647461,-5.11283],[-51.503906,-5.703448],[-56.008301,-5.878332],[-58.535156,-5.965754],[-60.336914,-6.337137],[-61.567383,-6.970049],[-62.797852,-8.102739]]]}",
+      "municipios": "Afrânio - PE (2600203),Araripina - PE (2601102)",
+      "microrregioes": "Goiânia,Patrocínio,Entorno de Brasília,Três Marias,Brejo Santo,Seabra,Paulo Afonso,Manhuaçu,Miracema do Tocantins,Ponte Nova,Alagoinhas,Alto Médio Canindé,Sertão de Senador Pompeu,Rosário Oeste,Vale do Rio dos Bois,Ipatinga,Anicuns,Ribeira do Pombal,Afonso Cláudio,Petrolina,Parauapebas,Peçanha,Canarana,Serrana do Sertão Alagoano,Três Lagoas,Uberaba,Barra de São Francisco,Feira de Santana,Pirassununga,Meia Ponte,Campo Belo,São João da Boa Vista,Amparo,Nanuque,Salinas,Nova Venécia,Piancó,Bico do Papagaio,Aimorés,Jequié,Sertão de Inhamuns,Andrelândia,São Lourenço,Pio IX,Poços de Caldas,Alto Taquari,Porto Seguro,Alegre,Cataguases,Alfenas,Guarapari,Barbacena,Gurupi,Ilhéus-Itabuna,Dianópolis,Almenara,Governador Valadares,Passos,Alta Floresta,Cacoal,São José do Rio Preto,Altamira,Caririaçu,Batatais,Alto Araguaia,Norte Araguaia,Porangatu,Alto Paraguai,Ariquemes,Chapada dos Veadeiros,Gerais de Balsas,Viçosa,Colatina,Votuporanga,Itabira,Conceição do Mato Dentro,Alvorada D'Oeste,Alto Médio Gurguéia,Vão do Paranã,Médio Parnaíba Piauiense,Imperatriz,Catu,Irecê,Iporá,Vitória da Conquista,Anápolis,Aquidauana,Senhor do Bonfim,Capelinha,Cotegipe,Baía da Ilha Grande,Catalão,São Raimundo Nonato,Várzea Alegre,Bertolínia,Muriaé,Guaratinguetá,Sudoeste de Goiás,Porto Nacional,Paranaíba,Santo Antônio de Pádua,Cachoeiro de Itapemirim,Madeira,Nossa Senhora das Dores,Sete Lagoas,Aracaju,Brumado,Serrinha,Juiz de Fora,Linhares,Araçuaí,Aragarças,Araguaína,Rio Formoso,Médio Araguaia,Tesouro,Rio Vermelho,Uberlândia,Ituverava,Bananal,Patos de Minas,Jauru,Chapada do Araripe,Araripina,Lagos,Santo Antônio de Jesus,Boquim,Bom Despacho,Araxá,São Sebastião do Paraíso,Formiga,Três Rios,Agreste de Itabaiana,Unaí,Aripuanã,Picos,Ubá,Teófilo Otoni,Curvelo,Barro,Chapadas do Extremo Sul Piauiense,Barreiras,Itaberaba,Alto Parnaíba Piauiense,Lavras da Mangabeira,Piuí,São Félix do Xingu,Chapadas do Alto Itapecuru,Alto Pantanal,Cariri,Barra,Valença do Piauí,Tangará da Serra,Alto Mearim e Grajaú,Jalapão,Barra do Piraí,Vale do Paraíba Fluminense,Barretos,Ribeirão Preto,Ceres,Batalha,Jaboticabal,Itaparica,Rio de Janeiro,Belo Horizonte,Itaguara,Chapadas das Mangabeiras,Cajazeiras,Sertão do Moxotó,Varginha,Itaporanga,Bocaiúva,Bodoquena,Nova Friburgo,Bom Jesus da Lapa,Caratinga,Itaperuna,Paragominas,Pouso Alegre,Oliveira,Januária,Boquira,Grão Mogol,Paracatu,Brasília,Montes Claros,Guanhães,Itajubá,Marabá,Caxias,Pirapora,Colorado do Oeste,São José dos Campos,Quirinópolis,Santa Rita do Sapucaí,Pedra Azul,Ituiutaba,Macacu-Caceribu,Guanambi,Jacobina,Valença,Pajeú,Salvador,Porto Franco,Frutal,Juazeiro,Parecis,Campos do Jordão,Campos dos Goytacazes,Primavera do Leste,Santa Maria da Vitória,Floriano,Porto Velho,Propriá,Sergipana do Sertão do São Francisco,Euclides da Cunha,Cantagalo-Cordeiro,Cotinguiba,Caraguatatuba,Macaé,Entre Rios,Vitória,Carira,Divinópolis,Baixo Cotinguiba,Santana do Ipanema,Lavras,Conselheiro Lafaiete,Bacia de São João,Cassilândia,Janaúba,Iguatu,Salgueiro,Mantena,Cuiabá,Vilhena,Sinop,Colíder,São Mateus,São João Del Rei,Conceição do Araguaia,Alto Guaporé,Campo Grande,Jeremoabo,Baixo Pantanal,Diamantina,Franca,Pires do Rio,São Miguel do Araguaia,Paraibuna/Paraitinga,Alagoana do Sertão do São Francisco,Ouro Preto,Jales,Rondonópolis,Livramento do Brumado,Itapetinga,Vassouras,Estância,Mogi Mirim,Fernandópolis,Pará de Minas,Paranatinga,Ji-Paraná,São Joaquim da Barra,Alto Teles Pires,Santa Teresa,Itaguaí,Vale do Ipanema,Itaituba,Itapemirim,Tucuruí,Japaratuba,Bragança Paulista,Arinos,Serra do Teixeira,Agreste de Lagarto,Sousa,Parintins,Montanha,Redenção,Serrana,Tobias Barreto,Santa Maria Madalena,Presidente Dutra,Guajará-Mirim,Catanduva,Traipu",
+      "mesorregioes": "Centro Goiano,Triângulo Mineiro/Alto Paranaíba,Leste Goiano,Central Mineira,Sul Cearense,Centro Sul Baiano,Vale São-Franciscano da Bahia,Zona da Mata,Ocidental do Tocantins,Nordeste Baiano,Sudeste Piauiense,Sertões Cearenses,Centro-Sul Mato-grossense,Sul Goiano,Vale do Rio Doce,Central Espírito-santense,São Francisco Pernambucano,Sudeste Paraense,Nordeste Mato-grossense,Sertão Alagoano,Leste de Mato Grosso do Sul,Noroeste Espírito-santense,Centro Norte Baiano,Campinas,Oeste de Minas,Vale do Mucuri,Norte de Minas,Sertão Paraibano,Sul/Sudoeste de Minas,Centro Norte de Mato Grosso do Sul,Sul Baiano,Sul Espírito-santense,Campo das Vertentes,Oriental do Tocantins,Jequitinhonha,Norte Mato-grossense,Leste Rondoniense,São José do Rio Preto,Sudoeste Paraense,Ribeirão Preto,Sudeste Mato-grossense,Norte Goiano,Sul Maranhense,Metropolitana de Belo Horizonte,Sudoeste Piauiense,Centro-Norte Piauiense,Oeste Maranhense,Metropolitana de Salvador,Pantanais Sul Mato-grossense,Extremo Oeste Baiano,Sul Fluminense,Centro-Sul Cearense,Vale do Paraíba Paulista,Noroeste Fluminense,Sul Amazonense,Agreste Sergipano,Leste Sergipano,Litoral Norte Espírito-santense,Noroeste Goiano,Sudoeste Mato-grossense,Sertão Pernambucano,Baixadas,Centro Fluminense,Noroeste de Minas,Leste Maranhense,Centro Maranhense,Metropolitana do Rio de Janeiro,Sudoeste de Mato Grosso do Sul,Distrito Federal,Norte Fluminense,Madeira-Guaporé,Sertão Sergipano,Agreste Pernambucano,Macro Metropolitana Paulista,Centro Amazonense,Agreste Alagoano",
+      "estados": "Goiás,Minas Gerais,Ceará,Bahia,Tocantins,Piauí,Mato Grosso,Espírito Santo,Pernambuco,Pará,Alagoas,Mato Grosso do Sul,São Paulo,Paraíba,Rondônia,Maranhão,Rio de Janeiro,Amazonas,Sergipe,Distrito Federal",
+      "regioes": "Centro-Oeste,Sudeste,Nordeste,Norte",
+      "geocodes": "2600203,2601102",
+      "alterado": false,
+      "encerrado": false,
+      "created_at": "2026-11-16T00:00:00.000Z",
+      "updated_at": "2026-11-16T00:00:00.000Z",
+      "inicio": "2026-11-16 08:55",
+      "fim": "2026-11-16 23:59",
+      "icone": "data:image/png;base64,iVBORw0KGgo=",
+      "descricao": "Tempestade",
+      "aviso_cor": "#FFFE00",
+      "id_severidade": 6,
+      "severidade": "Perigo Potencial",
+      "riscos": [
+        "Chuva entre 20 e 30 mm/h ou até 50 mm/dia, ventos intensos (40-60 km/h), e queda de granizo. Baixo risco de corte de energia elétrica, estragos em plantações, queda de galhos de árvores e de alagamentos."
+      ],
+      "instrucoes": [
+        "Em caso de rajadas de vento: (não se abrigue debaixo de árvores, pois há leve risco de queda e descargas elétricas e não estacione veículos próximos a torres de transmissão e placas de propaganda). ",
+        "Evite usar aparelhos eletrônicos ligados à tomada. ",
+        "Obtenha mais informações junto à Defesa Civil (telefone 199) e ao Corpo de Bombeiros (telefone 193)."
+      ]
+    }
+  ],
+  "futuro": [
+    {
+      "id": 56423,
+      "id_aviso": 28712,
+      "id_sequencia": 1,
+      "id_condicao_severa": 38,
+      "id_icone": 153,
+      "id_usuario": 105,
+      "codigo": "urn:oid:2.49.0.0.76.0.2026.28712.1",
+      "referencia": null,
+      "data_inicio": "2026-11-16T00:00:00.000Z",
+      "hora_inicio": "09:05",
+      "data_fim": "2026-11-16T00:00:00.000Z",
+      "hora_fim": "23:59",
+      "poligono": "{\"type\":\"Polygon\",\"coordinates\":[[[-39.990234,-20.030129],[-40.567017,-20.976828],[-40.654907,-21.094751],[-40.742798,-21.253542],[-40.841675,-21.626793],[-41.286621,-21.672744],[-41.863403,-21.42239],[-42.132568,-21.089625],[-41.868896,-20.334326],[-41.781006,-19.983674],[-41.539307,-19.580493],[-41.286621,-18.85431],[-41.19873,-18.437925],[-41.044922,-18.01008],[-40.539551,-17.382095],[-40.440674,-16.625665],[-41.11084,-16.299051],[-42.341309,-15.771109],[-44.472656,-15.24179],[-47.416992,-14.647368],[-50.888672,-13.795406],[-54.250488,-12.146746],[-54.470215,-11.436955],[-54.536133,-10.746969],[-54.008789,-9.882275],[-52.426758,-9.18887],[-51.306152,-8.885072],[-49.96582,-8.646196],[-48.208008,-8.928487],[-47.15332,-9.622414],[-46.164551,-10.293301],[-45.197754,-11.307708],[-44.824219,-12.007085],[-44.208984,-12.661778],[-43.330078,-13.090179],[-40.561523,-14.647368],[-39.155273,-15.029686],[-38.913574,-15.24179],[-38.770752,-15.845105],[-38.979492,-16.720385],[-39.034424,-17.125042],[-39.048157,-17.520963],[-38.7323,-17.748687],[-38.581238,-17.837604],[-38.553772,-17.997019],[-38.562012,-18.11714],[-39.056396,-18.01008],[-39.243164,-18.030975],[-39.512329,-18.20848],[-39.666138,-19.554614],[-39.990234,-20.030129]]]}",
+      "municipios": "Recife - PE (2611606),Jaboatão dos Guararapes - PE (2607901),Olinda - PE (2609600)",
+      "microrregioes": "Miracema do Tocantins,Afonso Cláudio,Barra de São Francisco,Salinas,Nova Venécia,Aimorés,Porto Seguro,Alegre,Guarapari,Gurupi,Dianópolis,Almenara,Altamira,Norte Araguaia,Manhuaçu,Porangatu,Chapada dos Veadeiros,Gerais de Balsas,Colatina,Vão do Paranã,Vitória da Conquista,Cotegipe,Muriaé,Porto Nacional,Cachoeiro de Itapemirim,Brumado,Linhares,Rio Formoso,Ilhéus-Itabuna,Teófilo Otoni,Barreiras,Nanuque,Bom Jesus da Lapa,Itaperuna,Januária,Pedra Azul,Guanambi,Santo Antônio de Pádua,Campos dos Goytacazes,Santa Maria da Vitória,Canarana,Vitória,Janaúba,Jalapão,Mantena,Médio Araguaia,São Mateus,Conceição do Araguaia,São Félix do Xingu,Livramento do Brumado,Itapetinga,Sinop,Entorno de Brasília,Unaí,Paranatinga,Santa Teresa,Itapemirim,Boquira,Colíder,Montanha,São Miguel do Araguaia,Alto Teles Pires,Governador Valadares,Montes Claros",
+      "mesorregioes": "Ocidental do Tocantins,Central Espírito-santense,Noroeste Espírito-santense,Norte de Minas,Vale do Rio Doce,Sul Baiano,Sul Espírito-santense,Oriental do Tocantins,Jequitinhonha,Sudoeste Paraense,Nordeste Mato-grossense,Zona da Mata,Norte Goiano,Sul Maranhense,Leste Goiano,Centro Sul Baiano,Extremo Oeste Baiano,Litoral Norte Espírito-santense,Vale do Mucuri,Vale São-Franciscano da Bahia,Noroeste Fluminense,Norte Fluminense,Sudeste Paraense,Norte Mato-grossense,Noroeste de Minas,Noroeste Goiano",
+      "estados": "Tocantins,Espírito Santo,Minas Gerais,Bahia,Pará,Mato Grosso,Goiás,Maranhão,Rio de Janeiro",
+      "regioes": "Norte,Sudeste,Nordeste,Centro-Oeste",
+      "geocodes": "2611606,2607901,2609600",
+      "alterado": false,
+      "encerrado": false,
+      "created_at": "2026-11-16T00:00:00.000Z",
+      "updated_at": "2026-11-16T00:00:00.000Z",
+      "inicio": "2026-11-16 09:05",
+      "fim": "2026-11-16 23:59",
+      "icone": "data:image/png;base64,iVBORw0KGgo=",
+      "descricao": "Tempestade",
+      "aviso_cor": "#F96602",
+      "id_severidade": 7,
+      "severidade": "Perigo",
+      "riscos": [
+        "Chuva entre 30 e 60 mm/h ou 50 e 100 mm/dia, ventos intensos (60-100 km/h), e queda de granizo. Risco de corte de energia elétrica, estragos em plantações,  queda de árvores e de alagamentos."
+      ],
+      "instrucoes": [
+        "Em caso de rajadas de vento: (não se abrigue debaixo de árvores, pois há risco de queda e descargas elétricas e não estacione veículos próximos a torres de transmissão e placas de propaganda). ",
+        "Se possível, desligue aparelhos elétricos e quadro geral de energia. ",
+        "Obtenha mais informações junto à Defesa Civil (telefone 199) e ao Corpo de Bombeiros (telefone 193)."
+      ]
+    }
+  ]
+}

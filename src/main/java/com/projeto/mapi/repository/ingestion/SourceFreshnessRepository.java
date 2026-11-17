@@ -35,6 +35,16 @@ public class SourceFreshnessRepository {
     }
 
     public Readings readings(String source, Instant now) {
+        if ("INMET_AVISOS".equals(source)) {
+            return jdbc.query("""
+                    SELECT max(finished_at)
+                    FROM ingestion_run
+                    WHERE source = 'INMET_AVISOS' AND status IN ('OK', 'PARTIAL') AND quarantined = 0
+                      AND finished_at >= ? AND finished_at <= ?
+                    """, (rs, i) -> new Readings(inst(rs.getObject(1, OffsetDateTime.class)), null),
+                    utc(now.minusSeconds(LOOKBACK_DAYS * 86400)), utc(now))
+                    .stream().findFirst().orElse(new Readings(null, null));
+        }
         return jdbc.query("""
                 SELECT max(ts_utc) FILTER (WHERE ts_utc <= ?), max(ts_utc)
                 FROM observation_current
