@@ -14,6 +14,7 @@ public class AppProperties {
     private Ana ana = new Ana();
     private Apac apac = new Apac();
     private Cemaden cemaden = new Cemaden();
+    private Inmet inmet = new Inmet();
     private Cookie cookie = new Cookie();
     private Cors cors = new Cors();
 
@@ -67,6 +68,20 @@ public class AppProperties {
         private String uf = "PE";
         /** Por quanto tempo a resposta do painel é reaproveitada (a CEMADEN atualiza a cada 10 min). */
         private long cacheTtlMs = 300000L;
+    }
+
+    /** Avisos meteorológicos severos oficiais do INMET (ADR 0024). */
+    @Data
+    public static class Inmet {
+        private String baseUrl = "https://apiprevmet3.inmet.gov.br";
+        private String activePath = "/avisos/ativos";
+        /** O endpoint do INMET bloqueia/dá timeout sem um User-Agent de navegador (verificado 2026-11-16). */
+        private String userAgent = "Mozilla/5.0 (compatible; MAPI/1.0)";
+        private boolean enabled = true;
+        private long fixedRateMs = 600_000L;
+        private long initialDelayMs = 45_000L;
+        /** Municípios base (Recife, Jaboatão, Olinda), somados aos municípios dos flood_points ativos. */
+        private java.util.List<String> targetGeocodes = java.util.List.of("2611606", "2607901", "2609600");
     }
 
     @Data

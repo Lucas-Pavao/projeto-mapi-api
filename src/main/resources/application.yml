@@ -103,6 +103,9 @@ app:
       # CKAN do Recife: CSVs completos da Defesa Civil (vários MB) e datastore paginado.
       ckan:
         read-timeout: 60s
+      # Avisos ativos do INMET (~460 kB com polígonos e ícones base64).
+      inmet:
+        read-timeout: 20s
   # Coleta interna de dados hidrometeorológicos reais (substitui o antigo fluxo MQTT vindo do
   # projeto Python "projeto-mapi"). A API agora busca esses dados diretamente, em jobs agendados
   # (ver SensorCollectionTask), em vez de depender de um processo externo publicando via broker.
@@ -143,6 +146,18 @@ app:
     base-url: ${CEMADEN_BASE_URL:https://resources.cemaden.gov.br}
     uf: ${CEMADEN_UF:PE}
     cache-ttl-ms: ${CEMADEN_CACHE_TTL_MS:300000}
+  inmet:
+    # Avisos severos do INMET (ADR 0024): consulta a cada 10 min e persiste avisos dos municípios da RMR.
+    base-url: ${INMET_BASE_URL:https://apiprevmet3.inmet.gov.br}
+    active-path: ${INMET_ACTIVE_PATH:/avisos/ativos}
+    user-agent: ${INMET_USER_AGENT:Mozilla/5.0}
+    enabled: ${INMET_COLLECTOR_ENABLED:true}
+    fixed-rate-ms: ${INMET_COLLECTOR_INTERVAL_MS:600000}
+    initial-delay-ms: ${INMET_COLLECTOR_INITIAL_DELAY_MS:45000}
+    target-geocodes:
+      - "2611606" # Recife
+      - "2607901" # Jaboatão dos Guararapes
+      - "2609600" # Olinda
   tide:
     # Maré prevista (extremos TABUAMARE_PE02) em observation, lida pela timeline de Eventos e pelo cartão do mapa
     # (TideObservationSyncTask). Checa a cobertura a cada 6 h; só chama a TabuaMare quando falta.
@@ -205,6 +220,12 @@ resilience4j:
         failure-rate-threshold: 50
         wait-duration-in-open-state: 30s
         permitted-number-of-calls-in-half-open-state: 3
+      inmet:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 60s
+        permitted-number-of-calls-in-half-open-state: 3
   retry:
     instances:
       tabuaMare:
@@ -226,6 +247,12 @@ resilience4j:
           - org.springframework.web.client.ResourceAccessException
           - org.springframework.web.client.HttpServerErrorException
       apacScrape:
+        max-attempts: 3
+        wait-duration: 1s
+        retry-exceptions:
+          - org.springframework.web.client.ResourceAccessException
+          - org.springframework.web.client.HttpServerErrorException
+      inmet:
         max-attempts: 3
         wait-duration: 1s
         retry-exceptions:
