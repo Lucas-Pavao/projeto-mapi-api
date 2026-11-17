@@ -1,0 +1,48 @@
+{
+  "tarefa": "P16-FONTES — Fontes oficiais de avisos (INMET) e investigação CPTEC WRF",
+  "data": "2026-11-16",
+  "branch": "feat/fontes-previsao-oficial",
+  "adr": "docs/adr/0024-avisos-oficiais-inmet.md",
+  "migracao": "V31__avisos_oficiais_inmet.sql",
+  "inmet": {
+    "source": "INMET_AVISOS",
+    "endpoint": "https://apiprevmet3.inmet.gov.br/avisos/ativos",
+    "fuso_origem": "America/Sao_Paulo",
+    "max_age_minutes": 30,
+    "intervalo_coleta_ms": 600000,
+    "proxy_emissao": "first_seen_at (API pública trunca created_at/updated_at na data e RSS repete o início de vigência)",
+    "municipios_alvo_padrao": ["2611606", "2607901", "2609600"],
+    "rota_api": "GET /api/warnings/official/active?municipio=...",
+    "coleta_real_2026_11_16": {
+      "total_brasil": 10,
+      "hoje": 3,
+      "futuro": 7,
+      "tocando_recife_jaboatao_olinda": 0
+    },
+    "front": "OfficialWarningBadge em LivePanel (omitido quando vazio; explicita 'não é previsão do MAPi')"
+  },
+  "cptec_wrf": {
+    "extrato": "docs/extratos/cptec-wrf-arquivamento.md",
+    "implementado": false,
+    "motivo": "Saída em GRIB2 binário (grh/json parou em 2026-08-27); proposta aguarda aprovação",
+    "achados": {
+      "ams_05km": "vazio",
+      "ams_07km_brutos_host": "dataserver.cptec.inpe.br (TLS válido até 2027-02-07)",
+      "ftp_host_tls": "ftp.cptec.inpe.br com certificado expirado em 2026-11-17 00:02:43 GMT",
+      "retencao_brutos": "2023-01 a 2026-11-16 (~4 anos)",
+      "rodadas_dia": 1,
+      "hora_rodada": "00Z (publicada ~05:18–07:04 UTC)",
+      "tamanho_bruto_hora_mb": "158–199",
+      "apcp_range_bytes": 478570,
+      "custo_diario_range_24h_mb": 11.5
+    }
+  },
+  "testes": {
+    "api": {"executados": 486, "falhas": 0, "erros_novos": 0, "erros_preexistentes_jdk25_cemaden_ped": 7},
+    "front": {"arquivos": 101, "testes": 551, "passaram": 551, "build": "ok"}
+  },
+  "pendencias": [
+    "Aprovar execução periódica do recorte CPTEC WRF 07 km via HTTP Range (.inv + APCP) em Python (eccodes/cfgrib)",
+    "Merge/PR da branch feat/fontes-previsao-oficial em api e front"
+  ]
+}
