@@ -393,7 +393,7 @@ public class OccurrenceIngestionServiceImpl implements OccurrenceIngestionServic
             if (level == null && p.lat() != null) unverifiable++;
             if (level != null) switch (GeocodeLevel.valueOf(level)) {
                 case NONE -> none++;
-                case STREET -> street++;
+                case ADDRESS, STREET -> street++;
                 case NEIGHBORHOOD -> area++;
                 case CITY -> city++;
             }

@@ -1,0 +1,40 @@
+{
+  "tarefa": "P16-ROTULO-B — Opção B (rótulo híbrido estratificado e proveniência 3/5 km)",
+  "data": "2026-11-16",
+  "branches": {
+    "api": "feat/rotulo-estratificado",
+    "ai": "feat/rotulo-estratificado"
+  },
+  "adr": "docs/adr/0025-rotulo-hibrido-estratificado-e-proveniencia-chuva.md",
+  "migracao": "V32__rotulo_estratificado_e_proveniencia_chuva.sql",
+  "defaults": {
+    "stratified_enabled": false,
+    "allow_reanalysis_fallback": false,
+    "linkage_radius_m_legado": 500.0
+  },
+  "contagem_real_mapi_db": {
+    "observacao": "Todas as 225 ocorrências atuais são CKAN_RECIFE DAY, sem número, distância mínima 619 m — todos os estratos úteis estão vazios hoje",
+    "estratos_ocorrencias": {
+      "OURO": 0,
+      "PRATA": 0,
+      "BRONZE": 0,
+      "DESCARTE": 225,
+      "TEMPORAL_DAY_ONLY": 225
+    },
+    "horas_ponto_por_rain_tier": {
+      "MEASURED_PRIMARY": 555495,
+      "MEASURED_EXTENDED": 327600,
+      "GAP": 15915,
+      "total": 899010
+    }
+  },
+  "testes": {
+    "api": {"executados": 486, "falhas": 0, "erros_novos": 0, "erros_preexistentes_jdk25_cemaden_ped": 7},
+    "ai_pytest": {"passed": 69, "skipped": 4, "inclui": "avaliacao/opcao_b/test_avaliar_estratificado.py"},
+    "f1_reproduzir_congelado": {"status": "ok", "escores": "4615d416", "resultado": "dcf020cb", "regressao_passed": 29}
+  },
+  "pendencias": [
+    "Chegada de ocorrências com precisão horária e endereço/coordenada (LAI Defesa Civil / FloodReport) para validar 250/400/600 m e pesos",
+    "Merge/PR da branch feat/rotulo-estratificado em api e ai"
+  ]
+}

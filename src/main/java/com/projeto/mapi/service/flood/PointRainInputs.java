@@ -15,10 +15,17 @@ import java.util.List;
  * @param nValid           estações válidas no raio na hora de referência
  */
 public record PointRainInputs(String source, Instant hourEndUtc, Double current, Double acc3h, Double acc6h,
-                              Double acc12h, Double acc24h, List<Value> values, Instant latestReadingUtc, int nValid) {
+                              Double acc12h, Double acc24h, List<Value> values, Instant latestReadingUtc, int nValid,
+                              String rainTier, Double rainConfidence, List<String> flags) {
 
     public static final String MEASURED = "MEASURED";
     public static final String REANALYSIS_FALLBACK = "REANALYSIS_FALLBACK";
+
+    public PointRainInputs(String source, Instant hourEndUtc, Double current, Double acc3h, Double acc6h,
+                           Double acc12h, Double acc24h, List<Value> values, Instant latestReadingUtc, int nValid) {
+        this(source, hourEndUtc, current, acc3h, acc6h, acc12h, acc24h, values, latestReadingUtc, nValid,
+                null, null, List.of());
+    }
 
     /** {@code hoursWithValue < hours} explica o valor ausente; {@code stations} são as que deram o maior valor de cada hora. */
     public record Value(String featureId, Double valueMm, int hours, int hoursWithValue, List<Station> stations) {}

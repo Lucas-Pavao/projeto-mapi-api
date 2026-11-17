@@ -10,11 +10,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 
+import com.projeto.mapi.service.analise.PointRainComposer;
+import com.projeto.mapi.service.analise.RainEventDetector;
 import com.projeto.mapi.service.export.label.OccurrenceLabeler;
 import com.projeto.mapi.service.export.label.OccurrenceLabeler.Occ;
+import com.projeto.mapi.service.export.label.StratifiedOccurrenceLabeler;
+import com.projeto.mapi.service.export.label.StratifiedOccurrenceLabeler.ClassifiedOccurrence;
+import com.projeto.mapi.service.geocoding.GeocodeLevel;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -34,6 +42,8 @@ public class DataExportServiceImpl implements DataExportService {
     private final com.projeto.mapi.service.terrain.TerrainExportColumns terrainColumns;
     private final com.projeto.mapi.repository.ingestion.OccurrenceRepository occurrenceRepository;
     private final com.projeto.mapi.config.ExportLabelProperties labelProps;
+    private final com.projeto.mapi.repository.analise.PointRainRepository pointRainRepository;
+    private final com.projeto.mapi.config.PointRainProperties pointRainProps;
 
     @Override
     public List<UnifiedDataDTO> exportAllPointsData(int days) {
@@ -171,23 +181,46 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
 
         var linkage = labelLinkage();
         List<Occ> occs = linkage.map(l -> occurrencesOf(point, l)).orElse(List.of());
+        boolean stratified = labelProps.getStratified().isEnabled();
+        Map<Instant, PointRainComposer.RainProvenance> rainProv = Map.of();
+        Map<Long, ClassifiedOccurrence> classifiedById = Map.of();
+        if (stratified) {
+            rainProv = buildRainProvenance(point, timeline.keySet(), tideFrom, tideTo);
+            if (linkage.isPresent()) {
+                List<RainEventDetector.DetectedEvent> rainEvents = detectPointRainEvents(point, tideFrom, tideTo);
+                classifiedById = classifyOccurrences(point, linkage.get(), rainEvents);
+            }
+        }
+        final Map<Instant, PointRainComposer.RainProvenance> finalRainProv = rainProv;
+        final Map<Long, ClassifiedOccurrence> finalClassified = classifiedById;
 
         List<UnifiedDataDTO> result = timeline.entrySet().stream().map(entry -> {
             LocalDateTime ts = entry.getKey();
+            Instant hourUtc = ts.toInstant(ZoneOffset.UTC);
             UnifiedDataDTO.UnifiedDataDTOBuilder builder = entry.getValue();
 
             // Maré prevista (altura em t, t+1..t+6, máximo, preamar seguinte, amplitude do dia, derivada)
-            var tf = TideFeatureCalculator.at(ts.toInstant(java.time.ZoneOffset.UTC), tideHourly, tideIndex);
+            var tf = TideFeatureCalculator.at(hourUtc, tideHourly, tideIndex);
             builder.tideHeight(tf.height()).tideHeightAhead(tf.ahead()).tideMaxNext6h(tf.maxNext6h())
                     .tideHoursToNextHigh(tf.hoursToNextHigh()).tideRangeDayM(tf.rangeDayM())
                     .tideRising(tf.rising()).tideSlopeMh(tf.slopeMh());
 
+            PointRainComposer.RainProvenance rp = stratified ? finalRainProv.get(hourUtc) : null;
+            if (rp != null) {
+                builder.rainTier(rp.tier().name()).rainConfidence(rp.confidence());
+            }
+
             // Rótulo novo (pipeline): t = fim da hora em UTC; só preenche se há linkage_config vigente
             if (linkage.isPresent()) {
-                var l = OccurrenceLabeler.label(occs, ts.toInstant(java.time.ZoneOffset.UTC),
+                var l = OccurrenceLabeler.label(occs, hourUtc,
                         labelProps.getHorizonsHours(), labelProps::postEventHours);
                 builder.labelByHorizon(l.byHorizon()).labelDay(l.day())
                         .labelExcludedReason(l.excludedReason()).occurrenceIds(l.occurrenceIds());
+                if (stratified) {
+                    applyStratified(builder, l, finalClassified, rp);
+                }
+            } else if (stratified) {
+                builder.rainConfidence(rp != null ? rp.confidence() : null);
             }
 
             // Label LEGADO de Alagamento (flood_events; obsoleto, mantido por compatibilidade)
@@ -206,6 +239,101 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
 
         // Sem imputação: ausência fica null (CSV: célula vazia). Rótulo ausente = não alagou (ver MISSING_POLICY).
         return result;
+    }
+
+    private void applyStratified(UnifiedDataDTO.UnifiedDataDTOBuilder builder, OccurrenceLabeler.Label l,
+                                 Map<Long, ClassifiedOccurrence> classified,
+                                 PointRainComposer.RainProvenance rp) {
+        double rainConf = rp != null ? rp.confidence() : 1.0;
+        String occIds = l.occurrenceIds();
+        if (occIds == null || occIds.isBlank()) {
+            boolean excluded = l.excludedReason() != null;
+            builder.labelTier(excluded ? "DISCARD" : "HIGH")
+                    .sampleWeight(excluded ? 0.0 : round4(1.0 * rainConf))
+                    .temporalMatch(excluded ? l.excludedReason() : "CLEAN_NEGATIVE");
+            return;
+        }
+        ClassifiedOccurrence best = null;
+        for (String rawId : occIds.split(";")) {
+            if (rawId.isBlank()) continue;
+            ClassifiedOccurrence c = classified.get(Long.parseLong(rawId.trim()));
+            if (c == null) continue;
+            if (best == null || c.sampleWeight() > best.sampleWeight()) best = c;
+        }
+        if (best == null) {
+            builder.labelTier("DISCARD").sampleWeight(0.0).temporalMatch("DISCARD");
+            return;
+        }
+        builder.labelTier(best.tier().name())
+                .sampleWeight(round4(best.sampleWeight() * rainConf))
+                .temporalMatch(best.temporalMatch().name());
+    }
+
+    private Map<Instant, PointRainComposer.RainProvenance> buildRainProvenance(
+            FloodPoint point, java.util.Set<LocalDateTime> hours, Instant from, Instant to) {
+        List<com.projeto.mapi.repository.analise.PointRainRepository.HourProvenance> rows =
+                pointRainRepository.pointHoursWithProvenance(point.getId(),
+                        com.projeto.mapi.service.analise.PointRainService.RULE_VERSION, from, to);
+        Map<Instant, com.projeto.mapi.repository.analise.PointRainRepository.HourProvenance> byHour = new HashMap<>();
+        for (var r : rows) byHour.put(r.hourEndUtc(), r);
+
+        double primaryM = pointRainProps.getPrimaryRadiusKm() * 1000.0;
+        double maxM = pointRainProps.getMaxRadiusKm() * 1000.0;
+        Map<Instant, PointRainComposer.RainProvenance> out = new HashMap<>();
+        int consecutiveGaps = 0;
+        for (LocalDateTime ldt : hours) {
+            Instant h = ldt.toInstant(ZoneOffset.UTC);
+            var r = byHour.get(h);
+            boolean hasMeasured = r != null && r.value() != null;
+            if (hasMeasured) {
+                consecutiveGaps = 0;
+                var p = PointRainComposer.classifyProvenance(r.value(), r.stationDistanceM(), primaryM, maxM,
+                        false, pointRainProps.getDistantStationConfidence(), pointRainProps.getReanalysisConfidence());
+                if (p != null) out.put(h, p);
+            } else {
+                consecutiveGaps++;
+                if (pointRainProps.isAllowReanalysisFallback()
+                        && consecutiveGaps > pointRainProps.getMaxGapHoursBeforeFallback()) {
+                    out.put(h, PointRainComposer.classifyProvenance(null, null, primaryM, maxM, true,
+                            pointRainProps.getDistantStationConfidence(), pointRainProps.getReanalysisConfidence()));
+                }
+            }
+        }
+        return out;
+    }
+
+    private List<RainEventDetector.DetectedEvent> detectPointRainEvents(FloodPoint point, Instant from, Instant to) {
+        var rows = pointRainRepository.pointHoursWithProvenance(point.getId(),
+                com.projeto.mapi.service.analise.PointRainService.RULE_VERSION, from, to);
+        if (rows.isEmpty()) return List.of();
+        Map<Instant, Double> byHour = new HashMap<>();
+        for (var r : rows) byHour.put(r.hourEndUtc(), r.value());
+        List<RainEventDetector.HourSample> series = new ArrayList<>();
+        for (Instant t = from; !t.isAfter(to); t = t.plusSeconds(3600)) {
+            Double v = byHour.get(t);
+            series.add(new RainEventDetector.HourSample(t, v, v == null ? 0 : 1, 1, List.of()));
+        }
+        return RainEventDetector.detect(series, new RainEventDetector.Rules(6, 1.0, 60.1));
+    }
+
+    private Map<Long, ClassifiedOccurrence> classifyOccurrences(
+            FloodPoint point, com.projeto.mapi.repository.ingestion.OccurrenceRepository.LinkageRef linkage,
+            List<RainEventDetector.DetectedEvent> rainEvents) {
+        Map<Long, ClassifiedOccurrence> out = new HashMap<>();
+        for (var c : occurrenceRepository.matchedStratifiedCandidates(point.getId(), linkage.id())) {
+            GeocodeLevel gl = GeocodeLevel.NONE;
+            if (c.geocodeLevel() != null) {
+                try { gl = GeocodeLevel.valueOf(c.geocodeLevel()); } catch (IllegalArgumentException ignored) {}
+            }
+            var cand = new StratifiedOccurrenceLabeler.OccurrenceCandidate(
+                    c.id(), c.from(), c.to(), c.hour(), c.geocodeMethod(), gl, c.distanceM(), false, c.clusterSize());
+            out.put(c.id(), StratifiedOccurrenceLabeler.classify(cand, rainEvents, labelProps));
+        }
+        return out;
+    }
+
+    private static double round4(double v) {
+        return Math.round(v * 10000.0) / 10000.0;
     }
 
 
@@ -362,9 +490,28 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
                 }
             }
         }
+        Map<String, Integer> stratifiedCounts = new java.util.LinkedHashMap<>();
+        if (labelProps.getStratified().isEnabled()) {
+            stratifiedCounts.put("HIGH", 0);
+            stratifiedCounts.put("MEDIUM", 0);
+            stratifiedCounts.put("LOW", 0);
+            stratifiedCounts.put("DISCARD", 0);
+            stratifiedCounts.put("TEMPORAL_DAY_ONLY", 0);
+            if (linkage.isPresent()) {
+                for (FloodPoint p : points) {
+                    List<RainEventDetector.DetectedEvent> rainEvents = detectPointRainEvents(p, from, to);
+                    for (ClassifiedOccurrence co : classifyOccurrences(p, linkage.get(), rainEvents).values()) {
+                        stratifiedCounts.merge(co.tier().name(), 1, Integer::sum);
+                        if (co.temporalMatch() == StratifiedOccurrenceLabeler.TemporalMatch.TEMPORAL_DAY_ONLY) {
+                            stratifiedCounts.merge("TEMPORAL_DAY_ONLY", 1, Integer::sum);
+                        }
+                    }
+                }
+            }
+        }
         return new com.projeto.mapi.dto.ExportManifestDTO.LabelManifest(LABEL_POLICY, labelProps.getHorizonsHours(), g,
                 linkage.map(l -> l.id()).orElse(null), linkage.map(l -> l.radiusM()).orElse(null),
-                linkage.map(l -> l.method()).orElse(null), counts, byReason, dayPos, hour, day);
+                linkage.map(l -> l.method()).orElse(null), counts, byReason, dayPos, hour, day, stratifiedCounts);
     }
 
     private static Map<String, Integer> missingCounts(List<UnifiedDataDTO> data) {
@@ -491,7 +638,9 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
         // Maré prevista (F2-BACK-14): colunas novas no FIM, cada uma com sua _missing; tideHeight (acima) é a altura em t.
         for (String c : TIDE_COLUMNS) csv.append(',').append(c);
         for (String c : TIDE_COLUMNS) csv.append(',').append(c).append("_missing");
+        boolean stratified = labelProps.getStratified().isEnabled();
         csv.append(",ana_precipitation,ana_precipitation_missing"); // F2-DADOS-11, sempre ao fim
+        if (stratified) csv.append(",tier,sample_weight,temporal_match,rain_tier,rain_confidence");
         csv.append('\n');
 
         for (UnifiedDataDTO d : data) {
@@ -513,6 +662,13 @@ List<SensorData> sensorData = sensorDataRepository.findSensorsByRadius(
             for (Object v : tide) csv.append(',').append(cell(v));
             for (Object v : tide) csv.append(',').append(v == null ? '1' : '0');
             csv.append(',').append(cell(d.getAnaPrecipitation())).append(',').append(d.getAnaPrecipitation() == null ? '1' : '0');
+            if (stratified) {
+                csv.append(',').append(cell(d.getLabelTier()))
+                        .append(',').append(cell(d.getSampleWeight()))
+                        .append(',').append(cell(d.getTemporalMatch()))
+                        .append(',').append(cell(d.getRainTier()))
+                        .append(',').append(cell(d.getRainConfidence()));
+            }
             csv.append('\n');
         }
         return csv.toString();

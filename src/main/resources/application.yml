@@ -297,3 +297,26 @@ mapi:
     cemaden-ped:
       email: ${CEMADEN_PED_EMAIL:}
       password: ${CEMADEN_PED_SENHA:}
+  analise:
+    point-rain:
+      primary-radius-km: 3.0
+      max-radius-km: 5.0
+      max-gap-hours-before-fallback: 2
+      # Padrão false: treinar com reanálise e servir com medida foi o erro de 2026-11-16 (ADR 0022/0025).
+      allow-reanalysis-fallback: false
+  export:
+    label:
+      strict-only-default: false
+      radius-point-m: 250
+      radius-street-m: 400
+      radius-cluster-m: 600
+      min-cluster-size-neighborhood: 3
+      window-before-hours: 2
+      window-after-hours: 6
+      weights:
+        high: 1.0
+        medium: 0.7
+        low: 0.4
+        reanalysis-penalty: 0.6
+      stratified:
+        enabled: false

@@ -43,4 +43,24 @@ class PointRainComposerTest {
         assertThat(h.nValid()).isEqualTo(1);
         assertThat(h.nValidWithValue()).isZero();
     }
+
+    @Test
+    void provenienciaDistinguePrimariaEstendidaEReanalise() {
+        var primaria = PointRainComposer.classifyProvenance(10.0, 2900.0, 3000.0, 5000.0, false, 0.85, 0.60);
+        assertThat(primaria.tier()).isEqualTo(PointRainComposer.RainTier.MEASURED_PRIMARY);
+        assertThat(primaria.confidence()).isEqualTo(1.0);
+        assertThat(primaria.flag()).isNull();
+
+        var estendida = PointRainComposer.classifyProvenance(10.0, 4200.0, 3000.0, 5000.0, false, 0.85, 0.60);
+        assertThat(estendida.tier()).isEqualTo(PointRainComposer.RainTier.MEASURED_EXTENDED);
+        assertThat(estendida.confidence()).isEqualTo(0.85);
+        assertThat(estendida.flag()).isEqualTo("DISTANT_STATION");
+
+        var reanalise = PointRainComposer.classifyProvenance(null, null, 3000.0, 5000.0, true, 0.85, 0.60);
+        assertThat(reanalise.tier()).isEqualTo(PointRainComposer.RainTier.REANALYSIS_FALLBACK);
+        assertThat(reanalise.confidence()).isEqualTo(0.60);
+        assertThat(reanalise.flag()).isEqualTo("SYNTHETIC_RAIN_FALLBACK");
+
+        assertThat(PointRainComposer.classifyProvenance(null, null, 3000.0, 5000.0, false, 0.85, 0.60)).isNull();
+    }
 }

@@ -48,7 +48,18 @@ public record ExportManifestDTO(
             int dayLabelPositives,
             /** Ocorrências casadas que tocam o período do export, por precisão. */
             int occurrencesHour,
-            int occurrencesDay) {}
+            int occurrencesDay,
+            /** Contagem por estrato (HIGH, MEDIUM, LOW, DISCARD, TEMPORAL_DAY_ONLY) quando estratificação ativa. */
+            Map<String, Integer> stratifiedCounts) {
+
+        public LabelManifest(String policy, List<Integer> horizonsHours, Map<Integer, Integer> postEventWindowHours,
+                             Long linkageConfigId, Double linkageRadiusM, String linkageMethod,
+                             Map<String, LabelCounts> counts, Map<String, Integer> excludedByReason,
+                             int dayLabelPositives, int occurrencesHour, int occurrencesDay) {
+            this(policy, horizonsHours, postEventWindowHours, linkageConfigId, linkageRadiusM, linkageMethod,
+                    counts, excludedByReason, dayLabelPositives, occurrencesHour, occurrencesDay, Map.of());
+        }
+    }
 
     /** Linhas (ponto x hora) por horizonte: rótulo 1, rótulo 0 e excluídas (vazio). */
     public record LabelCounts(int positives, int negatives, int excluded) {}
