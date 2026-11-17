@@ -1,0 +1,16 @@
+{
+  "tarefa": "ALERTA-20MIN — fechamento",
+  "data": "2026-11-17",
+  "relatorio": "docs/RELATORIO-ALERTA-20MIN.md",
+  "main": {"api": "79f23b8 (+ docs)", "ai": "c686d13", "front": "b78b840"},
+  "producao_igual_main": true,
+  "antecedencia_1h": {"laboratorio": "20 (10–40)", "simulacao_seca": "16 (3–33)", "simulacao_chuva": "0 (0–8)", "fica": "rain_v1"},
+  "atraso_dia_seco": {"n": 35, "total_mediana_min": 4.3, "total_p90_min": 12.7, "estacao_coleta_p90_min": 10.2, "banco_ciclo_p90_min": 0.2, "ciclo_sse_p90_s": 4.5},
+  "regras": {"L_liga": 0.1055, "L_desliga": 0.0316, "duracao_minima_min": 0, "expiracao_min": 60, "agrupamento_min": 60},
+  "reprise": "5 eventos, 4 testes ok, primeiro ligado = simulação, balde 0,0 mm de diferença",
+  "balde_5anos_TR5_eventos": 0,
+  "radar": {"cappi": 689, "acum1h": 688, "lacunas": 0},
+  "mare_2027": "reserva harmônica carregada (1.410 extremos), p95 altura 1,8 cm",
+  "usuario_servico": "claude.servico (ADMIN), criado com autorização do Lucas em 2026-11-17",
+  "decisoes_do_lucas": ["desligar modo sombra", "frescor de 15 min", "antecedência sob atraso com chuva", "capacidade da galeria e pico de 10 min", "área de contribuição do Derby e terreno de Jaboatão", "termo de uso do radar", "usuário de serviço"]
+}
