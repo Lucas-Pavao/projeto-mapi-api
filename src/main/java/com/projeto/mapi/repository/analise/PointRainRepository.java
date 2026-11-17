@@ -31,7 +31,18 @@ public class PointRainRepository {
 
     public record PointHourRow(long pointId, Instant hourEndUtc, Double value, String source, String stationId,
                                Double stationDistanceM, int nCandidates, int nValid, int nValidWithValue,
-                               Integer nBlocks, Double coveredMin, long linkageConfigId, String ruleVersion) {}
+                               Integer nBlocks, Double coveredMin, long linkageConfigId, String ruleVersion,
+                               String rainTier, Double rainConfidence) {
+        public PointHourRow(long pointId, Instant hourEndUtc, Double value, String source, String stationId,
+                            Double stationDistanceM, int nCandidates, int nValid, int nValidWithValue,
+                            Integer nBlocks, Double coveredMin, long linkageConfigId, String ruleVersion) {
+            this(pointId, hourEndUtc, value, source, stationId, stationDistanceM, nCandidates, nValid, nValidWithValue,
+                    nBlocks, coveredMin, linkageConfigId, ruleVersion, null, null);
+        }
+    }
+
+    public record HourProvenance(Instant hourEndUtc, Double value, Double stationDistanceM, String rainTier,
+                                 Double rainConfidence) {}
 
     public record LinkRow(long pointId, String source, String stationId, double distanceM, double radiusM,
                           long linkageConfigId, Instant validFrom, Instant validTo) {}
@@ -108,8 +119,8 @@ public class PointRainRepository {
         jdbc.batchUpdate("""
                 INSERT INTO point_rain_hourly (flood_point_id, hour_end_utc, value, source, station_id,
                     station_distance_m, n_candidates, n_valid, n_valid_with_value, n_blocks, blocks_covered_min,
-                    linkage_config_id, rule_version)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    linkage_config_id, rule_version, rain_tier, rain_confidence)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """, rows, 5000, (ps, r) -> {
             ps.setLong(1, r.pointId());
             ps.setObject(2, utc(r.hourEndUtc()));
@@ -124,7 +135,25 @@ public class PointRainRepository {
             ps.setObject(11, r.coveredMin());
             ps.setLong(12, r.linkageConfigId());
             ps.setString(13, r.ruleVersion());
+            ps.setString(14, r.rainTier());
+            ps.setObject(15, r.rainConfidence());
         });
+    }
+
+    /** Horas de chuva composta e distância/proveniência para o export estratificado. */
+    public List<HourProvenance> pointHoursWithProvenance(long pointId, String ruleVersion, Instant from, Instant to) {
+        return jdbc.query("""
+                SELECT hour_end_utc, value, station_distance_m, rain_tier, rain_confidence
+                FROM point_rain_hourly
+                WHERE flood_point_id = ? AND rule_version = ? AND hour_end_utc >= ? AND hour_end_utc <= ?
+                ORDER BY hour_end_utc
+                """, (rs, i) -> new HourProvenance(
+                rs.getObject(1, OffsetDateTime.class).toInstant(),
+                rs.getObject(2, Double.class),
+                rs.getObject(3, Double.class),
+                rs.getString(4),
+                rs.getObject(5, Double.class)),
+                pointId, ruleVersion, utc(from), utc(to));
     }
 
     public void replaceLinks(long linkageConfigId, List<LinkRow> rows) {

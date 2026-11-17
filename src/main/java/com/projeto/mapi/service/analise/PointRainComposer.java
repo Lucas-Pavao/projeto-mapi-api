@@ -17,6 +17,10 @@ public final class PointRainComposer {
     public record Hour(Double value, String stationId, Double distanceM, int nCandidates, int nValid,
                        int nValidWithValue, Integer nBlocks, Double coveredMin) {}
 
+    public enum RainTier { MEASURED_PRIMARY, MEASURED_EXTENDED, REANALYSIS_FALLBACK }
+
+    public record RainProvenance(RainTier tier, double confidence, String flag) {}
+
     public static Hour compose(List<Candidate> cs) {
         Candidate best = null;
         int valid = 0, withValue = 0;
@@ -30,5 +34,22 @@ public final class PointRainComposer {
         if (best == null) return new Hour(null, null, null, cs.size(), valid, 0, null, null);
         return new Hour(best.mm(), best.stationId(), best.distanceM(), cs.size(), valid, withValue,
                 best.nBlocks(), Double.isNaN(best.coveredMin()) ? null : best.coveredMin());
+    }
+
+    /** Proveniência da hora composta sem alterar o valor escolhido pelo ADR 0022. */
+    public static RainProvenance classifyProvenance(Double value, Double distanceM, double primaryRadiusM,
+                                                    double maxRadiusM, boolean reanalysisFallback,
+                                                    double distantConfidence, double reanalysisConfidence) {
+        if (reanalysisFallback) {
+            return new RainProvenance(RainTier.REANALYSIS_FALLBACK, reanalysisConfidence, "SYNTHETIC_RAIN_FALLBACK");
+        }
+        if (value == null || distanceM == null) return null;
+        if (distanceM <= primaryRadiusM) {
+            return new RainProvenance(RainTier.MEASURED_PRIMARY, 1.0, null);
+        }
+        if (distanceM <= maxRadiusM) {
+            return new RainProvenance(RainTier.MEASURED_EXTENDED, distantConfidence, "DISTANT_STATION");
+        }
+        return null;
     }
 }

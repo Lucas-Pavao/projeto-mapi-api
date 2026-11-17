@@ -85,6 +85,36 @@ public class OccurrenceRepository {
                 pointId, linkageConfigId);
     }
 
+    /** Candidata estratificada (ADR 0025): traz geocode_method, geocode_level, distância e tamanho do cluster. */
+    public record StratifiedCandidateRow(long id, Instant from, Instant to, boolean hour, String geocodeMethod,
+                                         String geocodeLevel, double distanceM, int clusterSize) {}
+
+    public List<StratifiedCandidateRow> matchedStratifiedCandidates(long pointId, long linkageConfigId) {
+        return jdbc.query("""
+                SELECT o.id, o.occurred_from, o.occurred_to, o.temporal_precision,
+                       o.geocode_method, o.geocode_level, m.distance_m,
+                       coalesce(max(c.members), 1) AS cluster_size
+                FROM occurrence_point_match m
+                JOIN flood_occurrence o ON o.id = m.occurrence_id
+                LEFT JOIN occurrence_cluster_member cm ON cm.occurrence_id = o.id
+                LEFT JOIN occurrence_cluster c ON c.id = cm.cluster_id
+                WHERE m.flood_point_id = ? AND m.linkage_config_id = ? AND
+                """ + " " + CANONICAL + """
+                 GROUP BY o.id, o.occurred_from, o.occurred_to, o.temporal_precision,
+                          o.geocode_method, o.geocode_level, m.distance_m
+                 ORDER BY o.occurred_from, o.id
+                """, (rs, i) -> new StratifiedCandidateRow(
+                rs.getLong(1),
+                rs.getObject(2, OffsetDateTime.class).toInstant(),
+                rs.getObject(3, OffsetDateTime.class).toInstant(),
+                "HOUR".equals(rs.getString(4)) || "MINUTE".equals(rs.getString(4)),
+                rs.getString(5),
+                rs.getString(6),
+                rs.getDouble(7),
+                rs.getInt(8)),
+                pointId, linkageConfigId);
+    }
+
     public Map<String, Stored> stored(String resourceId, List<String> recordIds) {
         Map<String, Stored> out = new java.util.HashMap<>();
         if (recordIds.isEmpty()) return out;

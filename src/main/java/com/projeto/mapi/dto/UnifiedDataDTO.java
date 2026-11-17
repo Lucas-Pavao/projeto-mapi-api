@@ -64,6 +64,13 @@ public class UnifiedDataDTO {
     /** ids de flood_occurrence que justificam o rótulo, separados por ';'. */
     private String occurrenceIds;
 
+    // Estratificação e proveniência (ADR 0025, preenchidos apenas quando mapi.export.label.stratified.enabled=true)
+    private String labelTier;
+    private Double sampleWeight;
+    private String temporalMatch;
+    private String rainTier;
+    private Double rainConfidence;
+
     // Features Calculadas
     private Double accumulated3h;
     private Double accumulated6h;

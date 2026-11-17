@@ -62,6 +62,8 @@ public class PointRainInputServiceImpl implements PointRainInputService {
     private final StationCanonicalRepository canonicals;
     private final PointRainRepository rain;
     private final IngestionProperties props;
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.projeto.mapi.config.PointRainProperties pointRainProps;
 
     /** Série de uma estação no retrato: i = hora com fim em {@code from + (i+1) h}; NaN = sem valor. */
     record St(String id, String name, double lat, double lon, double[] mm, String[] src, boolean[] valid) {}
@@ -91,6 +93,7 @@ public class PointRainInputServiceImpl implements PointRainInputService {
         }
         Double[] hourValue = new Double[HOURS];
         St[] hourStation = new St[HOURS];
+        Double[] hourDistance = new Double[HOURS];
         int[] nValid = new int[HOURS];
         for (int i = 0; i < HOURS; i++) {
             List<PointRainComposer.Candidate> cs = new ArrayList<>();
@@ -100,6 +103,7 @@ public class PointRainInputServiceImpl implements PointRainInputService {
             }
             PointRainComposer.Hour h = PointRainComposer.compose(cs);
             hourValue[i] = h.value();
+            hourDistance[i] = h.distanceM();
             nValid[i] = h.nValid();
             if (h.stationId() != null) {
                 hourStation[i] = cands.stream().filter(s -> s.id().equals(h.stationId())).findFirst().orElse(null);
@@ -138,8 +142,18 @@ public class PointRainInputServiceImpl implements PointRainInputService {
             Instant t = snap.lastReading().get(s.id());
             if (t != null && !t.isAfter(now) && (latest == null || t.isAfter(latest))) latest = t;
         }
+        double primaryM = (pointRainProps != null ? pointRainProps.getPrimaryRadiusKm() : 3.0) * 1000.0;
+        double maxM = (pointRainProps != null ? pointRainProps.getMaxRadiusKm() : 5.0) * 1000.0;
+        double distantConf = pointRainProps != null ? pointRainProps.getDistantStationConfidence() : 0.85;
+        double reanalConf = pointRainProps != null ? pointRainProps.getReanalysisConfidence() : 0.60;
+        PointRainComposer.RainProvenance prov = PointRainComposer.classifyProvenance(
+                hourValue[ref], hourDistance[ref], primaryM, maxM, false, distantConf, reanalConf);
+        List<String> flags = prov != null && prov.flag() != null ? List.of(prov.flag()) : List.of();
         return new PointRainInputs(PointRainInputs.MEASURED, refEnd, acc[0], acc[1], acc[2], acc[3], acc[4], values,
-                latest, nValid[ref]);
+                latest, nValid[ref],
+                prov == null ? null : prov.tier().name(),
+                prov == null ? null : prov.confidence(),
+                flags);
     }
 
     private Snapshot snapshot(Instant hourEnd, Instant now) {

@@ -48,6 +48,7 @@ public class PointRainServiceImpl implements PointRainService {
     private final PointRainRepository repo;
     private final FloodPointRepository floodPoints;
     private final IngestionProperties props;
+    private final com.projeto.mapi.config.PointRainProperties pointRainProps;
 
     /** Série de uma estação na janela: valor, leituras e minutos cobertos por hora (NaN = sem valor). */
     private record Series(PointRainRepository.StationRow st, double[] mm, int[] n, double[] cov, int first, int last) {}
@@ -189,10 +190,20 @@ public class PointRainServiceImpl implements PointRainService {
                 }
                 PointRainComposer.Hour h = PointRainComposer.compose(cs);
                 if (h.value() != null) covered++;
+                Double distM = h.distanceM() == null ? null : round(h.distanceM(), 1);
+                PointRainComposer.RainProvenance prov = PointRainComposer.classifyProvenance(
+                        h.value(), distM,
+                        pointRainProps.getPrimaryRadiusKm() * 1000.0,
+                        pointRainProps.getMaxRadiusKm() * 1000.0,
+                        false,
+                        pointRainProps.getDistantStationConfidence(),
+                        pointRainProps.getReanalysisConfidence());
                 rows.add(new PointHourRow(p.getId(), hourEnd, h.value(), SOURCE, h.stationId(),
-                        h.distanceM() == null ? null : round(h.distanceM(), 1), h.nCandidates(), h.nValid(),
+                        distM, h.nCandidates(), h.nValid(),
                         h.nValidWithValue(), h.value() == null ? null : h.nBlocks(), h.coveredMin(), linkageId,
-                        RULE_VERSION));
+                        RULE_VERSION,
+                        prov == null ? null : prov.tier().name(),
+                        prov == null ? null : prov.confidence()));
             }
             coverage.put(p.getSlug(), round((double) covered / hours, 4));
         }
