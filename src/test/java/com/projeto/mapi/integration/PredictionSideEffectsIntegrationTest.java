@@ -266,7 +266,7 @@ class PredictionSideEffectsIntegrationTest extends AbstractTimescaleIntegrationT
 
     @Test
     void mareDaPrevisaoVemDosExtremosGravados_comoNoMapa() {
-        when(tideLevel.at(any())).thenReturn(java.util.Optional.of(new com.projeto.mapi.service.tide.TideLevelService.Level(1.47, true)));
+        when(tideLevel.at(any())).thenReturn(java.util.Optional.of(new com.projeto.mapi.service.tide.TideLevelService.Level(1.47, true, null)));
         when(floodPredictionService.predict(any(FloodPredictionRequestDTO.class), anyCollection()))
                 .thenReturn(sucesso(Instant.now().truncatedTo(ChronoUnit.SECONDS)));
         mapiService.refreshPredictionsForActivePoints();

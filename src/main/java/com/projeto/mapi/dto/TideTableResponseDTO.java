@@ -22,4 +22,8 @@ public class TideTableResponseDTO {
     private List<GeoLocationDTO> geoLocations;
     private List<MonthDataDTO> months;
     private Double currentTideHeight;
+    @io.swagger.v3.oas.annotations.media.Schema(allowableValues = {"OFFICIAL", "HARMONIC"}, nullable = true,
+            description = "Fonte da maré do período: HARMONIC se algum extremo for da reserva harmônica; OFFICIAL se todos "
+                    + "forem da tábua oficial; null sem extremos")
+    private String tideSource;
 }

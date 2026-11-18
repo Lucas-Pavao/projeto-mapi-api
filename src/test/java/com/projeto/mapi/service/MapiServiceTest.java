@@ -51,6 +51,9 @@ class MapiServiceTest {
     @Mock
     private com.projeto.mapi.service.terrain.LocalElevationService localElevationService;
 
+    @Mock
+    private com.projeto.mapi.service.tide.TideLevelService tideLevel;
+
     @InjectMocks
     private MapiServiceImpl mapiService;
 
@@ -147,5 +150,46 @@ class MapiServiceTest {
 
         assertTrue(response.getSensorConfig().getPluviometerStationIds().isEmpty());
         assertTrue(response.getSensorConfig().getRiverLevelStationIds().isEmpty());
+    }
+
+    private com.projeto.mapi.dto.FloodPointResponseDTO createPoint() {
+        when(sensorService.getAllLatestData()).thenReturn(mockSensors);
+        when(weatherService.getWeatherData(anyDouble(), anyDouble())).thenReturn(mockWeather);
+        when(floodPointRepository.save(org.mockito.ArgumentMatchers.any())).thenAnswer(i -> i.getArguments()[0]);
+        return mapiService.createFloodPoint(com.projeto.mapi.dto.FloodPointRequestDTO.builder()
+                .slug("P").name("Ponto").latitude(-8.05).longitude(-34.88).build());
+    }
+
+    @Test
+    void tideSourceDoPontoEHarmonicaQuandoSoHaReserva() {
+        when(tideLevel.at(org.mockito.ArgumentMatchers.any())).thenReturn(java.util.Optional.of(
+                new com.projeto.mapi.service.tide.TideLevelService.Level(1.2, true, com.projeto.mapi.service.tide.TideSource.HARMONIC)));
+        var r = createPoint();
+        assertEquals(1.2, r.getTideHeight());
+        assertEquals("HARMONIC", r.getTideSource());
+        assertEquals("m", r.getTideUnit());
+    }
+
+    @Test
+    void tideSourceDoPontoEOficialQuandoHaTabua() {
+        when(tideLevel.at(org.mockito.ArgumentMatchers.any())).thenReturn(java.util.Optional.of(
+                new com.projeto.mapi.service.tide.TideLevelService.Level(0.8, false, com.projeto.mapi.service.tide.TideSource.OFFICIAL)));
+        assertEquals("OFFICIAL", createPoint().getTideSource());
+    }
+
+    @Test
+    void semExtremosCaiNaTabuaLocalComoOficial() {
+        when(tideLevel.at(org.mockito.ArgumentMatchers.any())).thenReturn(java.util.Optional.empty());
+        when(tideService.getCurrentTideHeight(anyDouble(), anyDouble())).thenReturn(0.5);
+        var r = createPoint();
+        assertEquals(0.5, r.getTideHeight());
+        assertEquals("OFFICIAL", r.getTideSource());
+    }
+
+    @Test
+    void semMareNenhumaTideSourceNula() {
+        when(tideLevel.at(org.mockito.ArgumentMatchers.any())).thenReturn(java.util.Optional.empty());
+        when(tideService.getCurrentTideHeight(anyDouble(), anyDouble())).thenReturn(null);
+        assertNull(createPoint().getTideSource());
     }
 }

@@ -384,14 +384,7 @@ public class MapiServiceImpl implements MapiService {
         List<SensorResponseDTO> allSensorsList = sensorService.getAllLatestData();
         FloodPointResponseDTO response = convertToResponseDTO(floodPoint, allSensorsList);
         
-        // Garantir que a maré seja incluída na resposta da criação
-        try {
-            response.setTideHeight(tideService.getCurrentTideHeight(request.getLatitude(), request.getLongitude()));
-            response.setTideUnit("m");
-        } catch (Exception e) {
-            log.warn("Erro ao buscar maré inicial para novo ponto: {}", e.getMessage());
-        }
-        
+        // a maré (com tideSource) já vem de convertToResponseDTO
         return response;
     }
 
@@ -485,10 +478,25 @@ public class MapiServiceImpl implements MapiService {
 
     private FloodPointResponseDTO convertToResponseDTO(FloodPoint fp, List<SensorResponseDTO> allSensors, boolean includeLiveData) {
         Double currentTide = null;
+        com.projeto.mapi.service.tide.TideSource currentTideSource = null;
         try {
-            currentTide = tideService.getCurrentTideHeight(fp.getLatitude(), fp.getLongitude());
+            // extremos em observation (oficial vence; harmônica só de reserva, V36), mesmo NR da DHN da tábua local
+            var level = tideLevel == null ? java.util.Optional.<com.projeto.mapi.service.tide.TideLevelService.Level>empty()
+                    : tideLevel.at(java.time.Instant.now());
+            if (level.isPresent()) {
+                currentTide = level.get().levelM();
+                currentTideSource = level.get().source();
+            }
         } catch (Exception e) {
-            log.warn("Erro ao buscar maré para o ponto {}: {}", fp.getName(), e.getMessage());
+            log.warn("Maré dos extremos indisponível para o ponto {}: {}", fp.getName(), e.getMessage());
+        }
+        if (currentTide == null) {
+            try {
+                currentTide = tideService.getCurrentTideHeight(fp.getLatitude(), fp.getLongitude());
+                if (currentTide != null) currentTideSource = com.projeto.mapi.service.tide.TideSource.OFFICIAL;
+            } catch (Exception e) {
+                log.warn("Erro ao buscar maré para o ponto {}: {}", fp.getName(), e.getMessage());
+            }
         }
 
         List<String> nearbySensorIds = allSensors.stream()
@@ -515,6 +523,7 @@ public class MapiServiceImpl implements MapiService {
                         .build())
                 .active(fp.getActive())
                 .tideHeight(currentTide)
+                .tideSource(currentTide == null || currentTideSource == null ? null : currentTideSource.name())
                 .tideUnit("m");
 
         if (includeLiveData) {

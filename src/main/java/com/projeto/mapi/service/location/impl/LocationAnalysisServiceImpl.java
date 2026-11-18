@@ -297,13 +297,16 @@ public class LocationAnalysisServiceImpl implements LocationAnalysisService {
      */
     private LocationAnalysisDTO.Tide tide(double lat, double lon, Instant ref) {
         try {
-            List<TideInterpolation.Extreme> ex = observations.tideExtremes(ref.minus(TIDE_WINDOW), ref.plus(TIDE_WINDOW)).stream()
+            var rows = observations.tideExtremes(ref.minus(TIDE_WINDOW), ref.plus(TIDE_WINDOW));
+            List<TideInterpolation.Extreme> ex = rows.stream()
                     .map(e -> new TideInterpolation.Extreme(e.tsUtc(), e.level())).toList();
             List<TideInterpolation.Sample> s = TideInterpolation.sample(ex, ref, ref.plus(TIDE_STEP.multipliedBy(2)), TIDE_STEP);
             Double now = s.isEmpty() ? null : s.get(0).v();
             Double next = s.size() < 2 ? null : s.get(1).v();
             if (now != null) {
-                return new LocationAnalysisDTO.Tide(round(now), next == null ? null : next > now, "Porto do Recife", "NR DHN");
+                return new LocationAnalysisDTO.Tide(round(now), next == null ? null : next > now, "Porto do Recife", "NR DHN",
+                        com.projeto.mapi.service.tide.TideSource.at(rows, ref,
+                                r -> r.tsUtc(), r -> r.source()).name());
             }
         } catch (RuntimeException e) {
             log.warn("Extremos de maré indisponíveis para a análise de local: {}", e.getMessage());
@@ -313,7 +316,8 @@ public class LocationAnalysisServiceImpl implements LocationAnalysisService {
             Double level = tideService.getStoredTideHeightAt(lat, lon, t);
             if (level == null) return null;
             Double next = tideService.getStoredTideHeightAt(lat, lon, t.plusMinutes(10));
-            return new LocationAnalysisDTO.Tide(round(level), next == null ? null : next > level, "Porto do Recife", "NR DHN");
+            return new LocationAnalysisDTO.Tide(round(level), next == null ? null : next > level, "Porto do Recife", "NR DHN",
+                    com.projeto.mapi.service.tide.TideSource.OFFICIAL.name());
         } catch (RuntimeException e) {
             log.warn("Maré indisponível para a análise de local: {}", e.getMessage());
             return null;

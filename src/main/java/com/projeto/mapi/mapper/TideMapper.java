@@ -21,7 +21,16 @@ public class TideMapper {
                         entity.getGeoLocations().stream().map(TideMapper::toDTO).collect(Collectors.toList()) : Collections.emptyList())
                 .months(entity.getMonths() != null ? 
                         entity.getMonths().stream().map(TideMapper::toDTO).collect(Collectors.toList()) : Collections.emptyList())
+                .tideSource(tideSourceOf(entity))
                 .build();
+    }
+
+    /** A tábua local vem da TabuaMare/DHN: OFFICIAL se houver algum extremo; null sem extremos. */
+    private static String tideSourceOf(TideTable entity) {
+        boolean any = entity.getMonths() != null && entity.getMonths().stream()
+                .filter(m -> m.getDays() != null).flatMap(m -> m.getDays().stream())
+                .anyMatch(d -> d.getHours() != null && !d.getHours().isEmpty());
+        return any ? com.projeto.mapi.service.tide.TideSource.OFFICIAL.name() : null;
     }
 
     public static GeoLocationDTO toDTO(GeoLocation entity) {
@@ -61,6 +70,7 @@ public class TideMapper {
         return HourDataDTO.builder()
                 .hour(entity.getHour())
                 .level(entity.getLevel())
+                .source(com.projeto.mapi.service.tide.TideSource.OFFICIAL.name())
                 .build();
     }
 }
