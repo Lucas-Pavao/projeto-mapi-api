@@ -1,6 +1,7 @@
 package com.projeto.mapi.service.tide.impl;
 
 import com.projeto.mapi.service.tide.TideLevelService;
+import com.projeto.mapi.service.tide.TideSource;
 
 import com.projeto.mapi.repository.ingestion.ObservationReadRepository;
 import com.projeto.mapi.service.event.TideInterpolation;
@@ -30,12 +31,14 @@ public class TideLevelServiceImpl implements TideLevelService {
     /** Nível (m, NR DHN) e se está enchendo; vazio sem extremos que cerquem o instante. */
     @Override
     public Optional<Level> at(Instant t) {
-        List<TideInterpolation.Extreme> ex = observations.tideExtremes(t.minus(WINDOW), t.plus(WINDOW)).stream()
+        var rows = observations.tideExtremes(t.minus(WINDOW), t.plus(WINDOW));
+        List<TideInterpolation.Extreme> ex = rows.stream()
                 .map(e -> new TideInterpolation.Extreme(e.tsUtc(), e.level())).toList();
         List<TideInterpolation.Sample> s = TideInterpolation.sample(ex, t, t.plus(STEP.multipliedBy(2)), STEP);
         if (s.isEmpty() || s.get(0).v() == null) return Optional.empty();
         Double next = s.size() < 2 ? null : s.get(1).v();
-        return Optional.of(new Level(s.get(0).v(), next == null ? null : next > s.get(0).v()));
+        return Optional.of(new Level(s.get(0).v(), next == null ? null : next > s.get(0).v(),
+                TideSource.at(rows, t, r -> r.tsUtc(), r -> r.source())));
     }
 
 }
