@@ -18,6 +18,8 @@ import com.projeto.mapi.service.alerta.PointRain10MinComposer.Slot;
 import com.projeto.mapi.service.alerta.RainAlertLevel;
 import com.projeto.mapi.service.alerta.RainAlertRules;
 import com.projeto.mapi.service.alerta.SemDadoMotivo;
+import com.projeto.mapi.service.alagamento.FloodForecastClient;
+import com.projeto.mapi.service.alagamento.FloodForecastService;
 import com.projeto.mapi.service.flood.RainForecastService;
 import com.projeto.mapi.service.ingestion.freshness.SourceFreshnessService;
 import com.projeto.mapi.service.stream.LiveStreamService;
@@ -46,6 +48,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AlertaCycleServiceImpl implements AlertaCycleService {
 
+    /** 24 h de passos de 10 min: estado inicial do balde no alerta por regressão. */
+    static final int SERIES_STEPS = 144;
+
     static final double PEAK_LOAD_KM = PointRain10MinComposer.NEAR_KM + PointRain10MinComposer.PEAK_RADIUS_KM;
 
     private final FloodPointRepository points;
@@ -57,6 +62,7 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
     private final SourceFreshnessService freshness;
     private final LiveStreamService stream;
     private final LiveQualityControl liveQc;
+    private final FloodForecastService floodForecast;
     private final AlertaProperties props;
     private final ObjectMapper mapper;
     private final Clock clock;
@@ -79,6 +85,7 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
                 bucketMs += o.bucketMs();
                 Instant sent = stream.publishAlertEvent("alert-state", o.state(), props.isShadow());
                 for (Object t : o.transitions()) stream.publishAlertEvent("alert-transition", t, props.isShadow());
+                if (o.flood() != null) stream.publishAlertEvent("flood-forecast", o.flood(), floodForecast.shadow());
                 if (sent != null) {
                     repo.markSseSent(cycleId, p.getId(), sent);
                     lastSse = sent;
@@ -107,7 +114,7 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
         }
     }
 
-    record PointOutcome(State state, List<Object> transitions, double bucketMs) {}
+    record PointOutcome(State state, List<Object> transitions, double bucketMs, Object flood) {}
 
     /** Avalia um ponto. Visível para teste e para a reprise (que confere a série e o balde fora do sistema). */
     PointOutcome evaluate(UUID cycleId, Instant now, FloodPoint p, boolean sourceStale) throws Exception {
@@ -187,6 +194,13 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
             }
         }
 
+        // estação da leitura mais nova a até 5 km (contexto do card e do alerta por regressão)
+        PointRain10MinRepository.Block newestBlock = series.newestReading() == null ? null : blocks.stream()
+                .filter(x -> x.ts().equals(series.newestReading()) && x.km() <= PointRain10MinComposer.NEAR_KM)
+                .findFirst().orElse(null);
+        Object flood = floodForecast.enabled()
+                ? floodForecast(cycleId, now, p, slots, last, ts, t, rain60, newestBlock) : null;
+
         State prevState = repo.state(p.getId()).orElse(null);
         RainAlertRules.Previous prev = prevState == null ? RainAlertRules.Previous.initial()
                 : new RainAlertRules.Previous(RainAlertLevel.valueOf(prevState.rainAlert()),
@@ -232,16 +246,40 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
             trs.add(ev);
         }
         Instant[] receipt = new Instant[]{null, null};
-        if (series.newestReading() != null) {
-            PointRain10MinRepository.Block nb = blocks.stream().filter(x -> x.ts().equals(series.newestReading())
-                    && x.km() <= PointRain10MinComposer.NEAR_KM).findFirst().orElse(null);
-            if (nb != null) receipt = rainRepo.receipt(nb.source(), nb.stationId(), nb.ts());
-        }
+        if (newestBlock != null) receipt = rainRepo.receipt(newestBlock.source(), newestBlock.stationId(), newestBlock.ts());
         repo.insertPointCycle(new AlertaRepository.PointCycle(cycleId, p.getId(), now, d.rain().name(), name(d.rainReason()),
                 d.flood().name(), name(d.floodReason()), f.probForte1h(), rainTe, b.hNowMm(), b.hProjMaxQ50Mm(),
                 d.floodInMinutes(), d.eventId(), series.newestReading(), receipt[0], receipt[1],
                 now, aiAt, written, rain60 != null && rain60 >= props.getLatency().getWetHourMm(), bucketMs, props.isShadow()));
-        return new PointOutcome(st, trs, bucketMs);
+        return new PointOutcome(st, trs, bucketMs, flood);
+    }
+
+    /**
+     * Alerta de alagamento por regressão (V38): as últimas 24 h da mesma série de 10 min (lacuna vai nula, nunca zero) e o
+     * mesmo terreno do balde vão para POST /v1/flood/forecast. Falha aqui não derruba o alerta de chuva.
+     */
+    private Object floodForecast(UUID cycleId, Instant now, FloodPoint p, List<Slot> slots, int last,
+                                 RainAlertRules.TerrainStatus ts, TerrainResponseDTO t, Double rain60,
+                                 PointRain10MinRepository.Block newest) {
+        try {
+            List<Double> s10 = new ArrayList<>();
+            if (last >= 0) for (int k = Math.max(0, last - SERIES_STEPS + 1); k <= last; k++) s10.add(slots.get(k).mm());
+            FloodForecastClient.Terrain ft = null;
+            if (ts == RainAlertRules.TerrainStatus.OK) {
+                ft = new FloodForecastClient.Terrain(p.getSlug(), t.contributingAreaM2(),
+                        t.volumeCurve().stream().map(c -> c.aboveBottomCm() / 100.0).toList(),
+                        t.volumeCurve().stream().map(TerrainResponseDTO.CurvePoint::cumulativeVolumeM3).toList(),
+                        t.streetElevationM() - t.bottomElevationM());
+            }
+            String status = ts == RainAlertRules.TerrainStatus.OK ? "OK"
+                    : ts == RainAlertRules.TerrainStatus.EM_REVISAO ? "EM_REVISAO" : "SEM_TERRENO";
+            return floodForecast.evaluate(cycleId, now, p, new FloodForecastService.Input(s10, ft, status, rain60,
+                    newest == null ? null : newest.stationId(), newest == null ? null : newest.km(),
+                    props.getCapacity().getTrYears(), props.getCapacity().getTeMinutes()));
+        } catch (Exception e) {
+            log.error("Alerta por regressão do ponto {}: {}", p.getSlug(), e.toString());
+            return null;
+        }
     }
 
     RainAlertRules.Params params() {

@@ -1,0 +1,505 @@
+{
+ "version": "flood_reg_v1",
+ "model_versions": {
+  "flood": "flood_reg_v1",
+  "rain": {
+   "version": "rain_v1",
+   "training_data": "MEASURED",
+   "target": "MEASURED"
+  },
+  "bucket": {
+   "version": "balde-M1a-10min",
+   "training_data": "NONE_PHYSICAL",
+   "calibrated": false
+  }
+ },
+ "code_version": "0000000000000000000000000000000000000000",
+ "code_dirty": "false",
+ "issued_at": "2026-11-20T17:00:00Z",
+ "hcrit_cm": 15.0,
+ "rule": {
+  "ALERTA": "a lâmina máxima do cenário q50 (provável) chega a 15 cm no horizonte",
+  "ATENCAO": "só a lâmina máxima do cenário q95 (pessimista) chega a 15 cm no horizonte",
+  "SEM_ALERTA": "nenhum dos dois cenários chega a 15 cm no horizonte (não quer dizer sem risco)",
+  "SEM_DADO": "falta entrada para calcular; nunca vira SEM_ALERTA"
+ },
+ "rule_text": "ALERTA se a lâmina do cenário q50 chega a 15 cm; ATENÇÃO se só a do cenário q95 chega; SEM ALERTA caso contrário. Limiar e regra fixados antes do teste (20/11).",
+ "distribution": "chuva prevista em (t, t+h] distribuída por igual nos passos de 10 min do horizonte",
+ "sheet_max": "máximo entre a lâmina de agora e a lâmina prevista a cada 10 min no horizonte",
+ "experimental": true,
+ "experimental_note": "experimental: a validação externa (Etapa 2.3, dias da Defesa Civil) ainda não foi aprovada; o balde não está calibrado",
+ "validated": false,
+ "attribution": "DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC",
+ "slug": "MASCARENHAS_IMBIRIBEIRA",
+ "h_now_cm": 190.0,
+ "rain_now_10min_mm": 30.0,
+ "rain_last_60min_measured_mm": 180.0,
+ "level": "ALERTA",
+ "worst_horizon_hours": 1,
+ "reason": null,
+ "reason_text": null,
+ "reason_detail": null,
+ "horizons": [
+  {
+   "hours": 1,
+   "level": "ALERTA",
+   "rain_q50_mm": 60.0,
+   "rain_q95_mm": 120.0,
+   "sheet_q50_cm": 190.0,
+   "sheet_q95_cm": 190.0,
+   "valid_from": "2026-11-20T17:00:00Z",
+   "valid_until": "2026-11-20T18:00:00Z"
+  },
+  {
+   "hours": 3,
+   "level": "ALERTA",
+   "rain_q50_mm": 90.0,
+   "rain_q95_mm": 160.0,
+   "sheet_q50_cm": 190.0,
+   "sheet_q95_cm": 190.0,
+   "valid_from": "2026-11-20T17:00:00Z",
+   "valid_until": "2026-11-20T20:00:00Z"
+  },
+  {
+   "hours": 6,
+   "level": "ALERTA",
+   "rain_q50_mm": 110.0,
+   "rain_q95_mm": 200.0,
+   "sheet_q50_cm": 190.0,
+   "sheet_q95_cm": 190.0,
+   "valid_from": "2026-11-20T17:00:00Z",
+   "valid_until": "2026-11-20T23:00:00Z"
+  }
+ ],
+ "explanation": {
+  "served_scenario": "q50",
+  "served_horizon_hours": 1,
+  "shap": {
+   "available": true,
+   "method": "TreeSHAP exato do XGBoost (pred_contribs)",
+   "horizon_hours": 1,
+   "quantile": "q50",
+   "base_mm": 0.2168,
+   "raw_prediction_mm": 14.9049,
+   "sum_check_mm": 14.9049,
+   "top": [
+    {
+     "feature": "p_10",
+     "label": "chuva no ponto (até 5 km) nos últimos 10 min: 30,0 mm",
+     "value": 30.0,
+     "unit": "mm",
+     "contribution_mm": 4.843,
+     "text": "chuva no ponto (até 5 km) nos últimos 10 min: 30,0 mm (+4,8 mm na previsão)"
+    },
+    {
+     "feature": "p_180",
+     "label": "chuva no ponto (até 5 km) nos últimos 180 min: 540,0 mm",
+     "value": 540.0,
+     "unit": "mm",
+     "contribution_mm": 2.757,
+     "text": "chuva no ponto (até 5 km) nos últimos 180 min: 540,0 mm (+2,8 mm na previsão)"
+    },
+    {
+     "feature": "p_60",
+     "label": "chuva no ponto (até 5 km) nos últimos 60 min: 180,0 mm",
+     "value": 180.0,
+     "unit": "mm",
+     "contribution_mm": 2.486,
+     "text": "chuva no ponto (até 5 km) nos últimos 60 min: 180,0 mm (+2,5 mm na previsão)"
+    }
+   ]
+  },
+  "counterfactual": {
+   "extra_mm": 0.0,
+   "reached": true,
+   "text": "a lâmina provável já chega a 15 cm na próxima hora"
+  },
+  "sensitivity": {
+   "horizon_hours": 1,
+   "scenario": "q50",
+   "min_cm": 190.0,
+   "max_cm": 190.0,
+   "levels_seen": [
+    "ALERTA"
+   ],
+   "level_changes": false,
+   "n_combinations": 162,
+   "ranges": {
+    "f": [
+     0.0,
+     0.2,
+     0.4,
+     0.6,
+     0.8,
+     1.0
+    ],
+    "C": [
+     0.7,
+     0.86,
+     0.95
+    ],
+    "tr_anos": [
+     2.0,
+     5.0,
+     10.0
+    ],
+    "te_min": [
+     5.0,
+     10.0,
+     15.0
+    ]
+   },
+   "one_at_a_time": {
+    "f": {
+     "values": [
+      0.0,
+      0.2,
+      0.4,
+      0.6,
+      0.8,
+      1.0
+     ],
+     "min_cm": 190.0,
+     "max_cm": 190.0,
+     "source": "sem fonte (cadastro da galeria não é público; faixa de 0 a projeto)"
+    },
+    "C": {
+     "values": [
+      0.7,
+      0.86,
+      0.95
+     ],
+     "min_cm": 190.0,
+     "max_cm": 190.0,
+     "source": "URB Recife (2018) e faixa do documento de parâmetros"
+    },
+    "tr_anos": {
+     "values": [
+      2.0,
+      5.0,
+      10.0
+     ],
+     "min_cm": 190.0,
+     "max_cm": 190.0,
+     "source": "Silva e Araújo (2013), Eq. 16; TR é escolha de projeto"
+    },
+    "te_min": {
+     "values": [
+      5.0,
+      10.0,
+      15.0
+     ],
+     "min_cm": 190.0,
+     "max_cm": 190.0,
+     "source": "tempo de entrada típico de microdrenagem; central 10 min"
+    }
+   },
+   "heaviest_parameter": "f",
+   "text": "lâmina máxima entre 190,0 e 190,0 cm com f, C e i_T na faixa; o nível não muda"
+  },
+  "decomposition": [
+   {
+    "t": "2026-11-20T14:10:00Z",
+    "minutes_from_now": -170,
+    "kind": "medido",
+    "rain_mm": 30.0,
+    "inflow_m3_h": 3096.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 156.527,
+    "sheet_cm": 146.53
+   },
+   {
+    "t": "2026-11-20T14:20:00Z",
+    "minutes_from_now": -160,
+    "kind": "medido",
+    "rain_mm": 30.0,
+    "inflow_m3_h": 3096.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 313.055,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T14:30:00Z",
+    "minutes_from_now": -150,
+    "kind": "medido",
+    "rain_mm": 30.0,
+    "inflow_m3_h": 3096.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 469.582,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T14:40:00Z",
+    "minutes_from_now": -140,
+    "kind": "medido",
+    "rain_mm": 30.0,
+    "inflow_m3_h": 3096.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 626.109,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T14:50:00Z",
+    "minutes_from_now": -130,
+    "kind": "medido",
+    "rain_mm": 30.0,
+    "inflow_m3_h": 3096.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 782.636,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T15:00:00Z",
+    "minutes_from_now": -120,
+    "kind": "medido",
+    "rain_mm": 30.0,
+    "inflow_m3_h": 3096.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 939.164,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T15:10:00Z",
+    "minutes_from_now": -110,
+    "kind": "medido",
+    "rain_mm": 30.0,
+    "inflow_m3_h": 3096.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 1095.691,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T15:20:00Z",
+    "minutes_from_now": -100,
+    "kind": "medido",
+    "rain_mm": 30.0,
+    "inflow_m3_h": 3096.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 1252.218,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T15:30:00Z",
+    "minutes_from_now": -90,
+    "kind": "medido",
+    "rain_mm": 30.0,
+    "inflow_m3_h": 3096.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 1408.746,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T15:40:00Z",
+    "minutes_from_now": -80,
+    "kind": "medido",
+    "rain_mm": 30.0,
+    "inflow_m3_h": 3096.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 1565.273,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T15:50:00Z",
+    "minutes_from_now": -70,
+    "kind": "medido",
+    "rain_mm": 30.0,
+    "inflow_m3_h": 3096.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 1721.8,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T16:00:00Z",
+    "minutes_from_now": -60,
+    "kind": "medido",
+    "rain_mm": 30.0,
+    "inflow_m3_h": 3096.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 1878.328,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T16:10:00Z",
+    "minutes_from_now": -50,
+    "kind": "medido",
+    "rain_mm": 30.0,
+    "inflow_m3_h": 3096.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 2034.855,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T16:20:00Z",
+    "minutes_from_now": -40,
+    "kind": "medido",
+    "rain_mm": 30.0,
+    "inflow_m3_h": 3096.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 2191.382,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T16:30:00Z",
+    "minutes_from_now": -30,
+    "kind": "medido",
+    "rain_mm": 30.0,
+    "inflow_m3_h": 3096.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 2347.909,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T16:40:00Z",
+    "minutes_from_now": -20,
+    "kind": "medido",
+    "rain_mm": 30.0,
+    "inflow_m3_h": 3096.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 2504.437,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T16:50:00Z",
+    "minutes_from_now": -10,
+    "kind": "medido",
+    "rain_mm": 30.0,
+    "inflow_m3_h": 3096.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 2660.964,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T17:00:00Z",
+    "minutes_from_now": 0,
+    "kind": "medido",
+    "rain_mm": 30.0,
+    "inflow_m3_h": 3096.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 2817.491,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T17:10:00Z",
+    "minutes_from_now": 10,
+    "kind": "previsto",
+    "rain_mm": 10.0,
+    "inflow_m3_h": 1032.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 2630.019,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T17:20:00Z",
+    "minutes_from_now": 20,
+    "kind": "previsto",
+    "rain_mm": 10.0,
+    "inflow_m3_h": 1032.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 2442.546,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T17:30:00Z",
+    "minutes_from_now": 30,
+    "kind": "previsto",
+    "rain_mm": 10.0,
+    "inflow_m3_h": 1032.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 2255.073,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T17:40:00Z",
+    "minutes_from_now": 40,
+    "kind": "previsto",
+    "rain_mm": 10.0,
+    "inflow_m3_h": 1032.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 2067.6,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T17:50:00Z",
+    "minutes_from_now": 50,
+    "kind": "previsto",
+    "rain_mm": 10.0,
+    "inflow_m3_h": 1032.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 1880.128,
+    "sheet_cm": 190.0
+   },
+   {
+    "t": "2026-11-20T18:00:00Z",
+    "minutes_from_now": 60,
+    "kind": "previsto",
+    "rain_mm": 10.0,
+    "inflow_m3_h": 1032.0,
+    "outflow_m3_h": 2156.836,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 1692.655,
+    "sheet_cm": 190.0
+   }
+  ],
+  "capacity_m3_h": 2156.84,
+  "initial_state": {
+   "volume_m3": 2817.49,
+   "h_now_cm": 190.0,
+   "steps_measured": 144,
+   "n_fora_da_curva": 17
+  }
+ },
+ "sources": [
+  "CEMADEN_PED"
+ ],
+ "missing_inputs": [
+  "L_frac_wet_60",
+  "L_max_30",
+  "L_max_60",
+  "L_min_since_onset",
+  "N_min_since_onset",
+  "O_min_since_onset",
+  "S_frac_wet_60",
+  "S_max_30",
+  "S_max_60",
+  "S_min_since_onset",
+  "om_1h",
+  "om_3h",
+  "om_6h",
+  "r15_40_frac_wet_60",
+  "r15_40_max_60",
+  "r15_40_mean_60"
+ ],
+ "latest_reading_utc": "2026-11-20T17:00:00Z",
+ "latest_reading_age_minutes": 0.0,
+ "stations_valid_near": 1,
+ "bucket_params": {
+  "C": 0.86,
+  "tr_anos": 5.0,
+  "te_min": 10.0,
+  "i_cap_mm_h": 125.4,
+  "f": 1.0
+ }
+}

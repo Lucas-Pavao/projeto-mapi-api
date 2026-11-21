@@ -39,7 +39,6 @@ public class MapiServiceImpl implements MapiService {
     private final com.projeto.mapi.service.tide.TabuaMareService tabuaMareService;
     private final com.projeto.mapi.service.weather.MarineService marineService;
     private final FloodPointRepository floodPointRepository;
-    private final com.projeto.mapi.service.flood.FloodPredictionService floodPredictionService;
     private final com.projeto.mapi.service.export.DataExportService dataExportService;
     private final com.projeto.mapi.service.flood.FloodPredictionHistoryService predictionHistory;
     private final FloodScenarioLabelRepository floodScenarioLabelRepository;
@@ -121,15 +120,9 @@ public class MapiServiceImpl implements MapiService {
         return null;
     }
 
-    @Override
-    public com.projeto.mapi.dto.FloodPredictionResponseDTO createFloodPrediction(double latitude, double longitude) {
-        MapiResponseDTO environmentalData = getEnvironmentalData(latitude, longitude);
-        return predictAndStore(null, environmentalData.getPreciseData(), environmentalData.getNearestSensor(), latitude, longitude, null);
-    }
-
     // Leitura pura (ADR 0007 §7): dado ambiental + ÚLTIMA previsão gravada do ponto. Não chama a IA
     // nem grava em flood_predictions; quem prevê é o passo agendado ao fim do ciclo de coleta
-    // (refreshPredictionsForActivePoints).
+    // (refreshRainForecastsForActivePoints).
     @Override
     public MapiResponseDTO getPreciseData(double latitude, double longitude) {
         return getPreciseData(null, latitude, longitude);
@@ -141,166 +134,22 @@ public class MapiServiceImpl implements MapiService {
         return environmentalData;
     }
 
-    // Passo de predição do ciclo de coleta: uma previsão por ponto ativo, gravada em flood_predictions.
-    // Falha de um ponto não impede os demais. Chamado em thread do taskExecutor (PredictionCycleRunner).
+    // Passo do ciclo de coleta: emite e grava a previsão de chuva (rain_v1) de cada ponto ativo, para a conferência e os
+    // blocos que leem a chuva prevista. O classificador de alagamento (POST /v1/predict/flood) saiu em 21/11/2026; o
+    // alerta de alagamento por regressão roda no ciclo do alerta por ponto (V38). Falha de um ponto não impede os demais.
     @Override
-    public int refreshPredictionsForActivePoints() {
+    public int refreshRainForecastsForActivePoints() {
         int done = 0;
         for (FloodPoint point : floodPointRepository.findByActiveTrue()) {
             try {
-                MapiResponseDTO env = getEnvironmentalData(point.getLatitude(), point.getLongitude());
-                // Previsão de chuva do ponto (V30): gravada para conferência; falha aqui não impede a de alagamento.
-                com.projeto.mapi.dto.RainForecastDTO rainFc = rainForecast
-                        .forecastAndStore(point.getId(), point.getSlug(), point.getLatitude(), point.getLongitude()).orElse(null);
-                predictAndStore(point.getId(), env.getPreciseData(), env.getNearestSensor(), point.getLatitude(), point.getLongitude(), rainFc);
+                rainForecast.forecastAndStore(point.getId(), point.getSlug(), point.getLatitude(), point.getLongitude());
                 done++;
             } catch (Exception e) {
-                log.error("Falha ao atualizar a previsão do ponto {}: {}", point.getSlug(), e.getMessage());
+                log.error("Falha ao atualizar a previsão de chuva do ponto {}: {}", point.getSlug(), e.getMessage());
             }
         }
-        log.info("Previsões atualizadas para {} ponto(s) ativo(s)", done);
+        log.info("Previsões de chuva atualizadas para {} ponto(s) ativo(s)", done);
         return done;
-    }
-
-    // Chama a MAPI AI com o contexto ambiental já calculado e audita a previsão em
-    // flood_predictions. Único ponto de escrita de previsões: usado pelo POST /api/flood-predictions
-    // e pelo passo agendado do ciclo de coleta.
-    private com.projeto.mapi.dto.FloodPredictionResponseDTO predictAndStore(
-            Long floodPointId, MapiResponseDTO.PreciseData preciseData, SensorResponseDTO nearestSensor, double latitude, double longitude,
-            com.projeto.mapi.dto.RainForecastDTO rainFc) {
-        try {
-            // Chuva pela série medida, com a regra do treino (ADR 0007 emenda 3, ADR 0022). Ausente vai como nulo
-            // para a IA e é declarado em imputedFeatures; nunca vira zero. O Open-Meteo só entra pelo fallback
-            // (desligado por padrão), com a origem declarada.
-            List<String> imputed = new java.util.ArrayList<>();
-            com.projeto.mapi.service.flood.PointRainInputs rainIn = rainInputs.inputsAt(latitude, longitude, java.time.Instant.now());
-            if (rainIn.insufficient() && ingestionProperties.getPredictionRain().isReanalysisFallbackEnabled()) {
-                rainIn = reanalysisFallback(preciseData, rainIn);
-            }
-            imputed.addAll(rainIn.absent());
-            com.projeto.mapi.dto.FloodPredictionResponseDTO.RainInput rainInput = toRainInput(rainIn);
-            Double acc3h = rainIn.acc3h(), acc6h = rainIn.acc6h(), acc12h = rainIn.acc12h(), acc24h = rainIn.acc24h();
-            com.projeto.mapi.service.flood.PointPhysicalInputs phys = physicalInputs.inputsAt(latitude, longitude, rainIn);
-            // Maré e rio ausentes vão ausentes (null), declarados; nunca 0,0 — maré 0,0 m é um nível físico plausível,
-            // o que tornava esse zero pior que o da chuva (ADR 0007, emenda 4).
-            // Maré da previsão: extremos gravados (mesma fonte do mapa); a do contexto ambiental só se não houver.
-            Double tideNow = tideLevel.at(java.time.Instant.now()).map(com.projeto.mapi.service.tide.TideLevelService.Level::levelM)
-                    .orElse(preciseData.getTideHeight());
-            Double tide = absentIfNull(tideNow, "tide_level", imputed);
-            Double river = absentIfNull(preciseData.getWaterLevel(), "river_level", imputed);
-
-            com.projeto.mapi.dto.FloodPredictionRequestDTO predictionRequest = com.projeto.mapi.dto.FloodPredictionRequestDTO.builder()
-                    .stationId(nearestSensor != null ? nearestSensor.getSensorId() : "VIRTUAL_STATION")
-                    .latitude(latitude)
-                    .longitude(longitude)
-                    .currentRainfall(rainIn.current())
-                    .rainfall3hAccumulated(acc3h)
-                    .rainfall6hAccumulated(acc6h)
-                    .rainfall12hAccumulated(acc12h)
-                    .rainfall24hAccumulated(acc24h)
-                    .tideLevel(tide)
-                    .riverLevel(river)
-                    .rainForecast(rainForecastMap(rainFc))
-                    .rainMax10minMm(phys.rainMax10minMm())
-                    .tideTrendMH(phys.tideTrendMH())
-                    .riverLevelM(phys.riverLevelM())
-                    .soilMoisture(phys.soilMoisture())
-                    .rainHourEndUtc(rainIn.hourEndUtc() == null ? null : rainIn.hourEndUtc().toString())
-                    .windSpeed(preciseData.getWindSpeed())
-                    .temperature(preciseData.getTemperature())
-                    .apparentTemperature(preciseData.getApparentTemperature())
-                    .humidity(preciseData.getHumidity())
-                    .pressure(preciseData.getPressure())
-                    .waveHeight(preciseData.getWaveHeight())
-                    .wavePeriod(preciseData.getWavePeriod())
-                    .waveDirection(preciseData.getWaveDirection())
-                    .solarRadiation(preciseData.getSolarRadiation())
-                    .nearbySensors(toAiSensorReadings(preciseData.getLatestReadings()))
-                    .timestamp(LocalDateTime.now())
-                    .build();
-
-            // Regra de degradação: sem a chuva da hora e sem a de 3 h, ou sem maré, UNKNOWN sem consultar o modelo.
-            com.projeto.mapi.service.flood.PredictionResult result = rainIn.insufficient() || tide == null
-                    ? floodPredictionService.insufficientData(imputed)
-                    : floodPredictionService.predict(predictionRequest, imputed);
-            // rainSource passa a dizer a chuva que ENTROU na previsão (não a do treino), com as estações e a idade.
-            result = new com.projeto.mapi.service.flood.PredictionResult(
-                    result.response().toBuilder().rainSource(rainIn.source()).rainInput(rainInput)
-                            .rainForecast(rainForecastUsed(rainFc, result.rainForecastUsed())).build(), result.auditModelVersion(),
-                    result.rainForecastUsed());
-            predictionHistory.record(predictionRequest, result, floodPointId);
-
-            com.projeto.mapi.dto.FloodPredictionResponseDTO prediction = result.response();
-            if (prediction.lastValidIssuedAt() == null) {
-                prediction = prediction.toBuilder()
-                        .lastValidIssuedAt(predictionHistory.findLastValidIssuedAt(floodPointId, latitude, longitude).orElse(null))
-                        .build();
-            }
-            return prediction;
-        } catch (Exception e) {
-            log.error("Falha ao obter predição da IA: {}", e.getMessage());
-            com.projeto.mapi.dto.DegradationReason reason = com.projeto.mapi.dto.DegradationReason.AI_ERROR;
-            return com.projeto.mapi.dto.FloodPredictionResponseDTO.builder()
-                    .riskLevel(com.projeto.mapi.dto.RiskLevel.UNKNOWN)
-                    .issuedAt(java.time.Instant.now())
-                    .degradationReason(reason)
-                    .message(reason.message())
-                    .build();
-        }
-    }
-
-    private static com.projeto.mapi.dto.FloodPredictionResponseDTO.RainInput toRainInput(com.projeto.mapi.service.flood.PointRainInputs r) {
-        java.time.Instant now = java.time.Instant.now();
-        Long age = r.latestReadingUtc() == null ? null : java.time.Duration.between(r.latestReadingUtc(), now).toMinutes();
-        return new com.projeto.mapi.dto.FloodPredictionResponseDTO.RainInput(r.source(), r.hourEndUtc(), r.latestReadingUtc(), age,
-                r.nValid(), r.values().stream().map(v -> new com.projeto.mapi.dto.FloodPredictionResponseDTO.RainValue(v.featureId(),
-                        v.valueMm(), v.hours(), v.hoursWithValue(), v.stations().stream()
-                        .map(x -> new com.projeto.mapi.dto.FloodPredictionResponseDTO.RainStation(x.stationId(), x.name(), x.source()))
-                        .toList())).toList());
-    }
-
-    /** Fallback (desligado por padrão): acumulados do Open-Meteo, declarados como REANALYSIS_FALLBACK. */
-    private static com.projeto.mapi.service.flood.PointRainInputs reanalysisFallback(
-            MapiResponseDTO.PreciseData d, com.projeto.mapi.service.flood.PointRainInputs measured) {
-        MapiResponseDTO.Aggregates a = d.getHistoricalAggregates();
-        Double[] v = {d.getPrecipitation(), a == null ? null : a.getRain3h(), a == null ? null : a.getRain6h(),
-                a == null ? null : a.getRain12h(), a == null ? null : a.getRain24h()};
-        List<com.projeto.mapi.service.flood.PointRainInputs.Value> values = new java.util.ArrayList<>();
-        for (int i = 0; i < v.length; i++) {
-            com.projeto.mapi.service.flood.PointRainInputs.Value m = measured.values().get(i);
-            values.add(new com.projeto.mapi.service.flood.PointRainInputs.Value(m.featureId(), v[i], m.hours(),
-                    v[i] == null ? 0 : m.hours(), List.of()));
-        }
-        return new com.projeto.mapi.service.flood.PointRainInputs(com.projeto.mapi.service.flood.PointRainInputs.REANALYSIS_FALLBACK,
-                measured.hourEndUtc(), v[0], v[1], v[2], v[3], v[4], values, null, 0);
-    }
-
-    /** Chaves com os nomes das entradas do modelo de alagamento: q50_1h, q80_1h, q95_1h, pMEDIA_1h, pFORTE_1h, ... */
-    private static java.util.Map<String, Double> rainForecastMap(com.projeto.mapi.dto.RainForecastDTO f) {
-        if (f == null) return null;
-        java.util.Map<String, Double> m = new java.util.LinkedHashMap<>();
-        for (com.projeto.mapi.dto.RainForecastDTO.Horizon h : f.horizons()) {
-            String s = "_" + h.horizonHours() + "h";
-            m.put("q50" + s, h.q50Mm());
-            m.put("q80" + s, h.q80Mm());
-            m.put("q95" + s, h.q95Mm());
-            m.put("pMEDIA" + s, h.probMedia());
-            m.put("pFORTE" + s, h.probForte());
-        }
-        return m;
-    }
-
-    private static com.projeto.mapi.dto.FloodPredictionResponseDTO.RainForecastUsed rainForecastUsed(
-            com.projeto.mapi.dto.RainForecastDTO f, boolean usedByModel) {
-        if (f == null) return null;
-        return new com.projeto.mapi.dto.FloodPredictionResponseDTO.RainForecastUsed(f.issuedAt(), f.modelVersion(), f.sources(),
-                usedByModel, f.horizons().stream().map(h -> new com.projeto.mapi.dto.FloodPredictionResponseDTO.RainForecastHorizon(
-                        h.horizonHours(), h.q50Mm(), h.q80Mm(), h.q95Mm(), h.probMedia(), h.probForte())).toList());
-    }
-
-    private static Double absentIfNull(Double value, String featureId, List<String> imputed) {
-        if (value == null) imputed.add(featureId);
-        return value;
     }
 
     @Override
@@ -536,26 +385,6 @@ public class MapiServiceImpl implements MapiService {
         }
 
         return builder.build();
-    }
-
-    // Converte do contrato de RESPOSTA ao front (MapiResponseDTO.SensorReadingDTO, camelCase) para
-    // o contrato de REQUISIÇÃO à MAPI AI (FloodPredictionRequestDTO.SensorReadingDTO, snake_case) —
-    // são a mesma leitura de sensor, mas cada lado da API exige sua própria convenção de nomenclatura.
-    private List<com.projeto.mapi.dto.FloodPredictionRequestDTO.SensorReadingDTO> toAiSensorReadings(
-            List<MapiResponseDTO.SensorReadingDTO> readings) {
-        if (readings == null || readings.isEmpty()) return List.of();
-        return readings.stream()
-                .map(r -> com.projeto.mapi.dto.FloodPredictionRequestDTO.SensorReadingDTO.builder()
-                        .sensorId(r.getSensorId())
-                        .latitude(r.getLatitude())
-                        .longitude(r.getLongitude())
-                        .value(r.getValue())
-                        .unit(r.getUnit())
-                        .type(r.getType())
-                        .timestamp(r.getTimestamp())
-                        .distanceKm(r.getDistanceKm())
-                        .build())
-                .toList();
     }
 
     private SensorResponseDTO findNearestSensor(double lat, double lon, List<SensorResponseDTO> sensors) {

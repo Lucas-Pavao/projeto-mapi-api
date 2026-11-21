@@ -59,7 +59,7 @@ public class PredictionCycleRunner {
             taskExecutor.execute(() -> {
                 MDC.put("requestId", "predict-" + origin);
                 try {
-                    mapiService.refreshPredictionsForActivePoints();
+                    mapiService.refreshRainForecastsForActivePoints();
                     publishCompleted(origin);
                 } catch (Exception e) {
                     log.error("Falha no passo de predição do ciclo [{}]: {}", origin, e.getMessage(), e);

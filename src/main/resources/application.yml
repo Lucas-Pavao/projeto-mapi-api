@@ -309,6 +309,11 @@ mapi:
       cancel-dry-minutes: 30
       dry-mm: 0.2
       event-gap-minutes: 60
+  alagamento:
+    # Alerta de alagamento por regressão (V38, POST /v1/flood/forecast da IA). Modo sombra até o item 2.3 aprovado e o
+    # aval do orientador: só ADMIN vê a rota e o SSE. Só o Lucas desliga.
+    enabled: ${ALAGAMENTO_ENABLED:true}
+    shadow: ${ALAGAMENTO_SHADOW:true}
   radar:
     # Gravação das imagens do radar da APAC (V33). Volume próprio montado em /data/radar (docker-compose).
     enabled: ${RADAR_COLLECTOR_ENABLED:true}
