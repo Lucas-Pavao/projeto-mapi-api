@@ -78,6 +78,67 @@ Coordenadas: seed em `MapiServiceImpl.seedPilotData()` (linhas 573–620), trans
 o pixel válido mais próximo está a **1.410 m** (`dist_pixel_valido_mais_proximo_m`). Não há atributo de terreno
 para esse ponto com os 48 zips atuais. Os 4 pontos cobertos têm 100 % de pixels válidos na janela de 1 km.
 
+### 3.1 Folhas de Jaboatão (2026-11-21, prompt 2, Parte A)
+
+Pasta nova: `MAPI/Modelo digital terreno jaboatao ` (o nome termina com espaço), **50 zips**, 1,3 GB, mesmo formato
+(`MDT-*.zip` com um `.tif` e um `.tfw`, datas internas 2016-03-30/31). Inventário: `terreno/inventario_jaboatao.csv`
+(cópia versionada em `docs/terreno/inventario_jaboatao.csv`, SHA-256 `bb4ad3a0…`), gerado pela etapa `inventario` do
+`run.sh` com `DADOS` apontando para a pasta nova.
+
+| Item | Recife (48 folhas) | Jaboatão (50 folhas) |
+|---|---|---|
+| CRS no `.tif` | EPSG:31985 (48/48) | EPSG:31985 (50/50) |
+| `.tfw` confere com o geotransform | 48/48 | 50/50 |
+| Pixel (m) | 1,0 e 0,99986 | 1,0 e 0,99986 |
+| Tipo / nodata | Float32 / −9999 | Float32 / −9999 |
+| Tamanho da folha | ~3.556 × 2.422 px | ~3.555 × 2.422 px |
+| Extensão (E / N, m) | 276.017–296.878 / 9.096.713–9.124.483 | 265.809–290.076 / 9.087.462–9.110.625 |
+| Metadado vertical no arquivo | nenhum | nenhum |
+
+- **Repetidas:** 10 das 50 folhas têm o mesmo nome de folhas do Recife e são **idênticas byte a byte** (`cmp`): ficam
+  40 folhas novas. O mosaico passa a ter 88 folhas.
+- **JABOATAO_CENTRO** cai na folha nova `MDT-SC-25-V-A-II-2-NE-F-IV` (100 % de pixels válidos), pixel válido, cota do
+  pixel 65,00 m.
+- **Mesmo produto?** Sim, pelo que os arquivos mostram: mesma estrutura de zip, mesmas datas internas, mesmo CRS e pixel,
+  e o tamanho da folha (~3,5 × 2,4 km) e a nomenclatura até o último algarismo romano correspondem à articulação
+  1:5.000 nas duas pastas. Nenhum arquivo declara a referência vertical. O levantamento externo do prompt diz que os
+  produtos 1:5.000 do PE3D foram calibrados com o geoide MAPGEO2010 e os 1:1.000 nas RNs do IBGE; isso **não foi
+  conferido** em documento do PE3D (pedido 03). Limitação registrada: se as folhas de Jaboatão viessem de outro produto,
+  a cota absoluta poderia ter outra referência. Para o balde isso não muda nada, porque ele usa só cota relativa
+  (lâmina acima do fundo da depressão).
+
+**Integração ao pipeline** (`run.sh`, variável `DADOS_JABOATAO`, montada em `/dados2`; `terreno.py`, `cmd_lista`):
+
+1. Sem `DADOS_JABOATAO`, a lista e o VRT são os de sempre: `mosaico.vrt` com SHA-256 `d63e3b12…`, igual ao de 2026-10-10.
+2. Com a pasta nova: folha repetida tem de ser idêntica (senão aborta) e é lida da pasta principal; as 40 novas entram
+   **antes** na lista (no VRT a fonte de depois pinta por cima, então onde as duas cobrem vale o Recife); e a grade é a
+   do VRT antigo **estendida por pixels inteiros** (`-te 265808.096 9087461.459 296877.914 9124483.459 -tr
+   0.999994141357330 1`). Sem isso o `gdalbuildvrt` recalcularia a origem e o pixel médio, e todos os pixels mudariam
+   de lugar.
+3. Saída da execução com Jaboatão: `terreno/com-jaboatao/` (VRT `100e44ae…`, `ponto_terreno.csv`, `curva_cota_volume.csv`,
+   `cobertura.csv`, `inventario.csv`, `conferencia_hashes.txt`). A saída de `terreno/` (terrain_run 2) **não foi
+   sobrescrita**: a API continua lendo os mesmos arquivos até a carga ser aprovada.
+
+**Conferência dos 4 pontos antigos** (`terreno/com-jaboatao/conferencia_hashes.txt`): SHA-256 das linhas sem
+JABOATAO_CENTRO, antes e depois — `ponto_terreno.csv` `aa3143b2…` = `aa3143b2…`; `curva_cota_volume.csv` `91c6945e…` =
+`91c6945e…`. O arquivo inteiro muda só pela linha de Jaboatão. Para isso, a coluna `observacao` passou a sair sempre
+(antes ela só existia porque Jaboatão estava sem dado).
+
+**Validação contra o WhiteboxTools** (`run.sh validar`): as colunas por ponto (profundidade, área por raio de snap,
+mesmo pixel) são idênticas antes e depois. Duas estatísticas da janela inteira (`log10_acc_correlacao_interna` e
+`celulas_acc_ge_1000_whitebox`) variam na 4ª casa ou em poucas células **entre execuções com os mesmos dados**: rodar
+de novo o código da `main` só com as 48 folhas também não reproduz o `validacao_whitebox.csv` de 2026-10-10 nessas
+colunas. Não é efeito de Jaboatão; fica registrado como não determinismo do Whitebox na janela inteira.
+
+**Atributos de JABOATAO_CENTRO** (`terreno/com-jaboatao/ponto_terreno.csv`): cota 64,832 m (raio 3 m), declividade média
+40,0 % (50 m) e 28,8 % (100 m), profundidade da depressão **0,0 m**, área contribuinte 12 / 145 / 148 / 161 m² (snap 0 / 5 /
+10 / 20 m), curva cota-volume com **3 células** conectadas (3,5 m³ a 2 m). O Open-Meteo dá 62 m para o mesmo ponto
+(`altitude_open_meteo.csv`), o que confirma a cota. **O ponto cai numa encosta, a cerca de 30 m acima do vale**: a
+menor cota a 600 m é 33,0 m, e nenhuma via do OSM passa a 20 m do ponto (`docs/terreno/area-contribuicao/JABOATAO_CENTRO.png`).
+A régua do Rio Duas Unas fica a 556 m (V27). A coordenada do seed provavelmente não marca o lugar que alaga. Por isso o
+ponto entra com terreno, mas **fica em revisão** (`mapi.alerta.flood.terrain-review` e `terreno.json` da IA com status
+`EM_REVISAO`): continua `SEM_DADO`, nunca `NAO`.
+
 ## 4. Recortes COG e tamanhos
 
 `gdal_translate -of COG -co COMPRESS=DEFLATE -co PREDICTOR=3 -projwin ...` (janela 1.000 x 1.000 px alinhada à grade
@@ -116,7 +177,7 @@ ponto (2.000 x 2.000 px); snap da acumulação: regra da seção 5.1 (pixel de m
 | CIN_UFPE | 7,679 | 7,683 | 4,08 | 3,69 | 0,155 | 82.378 |
 | AGAMENON_DERBY | 2,580 | 2,571 | 4,60 | 4,40 | 0,000 | 62 |
 | MASCARENHAS_IMBIRIBEIRA | 2,068 | 2,077 | 3,12 | 3,73 | 0,271 | 10.103 |
-| JABOATAO_CENTRO | sem dado | | | | | |
+| JABOATAO_CENTRO | 64,832 | 64,785 | 40,01 | 28,80 | 0,000 | 148 (em revisão: encosta, §3.1) |
 
 **Mudança em relação à primeira versão deste documento** (Priority-Flood próprio com acumulação na árvore de descoberta):
 áreas eram 573.046 / 84.947 / 61 / 34 m². Cota, declividade e profundidade de depressão não mudaram; a área contribuinte do
@@ -166,6 +227,9 @@ Leitura: de 5 para 10 m a área é estável em CIn e Mascarenhas (+0,1 % e +5 %)
 para 20 m ela salta em Ibura (52 vezes) e Agamenon (240 vezes), sinal de que o raio de 20 m alcança outro eixo de drenagem. O valor
 de 10 m é, portanto, uma escolha que depende do ponto; **a incerteza deve ser carregada para o modelo** (usar as colunas de 5 e 20 m
 como faixa, ou `log10` da área, e não tratar o valor como exato).
+
+> 2026-11-21: diagnóstico com mapas e quatro regras candidatas (trava por instabilidade, boca de lobo do ESIG, via do OSM,
+> faixa 5–20 m) em `docs/PROPOSTA-REGRA-AREA-CONTRIBUICAO.md`; emenda proposta A no ADR 0027. Nada implementado.
 
 Interpretação com cautela:
 
