@@ -50,6 +50,27 @@ public class FloodForecastRepository {
         return n.isEmpty() ? null : n.get(0);
     }
 
+    /** Resumo do ciclo mais novo: instante, pontos por nível e SEM_DADO por motivo. */
+    public record CycleSummary(Instant at, java.util.Map<String, Integer> byLevel, java.util.Map<String, Integer> semDadoByReason) {}
+
+    public java.util.Optional<CycleSummary> lastCycle() {
+        List<java.util.Map<String, Object>> rows = jdbc.queryForList("""
+                SELECT f.evaluated_at, f.level, f.reason FROM flood_forecast_point f
+                WHERE f.cycle_id = (SELECT cycle_id FROM flood_forecast_point ORDER BY evaluated_at DESC LIMIT 1)""");
+        if (rows.isEmpty()) return java.util.Optional.empty();
+        java.util.Map<String, Integer> lv = new java.util.TreeMap<>();
+        java.util.Map<String, Integer> rs = new java.util.TreeMap<>();
+        Instant at = null;
+        for (java.util.Map<String, Object> row : rows) {
+            Object t = row.get("evaluated_at");
+            Instant i = t instanceof Timestamp ts ? ts.toInstant() : t instanceof OffsetDateTime o ? o.toInstant() : null;
+            if (i != null && (at == null || i.isAfter(at))) at = i;
+            lv.merge((String) row.get("level"), 1, Integer::sum);
+            if (row.get("reason") != null) rs.merge((String) row.get("reason"), 1, Integer::sum);
+        }
+        return java.util.Optional.of(new CycleSummary(at, lv, rs));
+    }
+
     /** A linha mais nova de cada ponto ativo (índice flood_forecast_point_latest). */
     public List<Latest> latestPerActivePoint() {
         return jdbc.query("""

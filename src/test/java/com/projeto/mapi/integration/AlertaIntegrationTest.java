@@ -50,6 +50,7 @@ class AlertaIntegrationTest extends AbstractTimescaleIntegrationTest {
     @MockitoBean TerrainQueryService terrain;
     @MockitoBean OpenMeteoForecastClient openMeteo;
     @MockitoBean com.projeto.mapi.service.alagamento.FloodForecastClient floodClient;
+    @MockitoBean com.projeto.mapi.service.alagamento.AiHealthClient aiHealth;
     @org.springframework.beans.factory.annotation.Autowired com.projeto.mapi.controller.AlagamentoController alagamento;
 
     final Instant lastBlock = Instant.ofEpochSecond(Instant.now().getEpochSecond() / 600 * 600);
@@ -184,6 +185,11 @@ class AlertaIntegrationTest extends AbstractTimescaleIntegrationTest {
             assertThat(f.shadow()).isTrue();
         });
         assertThat(jdbc.queryForObject("SELECT count(*) FROM flood_forecast_point", Long.class)).isEqualTo(2L);
+        com.projeto.mapi.dto.AlagamentoStatusDTO st = alagamento.status().getBody();
+        assertThat(st.aiReachable()).isFalse();
+        assertThat(st.lastCycleAt()).isNotNull();
+        assertThat(st.byLevel()).containsEntry("SEM_DADO", 2);
+        assertThat(st.semDadoByReason()).containsEntry("PREVISAO_INDISPONIVEL", 2);
     }
 
     @Test

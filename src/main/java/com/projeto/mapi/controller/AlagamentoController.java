@@ -41,4 +41,14 @@ public class AlagamentoController {
         }
         return ResponseEntity.ok(service.current());
     }
+
+    @GetMapping("/status")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @Operation(summary = "Versões da MAPI AI e último ciclo do alerta por regressão (tela Dados)",
+            description = "rain_model_version, bucket_version, flood_version e code_version (commit) do /health da IA; último ciclo: "
+                    + "instante, pontos por nível e SEM_DADO por motivo. aiReachable=false quando a IA não respondeu.")
+    @ApiResponse(responseCode = "200", description = "OK")
+    public ResponseEntity<com.projeto.mapi.dto.AlagamentoStatusDTO> status() {
+        return ResponseEntity.ok(service.status());
+    }
 }

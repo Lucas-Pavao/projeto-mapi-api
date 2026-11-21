@@ -30,16 +30,19 @@ public class FloodForecastServiceImpl implements FloodForecastService {
     private final RainForecastService rainForecast;
     private final FloodForecastRepository repo;
     private final ObjectMapper mapper;
+    private final com.projeto.mapi.service.alagamento.AiHealthClient health;
     private final boolean enabled;
     private final boolean shadow;
 
     public FloodForecastServiceImpl(FloodForecastClient client, RainForecastService rainForecast, FloodForecastRepository repo,
-                                    ObjectMapper mapper, @Value("${mapi.alagamento.enabled:true}") boolean enabled,
+                                    ObjectMapper mapper, com.projeto.mapi.service.alagamento.AiHealthClient health,
+                                    @Value("${mapi.alagamento.enabled:true}") boolean enabled,
                                     @Value("${mapi.alagamento.shadow:true}") boolean shadow) {
         this.client = client;
         this.rainForecast = rainForecast;
         this.repo = repo;
         this.mapper = mapper;
+        this.health = health;
         this.enabled = enabled;
         this.shadow = shadow;
     }
@@ -92,6 +95,16 @@ public class FloodForecastServiceImpl implements FloodForecastService {
             log.error("Alerta por regressão do ponto {}: falha ao gravar: {}", p.getSlug(), e.toString());
         }
         return dto;
+    }
+
+    @Override
+    public com.projeto.mapi.dto.AlagamentoStatusDTO status() {
+        JsonNode h = health.health();
+        var cycle = repo.lastCycle().orElse(null);
+        java.util.function.Function<String, String> f = k -> h == null || h.path(k).isMissingNode() || h.path(k).isNull() ? null : h.path(k).asText();
+        return new com.projeto.mapi.dto.AlagamentoStatusDTO(h != null, f.apply("rain_model_version"), f.apply("bucket_version"),
+                f.apply("flood_version"), f.apply("code_version"), f.apply("code_dirty"), cycle == null ? null : cycle.at(),
+                cycle == null ? java.util.Map.of() : cycle.byLevel(), cycle == null ? java.util.Map.of() : cycle.semDadoByReason(), shadow);
     }
 
     @Override
