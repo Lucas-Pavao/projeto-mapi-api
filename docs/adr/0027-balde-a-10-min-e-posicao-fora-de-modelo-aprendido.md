@@ -54,6 +54,26 @@ Opção B, versão `balde-M1a-10min` (`projeto-mapi-ai/mapi_ai/bucket10.py`; `av
 - Cadastro da galeria (diâmetro, cota de fundo) para os pontos, que substitua a capacidade pela IDF.
 - Decisão sobre a regra da área de contribuição (Derby).
 
+## Emenda A — regra da área de contribuição (2026-11-21)
+
+- Status: **aprovado** pelo Lucas em 2026-11-21 ("todos aprovados"), na forma da recomendação: trava (2) aplicada
+  (`tools/terreno/trava_area.py`, testes em `tools/terreno/tests/test_trava_area.py`; Derby e Ibura em
+  `mapi.alerta.flood.terrain-review`; status `EM_REVISAO` no `terreno.json` da IA). A regra definitiva (3) espera a conferência da
+  posição dos pontos Derby e Jaboatão (item 1), que depende de informação do Lucas.
+- Base: `docs/PROPOSTA-REGRA-AREA-CONTRIBUICAO.md` e `docs/terreno/area-contribuicao/area_regras.csv`
+
+Contexto. Com o snap de 10 m, Derby e Ibura têm 62 e 208 m²; com 20 m, 14.875 e 10.880 m². A razão A(20 m)/A(5 m) é 572 no
+Derby e 389 no Ibura, contra 1,0 a 1,3 nos outros três pontos. Além disso, o ponto do Derby fica a cerca de 100 m da Av. Agamenon
+e o de Jaboatão numa encosta a 64,8 m, sem via a 20 m.
+
+Proposta. (1) Conferir a posição dos pontos Derby e Jaboatão antes de qualquer regra de área. (2) Trava imediata, igual para
+todos os pontos: se A(20 m)/A(5 m) > 10, o ponto fica `SEM_DADO (TERRENO_EM_REVISAO)` — hoje Derby e Ibura; o Ibura sai do
+alerta. (3) Candidata a regra definitiva: exutório no pixel de maior acumulação a até 20 m do ponto, só a até 6 m do eixo de uma
+via do OSM (cópia fixa com hash), com a faixa 5–20 m registrada. Nenhum valor foi escolhido olhando dia de alagamento.
+
+Consequência se aprovada: `mapi.alerta.flood.terrain-review` passa a ser calculada pela trava (2), não escrita à mão; o
+`terreno.json` da IA ganha a mesma marcação.
+
 ## Emenda proposta B — capacidade da galeria pelo cadastro ESIG (2026-11-21)
 
 - Status: **proposto** (não aprovado; `mapi.alerta.capacity` não mudou)
