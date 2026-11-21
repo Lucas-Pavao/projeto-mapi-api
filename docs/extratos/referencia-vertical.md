@@ -71,3 +71,52 @@ Nenhuma fonte primária encontrada que declare datum vertical ou modelo geoidal 
 - Contexto geoide no Recife: Calado, UFPE, avaliação de EGM2008 e MAPGEO2015 no Recife: https://repositorio.ufpe.br/jspui/bitstream/123456789/47360/1/LUCAS%20GONZALES%20LIMA%20PEREIRA%20CALADO-AVALIA%c3%87%c3%83O%20DA%20ACUR%c3%81CIA%20DOS%20MODELOS%20GEOIDAIS%20EGM2008%20E%20MAPGEO2015%20PARA%20A%20CIDADE%20DO%20RECIFE_PE.pdf (não lido por inteiro).
 - IBGE, modelos geoidais (MAPGEO2015; sucessor hgeoHNOR2020): https://www.ibge.gov.br/geociencias/informacoes-sobre-posicionamento-geodesico/servicos-para-posicionamento-geodesico/10855-modelo-de-ondulacao-geoidal.html
 - Portal de distribuição: www.pe3d.pe.gov.br (cadastro necessário; metadados do GeoTIFF e relatório técnico do contrato PSHPE 001/2014 não consultados). O GeoTIFF do repositório nem tem CRS (ver skill mapi-geo-pe3d).
+
+## 9. Novas RRNN do porto, viés MDT↔RN e escala do PE3D (2026-11-21, prompt 4)
+
+> O refluxo de maré **voltou ao escopo** em 2026-11-21 por decisão do Lucas (ADR 0009, emenda 3). Esta seção só registra
+> fontes e confere números; Δ = +0,821 m (emenda 1) **não mudou**.
+
+**RRNN acrescentadas** a `scripts/referencia-vertical/rns_ibge_recife.csv` (relatórios do BDG gerados em 2026-11-21 em
+`http://www.bdg.ibge.gov.br/bdg/pdf/relatorio.asp?L1=<RN>`; cópias e SHA-256 completos em `MAPI/fontes/bdg-2026-11-21/SHA256SUMS`; o
+relatório traz a data de geração, então um novo download muda o hash). Datum Imbituba, cálculo REALT de 30/07/2018. Coordenadas
+convertidas para UTM 25S (`scripts/capacidade-galeria/utm.py`).
+
+| RN | Altitude normal (m) | Sigma (m) | Marco (visita) | Nivelamento | Local (BDG) | SHA-256 (início) |
+|---|---|---|---|---|---|---|
+| 9319P | 3,0346 | sem ("simples transporte") | NÃO ENCONTRADO (05/04/2006) | 16/08/1958 | quebra-mar, 90 m ao sul do marégrafo; chapa "IAGS M6" | `c7aee3404c2df65e` |
+| 9319R | 2,9762 | sem | NÃO ENCONTRADO (05/04/2006) | 20/08/1958 | porta do Farol do Picão, no quebra-mar; chapa "IAGS M3" | `b977879adf758c37` |
+| 9334M | 3,3229 | 0,089 | BOM (25/03/2009) | 09/07/1987 | marco da Portobrás; chapa "R.N.1 Portobrás"; = EG 8131552 | `d4a2f2521b04bc41` |
+| 9334N | 2,8382 | 0,089 | BOM (25/03/2009) | 31/07/1987 | junto ao cabeço 72, Cais do Porto; = EG 8131556 | `07dc5618f7ece592` |
+| 394A | 2,8939 | sem | NÃO ENCONTRADO (05/04/2006) | 14/08/1958 | lado oeste do quebra-mar | `2ae9179736694a36` |
+
+Conferência das que já estavam no CSV: 2603D = 2,8221 m (`cb9e77dbb6fabf2c`), 2603E = 2,7741 m (`912162d4957d1a7f`) e 2603J = 2,7572 m
+(`6a502ca5c28736e3`) batem com o CSV. **A 8131557 é a 2603J** ("RN 2603-J = EG 8131557", relatório do BDG).
+
+**Viés MDT − RN** (`scripts/referencia-vertical/vies_mdt_rn_ibge.py`, mesmo método; mosaico com as folhas de Jaboatão, que não
+alteram os pixels do Recife; saída em `saida_vies_mdt_2026-11-21.txt`):
+
+| Conjunto | Antes (emenda 1): n / mediana / dp | Agora: n / mediana / dp |
+|---|---|---|
+| Terra, todos | 14 / −0,356 / 0,563 m | **17 / −0,369 / 0,517 m** |
+| Terra, marco BOM | 4 / −0,251 / 0,583 m | **6 / −0,251 / 0,485 m** |
+
+- As 14 linhas antigas saem idênticas. Entram 9334M (−0,699, BOM), 9334N (−0,150, BOM) e 9319R (−0,544).
+- 9319P e 394A caem como AGUA (p10 < 1 m): ficam no quebra-mar, e a coordenada do BDG é arredondada ao segundo (~30 m).
+- A 9319R entrou como TERRA no limite (p10 = 1,12 m); também está no quebra-mar e foi nivelada em 1958, sem sigma, com o marco não
+  encontrado desde 2006. Sem ela: n = 16, mediana −0,356 m, dp 0,534 m (igual à de antes).
+- Conclusão: o viés não muda de forma relevante. A estimativa continua "MDT ~0,25 a 0,37 m abaixo da RN", com dispersão de ~0,5 m,
+  e o sinal esperado (a chapa fica acima do terreno nu). Continua **não medido no terreno nu**.
+
+**Armadilhas registradas:**
+- 1,14 m como nível médio sobre o zero hidrográfico (valor antigo de estudos municipais) contra **1,28 m** da tábua atual e da F-41
+  (Z0 = 128,2 cm): diferença de +0,14 m. Busca no código e nos documentos da API, da IA e do front em 2026-11-21: **nenhum uso de
+  1,14 m nem de 1,25 m como nível médio**. O código usa 1,28 m (`AbstractTideExtremesAdapter`, `mean_level_m`). O ADR 0009 cita
+  "−1,14 m" só como limite da estimativa de trabalho antiga de h_NR, já substituída pela emenda 1.
+- Z0 de Suape (1,25 m): é de outro porto e não se transpõe para o Recife.
+
+**Escala do PE3D:** as 88 folhas usadas (48 do Recife, 40 de Jaboatão) têm o tamanho e a nomenclatura da articulação 1:5.000
+(`TERRENO-PE3D.md` §3.1). Segundo o levantamento externo, os produtos 1:5.000 foram calibrados com o geoide MAPGEO2010, e os
+1:1.000 nas RRNN do IBGE anteriores ao REALT 2018 **[a confirmar no pedido 03]**; Cirilo et al. (seção 8) dão erro altimétrico melhor
+que 25 cm no 1:5.000. Consequência: se o MDT usa MAPGEO2010 e as RRNN estão no REALT 2018, parte do viés de ~−0,3 m pode ser
+diferença de modelo geoidal e de realização, não erro do LiDAR. Para GNSS de campo (ponto de controle), usar o hgeoHNOR2020.

@@ -63,6 +63,19 @@ dias** (mediana), o que bate com a ordem de grandeza da literatura: limpar a cad
 material (Langeveld et al., 2016, via Rietveld et al., 2020, p. 549), e o leito de sedimento estabiliza em alguns meses (Post et al.,
 2016, mesma página). A limpeza observada na 156 é **corretiva** (depois de chamado), não programada.
 
+### 4.1 Depois do alinhamento dos pontos por notícia (2026-11-21, `docs/ALINHAMENTO-PONTOS.md`)
+
+Mesmo método, posições novas (Ibura 9 m, Derby 337 m, Imbiribeira 1,4 km). É este o valor usado no alerta (`LimpezaProperties`) e na IA.
+
+| Ponto (150 m) | Limpezas | λ_re (por dia) | Tempo médio até o próximo chamado | Mediana (KM) | P(novo chamado em 30 / 60 / 90 dias) | Intervalo mediano entre limpezas |
+|---|---|---|---|---|---|---|
+| Ibura | 53 | 0,0234 | 43 dias | 31 dias | 0,49 / 0,72 / 0,85 | 60 dias |
+| Derby | 35 | 0,0098 | 102 dias | 36 dias | 0,43 / 0,60 / 0,71 | 64 dias |
+| Imbiribeira | 130 | 0,0333 | 30 dias | 20 dias | 0,65 / 0,85 / 0,95 | 26 dias |
+| CIn | 0 | — | — | — | — | — |
+
+Casamento (bairro do ponto): Ibura IPSEP, Derby BOA VISTA, Imbiribeira IMBIRIBEIRA, CIn AREIAS.
+
 ## 5. Sazonalidade (`sazonalidade.csv`)
 
 Ibura (união, 122 chamados): pico de março a agosto (12 a 18 por mês) e mínimo em outubro (3). Os bairros seguem o mesmo desenho
