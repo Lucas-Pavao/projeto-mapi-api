@@ -120,7 +120,8 @@ def main() -> None:
     pts = {r["slug"]: r for r in csv.DictReader(PONTOS_CSV.open(encoding="utf-8"))}
     todos = le_156(pasta156)
     fim = max(r["d0"] for r in todos if r["d0"])
-    ini = min(r["d0"] for r in todos if r["d0"])
+    # cobertura = do 1º dia do ano do arquivo mais antigo (2012) ao fim; o arquivo de 2012 traz algumas demandas antigas (2008)
+    ini = dt.date(int(min(r["ano"] for r in todos)), 1, 1)
     anos_cob = (fim - ini).days / 365.25
     params: dict = {"gerado_por": "scripts/central-156/entupimento_156.py", "pre_registro": "docs/PRE-REGISTRO-ENTUPIMENTO-156.md",
                     "inicio_dados": str(ini), "fim_dados": str(fim), "raio_m": RAIO, "pontos": {}}

@@ -97,3 +97,19 @@ o alerta passa a depender de quanto tempo a galeria passa entupida, e isso se me
 - Câmera com visão computacional para classificar obstrução: há trabalhos com cerca de 85% de acurácia em bueiros `[sem fonte lida]`,
   mas obstrução visual não é obstrução hidráulica (grelha coberta de folhas pode passar água; caixa assoreada por baixo parece limpa).
 - Sensor de nível em poço de visita: mediria a galeria cheia diretamente; custo, energia, vandalismo e permissão da EMLURB.
+
+## 8. Limpeza recente reduz a chance de alagar (2026-11-21, aprovado pelo Lucas)
+
+Versão com dado medido, mais simples que a cadeia de 3 estados: dois estados (livre e entupida) e a probabilidade de estar entupida
+dependendo do **tempo desde a última limpeza**, `P(entupida | t) = 1 − exp(−λ_re · t)`. λ_re é a taxa de reentupimento medida na Central
+156: o tempo entre uma limpeza ATENDIDA e o próximo chamado de limpeza a até 150 m do ponto
+(`docs/extratos/emlurb-156/entupimento/RESULTADOS.md`).
+
+- Ibura: λ_re = 0,0235 por dia (53 limpezas): P(entupida) = 0,07 três dias depois da limpeza, 0,51 com 30 dias, 0,88 com 90 dias.
+- Derby: λ_re = 0,0053 por dia (24 limpezas). CIn e Imbiribeira: sem taxa (0 e 4 limpezas casadas) → comportamento de hoje.
+- Frequência de limpeza: a oficial não está publicada (pedido 09); a observada perto do Ibura e do Derby é de uma a cada 60–69 dias,
+  coerente com a literatura (seção 4 dos resultados).
+- Código: `projeto-mapi-ai/mapi_ai/entupimento.py` (`p_entupida`, `prob_alagar`), com 5 testes; **não ligado ao alerta ao vivo**. Para
+  ligar: a API precisa da data da última limpeza de cada ponto (ingestão dos Dados Vivos da 156, com atraso de até 15 min) e de uma
+  emenda ao ADR 0027. Hoje, além disso, Ibura e Derby estão em revisão de terreno (trava da área), então a mistura só teria efeito neles
+  depois de a área ser resolvida.
