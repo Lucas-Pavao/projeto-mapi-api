@@ -255,15 +255,25 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
     }
 
     /**
-     * Alerta de alagamento por regressão (V38): as últimas 24 h da mesma série de 10 min (lacuna vai nula, nunca zero) e o
+     * Alerta de alagamento por regressão (V38): até 24 h da mesma série de 10 min (o trecho contínuo desde a última lacuna) e o
      * mesmo terreno do balde vão para POST /v1/flood/forecast. Falha aqui não derruba o alerta de chuva.
      */
     private Object floodForecast(UUID cycleId, Instant now, FloodPoint p, List<Slot> slots, int last,
                                  RainAlertRules.TerrainStatus ts, TerrainResponseDTO t, Double rain60,
                                  PointRain10MinRepository.Block newest) {
         try {
+            // Mesma regra do balde do ADR 0026 e do registro de 5 anos: o balde roda sobre o trecho CONTÍNUO desde a última
+            // lacuna (começa vazio depois dela; ausente nunca vira zero), com no mínimo minCompleteHours. Trecho mais curto vai
+            // com a lacuna (null) e a IA devolve SEM_DADO / SERIE_INCOMPLETA.
             List<Double> s10 = new ArrayList<>();
-            if (last >= 0) for (int k = Math.max(0, last - SERIES_STEPS + 1); k <= last; k++) s10.add(slots.get(k).mm());
+            if (last >= 0) {
+                int from = Math.max(0, last - SERIES_STEPS + 1);
+                int start = from;
+                for (int k = from; k <= last; k++) if (slots.get(k).mm() == null) start = k + 1;
+                int minSteps = props.getFlood().getMinCompleteHours() * 6;
+                int begin = last - start + 1 >= minSteps ? start : Math.max(from, start - 1);
+                for (int k = begin; k <= last; k++) s10.add(slots.get(k).mm());
+            }
             FloodForecastClient.Terrain ft = null;
             if (ts == RainAlertRules.TerrainStatus.OK) {
                 ft = new FloodForecastClient.Terrain(p.getSlug(), t.contributingAreaM2(),

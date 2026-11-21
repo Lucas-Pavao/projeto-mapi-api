@@ -173,8 +173,12 @@ class AlertaIntegrationTest extends AbstractTimescaleIntegrationTest {
         assertThat(ok.floodReason()).isEqualTo("SEM_TERRENO");
 
         // alerta por regressão (V38): o ciclo manda o estado do terreno de cada ponto; IA sem resposta = SEM_DADO com motivo
-        org.mockito.Mockito.verify(floodClient).forecast(anyDouble(), anyDouble(), anyList(), anyList(), anyList(),
+        @SuppressWarnings("unchecked")
+        org.mockito.ArgumentCaptor<List<Double>> serie = org.mockito.ArgumentCaptor.forClass(List.class);
+        org.mockito.Mockito.verify(floodClient).forecast(anyDouble(), anyDouble(), anyList(), anyList(), serie.capture(),
                 org.mockito.ArgumentMatchers.isNull(), org.mockito.ArgumentMatchers.eq("SEM_TERRENO"), anyDouble(), anyDouble());
+        // trecho contínuo desde a última lacuna, com pelo menos 6 h: sem nenhum null (ausente nunca vira zero nem vai ao balde)
+        assertThat(serie.getValue()).hasSizeGreaterThanOrEqualTo(36).doesNotContainNull();
         org.mockito.Mockito.verify(floodClient).forecast(anyDouble(), anyDouble(), anyList(), anyList(), anyList(),
                 org.mockito.ArgumentMatchers.isNull(), org.mockito.ArgumentMatchers.eq("EM_REVISAO"), anyDouble(), anyDouble());
         List<com.projeto.mapi.dto.AlagamentoPontoDTO> fl = alagamento.current(admin()).getBody();
