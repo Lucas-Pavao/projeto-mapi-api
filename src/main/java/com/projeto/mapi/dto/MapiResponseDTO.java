@@ -20,6 +20,9 @@ public class MapiResponseDTO {
     private Double distanceToNearestSensorKm;
     // Altitude do local: cota do MDT do PE3D (5 m) quando o ponto está na área levantada; senão, Open-Meteo (90 m).
     private LocalElevationDTO localElevation;
+    // Classificador de alagamento retirado em 21/11/2026 (prompt de 20/11): o campo fica só para uso interno e não sai
+    // mais na resposta. O nível do ponto vem de GET /api/alagamento/pontos (alerta por regressão).
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private FloodPredictionResponseDTO floodPrediction;
 
     // Contrato de RESPOSTA ao front-end (camelCase, igual ao resto da MapiResponseDTO) — não

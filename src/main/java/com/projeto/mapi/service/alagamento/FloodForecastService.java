@@ -20,6 +20,9 @@ public interface FloodForecastService {
     /** Último estado de cada ponto ativo. */
     List<AlagamentoPontoDTO> current();
 
+    /** Histórico por ponto nas últimas {@code hours} horas (relatório e linha do tempo). */
+    com.projeto.mapi.dto.AlagamentoHistoricoDTO history(int hours);
+
     /** Versões da IA e o último ciclo (tela Dados). */
     com.projeto.mapi.dto.AlagamentoStatusDTO status();
 

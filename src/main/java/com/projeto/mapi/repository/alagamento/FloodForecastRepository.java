@@ -50,6 +50,21 @@ public class FloodForecastRepository {
         return n.isEmpty() ? null : n.get(0);
     }
 
+    /** Uma linha do histórico na janela (flood_forecast_point_latest serve o filtro por ponto e instante). */
+    public record HistoryRow(String slug, String name, Instant at, String level, Integer worstHorizonHours, Double hNowCm, String reason) {}
+
+    public List<HistoryRow> history(Instant from, Instant to) {
+        return jdbc.query("""
+                SELECT p.slug, p.name, f.evaluated_at, f.level, f.worst_horizon_hours, f.h_now_cm, f.reason
+                FROM flood_forecast_point f JOIN flood_points p ON p.id = f.flood_point_id
+                WHERE p.active AND f.evaluated_at > ? AND f.evaluated_at <= ?
+                ORDER BY p.id, f.evaluated_at""",
+                (rs, i) -> new HistoryRow(rs.getString("slug"), rs.getString("name"), rs.getTimestamp("evaluated_at").toInstant(),
+                        rs.getString("level"), rs.getObject("worst_horizon_hours", Integer.class), rs.getObject("h_now_cm", Double.class),
+                        rs.getString("reason")),
+                utc(from), utc(to));
+    }
+
     /** Resumo do ciclo mais novo: instante, pontos por nível e SEM_DADO por motivo. */
     public record CycleSummary(Instant at, java.util.Map<String, Integer> byLevel, java.util.Map<String, Integer> semDadoByReason) {}
 

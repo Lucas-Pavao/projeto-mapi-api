@@ -33,11 +33,12 @@ public class FloodForecastServiceImpl implements FloodForecastService {
     private final com.projeto.mapi.service.alagamento.AiHealthClient health;
     private final boolean enabled;
     private final boolean shadow;
+    private final java.time.Clock clock;
 
     public FloodForecastServiceImpl(FloodForecastClient client, RainForecastService rainForecast, FloodForecastRepository repo,
                                     ObjectMapper mapper, com.projeto.mapi.service.alagamento.AiHealthClient health,
                                     @Value("${mapi.alagamento.enabled:true}") boolean enabled,
-                                    @Value("${mapi.alagamento.shadow:true}") boolean shadow) {
+                                    @Value("${mapi.alagamento.shadow:true}") boolean shadow, java.time.Clock clock) {
         this.client = client;
         this.rainForecast = rainForecast;
         this.repo = repo;
@@ -45,6 +46,7 @@ public class FloodForecastServiceImpl implements FloodForecastService {
         this.health = health;
         this.enabled = enabled;
         this.shadow = shadow;
+        this.clock = clock;
     }
 
     @Override
@@ -95,6 +97,18 @@ public class FloodForecastServiceImpl implements FloodForecastService {
             log.error("Alerta por regressão do ponto {}: falha ao gravar: {}", p.getSlug(), e.toString());
         }
         return dto;
+    }
+
+    @Override
+    public com.projeto.mapi.dto.AlagamentoHistoricoDTO history(int hours) {
+        Instant to = clock.instant();
+        Instant from = to.minus(java.time.Duration.ofHours(hours));
+        java.util.Map<String, com.projeto.mapi.dto.AlagamentoHistoricoDTO.Series> by = new java.util.LinkedHashMap<>();
+        for (FloodForecastRepository.HistoryRow r : repo.history(from, to)) {
+            by.computeIfAbsent(r.slug(), k -> new com.projeto.mapi.dto.AlagamentoHistoricoDTO.Series(r.slug(), r.name(), new ArrayList<>()))
+                    .items().add(new com.projeto.mapi.dto.AlagamentoHistoricoDTO.Item(r.at(), r.level(), r.worstHorizonHours(), r.hNowCm(), r.reason()));
+        }
+        return new com.projeto.mapi.dto.AlagamentoHistoricoDTO(from, to, new ArrayList<>(by.values()));
     }
 
     @Override

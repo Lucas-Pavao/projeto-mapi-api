@@ -26,6 +26,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /** Grupo 9: GET /api/public/risk e o filtro de taxa (ADR 0013). */
 class PublicRiskIntegrationTest extends AbstractApiIntegrationTest {
 
+    @org.springframework.test.context.bean.override.mockito.MockitoBean com.projeto.mapi.service.alagamento.FloodForecastService floodForecast;
+
+    private void alerta(boolean shadow, String... slugLevel) {
+        org.mockito.Mockito.when(floodForecast.shadow()).thenReturn(shadow);
+        java.util.List<com.projeto.mapi.dto.AlagamentoPontoDTO> l = new java.util.ArrayList<>();
+        for (int i = 0; i < slugLevel.length; i += 2) {
+            l.add(new com.projeto.mapi.dto.AlagamentoPontoDTO(i, slugLevel[i], slugLevel[i], slugLevel[i + 1], 1, null, null, 17.7, null,
+                    java.util.List.of(), null, null, null, null, null, java.util.Map.of(), java.util.List.of(), java.util.List.of(), null,
+                    Instant.now(), Instant.now(), true, shadow, "regra", com.projeto.mapi.dto.AlagamentoPontoDTO.ATTRIBUTION));
+        }
+        org.mockito.Mockito.when(floodForecast.current()).thenReturn(l);
+    }
+
     @Autowired FloodPointRepository pointRepository;
     @Autowired FloodEventRepository eventRepository;
     @Autowired FloodPredictionRepository predictionRepository;
@@ -68,32 +81,40 @@ class PublicRiskIntegrationTest extends AbstractApiIntegrationTest {
     }
 
     @Test
-    void semLogin_devolveClasseSemProbabilidade() throws Exception {
+    void modoSombra_semLogin_dizQueOAlertaEstaEmTeste_nuncaSemAlerta() throws Exception {
+        alerta(true, "pub-alto", "ALERTA");
         String body = mockMvc.perform(req("lat=-8.0502&lon=-34.8803"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nearestPoint.slug").value("pub-alto"))
-                .andExpect(jsonPath("$.nearestPoint.riskLevel").value("HIGH"))
-                .andExpect(jsonPath("$.nearestPoint.issuedAt").isNotEmpty())
-                .andExpect(jsonPath("$.nearestPoint.validUntil").isNotEmpty())
-                .andExpect(jsonPath("$.modelValidationStatus").value("NOT_VALIDATED"))
-                .andExpect(jsonPath("$.meaning").value(org.hamcrest.Matchers.startsWith("Probabilidade alta.")))
+                .andExpect(jsonPath("$.nearestPoint.level").value("SEM_DADO"))
+                .andExpect(jsonPath("$.nearestPoint.reason").value("EM_TESTE"))
+                .andExpect(jsonPath("$.inTest").value(true))
+                .andExpect(jsonPath("$.experimental").value(true))
+                .andExpect(jsonPath("$.meaning").value(org.hamcrest.Matchers.startsWith("O alerta de alagamento ainda está em teste")))
                 .andExpect(jsonPath("$.rainLastHourMm").value(12.5))
                 .andExpect(jsonPath("$.rainStationId").value("PLUV-PUB"))
                 .andExpect(header().string(HttpHeaders.CACHE_CONTROL, org.hamcrest.Matchers.containsString("max-age=60")))
                 .andReturn().getResponse().getContentAsString();
-        assertThat(body).doesNotContain("robability").doesNotContain("0.91");
+        assertThat(body).doesNotContain("robability").doesNotContain("riskLevel").doesNotContain("Sem alerta").doesNotContain("seguro\"");
         int d = objectMapper.readTree(body).at("/nearestPoint/distanceM").asInt();
         assertThat(d % 50).as("distância arredondada a 50 m").isZero();
         assertThat(d).isLessThanOrEqualTo(1000);
     }
 
     @Test
-    void pontoSemPrevisao_ehUnknownComTextoDeUnknown() throws Exception {
-        mockMvc.perform(req("lat=-8.1002&lon=-34.9502"))
+    void foraDoModoSombra_manchetePeloNivel_eSemCalculoViraSemDado() throws Exception {
+        // coordenadas diferentes das do outro teste: a resposta pública fica 60 s em cache por célula
+        alerta(false, "pub-alto", "ALERTA");
+        mockMvc.perform(req("lat=-8.0490&lon=-34.8790"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nearestPoint.level").value("ALERTA"))
+                .andExpect(jsonPath("$.nearestPoint.worstHorizonHours").value(1))
+                .andExpect(jsonPath("$.meaning").value("Alerta de alagamento perto de você na próxima hora."));
+        mockMvc.perform(req("lat=-8.0990&lon=-34.9490"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nearestPoint.slug").value("pub-sem-previsao"))
-                .andExpect(jsonPath("$.nearestPoint.riskLevel").value("UNKNOWN"))
-                .andExpect(jsonPath("$.meaning").value(org.hamcrest.Matchers.containsString("Isto não significa risco baixo")));
+                .andExpect(jsonPath("$.nearestPoint.level").value("SEM_DADO"))
+                .andExpect(jsonPath("$.meaning").value(org.hamcrest.Matchers.containsString("Isto não quer dizer que está seguro")));
     }
 
     @Test

@@ -19,6 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/alagamento")
 @RequiredArgsConstructor
+@org.springframework.validation.annotation.Validated
 @Tag(name = "Alerta de alagamento por regressão",
         description = "Chuva prevista (rain_v1) -> balde M1a a 10 min -> regra fixa de 15 cm. Experimental, V38.")
 public class AlagamentoController {
@@ -40,6 +41,20 @@ public class AlagamentoController {
             throw new AccessDeniedException("Alerta de alagamento por regressão em modo sombra: visível só para administrador");
         }
         return ResponseEntity.ok(service.current());
+    }
+
+    @GetMapping("/historico")
+    @PreAuthorize("hasAuthority('USER')")
+    @Operation(summary = "Histórico do alerta por regressão por ponto (relatório do evento e linha do tempo)",
+            description = "Um item por ciclo na janela: nível, prazo do pior nível, lâmina de agora e motivo do SEM_DADO. Sem probabilidade.")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @ApiResponse(responseCode = "403", description = "modo sombra e o usuário não é administrador")
+    public ResponseEntity<com.projeto.mapi.dto.AlagamentoHistoricoDTO> historico(Authentication auth,
+            @org.springframework.web.bind.annotation.RequestParam(defaultValue = "24") @jakarta.validation.constraints.Min(1) @jakarta.validation.constraints.Max(168) int horas) {
+        if (service.shadow() && auth.getAuthorities().stream().noneMatch(a -> "ADMIN".equals(a.getAuthority()))) {
+            throw new AccessDeniedException("Alerta de alagamento por regressão em modo sombra: visível só para administrador");
+        }
+        return ResponseEntity.ok(service.history(horas));
     }
 
     @GetMapping("/status")
