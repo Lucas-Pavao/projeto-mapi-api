@@ -1,6 +1,6 @@
 # Regra da área de contribuição: diagnóstico e proposta
 
-- Data: 2026-11-21 · Prompt 2, Parte B · Status: **proposta, nada implementado no alerta**
+- Data: 2026-11-21 · Prompt 2, Parte B · Status: **aprovada em 2026-11-21**; trava (a) com N = 10 implementada (Derby e Ibura em revisão); regra (c) aguarda a posição de Derby e Jaboatão
 - Para: Lucas (e orientador). Decisão pendente no ADR 0027 ("Condições que reabririam a decisão").
 - Regra seguida: nenhum dia de alagamento foi aberto. As regras são defendidas só pela física e pelo terreno.
 - Números: `docs/terreno/area-contribuicao/area_regras.csv` (gerado por `tools/terreno/run.sh area_regras`, mesma janela de

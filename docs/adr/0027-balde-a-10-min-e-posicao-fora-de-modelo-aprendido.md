@@ -54,9 +54,12 @@ Opção B, versão `balde-M1a-10min` (`projeto-mapi-ai/mapi_ai/bucket10.py`; `av
 - Cadastro da galeria (diâmetro, cota de fundo) para os pontos, que substitua a capacidade pela IDF.
 - Decisão sobre a regra da área de contribuição (Derby).
 
-## Emenda proposta A — regra da área de contribuição (2026-11-21)
+## Emenda A — regra da área de contribuição (2026-11-21)
 
-- Status: **proposto** (não aprovado; nada mudou no alerta)
+- Status: **aprovado** pelo Lucas em 2026-11-21 ("todos aprovados"), na forma da recomendação: trava (2) aplicada
+  (`tools/terreno/trava_area.py`, testes em `tools/terreno/tests/test_trava_area.py`; Derby e Ibura em
+  `mapi.alerta.flood.terrain-review`; status `EM_REVISAO` no `terreno.json` da IA). A regra definitiva (3) espera a conferência da
+  posição dos pontos Derby e Jaboatão (item 1), que depende de informação do Lucas.
 - Base: `docs/PROPOSTA-REGRA-AREA-CONTRIBUICAO.md` e `docs/terreno/area-contribuicao/area_regras.csv`
 
 Contexto. Com o snap de 10 m, Derby e Ibura têm 62 e 208 m²; com 20 m, 14.875 e 10.880 m². A razão A(20 m)/A(5 m) é 572 no

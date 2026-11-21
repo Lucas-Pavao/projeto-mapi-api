@@ -63,11 +63,11 @@ public class AlertaProperties {
         /** Precisa de pelo menos 6 h contínuas sem lacuna antes de agora; senão SEM_DADO (SERIE_INCOMPLETA). */
         private int minCompleteHours = 6;
         /**
-         * Pontos com terreno em revisão: SEM_DADO, nunca NAO. Derby: área de 62 m², regra da área pendente. Jaboatão:
-         * terreno do PE3D integrado em 2026-11-21, mas o ponto cai em encosta (64,8 m, sem depressão); posição em
-         * revisão (docs/TERRENO-PE3D.md §3).
+         * Pontos com terreno em revisão: SEM_DADO, nunca NAO. Derby e Ibura: trava da área (ADR 0027, emenda A, aprovada
+         * em 2026-11-21): A(20 m)/A(5 m) > 10 (572 e 389), calculada por tools/terreno/trava_area.py. Jaboatão: o ponto
+         * cai em encosta (64,8 m, sem depressão); posição em revisão (docs/TERRENO-PE3D.md §3.1).
          */
-        private List<String> terrainReview = List.of("AGAMENON_DERBY", "JABOATAO_CENTRO");
+        private List<String> terrainReview = List.of("AGAMENON_DERBY", "AV_RECIFE_IBURA", "JABOATAO_CENTRO");
         private double coefficientC = 0.86;
     }
 
