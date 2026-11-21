@@ -2,94 +2,11 @@
   "version": 0.6,
   "generator": "Overpass API 0.7.62.11 87bfad18",
   "osm3s": {
-    "timestamp_osm_base": "2026-11-21T22:34:14Z",
+    "timestamp_osm_base": "2026-11-21T23:26:06Z",
     "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
   },
   "elements": [
 
-{
-  "type": "way",
-  "id": 42509724,
-  "bounds": {
-    "minlat": -8.0503989,
-    "minlon": -34.8966955,
-    "maxlat": -8.0500818,
-    "maxlon": -34.8966051
-  },
-  "nodes": [
-    5286196784,
-    5286196818,
-    5286196800,
-    5286196817,
-    5286198522,
-    7160757818,
-    7160757817,
-    1467730622
-  ],
-  "geometry": [
-    { "lat": -8.0503989, "lon": -34.8966051 },
-    { "lat": -8.0503293, "lon": -34.8966513 },
-    { "lat": -8.0502860, "lon": -34.8966721 },
-    { "lat": -8.0502519, "lon": -34.8966858 },
-    { "lat": -8.0502243, "lon": -34.8966912 },
-    { "lat": -8.0502010, "lon": -34.8966955 },
-    { "lat": -8.0501654, "lon": -34.8966914 },
-    { "lat": -8.0500818, "lon": -34.8966708 }
-  ],
-  "tags": {
-    "highway": "secondary",
-    "lanes": "2",
-    "name": "Avenida Conselheiro Rosa e Silva",
-    "oneway": "yes",
-    "parking:both": "no",
-    "postal_code": "52050-225",
-    "smoothness": "excellent",
-    "source:postal_code": "CNEFE",
-    "surface": "asphalt"
-  }
-},
-{
-  "type": "way",
-  "id": 51878744,
-  "bounds": {
-    "minlat": -8.0502118,
-    "minlon": -34.8928320,
-    "maxlat": -8.0492461,
-    "maxlon": -34.8900180
-  },
-  "nodes": [
-    662141170,
-    7046488982,
-    662141160,
-    7046488983,
-    7046488981,
-    662141158,
-    3766235387,
-    12412171633,
-    1416856772
-  ],
-  "geometry": [
-    { "lat": -8.0502118, "lon": -34.8900180 },
-    { "lat": -8.0499970, "lon": -34.8917952 },
-    { "lat": -8.0499819, "lon": -34.8918973 },
-    { "lat": -8.0499651, "lon": -34.8919885 },
-    { "lat": -8.0499392, "lon": -34.8920529 },
-    { "lat": -8.0499025, "lon": -34.8921121 },
-    { "lat": -8.0493846, "lon": -34.8926729 },
-    { "lat": -8.0492713, "lon": -34.8927978 },
-    { "lat": -8.0492461, "lon": -34.8928320 }
-  ],
-  "tags": {
-    "cycleway:right": "lane",
-    "highway": "tertiary",
-    "lanes": "1",
-    "name": "Rua Monte Castelo",
-    "oneway": "yes",
-    "oneway:bicycle": "no",
-    "postal_code": "50050-310",
-    "source:postal_code": "CNEFE"
-  }
-},
 {
   "type": "way",
   "id": 85748498,
@@ -145,46 +62,6 @@
     "name": "Rua João Fernandes Vieira",
     "oneway": "yes",
     "postal_code": "50050-245",
-    "source:postal_code": "CNEFE",
-    "surface": "asphalt"
-  }
-},
-{
-  "type": "way",
-  "id": 85748501,
-  "bounds": {
-    "minlat": -8.0566115,
-    "minlon": -34.8926343,
-    "maxlat": -8.0544488,
-    "maxlon": -34.8913493
-  },
-  "nodes": [
-    995388329,
-    3766060020,
-    5600937456,
-    7014245432,
-    1437134628,
-    9016160764,
-    3245184823,
-    1430623256
-  ],
-  "geometry": [
-    { "lat": -8.0544488, "lon": -34.8913493 },
-    { "lat": -8.0545498, "lon": -34.8914091 },
-    { "lat": -8.0555634, "lon": -34.8920283 },
-    { "lat": -8.0556798, "lon": -34.8920920 },
-    { "lat": -8.0557180, "lon": -34.8921105 },
-    { "lat": -8.0563402, "lon": -34.8924675 },
-    { "lat": -8.0564060, "lon": -34.8925052 },
-    { "lat": -8.0566115, "lon": -34.8926343 }
-  ],
-  "tags": {
-    "highway": "tertiary",
-    "lanes": "2",
-    "name": "Rua Oswaldo Cruz",
-    "oneway": "yes",
-    "postal_code": "50050-225",
-    "smoothness": "good",
     "source:postal_code": "CNEFE",
     "surface": "asphalt"
   }
@@ -274,6 +151,49 @@
     "oneway": "yes",
     "postal_code": "52020-000",
     "smoothness": "good",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 89381808,
+  "bounds": {
+    "minlat": -8.0524615,
+    "minlon": -34.8995139,
+    "maxlat": -8.0498862,
+    "maxlon": -34.8980466
+  },
+  "nodes": [
+    1036684690,
+    1467735911,
+    12050999536,
+    1462092040,
+    12050999538,
+    3790929799,
+    12050999539,
+    6059050819,
+    7046543215,
+    5286196797
+  ],
+  "geometry": [
+    { "lat": -8.0524615, "lon": -34.8995139 },
+    { "lat": -8.0523425, "lon": -34.8994538 },
+    { "lat": -8.0521649, "lon": -34.8993559 },
+    { "lat": -8.0517464, "lon": -34.8991250 },
+    { "lat": -8.0508715, "lon": -34.8986358 },
+    { "lat": -8.0500035, "lon": -34.8981504 },
+    { "lat": -8.0499570, "lon": -34.8981194 },
+    { "lat": -8.0499332, "lon": -34.8981035 },
+    { "lat": -8.0499097, "lon": -34.8980760 },
+    { "lat": -8.0498862, "lon": -34.8980466 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "3",
+    "name": "Rua das Creoulas",
+    "oneway": "yes",
+    "postal_code": "52011-270",
+    "source:postal_code": "CNEFE",
     "surface": "asphalt"
   }
 },
@@ -378,37 +298,6 @@
 },
 {
   "type": "way",
-  "id": 128158633,
-  "bounds": {
-    "minlat": -8.0516169,
-    "minlon": -34.8938803,
-    "maxlat": -8.0497912,
-    "maxlon": -34.8930887
-  },
-  "nodes": [
-    1416856115,
-    1437138148,
-    5900474908
-  ],
-  "geometry": [
-    { "lat": -8.0497912, "lon": -34.8930887 },
-    { "lat": -8.0501050, "lon": -34.8932276 },
-    { "lat": -8.0516169, "lon": -34.8938803 }
-  ],
-  "tags": {
-    "cycleway:right": "lane",
-    "highway": "secondary",
-    "lanes": "2",
-    "name": "Avenida Montevidéu",
-    "oneway": "yes",
-    "postal_code": "50050-250",
-    "smoothness": "excellent",
-    "source:postal_code": "CNEFE",
-    "surface": "asphalt"
-  }
-},
-{
-  "type": "way",
   "id": 128158643,
   "bounds": {
     "minlat": -8.0530297,
@@ -437,76 +326,6 @@
     "postal_code": "50050-270",
     "source:postal_code": "CNEFE",
     "surface": "sett"
-  }
-},
-{
-  "type": "way",
-  "id": 128159781,
-  "bounds": {
-    "minlat": -8.0507474,
-    "minlon": -34.8932276,
-    "maxlat": -8.0501050,
-    "maxlon": -34.8900050
-  },
-  "nodes": [
-    1437138148,
-    1416856116,
-    6059050842,
-    6059050843,
-    1416856117,
-    1416856113
-  ],
-  "geometry": [
-    { "lat": -8.0501050, "lon": -34.8932276 },
-    { "lat": -8.0505300, "lon": -34.8921931 },
-    { "lat": -8.0505951, "lon": -34.8920090 },
-    { "lat": -8.0506169, "lon": -34.8919215 },
-    { "lat": -8.0506357, "lon": -34.8918125 },
-    { "lat": -8.0507474, "lon": -34.8900050 }
-  ],
-  "tags": {
-    "highway": "residential",
-    "lanes": "2",
-    "name": "Rua Tabira",
-    "oneway": "yes",
-    "postal_code": "50050-330",
-    "source:postal_code": "CNEFE"
-  }
-},
-{
-  "type": "way",
-  "id": 128159782,
-  "bounds": {
-    "minlat": -8.0497912,
-    "minlon": -34.8933179,
-    "maxlat": -8.0496552,
-    "maxlon": -34.8930887
-  },
-  "nodes": [
-    1416856118,
-    6476670644,
-    6476670645,
-    1416856114,
-    6476670646,
-    1416856115
-  ],
-  "geometry": [
-    { "lat": -8.0496552, "lon": -34.8933179 },
-    { "lat": -8.0496656, "lon": -34.8932436 },
-    { "lat": -8.0496824, "lon": -34.8932027 },
-    { "lat": -8.0497160, "lon": -34.8931619 },
-    { "lat": -8.0497529, "lon": -34.8931203 },
-    { "lat": -8.0497912, "lon": -34.8930887 }
-  ],
-  "tags": {
-    "highway": "secondary_link",
-    "lanes": "1",
-    "mapillary": "2566820436946008",
-    "oneway": "yes",
-    "postal_code": "50050-320",
-    "source:postal_code": "CNEFE",
-    "surface": "asphalt",
-    "survey:date": "2021-01-26"
   }
 },
 {
@@ -626,6 +445,61 @@
 },
 {
   "type": "way",
+  "id": 128683838,
+  "bounds": {
+    "minlat": -8.0566508,
+    "minlon": -34.8977080,
+    "maxlat": -8.0566363,
+    "maxlon": -34.8976038
+  },
+  "nodes": [
+    324277765,
+    1418601102
+  ],
+  "geometry": [
+    { "lat": -8.0566508, "lon": -34.8977080 },
+    { "lat": -8.0566363, "lon": -34.8976038 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Carlos de Lima Cavalcanti",
+    "oneway": "yes",
+    "smoothness": "intermediate",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 128683839,
+  "bounds": {
+    "minlat": -8.0567071,
+    "minlon": -34.8981077,
+    "maxlat": -8.0566943,
+    "maxlon": -34.8980197
+  },
+  "nodes": [
+    1421504679,
+    2152849241
+  ],
+  "geometry": [
+    { "lat": -8.0567071, "lon": -34.8981077 },
+    { "lat": -8.0566943, "lon": -34.8980197 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Carlos de Lima Cavalcanti",
+    "oneway": "yes",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
   "id": 128846480,
   "bounds": {
     "minlat": -8.0554723,
@@ -660,6 +534,89 @@
     "smoothness": "good",
     "source:postal_code": "CNEFE",
     "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 128848163,
+  "bounds": {
+    "minlat": -8.0566037,
+    "minlon": -34.8977923,
+    "maxlat": -8.0565883,
+    "maxlon": -34.8977105
+  },
+  "nodes": [
+    1422749962,
+    1422749969
+  ],
+  "geometry": [
+    { "lat": -8.0565883, "lon": -34.8977105 },
+    { "lat": -8.0566037, "lon": -34.8977923 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Carlos de Lima Cavalcanti",
+    "oneway": "yes",
+    "smoothness": "good",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 128848165,
+  "bounds": {
+    "minlat": -8.0566448,
+    "minlon": -34.8981057,
+    "maxlat": -8.0566400,
+    "maxlon": -34.8980228
+  },
+  "nodes": [
+    2152849239,
+    1422749971
+  ],
+  "geometry": [
+    { "lat": -8.0566400, "lon": -34.8980228 },
+    { "lat": -8.0566448, "lon": -34.8981057 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Carlos de Lima Cavalcanti",
+    "oneway": "yes",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 128848166,
+  "bounds": {
+    "minlat": -8.0566448,
+    "minlon": -34.8982174,
+    "maxlat": -8.0566431,
+    "maxlon": -34.8981057
+  },
+  "nodes": [
+    1422749971,
+    1422749957
+  ],
+  "geometry": [
+    { "lat": -8.0566448, "lon": -34.8981057 },
+    { "lat": -8.0566431, "lon": -34.8982174 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Carlos de Lima Cavalcanti",
+    "oneway": "yes",
+    "postal_code": "52010-140",
+    "surface": "concrete"
   }
 },
 {
@@ -741,6 +698,41 @@
     "surface": "concrete",
     "wikidata": "Q9639648",
     "wikipedia": "pt:Avenida Conde da Boa Vista"
+  }
+},
+{
+  "type": "way",
+  "id": 129737139,
+  "bounds": {
+    "minlat": -8.0559109,
+    "minlon": -34.9002552,
+    "maxlat": -8.0541765,
+    "maxlon": -34.9001455
+  },
+  "nodes": [
+    7013715226,
+    7013715227,
+    7013715228,
+    1462084272,
+    1462084268
+  ],
+  "geometry": [
+    { "lat": -8.0541765, "lon": -34.9002552 },
+    { "lat": -8.0542385, "lon": -34.9002224 },
+    { "lat": -8.0543292, "lon": -34.9001834 },
+    { "lat": -8.0552785, "lon": -34.9001605 },
+    { "lat": -8.0559109, "lon": -34.9001455 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "lanes": "2",
+    "mapillary": "2213695562105444",
+    "name": "Rua Jener de Souza",
+    "oneway": "yes",
+    "postal_code": "52010-130",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
   }
 },
 {
@@ -873,52 +865,120 @@
 },
 {
   "type": "way",
-  "id": 130493410,
+  "id": 130498940,
   "bounds": {
-    "minlat": -8.0542102,
-    "minlon": -34.8925996,
-    "maxlat": -8.0538704,
-    "maxlon": -34.8922028
+    "minlat": -8.0574629,
+    "minlon": -34.8976341,
+    "maxlat": -8.0574308,
+    "maxlon": -34.8967408
   },
   "nodes": [
-    1437138996,
-    1437138995
+    1437147434,
+    12050999552,
+    12050999553,
+    1437147436
   ],
   "geometry": [
-    { "lat": -8.0538704, "lon": -34.8925996 },
-    { "lat": -8.0542102, "lon": -34.8922028 }
+    { "lat": -8.0574629, "lon": -34.8976341 },
+    { "lat": -8.0574606, "lon": -34.8975706 },
+    { "lat": -8.0574334, "lon": -34.8968142 },
+    { "lat": -8.0574308, "lon": -34.8967408 }
   ],
   "tags": {
     "highway": "residential",
-    "name": "Rua Doutor João Suassuna",
+    "name": "Rua Luiz Barbalho",
     "oneway": "no",
-    "postal_code": "50050-350",
-    "source:postal_code": "CNEFE"
+    "postal_code": "50070-120",
+    "sidewalk": "both",
+    "smoothness": "intermediate",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
   }
 },
 {
   "type": "way",
-  "id": 130493870,
+  "id": 130500130,
   "bounds": {
-    "minlat": -8.0522515,
-    "minlon": -34.8926378,
-    "maxlat": -8.0514176,
-    "maxlon": -34.8919877
+    "minlat": -8.0578096,
+    "minlon": -34.8970147,
+    "maxlat": -8.0564803,
+    "maxlon": -34.8964750
   },
   "nodes": [
-    995388314,
-    1437139000
+    1437147676,
+    1437147436,
+    1437147679
   ],
   "geometry": [
-    { "lat": -8.0522515, "lon": -34.8926378 },
-    { "lat": -8.0514176, "lon": -34.8919877 }
+    { "lat": -8.0564803, "lon": -34.8970147 },
+    { "lat": -8.0574308, "lon": -34.8967408 },
+    { "lat": -8.0578096, "lon": -34.8964750 }
   ],
   "tags": {
     "highway": "residential",
-    "name": "Rua Samuel Pinto",
-    "oneway": "no",
-    "postal_code": "50050-240",
-    "source:postal_code": "CNEFE"
+    "name": "Rua Miguel Couto",
+    "oneway": "yes",
+    "postal_code": "50070-150",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 130500132,
+  "bounds": {
+    "minlat": -8.0578096,
+    "minlon": -34.8964750,
+    "maxlat": -8.0573687,
+    "maxlon": -34.8948366
+  },
+  "nodes": [
+    1437147679,
+    1437147680
+  ],
+  "geometry": [
+    { "lat": -8.0578096, "lon": -34.8964750 },
+    { "lat": -8.0573687, "lon": -34.8948366 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "name": "Rua Artur Orlando",
+    "oneway": "yes",
+    "postal_code": "50070-130",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 131149584,
+  "bounds": {
+    "minlat": -8.0574308,
+    "minlon": -34.8967408,
+    "maxlat": -8.0569461,
+    "maxlon": -34.8950034
+  },
+  "nodes": [
+    1437147435,
+    5732328994,
+    5732329247,
+    1437147436
+  ],
+  "geometry": [
+    { "lat": -8.0569461, "lon": -34.8950034 },
+    { "lat": -8.0569657, "lon": -34.8950736 },
+    { "lat": -8.0574129, "lon": -34.8966767 },
+    { "lat": -8.0574308, "lon": -34.8967408 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "name": "Rua Luiz Barbalho",
+    "oneway": "yes",
+    "postal_code": "50070-120",
+    "sidewalk": "both",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
   }
 },
 {
@@ -960,6 +1020,96 @@
 },
 {
   "type": "way",
+  "id": 131149591,
+  "bounds": {
+    "minlat": -8.0562075,
+    "minlon": -34.8966657,
+    "maxlat": -8.0555429,
+    "maxlon": -34.8964065
+  },
+  "nodes": [
+    1443816698,
+    1443816684
+  ],
+  "geometry": [
+    { "lat": -8.0562075, "lon": -34.8964065 },
+    { "lat": -8.0555429, "lon": -34.8966657 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "lane_markings": "no",
+    "name": "Rua Silva Ramos",
+    "oneway": "no",
+    "postal_code": "50070-100",
+    "sidewalk:both": "yes",
+    "smoothness": "excellent",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 131149643,
+  "bounds": {
+    "minlat": -8.0574616,
+    "minlon": -34.8977345,
+    "maxlat": -8.0571458,
+    "maxlon": -34.8976215
+  },
+  "nodes": [
+    1443830922,
+    8945106495,
+    8945106496,
+    1443830920
+  ],
+  "geometry": [
+    { "lat": -8.0574616, "lon": -34.8977345 },
+    { "lat": -8.0574032, "lon": -34.8977085 },
+    { "lat": -8.0571980, "lon": -34.8976589 },
+    { "lat": -8.0571458, "lon": -34.8976215 }
+  ],
+  "tags": {
+    "destination": "Boa Vista; Aflitos",
+    "foot": "no",
+    "highway": "trunk_link",
+    "lanes": "1",
+    "lit": "yes",
+    "mapillary": "641709977228417",
+    "oneway": "yes",
+    "sidewalk": "no",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 131149647,
+  "bounds": {
+    "minlat": -8.0554904,
+    "minlon": -34.8976162,
+    "maxlat": -8.0553132,
+    "maxlon": -34.8974289
+  },
+  "nodes": [
+    7016708012,
+    3766060016
+  ],
+  "geometry": [
+    { "lat": -8.0554904, "lon": -34.8976162 },
+    { "lat": -8.0553132, "lon": -34.8974289 }
+  ],
+  "tags": {
+    "destination": "Boa Vista;Aflitos",
+    "highway": "trunk_link",
+    "lanes": "1",
+    "mapillary": "821414398802879",
+    "oneway": "yes",
+    "surface": "asphalt",
+    "survey:date": "2021-04-22"
+  }
+},
+{
+  "type": "way",
   "id": 131149689,
   "bounds": {
     "minlat": -8.0544636,
@@ -987,174 +1137,429 @@
 },
 {
   "type": "way",
-  "id": 131150223,
+  "id": 132901624,
   "bounds": {
-    "minlat": -8.0512759,
-    "minlon": -34.8945865,
-    "maxlat": -8.0489622,
-    "maxlon": -34.8927443
+    "minlat": -8.0553066,
+    "minlon": -34.9006997,
+    "maxlat": -8.0541765,
+    "maxlon": -34.9002552
   },
   "nodes": [
-    1416848215,
-    1443848727,
-    1416856118,
-    1416857003
+    1462081064,
+    3713917993,
+    1462081065,
+    7013715226
   ],
   "geometry": [
-    { "lat": -8.0512759, "lon": -34.8945865 },
-    { "lat": -8.0506168, "lon": -34.8940492 },
-    { "lat": -8.0496552, "lon": -34.8933179 },
-    { "lat": -8.0489622, "lon": -34.8927443 }
+    { "lat": -8.0553066, "lon": -34.9006997 },
+    { "lat": -8.0547588, "lon": -34.9004719 },
+    { "lat": -8.0544960, "lon": -34.9003716 },
+    { "lat": -8.0541765, "lon": -34.9002552 }
   ],
   "tags": {
-    "alt_name": "Parca Odilia Freire Dos Santos",
-    "highway": "secondary",
-    "lanes": "2",
-    "name": "Avenida Governador Agamenon Magalhães",
-    "note": "There is a slight spelling difference between the IBGE data (Avenida Governador Agamenon Magalhaes) and the OSM data (Avenida Agamenon Magalhaes-Pista local)",
-    "oneway": "yes",
-    "postal_code": "52021-900",
-    "source:postal_code": "CNEFE",
-    "surface": "paved"
-  }
-},
-{
-  "type": "way",
-  "id": 131150228,
-  "bounds": {
-    "minlat": -8.0507900,
-    "minlon": -34.8943101,
-    "maxlat": -8.0506168,
-    "maxlon": -34.8940492
-  },
-  "nodes": [
-    1443848715,
-    1443848727
-  ],
-  "geometry": [
-    { "lat": -8.0507900, "lon": -34.8943101 },
-    { "lat": -8.0506168, "lon": -34.8940492 }
-  ],
-  "tags": {
-    "destination": "Boa Vista",
-    "highway": "trunk_link",
+    "highway": "tertiary",
     "lanes": "1",
-    "mapillary": "784565212430628",
+    "mapillary": "852586265658857",
+    "name": "Rua Amaro Bezerra",
     "oneway": "yes",
+    "postal_code": "52010-150",
+    "source:postal_code": "CNEFE",
     "surface": "asphalt",
     "survey:date": "2021-01-26"
   }
 },
 {
   "type": "way",
-  "id": 131150440,
+  "id": 132901896,
   "bounds": {
-    "minlat": -8.0531971,
-    "minlon": -34.8921217,
-    "maxlat": -8.0526305,
-    "maxlon": -34.8899550
+    "minlat": -8.0591051,
+    "minlon": -34.8992779,
+    "maxlat": -8.0574670,
+    "maxlon": -34.8985041
   },
   "nodes": [
-    9412662199,
-    3766235389,
-    1443866538,
-    6437317954,
-    6209583822,
-    1443866533,
-    10303070566,
-    1443866532
+    1430717733,
+    13950621278,
+    12050999548,
+    1462083150,
+    12050999550,
+    1462083149
   ],
   "geometry": [
-    { "lat": -8.0526305, "lon": -34.8921217 },
-    { "lat": -8.0526433, "lon": -34.8920782 },
-    { "lat": -8.0527922, "lon": -34.8915644 },
-    { "lat": -8.0528991, "lon": -34.8911253 },
-    { "lat": -8.0530732, "lon": -34.8904134 },
-    { "lat": -8.0530950, "lon": -34.8903198 },
-    { "lat": -8.0531731, "lon": -34.8900406 },
-    { "lat": -8.0531971, "lon": -34.8899550 }
+    { "lat": -8.0591051, "lon": -34.8992779 },
+    { "lat": -8.0589944, "lon": -34.8992239 },
+    { "lat": -8.0583712, "lon": -34.8989199 },
+    { "lat": -8.0583238, "lon": -34.8988975 },
+    { "lat": -8.0575545, "lon": -34.8985443 },
+    { "lat": -8.0574670, "lon": -34.8985041 }
   ],
   "tags": {
-    "cycleway:right": "lane",
-    "foot": "yes",
-    "highway": "secondary",
+    "highway": "tertiary",
     "lanes": "1",
-    "name": "Rua Joaquim Felipe",
+    "name": "Rua Barão de Goiana",
     "oneway": "yes",
-    "postal_code": "50050-340",
+    "postal_code": "52010-110",
+    "smoothness": "intermediate",
+    "source:postal_code": "CNEFE",
     "surface": "asphalt"
   }
 },
 {
   "type": "way",
-  "id": 131150441,
+  "id": 132902029,
   "bounds": {
-    "minlat": -8.0541072,
-    "minlon": -34.8915264,
-    "maxlat": -8.0532822,
-    "maxlon": -34.8906905
+    "minlat": -8.0553066,
+    "minlon": -34.9006997,
+    "maxlat": -8.0552769,
+    "maxlon": -34.9000734
   },
   "nodes": [
-    1443866531,
-    7272462974,
-    7272462970,
-    7272462973,
-    7272462972,
-    1443866535,
-    7272462971,
-    1443866536
+    1462081064,
+    3713917978,
+    1462084272,
+    3224207503
   ],
   "geometry": [
-    { "lat": -8.0541072, "lon": -34.8915264 },
-    { "lat": -8.0540530, "lon": -34.8914207 },
-    { "lat": -8.0540137, "lon": -34.8913739 },
-    { "lat": -8.0539367, "lon": -34.8912967 },
-    { "lat": -8.0538531, "lon": -34.8912209 },
-    { "lat": -8.0537057, "lon": -34.8910882 },
-    { "lat": -8.0535457, "lon": -34.8909413 },
-    { "lat": -8.0532822, "lon": -34.8906905 }
+    { "lat": -8.0553066, "lon": -34.9006997 },
+    { "lat": -8.0552817, "lon": -34.9003724 },
+    { "lat": -8.0552785, "lon": -34.9001605 },
+    { "lat": -8.0552769, "lon": -34.9000734 }
   ],
   "tags": {
-    "access": "private",
-    "highway": "service",
+    "alt_name": "Praca do Derby",
+    "highway": "tertiary",
+    "lanes": "2",
+    "mapillary": "1139321999880529",
+    "name": "Rua da Baixa Verde",
     "oneway": "no",
+    "postal_code": "52010-250",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 132902030,
+  "bounds": {
+    "minlat": -8.0559107,
+    "minlon": -34.9000645,
+    "maxlat": -8.0559051,
+    "maxlon": -34.8982043
+  },
+  "nodes": [
+    1036684700,
+    3872210235,
+    1462090640,
+    3872210236,
+    7352232394,
+    3872210238,
+    3872210239,
+    3224207505
+  ],
+  "geometry": [
+    { "lat": -8.0559051, "lon": -34.8982043 },
+    { "lat": -8.0559067, "lon": -34.8987303 },
+    { "lat": -8.0559068, "lon": -34.8987718 },
+    { "lat": -8.0559071, "lon": -34.8988644 },
+    { "lat": -8.0559076, "lon": -34.8990932 },
+    { "lat": -8.0559081, "lon": -34.8992088 },
+    { "lat": -8.0559104, "lon": -34.8999669 },
+    { "lat": -8.0559107, "lon": -34.9000645 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "lanes": "2",
+    "mapillary": "921215268427815",
+    "name": "Praça do Derby",
+    "oneway": "yes",
+    "postal_code": "52010-140",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 132902131,
+  "bounds": {
+    "minlat": -8.0541765,
+    "minlon": -34.9019675,
+    "maxlat": -8.0539976,
+    "maxlon": -34.9002552
+  },
+  "nodes": [
+    1462086119,
+    1462087771,
+    1462096136,
+    3224207508,
+    7013715225,
+    7013715224,
+    7013715226
+  ],
+  "geometry": [
+    { "lat": -8.0540932, "lon": -34.9019675 },
+    { "lat": -8.0540657, "lon": -34.9017635 },
+    { "lat": -8.0539976, "lon": -34.9009161 },
+    { "lat": -8.0539976, "lon": -34.9007904 },
+    { "lat": -8.0540111, "lon": -34.9006945 },
+    { "lat": -8.0540377, "lon": -34.9005617 },
+    { "lat": -8.0541765, "lon": -34.9002552 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "lanes": "2",
+    "name": "Rua Manoel Caetano",
+    "oneway": "yes",
+    "postal_code": "52010-220",
+    "source:postal_code": "CNEFE"
+  }
+},
+{
+  "type": "way",
+  "id": 132902132,
+  "bounds": {
+    "minlat": -8.0541765,
+    "minlon": -34.9002552,
+    "maxlat": -8.0538911,
+    "maxlon": -34.9001431
+  },
+  "nodes": [
+    7013715226,
+    1462086116,
+    7013715232
+  ],
+  "geometry": [
+    { "lat": -8.0541765, "lon": -34.9002552 },
+    { "lat": -8.0539737, "lon": -34.9001785 },
+    { "lat": -8.0538911, "lon": -34.9001431 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "lanes": "2",
+    "mapillary": "498021244876186",
+    "name": "Rua Amaro Bezerra",
+    "oneway": "yes",
+    "postal_code": "52010-150",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 132902133,
+  "bounds": {
+    "minlat": -8.0538911,
+    "minlon": -34.9001431,
+    "maxlat": -8.0527692,
+    "maxlon": -34.8996592
+  },
+  "nodes": [
+    7013715232,
+    1462091617,
+    7272562124,
+    3224207509
+  ],
+  "geometry": [
+    { "lat": -8.0538911, "lon": -34.9001431 },
+    { "lat": -8.0533421, "lon": -34.8999229 },
+    { "lat": -8.0528297, "lon": -34.8996870 },
+    { "lat": -8.0527692, "lon": -34.8996592 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "lanes": "2",
+    "mapillary": "587316462210759",
+    "name": "Rua Amaro Bezerra",
+    "oneway": "yes",
+    "postal_code": "52010-150",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 132902638,
+  "bounds": {
+    "minlat": -8.0559068,
+    "minlon": -34.9000695,
+    "maxlat": -8.0543831,
+    "maxlon": -34.8987718
+  },
+  "nodes": [
+    1462090640,
+    1462084269,
+    3790929813,
+    7013715229
+  ],
+  "geometry": [
+    { "lat": -8.0559068, "lon": -34.8987718 },
+    { "lat": -8.0552069, "lon": -34.8993223 },
+    { "lat": -8.0544601, "lon": -34.8999859 },
+    { "lat": -8.0543831, "lon": -34.9000695 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "mapillary": "323607139161075",
+    "name": "Rua Feliciano Gomes",
+    "oneway": "no",
+    "postal_code": "52010-240",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 132902639,
+  "bounds": {
+    "minlat": -8.0552769,
+    "minlon": -34.9000734,
+    "maxlat": -8.0552069,
+    "maxlon": -34.8993223
+  },
+  "nodes": [
+    3224207503,
+    1462084269
+  ],
+  "geometry": [
+    { "lat": -8.0552769, "lon": -34.9000734 },
+    { "lat": -8.0552069, "lon": -34.8993223 }
+  ],
+  "tags": {
+    "alt_name": "Praca do Derby",
+    "highway": "tertiary",
+    "lanes": "2",
+    "name": "Rua da Baixa Verde",
+    "oneway": "yes",
+    "postal_code": "52010-250",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
     "surface": "asphalt"
   }
 },
 {
   "type": "way",
-  "id": 132049515,
+  "id": 132902777,
   "bounds": {
-    "minlat": -8.0525876,
-    "minlon": -34.8908609,
-    "maxlat": -8.0523078,
-    "maxlon": -34.8899927
+    "minlat": -8.0552069,
+    "minlon": -34.8993223,
+    "maxlat": -8.0545809,
+    "maxlon": -34.8981221
   },
   "nodes": [
-    7272487392,
-    6200544616,
-    13272313278,
-    6200544617,
-    6209583821,
-    7014053610,
-    7014053611,
-    6200544618
+    1462084269,
+    1462090637
   ],
   "geometry": [
-    { "lat": -8.0525737, "lon": -34.8899927 },
-    { "lat": -8.0525876, "lon": -34.8901340 },
-    { "lat": -8.0525850, "lon": -34.8901977 },
-    { "lat": -8.0525803, "lon": -34.8902869 },
-    { "lat": -8.0525671, "lon": -34.8903344 },
-    { "lat": -8.0524973, "lon": -34.8904897 },
-    { "lat": -8.0523250, "lon": -34.8908525 },
-    { "lat": -8.0523078, "lon": -34.8908609 }
+    { "lat": -8.0552069, "lon": -34.8993223 },
+    { "lat": -8.0545809, "lon": -34.8981221 }
   ],
   "tags": {
-    "highway": "service",
-    "name": "Rua Conde d'Eu",
-    "postal_code": "50050-470",
-    "service": "parking_aisle",
+    "highway": "tertiary",
+    "lanes": "2",
+    "name": "Rua da Baixa Verde",
+    "oneway": "yes",
+    "postal_code": "52010-250",
+    "source:postal_code": "CNEFE"
+  }
+},
+{
+  "type": "way",
+  "id": 132902778,
+  "bounds": {
+    "minlat": -8.0545809,
+    "minlon": -34.8999229,
+    "maxlat": -8.0533421,
+    "maxlon": -34.8981221
+  },
+  "nodes": [
+    1462090637,
+    6059098756,
+    1462091599,
+    1462091617
+  ],
+  "geometry": [
+    { "lat": -8.0545809, "lon": -34.8981221 },
+    { "lat": -8.0541766, "lon": -34.8987220 },
+    { "lat": -8.0539195, "lon": -34.8990933 },
+    { "lat": -8.0533421, "lon": -34.8999229 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "mapillary": "386477442658295",
+    "name": "Rua Jornalista Paulo Bittencourt",
+    "oneway": "no",
+    "postal_code": "52010-260",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 132902779,
+  "bounds": {
+    "minlat": -8.0539195,
+    "minlon": -34.8991392,
+    "maxlat": -8.0532249,
+    "maxlon": -34.8988330
+  },
+  "nodes": [
+    1462091599,
+    1462091620,
+    7014834266,
+    7014834267,
+    7014834268,
+    1462091643,
+    1462091601
+  ],
+  "geometry": [
+    { "lat": -8.0539195, "lon": -34.8990933 },
+    { "lat": -8.0534966, "lon": -34.8988377 },
+    { "lat": -8.0534667, "lon": -34.8988330 },
+    { "lat": -8.0534268, "lon": -34.8988431 },
+    { "lat": -8.0534016, "lon": -34.8988659 },
+    { "lat": -8.0533738, "lon": -34.8989074 },
+    { "lat": -8.0532249, "lon": -34.8991392 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "name": "Rua Doutor José de Barros",
+    "oneway": "no",
+    "postal_code": "52010-270",
+    "source:postal_code": "CNEFE"
+  }
+},
+{
+  "type": "way",
+  "id": 132902799,
+  "bounds": {
+    "minlat": -8.0517464,
+    "minlon": -34.9004998,
+    "maxlat": -8.0509703,
+    "maxlon": -34.8991250
+  },
+  "nodes": [
+    1462092040,
+    12050999537,
+    3790929761,
+    1467735893
+  ],
+  "geometry": [
+    { "lat": -8.0517464, "lon": -34.8991250 },
+    { "lat": -8.0517087, "lon": -34.8991892 },
+    { "lat": -8.0510274, "lon": -34.9003494 },
+    { "lat": -8.0509703, "lon": -34.9004998 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "lanes": "2",
+    "name": "Rua das Pernambucanas",
+    "oneway": "yes",
+    "postal_code": "52011-010",
     "source:postal_code": "CNEFE"
   }
 },
@@ -1267,32 +1672,120 @@
 },
 {
   "type": "way",
-  "id": 133334909,
+  "id": 133335256,
   "bounds": {
-    "minlat": -8.0492564,
-    "minlon": -34.8955554,
-    "maxlat": -8.0482049,
-    "maxlon": -34.8937490
+    "minlat": -8.0523425,
+    "minlon": -34.9004730,
+    "maxlat": -8.0519447,
+    "maxlon": -34.8994538
   },
   "nodes": [
-    1467733194,
-    12412170430,
-    12412170437,
-    1467733193
+    1467735911,
+    1467735910
   ],
   "geometry": [
-    { "lat": -8.0492564, "lon": -34.8937490 },
-    { "lat": -8.0492189, "lon": -34.8938134 },
-    { "lat": -8.0482377, "lon": -34.8954991 },
-    { "lat": -8.0482049, "lon": -34.8955554 }
+    { "lat": -8.0523425, "lon": -34.8994538 },
+    { "lat": -8.0519447, "lon": -34.9004730 }
   ],
   "tags": {
     "highway": "residential",
-    "lanes": "1",
-    "name": "Rua Nicarágua",
+    "name": "Travessa do Jacinto",
+    "oneway": "no",
+    "postal_code": "52011-280",
+    "source:postal_code": "CNEFE"
+  }
+},
+{
+  "type": "way",
+  "id": 205305932,
+  "bounds": {
+    "minlat": -8.0566625,
+    "minlon": -34.8977913,
+    "maxlat": -8.0566508,
+    "maxlon": -34.8977080
+  },
+  "nodes": [
+    2152849240,
+    324277765
+  ],
+  "geometry": [
+    { "lat": -8.0566625, "lon": -34.8977913 },
+    { "lat": -8.0566508, "lon": -34.8977080 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Carlos de Lima Cavalcanti",
     "oneway": "yes",
-    "postal_code": "52020-190",
-    "source:postal_code": "CNEFE",
+    "smoothness": "good",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 205305933,
+  "bounds": {
+    "minlat": -8.0566400,
+    "minlon": -34.8980228,
+    "maxlat": -8.0566037,
+    "maxlon": -34.8977923
+  },
+  "nodes": [
+    1422749969,
+    2152849239
+  ],
+  "geometry": [
+    { "lat": -8.0566037, "lon": -34.8977923 },
+    { "lat": -8.0566400, "lon": -34.8980228 }
+  ],
+  "tags": {
+    "bridge": "yes",
+    "bridge:name": "Ponte Delmiro Gouveia",
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "2",
+    "layer": "1",
+    "lit": "yes",
+    "maxweight:signed": "no",
+    "name": "Avenida Governador Carlos de Lima Cavalcanti",
+    "oneway": "yes",
+    "smoothness": "good",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 205305934,
+  "bounds": {
+    "minlat": -8.0566943,
+    "minlon": -34.8980197,
+    "maxlat": -8.0566625,
+    "maxlon": -34.8977913
+  },
+  "nodes": [
+    2152849241,
+    7315094689,
+    2152849240
+  ],
+  "geometry": [
+    { "lat": -8.0566943, "lon": -34.8980197 },
+    { "lat": -8.0566811, "lon": -34.8979250 },
+    { "lat": -8.0566625, "lon": -34.8977913 }
+  ],
+  "tags": {
+    "bridge": "yes",
+    "bridge:name": "Ponte Delmiro Gouveia",
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "2",
+    "layer": "1",
+    "lit": "yes",
+    "maxweight:signed": "no",
+    "name": "Avenida Governador Carlos de Lima Cavalcanti",
+    "oneway": "yes",
+    "smoothness": "good",
     "surface": "asphalt"
   }
 },
@@ -1682,6 +2175,247 @@
 },
 {
   "type": "way",
+  "id": 315073876,
+  "bounds": {
+    "minlat": -8.0566898,
+    "minlon": -34.8995485,
+    "maxlat": -8.0566393,
+    "maxlon": -34.8982174
+  },
+  "nodes": [
+    1422749957,
+    7017038876,
+    5673935508,
+    7138295546,
+    8322884409,
+    3872210393,
+    7097034815,
+    7097034806,
+    5673938022,
+    1422749960
+  ],
+  "geometry": [
+    { "lat": -8.0566431, "lon": -34.8982174 },
+    { "lat": -8.0566432, "lon": -34.8982442 },
+    { "lat": -8.0566393, "lon": -34.8983137 },
+    { "lat": -8.0566399, "lon": -34.8985704 },
+    { "lat": -8.0566412, "lon": -34.8986426 },
+    { "lat": -8.0566508, "lon": -34.8991096 },
+    { "lat": -8.0566506, "lon": -34.8991292 },
+    { "lat": -8.0566570, "lon": -34.8993263 },
+    { "lat": -8.0566803, "lon": -34.8995119 },
+    { "lat": -8.0566898, "lon": -34.8995485 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "2",
+    "name": "Praça do Derby",
+    "oneway": "yes",
+    "postal_code": "52010-140",
+    "smoothness": "excellent",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 315073877,
+  "bounds": {
+    "minlat": -8.0567261,
+    "minlon": -34.8982209,
+    "maxlat": -8.0566431,
+    "maxlon": -34.8982174
+  },
+  "nodes": [
+    1422749957,
+    7161450437,
+    1462082585
+  ],
+  "geometry": [
+    { "lat": -8.0566431, "lon": -34.8982174 },
+    { "lat": -8.0566738, "lon": -34.8982187 },
+    { "lat": -8.0567261, "lon": -34.8982209 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 315073878,
+  "bounds": {
+    "minlat": -8.0574614,
+    "minlon": -34.8982295,
+    "maxlat": -8.0567261,
+    "maxlon": -34.8982209
+  },
+  "nodes": [
+    1462082585,
+    5673935511,
+    3245364900,
+    6536049951,
+    5908100427
+  ],
+  "geometry": [
+    { "lat": -8.0567261, "lon": -34.8982209 },
+    { "lat": -8.0567822, "lon": -34.8982221 },
+    { "lat": -8.0573297, "lon": -34.8982256 },
+    { "lat": -8.0573456, "lon": -34.8982261 },
+    { "lat": -8.0574614, "lon": -34.8982295 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-904",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 315073879,
+  "bounds": {
+    "minlat": -8.0567261,
+    "minlon": -34.8982209,
+    "maxlat": -8.0567071,
+    "maxlon": -34.8981077
+  },
+  "nodes": [
+    1462082585,
+    1421504679
+  ],
+  "geometry": [
+    { "lat": -8.0567261, "lon": -34.8982209 },
+    { "lat": -8.0567071, "lon": -34.8981077 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Carlos de Lima Cavalcanti",
+    "oneway": "yes",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 315073880,
+  "bounds": {
+    "minlat": -8.0567071,
+    "minlon": -34.8981077,
+    "maxlat": -8.0566448,
+    "maxlon": -34.8981057
+  },
+  "nodes": [
+    1422749971,
+    1421504679
+  ],
+  "geometry": [
+    { "lat": -8.0566448, "lon": -34.8981057 },
+    { "lat": -8.0567071, "lon": -34.8981077 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Agamenon Magalhães- Pista central",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-040",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 315073881,
+  "bounds": {
+    "minlat": -8.0574623,
+    "minlon": -34.8981100,
+    "maxlat": -8.0567071,
+    "maxlon": -34.8980927
+  },
+  "nodes": [
+    1421504679,
+    5673935512,
+    3245364899,
+    6536049950,
+    1462082587
+  ],
+  "geometry": [
+    { "lat": -8.0567071, "lon": -34.8981077 },
+    { "lat": -8.0567783, "lon": -34.8981100 },
+    { "lat": -8.0572669, "lon": -34.8980956 },
+    { "lat": -8.0573480, "lon": -34.8980944 },
+    { "lat": -8.0574623, "lon": -34.8980927 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-904",
+    "ref": "PE-015",
+    "sidewalk": "left",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 315073883,
+  "bounds": {
+    "minlat": -8.0566508,
+    "minlon": -34.8977105,
+    "maxlat": -8.0565883,
+    "maxlon": -34.8977080
+  },
+  "nodes": [
+    324277765,
+    1422749962
+  ],
+  "geometry": [
+    { "lat": -8.0566508, "lon": -34.8977080 },
+    { "lat": -8.0565883, "lon": -34.8977105 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Agamenon Magalhães- Pista central",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
   "id": 315073885,
   "bounds": {
     "minlat": -8.0565883,
@@ -1734,6 +2468,98 @@
     "surface": "asphalt",
     "wikidata": "Q51545330",
     "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 315073887,
+  "bounds": {
+    "minlat": -8.0565883,
+    "minlon": -34.8977105,
+    "maxlat": -8.0565559,
+    "maxlon": -34.8976004
+  },
+  "nodes": [
+    2152849238,
+    1422749962
+  ],
+  "geometry": [
+    { "lat": -8.0565559, "lon": -34.8976004 },
+    { "lat": -8.0565883, "lon": -34.8977105 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Carlos de Lima Cavalcanti",
+    "oneway": "yes",
+    "smoothness": "intermediate",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 315073889,
+  "bounds": {
+    "minlat": -8.0566363,
+    "minlon": -34.8976038,
+    "maxlat": -8.0564803,
+    "maxlon": -34.8970147
+  },
+  "nodes": [
+    1418601102,
+    7097034813,
+    1437147676
+  ],
+  "geometry": [
+    { "lat": -8.0566363, "lon": -34.8976038 },
+    { "lat": -8.0565950, "lon": -34.8974477 },
+    { "lat": -8.0564803, "lon": -34.8970147 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "40",
+    "maxspeed:type": "sign",
+    "name": "Avenida Governador Carlos de Lima Cavalcanti",
+    "oneway": "yes",
+    "postal_code": "50070-110",
+    "sidewalk:left": "no",
+    "sidewalk:right": "yes",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 315073891,
+  "bounds": {
+    "minlat": -8.0566363,
+    "minlon": -34.8976038,
+    "maxlat": -8.0565559,
+    "maxlon": -34.8976004
+  },
+  "nodes": [
+    1418601102,
+    2152849238
+  ],
+  "geometry": [
+    { "lat": -8.0566363, "lon": -34.8976038 },
+    { "lat": -8.0565559, "lon": -34.8976004 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-040",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
   }
 },
 {
@@ -1841,6 +2667,47 @@
 },
 {
   "type": "way",
+  "id": 315073904,
+  "bounds": {
+    "minlat": -8.0588762,
+    "minlon": -34.8977436,
+    "maxlat": -8.0566508,
+    "maxlon": -34.8977080
+  },
+  "nodes": [
+    1430717734,
+    5732329317,
+    1443830922,
+    3245364893,
+    5732329262,
+    324277765
+  ],
+  "geometry": [
+    { "lat": -8.0588762, "lon": -34.8977436 },
+    { "lat": -8.0587695, "lon": -34.8977432 },
+    { "lat": -8.0574616, "lon": -34.8977345 },
+    { "lat": -8.0567749, "lon": -34.8977083 },
+    { "lat": -8.0567637, "lon": -34.8977083 },
+    { "lat": -8.0566508, "lon": -34.8977080 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
+    "ref": "PE-015",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
   "id": 316156851,
   "bounds": {
     "minlat": -8.0566115,
@@ -1933,6 +2800,39 @@
 },
 {
   "type": "way",
+  "id": 316233121,
+  "bounds": {
+    "minlat": -8.0572607,
+    "minlon": -34.8950034,
+    "maxlat": -8.0569093,
+    "maxlon": -34.8937953
+  },
+  "nodes": [
+    1437147435,
+    3766060021,
+    7014245426,
+    3223442752,
+    3223442753,
+    3223442754
+  ],
+  "geometry": [
+    { "lat": -8.0569461, "lon": -34.8950034 },
+    { "lat": -8.0569093, "lon": -34.8947695 },
+    { "lat": -8.0569105, "lon": -34.8946542 },
+    { "lat": -8.0569376, "lon": -34.8945415 },
+    { "lat": -8.0570843, "lon": -34.8942484 },
+    { "lat": -8.0572607, "lon": -34.8937953 }
+  ],
+  "tags": {
+    "alt_name": "Rua Capitão Ruy Lucena",
+    "highway": "residential",
+    "name": "Rua Capitão Rui Lucena",
+    "postal_code": "50070-080",
+    "source:postal_code": "CNEFE"
+  }
+},
+{
+  "type": "way",
   "id": 316312059,
   "bounds": {
     "minlat": -8.0541428,
@@ -1962,37 +2862,66 @@
 },
 {
   "type": "way",
-  "id": 316312063,
+  "id": 316312060,
   "bounds": {
-    "minlat": -8.0504127,
-    "minlon": -34.8967817,
-    "maxlat": -8.0503653,
-    "maxlon": -34.8966051
+    "minlat": -8.0543831,
+    "minlon": -34.9001834,
+    "maxlat": -8.0543292,
+    "maxlon": -34.9000695
   },
   "nodes": [
-    5286196784,
-    5286196816,
-    5286196815,
-    5286196814,
-    5286196813,
-    5286196786
+    7013715228,
+    7013715229
   ],
   "geometry": [
-    { "lat": -8.0503989, "lon": -34.8966051 },
-    { "lat": -8.0503685, "lon": -34.8966689 },
-    { "lat": -8.0503653, "lon": -34.8966862 },
-    { "lat": -8.0503677, "lon": -34.8967041 },
-    { "lat": -8.0503814, "lon": -34.8967333 },
-    { "lat": -8.0504127, "lon": -34.8967817 }
+    { "lat": -8.0543292, "lon": -34.9001834 },
+    { "lat": -8.0543831, "lon": -34.9000695 }
   ],
   "tags": {
-    "highway": "secondary",
-    "lanes": "1",
-    "name": "Avenida Conselheiro Rosa e Silva",
+    "highway": "residential",
+    "mapillary": "479468513134379",
+    "name": "Rua Jener de Souza",
+    "postal_code": "52010-130",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 316312061,
+  "bounds": {
+    "minlat": -8.0527692,
+    "minlon": -34.8998453,
+    "maxlat": -8.0525017,
+    "maxlon": -34.8996592
+  },
+  "nodes": [
+    3224207509,
+    8957855276,
+    7013715223,
+    12050999533,
+    8957855277,
+    3224207511
+  ],
+  "geometry": [
+    { "lat": -8.0527692, "lon": -34.8996592 },
+    { "lat": -8.0526899, "lon": -34.8996712 },
+    { "lat": -8.0526102, "lon": -34.8996984 },
+    { "lat": -8.0525888, "lon": -34.8997217 },
+    { "lat": -8.0525584, "lon": -34.8997550 },
+    { "lat": -8.0525017, "lon": -34.8998453 }
+  ],
+  "tags": {
+    "highway": "primary_link",
+    "lanes": "2",
+    "mapillary": "225688615705796",
+    "note": "Rua Amaro Bezerra",
     "oneway": "yes",
-    "parking:both": "no",
-    "smoothness": "excellent",
-    "surface": "asphalt"
+    "postal_code": "52010-150",
+    "source:postcode": "CNEFE",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
   }
 },
 {
@@ -2024,88 +2953,55 @@
 },
 {
   "type": "way",
-  "id": 316707919,
+  "id": 317090529,
   "bounds": {
-    "minlat": -8.0562468,
-    "minlon": -34.8913493,
-    "maxlat": -8.0544488,
-    "maxlon": -34.8898760
+    "minlat": -8.0570664,
+    "minlon": -34.9000379,
+    "maxlat": -8.0567352,
+    "maxlon": -34.8983399
   },
   "nodes": [
-    995388329,
-    1437134558,
-    1432166203,
-    5900474942,
-    5900474940,
-    5900474941,
-    3223232514,
-    9377080206,
-    3713917989,
-    1437129995
+    1462081862,
+    7166210235,
+    5908100393,
+    1430716943,
+    3872210424,
+    5673938024,
+    989807873,
+    3872210418,
+    3872210415,
+    7352232397,
+    3245364892
   ],
   "geometry": [
-    { "lat": -8.0544488, "lon": -34.8913493 },
-    { "lat": -8.0548057, "lon": -34.8911121 },
-    { "lat": -8.0561357, "lon": -34.8902018 },
-    { "lat": -8.0561713, "lon": -34.8901747 },
-    { "lat": -8.0561993, "lon": -34.8901507 },
-    { "lat": -8.0562189, "lon": -34.8901205 },
-    { "lat": -8.0562309, "lon": -34.8900873 },
-    { "lat": -8.0562396, "lon": -34.8899718 },
-    { "lat": -8.0562436, "lon": -34.8899179 },
-    { "lat": -8.0562468, "lon": -34.8898760 }
+    { "lat": -8.0570664, "lon": -34.9000379 },
+    { "lat": -8.0570299, "lon": -34.8999813 },
+    { "lat": -8.0568574, "lon": -34.8997139 },
+    { "lat": -8.0568064, "lon": -34.8996086 },
+    { "lat": -8.0567867, "lon": -34.8995363 },
+    { "lat": -8.0567819, "lon": -34.8994936 },
+    { "lat": -8.0567738, "lon": -34.8993261 },
+    { "lat": -8.0567691, "lon": -34.8992056 },
+    { "lat": -8.0567555, "lon": -34.8988576 },
+    { "lat": -8.0567510, "lon": -34.8987425 },
+    { "lat": -8.0567352, "lon": -34.8983399 }
   ],
   "tags": {
-    "cycleway:right": "lane",
-    "highway": "tertiary",
+    "description": "Via exclusiva de ônibus. Corredor de Ônibus",
+    "dual_carriageway": "yes",
+    "highway": "primary",
     "lanes": "2",
-    "name": "Rua João Fernandes Vieira",
+    "lit": "no",
+    "maxspeed": "50",
+    "name": "Praça do Derby",
     "oneway": "yes",
-    "oneway:bicycle": "no",
-    "postal_code": "50050-215",
+    "postal_code": "52010-140",
+    "sidewalk:left": "no",
+    "sidewalk:right": "yes",
+    "smoothness": "excellent",
+    "source": "https://g1.globo.com/pe/pernambuco/transito/noticia/2020/03/20/praca-do-derby-e-ruas-do-entorno-tem-mudanca-na-circulacao-de-veiculos.ghtml",
     "source:postal_code": "CNEFE",
-    "surface": "asphalt"
-  }
-},
-{
-  "type": "way",
-  "id": 316707920,
-  "bounds": {
-    "minlat": -8.0544488,
-    "minlon": -34.8922978,
-    "maxlat": -8.0525787,
-    "maxlon": -34.8913493
-  },
-  "nodes": [
-    1443866530,
-    7272533969,
-    9412662194,
-    6198283604,
-    1437138488,
-    1443866531,
-    995388329
-  ],
-  "geometry": [
-    { "lat": -8.0525787, "lon": -34.8922978 },
-    { "lat": -8.0526789, "lon": -34.8922533 },
-    { "lat": -8.0527242, "lon": -34.8922332 },
-    { "lat": -8.0530365, "lon": -34.8920946 },
-    { "lat": -8.0534082, "lon": -34.8919009 },
-    { "lat": -8.0541072, "lon": -34.8915264 },
-    { "lat": -8.0544488, "lon": -34.8913493 }
-  ],
-  "tags": {
-    "cycleway:right": "lane",
-    "highway": "tertiary",
-    "lanes": "2",
-    "mapillary": "308443557430687",
-    "name": "Rua João Fernandes Vieira",
-    "oneway": "yes",
-    "oneway:bicycle": "no",
-    "postal_code": "50050-215",
-    "source:postal_code": "CNEFE",
-    "surface": "asphalt",
-    "survey:date": "2021-01-26"
+    "surface": "concrete"
   }
 },
 {
@@ -2369,6 +3265,819 @@
 },
 {
   "type": "way",
+  "id": 375744891,
+  "bounds": {
+    "minlat": -8.0532249,
+    "minlon": -34.8992388,
+    "maxlat": -8.0531315,
+    "maxlon": -34.8991283
+  },
+  "nodes": [
+    1462091601,
+    3790929808,
+    3790929768,
+    3790929455,
+    3790929452,
+    3790929770,
+    3790929757,
+    3790929814,
+    3790929775,
+    3790929454,
+    3790929815
+  ],
+  "geometry": [
+    { "lat": -8.0532249, "lon": -34.8991392 },
+    { "lat": -8.0532063, "lon": -34.8991303 },
+    { "lat": -8.0531859, "lon": -34.8991283 },
+    { "lat": -8.0531660, "lon": -34.8991335 },
+    { "lat": -8.0531548, "lon": -34.8991403 },
+    { "lat": -8.0531409, "lon": -34.8991555 },
+    { "lat": -8.0531329, "lon": -34.8991746 },
+    { "lat": -8.0531315, "lon": -34.8991857 },
+    { "lat": -8.0531343, "lon": -34.8992062 },
+    { "lat": -8.0531439, "lon": -34.8992246 },
+    { "lat": -8.0531596, "lon": -34.8992388 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "name": "Rua Doutor José de Barros",
+    "postal_code": "52010-270",
+    "source:postal_code": "CNEFE"
+  }
+},
+{
+  "type": "way",
+  "id": 383915969,
+  "bounds": {
+    "minlat": -8.0575040,
+    "minlon": -34.9000267,
+    "maxlat": -8.0574614,
+    "maxlon": -34.8982295
+  },
+  "nodes": [
+    1462081914,
+    12050999546,
+    3872210769,
+    3872210768,
+    3872210767,
+    1462083149,
+    3243189297,
+    12050999551,
+    5908100427
+  ],
+  "geometry": [
+    { "lat": -8.0575040, "lon": -34.9000267 },
+    { "lat": -8.0575006, "lon": -34.8998965 },
+    { "lat": -8.0574910, "lon": -34.8995244 },
+    { "lat": -8.0574806, "lon": -34.8991673 },
+    { "lat": -8.0574699, "lon": -34.8986469 },
+    { "lat": -8.0574670, "lon": -34.8985041 },
+    { "lat": -8.0574641, "lon": -34.8983607 },
+    { "lat": -8.0574627, "lon": -34.8982926 },
+    { "lat": -8.0574614, "lon": -34.8982295 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lanes": "2",
+    "name": "Praça do Derby",
+    "oneway": "yes",
+    "postal_code": "52010-140",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 383916027,
+  "bounds": {
+    "minlat": -8.0563829,
+    "minlon": -34.8987303,
+    "maxlat": -8.0559067,
+    "maxlon": -34.8982097
+  },
+  "nodes": [
+    3872210235,
+    3872210244,
+    3872210249,
+    3872210294,
+    3872210299,
+    3872210310,
+    3872210320,
+    3872210331,
+    3872210335,
+    3872210337
+  ],
+  "geometry": [
+    { "lat": -8.0559067, "lon": -34.8987303 },
+    { "lat": -8.0559989, "lon": -34.8986633 },
+    { "lat": -8.0560909, "lon": -34.8985796 },
+    { "lat": -8.0562023, "lon": -34.8984782 },
+    { "lat": -8.0562140, "lon": -34.8984682 },
+    { "lat": -8.0562846, "lon": -34.8984082 },
+    { "lat": -8.0563322, "lon": -34.8983666 },
+    { "lat": -8.0563690, "lon": -34.8983097 },
+    { "lat": -8.0563777, "lon": -34.8982769 },
+    { "lat": -8.0563829, "lon": -34.8982097 }
+  ],
+  "tags": {
+    "highway": "footway",
+    "mapillary": "219812103059821",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 383916028,
+  "bounds": {
+    "minlat": -8.0573530,
+    "minlon": -34.8991784,
+    "maxlat": -8.0571223,
+    "maxlon": -34.8990879
+  },
+  "nodes": [
+    3872210754,
+    3872210703,
+    3872210612,
+    3872210562,
+    3872210531,
+    3872210530,
+    3872210556,
+    3872210611,
+    3872210664,
+    3872210684,
+    3872210686,
+    3872210703
+  ],
+  "geometry": [
+    { "lat": -8.0573530, "lon": -34.8991784 },
+    { "lat": -8.0572264, "lon": -34.8991748 },
+    { "lat": -8.0571636, "lon": -34.8991730 },
+    { "lat": -8.0571376, "lon": -34.8991652 },
+    { "lat": -8.0571238, "lon": -34.8991451 },
+    { "lat": -8.0571223, "lon": -34.8991204 },
+    { "lat": -8.0571361, "lon": -34.8990956 },
+    { "lat": -8.0571636, "lon": -34.8990879 },
+    { "lat": -8.0571897, "lon": -34.8990972 },
+    { "lat": -8.0572019, "lon": -34.8991204 },
+    { "lat": -8.0572050, "lon": -34.8991544 },
+    { "lat": -8.0572264, "lon": -34.8991748 }
+  ],
+  "tags": {
+    "highway": "footway",
+    "surface": "sand"
+  }
+},
+{
+  "type": "way",
+  "id": 383916030,
+  "bounds": {
+    "minlat": -8.0563600,
+    "minlon": -34.8988644,
+    "maxlat": -8.0559071,
+    "maxlon": -34.8982034
+  },
+  "nodes": [
+    3872210241,
+    3872210248,
+    3872210259,
+    3872210293,
+    3872210299,
+    3872210304,
+    3872210316,
+    3872210323,
+    3872210329,
+    3872210326,
+    3872210319,
+    3872210302,
+    3872210255,
+    3872210243,
+    3872210236
+  ],
+  "geometry": [
+    { "lat": -8.0559661, "lon": -34.8982034 },
+    { "lat": -8.0560528, "lon": -34.8982703 },
+    { "lat": -8.0561113, "lon": -34.8983316 },
+    { "lat": -8.0562023, "lon": -34.8984366 },
+    { "lat": -8.0562140, "lon": -34.8984682 },
+    { "lat": -8.0562683, "lon": -34.8985515 },
+    { "lat": -8.0563228, "lon": -34.8986201 },
+    { "lat": -8.0563410, "lon": -34.8986402 },
+    { "lat": -8.0563600, "lon": -34.8986876 },
+    { "lat": -8.0563485, "lon": -34.8987483 },
+    { "lat": -8.0563257, "lon": -34.8987779 },
+    { "lat": -8.0562412, "lon": -34.8987954 },
+    { "lat": -8.0561037, "lon": -34.8988342 },
+    { "lat": -8.0559981, "lon": -34.8988497 },
+    { "lat": -8.0559071, "lon": -34.8988644 }
+  ],
+  "tags": {
+    "highway": "footway",
+    "mapillary": "492692901953523",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 383916032,
+  "bounds": {
+    "minlat": -8.0564882,
+    "minlon": -34.8999012,
+    "maxlat": -8.0563243,
+    "maxlon": -34.8987483
+  },
+  "nodes": [
+    3872210326,
+    3872210327,
+    3872210333,
+    3872210340,
+    3872210351,
+    3872210356,
+    3872210357,
+    3872210358,
+    3872210354,
+    3872210347,
+    3872210339,
+    3872210324,
+    3872210317,
+    3872210318,
+    3872210325,
+    3872210336,
+    3872210342,
+    3872210355
+  ],
+  "geometry": [
+    { "lat": -8.0563485, "lon": -34.8987483 },
+    { "lat": -8.0563580, "lon": -34.8988698 },
+    { "lat": -8.0563718, "lon": -34.8989115 },
+    { "lat": -8.0564009, "lon": -34.8989363 },
+    { "lat": -8.0564560, "lon": -34.8989889 },
+    { "lat": -8.0564851, "lon": -34.8990477 },
+    { "lat": -8.0564866, "lon": -34.8991111 },
+    { "lat": -8.0564882, "lon": -34.8991792 },
+    { "lat": -8.0564667, "lon": -34.8993246 },
+    { "lat": -8.0564392, "lon": -34.8994019 },
+    { "lat": -8.0563917, "lon": -34.8995226 },
+    { "lat": -8.0563412, "lon": -34.8996169 },
+    { "lat": -8.0563243, "lon": -34.8996742 },
+    { "lat": -8.0563243, "lon": -34.8997159 },
+    { "lat": -8.0563412, "lon": -34.8997639 },
+    { "lat": -8.0563810, "lon": -34.8998273 },
+    { "lat": -8.0564116, "lon": -34.8998536 },
+    { "lat": -8.0564624, "lon": -34.8999012 }
+  ],
+  "tags": {
+    "highway": "footway"
+  }
+},
+{
+  "type": "way",
+  "id": 383916033,
+  "bounds": {
+    "minlat": -8.0562112,
+    "minlon": -34.8992070,
+    "maxlat": -8.0560027,
+    "maxlon": -34.8985796
+  },
+  "nodes": [
+    3872210245,
+    3872210247,
+    3872210250,
+    3872210261,
+    3872210272,
+    3872210291,
+    3872210297,
+    3872210298,
+    3872210296,
+    3872210256,
+    3872210255,
+    3872210265,
+    3872210274,
+    3872210276,
+    3872210279,
+    3872210290,
+    3872210289,
+    3872210270,
+    3872210249
+  ],
+  "geometry": [
+    { "lat": -8.0560027, "lon": -34.8992070 },
+    { "lat": -8.0560517, "lon": -34.8991931 },
+    { "lat": -8.0560915, "lon": -34.8991668 },
+    { "lat": -8.0561191, "lon": -34.8991188 },
+    { "lat": -8.0561466, "lon": -34.8990771 },
+    { "lat": -8.0561911, "lon": -34.8990477 },
+    { "lat": -8.0562101, "lon": -34.8990132 },
+    { "lat": -8.0562112, "lon": -34.8989503 },
+    { "lat": -8.0562094, "lon": -34.8989007 },
+    { "lat": -8.0561066, "lon": -34.8988997 },
+    { "lat": -8.0561037, "lon": -34.8988342 },
+    { "lat": -8.0561283, "lon": -34.8987816 },
+    { "lat": -8.0561558, "lon": -34.8987569 },
+    { "lat": -8.0561589, "lon": -34.8987166 },
+    { "lat": -8.0561665, "lon": -34.8986841 },
+    { "lat": -8.0561895, "lon": -34.8986470 },
+    { "lat": -8.0561880, "lon": -34.8986099 },
+    { "lat": -8.0561436, "lon": -34.8985805 },
+    { "lat": -8.0560909, "lon": -34.8985796 }
+  ],
+  "tags": {
+    "highway": "footway",
+    "mapillary": "889632514951295",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 383916037,
+  "bounds": {
+    "minlat": -8.0559989,
+    "minlon": -34.8988497,
+    "maxlat": -8.0559981,
+    "maxlon": -34.8986633
+  },
+  "nodes": [
+    3872210243,
+    3872210244
+  ],
+  "geometry": [
+    { "lat": -8.0559981, "lon": -34.8988497 },
+    { "lat": -8.0559989, "lon": -34.8986633 }
+  ],
+  "tags": {
+    "highway": "footway",
+    "mapillary": "889632514951295",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 383916039,
+  "bounds": {
+    "minlat": -8.0566508,
+    "minlon": -34.8991111,
+    "maxlat": -8.0564866,
+    "maxlon": -34.8991096
+  },
+  "nodes": [
+    3872210357,
+    3872210393
+  ],
+  "geometry": [
+    { "lat": -8.0564866, "lon": -34.8991111 },
+    { "lat": -8.0566508, "lon": -34.8991096 }
+  ],
+  "tags": {
+    "highway": "footway",
+    "mapillary": "147273674003025",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 383916044,
+  "bounds": {
+    "minlat": -8.0569737,
+    "minlon": -34.8992056,
+    "maxlat": -8.0567691,
+    "maxlon": -34.8991962
+  },
+  "nodes": [
+    3872210448,
+    3872210418
+  ],
+  "geometry": [
+    { "lat": -8.0569737, "lon": -34.8991962 },
+    { "lat": -8.0567691, "lon": -34.8992056 }
+  ],
+  "tags": {
+    "highway": "footway",
+    "surface": "sand"
+  }
+},
+{
+  "type": "way",
+  "id": 383916045,
+  "bounds": {
+    "minlat": -8.0566412,
+    "minlon": -34.8986876,
+    "maxlat": -8.0563600,
+    "maxlon": -34.8986426
+  },
+  "nodes": [
+    3872210329,
+    8322884409
+  ],
+  "geometry": [
+    { "lat": -8.0563600, "lon": -34.8986876 },
+    { "lat": -8.0566412, "lon": -34.8986426 }
+  ],
+  "tags": {
+    "highway": "footway",
+    "mapillary": "325504365702812",
+    "surface": "concrete",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 383916046,
+  "bounds": {
+    "minlat": -8.0573566,
+    "minlon": -34.8993895,
+    "maxlat": -8.0569737,
+    "maxlon": -34.8986576
+  },
+  "nodes": [
+    3872210712,
+    3872210713,
+    3872210720,
+    3872210735,
+    3872210753,
+    3872210755,
+    3872210754,
+    3872210750,
+    3872210737,
+    3872210717,
+    3872210654,
+    3872210535,
+    3872210516,
+    3872210476,
+    3872210455,
+    3872210448,
+    3872210447,
+    3872210450,
+    3872210463,
+    3872210492,
+    3872210568,
+    3872210700,
+    3872210720
+  ],
+  "geometry": [
+    { "lat": -8.0572509, "lon": -34.8986576 },
+    { "lat": -8.0572525, "lon": -34.8987770 },
+    { "lat": -8.0572702, "lon": -34.8988282 },
+    { "lat": -8.0573061, "lon": -34.8989317 },
+    { "lat": -8.0573520, "lon": -34.8990941 },
+    { "lat": -8.0573566, "lon": -34.8991606 },
+    { "lat": -8.0573530, "lon": -34.8991784 },
+    { "lat": -8.0573367, "lon": -34.8992580 },
+    { "lat": -8.0573091, "lon": -34.8993230 },
+    { "lat": -8.0572601, "lon": -34.8993710 },
+    { "lat": -8.0571866, "lon": -34.8993895 },
+    { "lat": -8.0571271, "lon": -34.8993816 },
+    { "lat": -8.0571054, "lon": -34.8993787 },
+    { "lat": -8.0570396, "lon": -34.8993246 },
+    { "lat": -8.0569936, "lon": -34.8992457 },
+    { "lat": -8.0569737, "lon": -34.8991962 },
+    { "lat": -8.0569737, "lon": -34.8990956 },
+    { "lat": -8.0569783, "lon": -34.8989177 },
+    { "lat": -8.0570151, "lon": -34.8987971 },
+    { "lat": -8.0570733, "lon": -34.8987460 },
+    { "lat": -8.0571391, "lon": -34.8987414 },
+    { "lat": -8.0572218, "lon": -34.8987739 },
+    { "lat": -8.0572702, "lon": -34.8988282 }
+  ],
+  "tags": {
+    "highway": "footway",
+    "surface": "sand"
+  }
+},
+{
+  "type": "way",
+  "id": 383916048,
+  "bounds": {
+    "minlat": -8.0571437,
+    "minlon": -34.8988576,
+    "maxlat": -8.0567555,
+    "maxlon": -34.8986470
+  },
+  "nodes": [
+    3872210575,
+    3872210433,
+    3872210415
+  ],
+  "geometry": [
+    { "lat": -8.0571437, "lon": -34.8986470 },
+    { "lat": -8.0568768, "lon": -34.8987918 },
+    { "lat": -8.0567555, "lon": -34.8988576 }
+  ],
+  "tags": {
+    "highway": "footway",
+    "mapillary": "1203487870108221",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 383916049,
+  "bounds": {
+    "minlat": -8.0566898,
+    "minlon": -34.9000569,
+    "maxlat": -8.0563545,
+    "maxlon": -34.8995485
+  },
+  "nodes": [
+    1422749960,
+    5908100415,
+    9413015812,
+    9413015811,
+    5908100414,
+    3872210355,
+    5908100413
+  ],
+  "geometry": [
+    { "lat": -8.0566898, "lon": -34.8995485 },
+    { "lat": -8.0566522, "lon": -34.8996219 },
+    { "lat": -8.0566304, "lon": -34.8996575 },
+    { "lat": -8.0566229, "lon": -34.8996698 },
+    { "lat": -8.0565935, "lon": -34.8997178 },
+    { "lat": -8.0564624, "lon": -34.8999012 },
+    { "lat": -8.0563545, "lon": -34.9000569 }
+  ],
+  "tags": {
+    "highway": "primary_link",
+    "lanes": "1",
+    "oneway": "yes",
+    "smoothness": "good",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 383916052,
+  "bounds": {
+    "minlat": -8.0563228,
+    "minlon": -34.8986470,
+    "maxlat": -8.0561895,
+    "maxlon": -34.8986145
+  },
+  "nodes": [
+    3872210290,
+    3872210300,
+    3872210308,
+    3872210316
+  ],
+  "geometry": [
+    { "lat": -8.0561895, "lon": -34.8986470 },
+    { "lat": -8.0562309, "lon": -34.8986254 },
+    { "lat": -8.0562799, "lon": -34.8986145 },
+    { "lat": -8.0563228, "lon": -34.8986201 }
+  ],
+  "tags": {
+    "highway": "footway",
+    "surface": "sand"
+  }
+},
+{
+  "type": "way",
+  "id": 383916055,
+  "bounds": {
+    "minlat": -8.0569783,
+    "minlon": -34.8989177,
+    "maxlat": -8.0568768,
+    "maxlon": -34.8987918
+  },
+  "nodes": [
+    3872210450,
+    3872210449,
+    3872210440,
+    3872210436,
+    3872210433
+  ],
+  "geometry": [
+    { "lat": -8.0569783, "lon": -34.8989177 },
+    { "lat": -8.0569783, "lon": -34.8988357 },
+    { "lat": -8.0569523, "lon": -34.8988064 },
+    { "lat": -8.0569125, "lon": -34.8987940 },
+    { "lat": -8.0568768, "lon": -34.8987918 }
+  ],
+  "tags": {
+    "highway": "footway"
+  }
+},
+{
+  "type": "way",
+  "id": 383916057,
+  "bounds": {
+    "minlat": -8.0566432,
+    "minlon": -34.8986402,
+    "maxlat": -8.0563410,
+    "maxlon": -34.8982442
+  },
+  "nodes": [
+    7017038876,
+    6203252927,
+    3872210374,
+    3872210362,
+    3872210349,
+    3872210323
+  ],
+  "geometry": [
+    { "lat": -8.0566432, "lon": -34.8982442 },
+    { "lat": -8.0565956, "lon": -34.8983154 },
+    { "lat": -8.0565792, "lon": -34.8983491 },
+    { "lat": -8.0565228, "lon": -34.8984629 },
+    { "lat": -8.0564492, "lon": -34.8985416 },
+    { "lat": -8.0563410, "lon": -34.8986402 }
+  ],
+  "tags": {
+    "highway": "footway",
+    "mapillary": "842843913315299",
+    "surface": "concrete",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 383916058,
+  "bounds": {
+    "minlat": -8.0564667,
+    "minlon": -34.8994112,
+    "maxlat": -8.0561650,
+    "maxlon": -34.8992921
+  },
+  "nodes": [
+    3872210277,
+    3872210303,
+    3872210313,
+    3872210321,
+    3872210338,
+    3872210344,
+    3872210354
+  ],
+  "geometry": [
+    { "lat": -8.0561650, "lon": -34.8992921 },
+    { "lat": -8.0562462, "lon": -34.8993864 },
+    { "lat": -8.0562921, "lon": -34.8994066 },
+    { "lat": -8.0563381, "lon": -34.8994112 },
+    { "lat": -8.0563856, "lon": -34.8993973 },
+    { "lat": -8.0564300, "lon": -34.8993679 },
+    { "lat": -8.0564667, "lon": -34.8993246 }
+  ],
+  "tags": {
+    "highway": "footway"
+  }
+},
+{
+  "type": "way",
+  "id": 383916059,
+  "bounds": {
+    "minlat": -8.0574699,
+    "minlon": -34.8986609,
+    "maxlat": -8.0567824,
+    "maxlon": -34.8982422
+  },
+  "nodes": [
+    3872210767,
+    3872210712,
+    3872210630,
+    3872210575,
+    3872210486,
+    3872210439,
+    3872210432,
+    7017038877
+  ],
+  "geometry": [
+    { "lat": -8.0574699, "lon": -34.8986469 },
+    { "lat": -8.0572509, "lon": -34.8986576 },
+    { "lat": -8.0571759, "lon": -34.8986609 },
+    { "lat": -8.0571437, "lon": -34.8986470 },
+    { "lat": -8.0570595, "lon": -34.8985434 },
+    { "lat": -8.0569400, "lon": -34.8983964 },
+    { "lat": -8.0568588, "lon": -34.8983144 },
+    { "lat": -8.0567824, "lon": -34.8982422 }
+  ],
+  "tags": {
+    "highway": "footway",
+    "surface": "sand"
+  }
+},
+{
+  "type": "way",
+  "id": 383916060,
+  "bounds": {
+    "minlat": -8.0561665,
+    "minlon": -34.8999669,
+    "maxlat": -8.0559081,
+    "maxlon": -34.8992070
+  },
+  "nodes": [
+    3872210239,
+    3872210269,
+    3872210278,
+    3872210280,
+    3872210277,
+    3872210264,
+    3872210246,
+    3872210245,
+    3872210238
+  ],
+  "geometry": [
+    { "lat": -8.0559104, "lon": -34.8999669 },
+    { "lat": -8.0561405, "lon": -34.8996479 },
+    { "lat": -8.0561650, "lon": -34.8995674 },
+    { "lat": -8.0561665, "lon": -34.8994530 },
+    { "lat": -8.0561650, "lon": -34.8992921 },
+    { "lat": -8.0561252, "lon": -34.8992503 },
+    { "lat": -8.0560302, "lon": -34.8992147 },
+    { "lat": -8.0560027, "lon": -34.8992070 },
+    { "lat": -8.0559081, "lon": -34.8992088 }
+  ],
+  "tags": {
+    "highway": "footway"
+  }
+},
+{
+  "type": "way",
+  "id": 384770634,
+  "bounds": {
+    "minlat": -8.0515814,
+    "minlon": -34.8981726,
+    "maxlat": -8.0514591,
+    "maxlon": -34.8980491
+  },
+  "nodes": [
+    1036684688,
+    3881250642,
+    3881250650,
+    3881250648,
+    3881250637,
+    1036684682,
+    3881250609,
+    3881250595,
+    3881250577,
+    1036684686,
+    3881250570,
+    3881250569,
+    1036684687,
+    3881250581,
+    3881250597,
+    3881250607,
+    3881250622,
+    1036684688
+  ],
+  "geometry": [
+    { "lat": -8.0515551, "lon": -34.8981624 },
+    { "lat": -8.0515718, "lon": -34.8981456 },
+    { "lat": -8.0515810, "lon": -34.8981237 },
+    { "lat": -8.0515814, "lon": -34.8980999 },
+    { "lat": -8.0515729, "lon": -34.8980777 },
+    { "lat": -8.0515569, "lon": -34.8980603 },
+    { "lat": -8.0515355, "lon": -34.8980503 },
+    { "lat": -8.0515120, "lon": -34.8980491 },
+    { "lat": -8.0514897, "lon": -34.8980568 },
+    { "lat": -8.0514720, "lon": -34.8980725 },
+    { "lat": -8.0514619, "lon": -34.8980919 },
+    { "lat": -8.0514591, "lon": -34.8981136 },
+    { "lat": -8.0514638, "lon": -34.8981349 },
+    { "lat": -8.0514756, "lon": -34.8981533 },
+    { "lat": -8.0514929, "lon": -34.8981664 },
+    { "lat": -8.0515137, "lon": -34.8981726 },
+    { "lat": -8.0515353, "lon": -34.8981712 },
+    { "lat": -8.0515551, "lon": -34.8981624 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "junction": "roundabout",
+    "name": "Rua Correia de Araújo",
+    "oneway": "yes",
+    "postal_code": "52011-290",
+    "source:postal_code": "CNEFE"
+  }
+},
+{
+  "type": "way",
+  "id": 384770635,
+  "bounds": {
+    "minlat": -8.0514720,
+    "minlon": -34.8980725,
+    "maxlat": -8.0505653,
+    "maxlon": -34.8974762
+  },
+  "nodes": [
+    1036684685,
+    1036684686
+  ],
+  "geometry": [
+    { "lat": -8.0505653, "lon": -34.8974762 },
+    { "lat": -8.0514720, "lon": -34.8980725 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "name": "Rua Correia de Araújo",
+    "oneway": "no",
+    "postal_code": "52011-290",
+    "source:postal_code": "CNEFE"
+  }
+},
+{
+  "type": "way",
   "id": 436027543,
   "bounds": {
     "minlat": -8.0524984,
@@ -2407,167 +4116,29 @@
 },
 {
   "type": "way",
-  "id": 547086349,
+  "id": 437319193,
   "bounds": {
-    "minlat": -8.0505893,
-    "minlon": -34.8974546,
-    "maxlat": -8.0504348,
-    "maxlon": -34.8972473
+    "minlat": -8.0563243,
+    "minlon": -34.8996742,
+    "maxlat": -8.0561405,
+    "maxlon": -34.8996309
   },
   "nodes": [
-    5716195382,
-    5286196794,
-    5286219221
+    3872210269,
+    3872210288,
+    3872210301,
+    3872210305,
+    3872210317
   ],
   "geometry": [
-    { "lat": -8.0505893, "lon": -34.8974546 },
-    { "lat": -8.0505667, "lon": -34.8974242 },
-    { "lat": -8.0504348, "lon": -34.8972473 }
+    { "lat": -8.0561405, "lon": -34.8996479 },
+    { "lat": -8.0561849, "lon": -34.8996355 },
+    { "lat": -8.0562339, "lon": -34.8996309 },
+    { "lat": -8.0562722, "lon": -34.8996386 },
+    { "lat": -8.0563243, "lon": -34.8996742 }
   ],
   "tags": {
-    "highway": "footway",
-    "surface": "paving_stones"
-  }
-},
-{
-  "type": "way",
-  "id": 547086350,
-  "bounds": {
-    "minlat": -8.0506234,
-    "minlon": -34.8970796,
-    "maxlat": -8.0504529,
-    "maxlon": -34.8968491
-  },
-  "nodes": [
-    5716195383,
-    5716195384,
-    5286219222,
-    5286219223
-  ],
-  "geometry": [
-    { "lat": -8.0506234, "lon": -34.8968491 },
-    { "lat": -8.0506125, "lon": -34.8968801 },
-    { "lat": -8.0506052, "lon": -34.8968951 },
-    { "lat": -8.0504529, "lon": -34.8970796 }
-  ],
-  "tags": {
-    "highway": "footway",
-    "surface": "paving_stones"
-  }
-},
-{
-  "type": "way",
-  "id": 547086352,
-  "bounds": {
-    "minlat": -8.0502903,
-    "minlon": -34.8971967,
-    "maxlat": -8.0500996,
-    "maxlon": -34.8971748
-  },
-  "nodes": [
-    5716195381,
-    5286219224,
-    5286219225
-  ],
-  "geometry": [
-    { "lat": -8.0500996, "lon": -34.8971957 },
-    { "lat": -8.0501177, "lon": -34.8971967 },
-    { "lat": -8.0502903, "lon": -34.8971748 }
-  ],
-  "tags": {
-    "highway": "footway",
-    "surface": "paving_stones"
-  }
-},
-{
-  "type": "way",
-  "id": 547086353,
-  "bounds": {
-    "minlat": -8.0504904,
-    "minlon": -34.8972595,
-    "maxlat": -8.0502900,
-    "maxlon": -34.8970569
-  },
-  "nodes": [
-    5286219241,
-    5286219242,
-    5286219243,
-    5286219225,
-    5286219226,
-    5286219227,
-    5286219228,
-    5286219229,
-    5286219230,
-    5286219221,
-    5286219236,
-    5286219237,
-    5286219238,
-    5286219239,
-    5286219240,
-    5286219231,
-    5286219223,
-    5286219232,
-    5286219233,
-    5286219234,
-    5286219235,
-    5286219241
-  ],
-  "geometry": [
-    { "lat": -8.0503183, "lon": -34.8970857 },
-    { "lat": -8.0502996, "lon": -34.8971119 },
-    { "lat": -8.0502900, "lon": -34.8971426 },
-    { "lat": -8.0502903, "lon": -34.8971748 },
-    { "lat": -8.0503006, "lon": -34.8972053 },
-    { "lat": -8.0503216, "lon": -34.8972329 },
-    { "lat": -8.0503506, "lon": -34.8972517 },
-    { "lat": -8.0503841, "lon": -34.8972595 },
-    { "lat": -8.0504183, "lon": -34.8972555 },
-    { "lat": -8.0504348, "lon": -34.8972473 },
-    { "lat": -8.0504492, "lon": -34.8972402 },
-    { "lat": -8.0504732, "lon": -34.8972152 },
-    { "lat": -8.0504875, "lon": -34.8971836 },
-    { "lat": -8.0504904, "lon": -34.8971490 },
-    { "lat": -8.0504817, "lon": -34.8971153 },
-    { "lat": -8.0504622, "lon": -34.8970866 },
-    { "lat": -8.0504529, "lon": -34.8970796 },
-    { "lat": -8.0504367, "lon": -34.8970674 },
-    { "lat": -8.0504064, "lon": -34.8970571 },
-    { "lat": -8.0503745, "lon": -34.8970569 },
-    { "lat": -8.0503441, "lon": -34.8970668 },
-    { "lat": -8.0503183, "lon": -34.8970857 }
-  ],
-  "tags": {
-    "highway": "footway",
-    "surface": "paving_stones"
-  }
-},
-{
-  "type": "way",
-  "id": 561777348,
-  "bounds": {
-    "minlat": -8.0494051,
-    "minlon": -34.8938647,
-    "maxlat": -8.0493124,
-    "maxlon": -34.8936174
-  },
-  "nodes": [
-    5416461466,
-    5416461467,
-    5416461464,
-    5416461465
-  ],
-  "geometry": [
-    { "lat": -8.0493124, "lon": -34.8936174 },
-    { "lat": -8.0493436, "lon": -34.8936956 },
-    { "lat": -8.0493772, "lon": -34.8937879 },
-    { "lat": -8.0494051, "lon": -34.8938647 }
-  ],
-  "tags": {
-    "destination": "Casa Amarela;Boa Vista",
-    "highway": "trunk_link",
-    "lanes": "1",
-    "oneway": "yes",
-    "surface": "asphalt"
+    "highway": "footway"
   }
 },
 {
@@ -2668,74 +4239,83 @@
 },
 {
   "type": "way",
-  "id": 586132463,
+  "id": 595268268,
   "bounds": {
-    "minlat": -8.0548238,
-    "minlon": -34.8925875,
-    "maxlat": -8.0541072,
-    "maxlon": -34.8915264
+    "minlat": -8.0567830,
+    "minlon": -34.8983162,
+    "maxlat": -8.0565665,
+    "maxlon": -34.8980075
   },
   "nodes": [
-    1443866531,
-    5600937457,
-    11011356688,
-    7272511731,
-    7272511732,
-    7272511733,
-    7014741683,
-    7014741684,
-    7014775585,
-    5600937450,
-    5600937451,
-    5600937452
+    5673935515,
+    5673935514,
+    5673935513,
+    5673935507,
+    6203252927,
+    5673935508,
+    5673935520,
+    7161450438,
+    9393150036,
+    5673935519,
+    5673935509,
+    5673935510,
+    7017038877,
+    5673935511,
+    5673935512
   ],
   "geometry": [
-    { "lat": -8.0541072, "lon": -34.8915264 },
-    { "lat": -8.0541182, "lon": -34.8915565 },
-    { "lat": -8.0541134, "lon": -34.8915891 },
-    { "lat": -8.0541211, "lon": -34.8916255 },
-    { "lat": -8.0541685, "lon": -34.8917325 },
-    { "lat": -8.0541917, "lon": -34.8917976 },
-    { "lat": -8.0543510, "lon": -34.8922120 },
-    { "lat": -8.0543909, "lon": -34.8922831 },
-    { "lat": -8.0544440, "lon": -34.8923595 },
-    { "lat": -8.0545130, "lon": -34.8924239 },
-    { "lat": -8.0547400, "lon": -34.8925685 },
-    { "lat": -8.0548238, "lon": -34.8925875 }
+    { "lat": -8.0565665, "lon": -34.8980075 },
+    { "lat": -8.0565682, "lon": -34.8981032 },
+    { "lat": -8.0565704, "lon": -34.8982138 },
+    { "lat": -8.0565723, "lon": -34.8983162 },
+    { "lat": -8.0565956, "lon": -34.8983154 },
+    { "lat": -8.0566393, "lon": -34.8983137 },
+    { "lat": -8.0566645, "lon": -34.8983124 },
+    { "lat": -8.0566731, "lon": -34.8983119 },
+    { "lat": -8.0566910, "lon": -34.8983107 },
+    { "lat": -8.0566944, "lon": -34.8983105 },
+    { "lat": -8.0567328, "lon": -34.8983081 },
+    { "lat": -8.0567830, "lon": -34.8983062 },
+    { "lat": -8.0567824, "lon": -34.8982422 },
+    { "lat": -8.0567822, "lon": -34.8982221 },
+    { "lat": -8.0567783, "lon": -34.8981100 }
   ],
   "tags": {
-    "highway": "service"
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway"
   }
 },
 {
   "type": "way",
-  "id": 586132464,
+  "id": 595268270,
   "bounds": {
-    "minlat": -8.0555634,
-    "minlon": -34.8925875,
-    "maxlat": -8.0548238,
-    "maxlon": -34.8920283
+    "minlat": -8.0567819,
+    "minlon": -34.8995259,
+    "maxlat": -8.0566023,
+    "maxlon": -34.8994936
   },
   "nodes": [
-    5600937452,
-    5600937453,
-    5600937454,
-    5600937455,
-    7014741682,
-    7014741681,
-    5600937456
+    5673938021,
+    5673938022,
+    7161450439,
+    5673938023,
+    5673938024
   ],
   "geometry": [
-    { "lat": -8.0548238, "lon": -34.8925875 },
-    { "lat": -8.0549712, "lon": -34.8925835 },
-    { "lat": -8.0550854, "lon": -34.8925419 },
-    { "lat": -8.0552009, "lon": -34.8925030 },
-    { "lat": -8.0552952, "lon": -34.8924427 },
-    { "lat": -8.0553523, "lon": -34.8923890 },
-    { "lat": -8.0555634, "lon": -34.8920283 }
+    { "lat": -8.0566023, "lon": -34.8995259 },
+    { "lat": -8.0566803, "lon": -34.8995119 },
+    { "lat": -8.0567247, "lon": -34.8995039 },
+    { "lat": -8.0567460, "lon": -34.8994999 },
+    { "lat": -8.0567819, "lon": -34.8994936 }
   ],
   "tags": {
-    "highway": "service"
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway",
+    "mapillary": "819137005667984",
+    "surface": "concrete",
+    "survey:date": "2021-01-26"
   }
 },
 {
@@ -2875,6 +4455,105 @@
     "footway": "crossing",
     "highway": "footway",
     "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 604020318,
+  "bounds": {
+    "minlat": -8.0560986,
+    "minlon": -34.8954058,
+    "maxlat": -8.0560581,
+    "maxlon": -34.8952582
+  },
+  "nodes": [
+    5732329239,
+    5732329240,
+    5732329241,
+    7017038881
+  ],
+  "geometry": [
+    { "lat": -8.0560986, "lon": -34.8954058 },
+    { "lat": -8.0560750, "lon": -34.8953200 },
+    { "lat": -8.0560711, "lon": -34.8953059 },
+    { "lat": -8.0560581, "lon": -34.8952582 }
+  ],
+  "tags": {
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 604020322,
+  "bounds": {
+    "minlat": -8.0565950,
+    "minlon": -34.8980080,
+    "maxlat": -8.0565665,
+    "maxlon": -34.8980075
+  },
+  "nodes": [
+    5673935515,
+    5732329248
+  ],
+  "geometry": [
+    { "lat": -8.0565665, "lon": -34.8980075 },
+    { "lat": -8.0565950, "lon": -34.8980080 }
+  ],
+  "tags": {
+    "footway": "sidewalk",
+    "highway": "footway"
+  }
+},
+{
+  "type": "way",
+  "id": 604020324,
+  "bounds": {
+    "minlat": -8.0564842,
+    "minlon": -34.8977087,
+    "maxlat": -8.0564786,
+    "maxlon": -34.8974834
+  },
+  "nodes": [
+    5732329255,
+    5732329256,
+    5732329257
+  ],
+  "geometry": [
+    { "lat": -8.0564842, "lon": -34.8977087 },
+    { "lat": -8.0564812, "lon": -34.8975995 },
+    { "lat": -8.0564786, "lon": -34.8974834 }
+  ],
+  "tags": {
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 604020326,
+  "bounds": {
+    "minlat": -8.0567637,
+    "minlon": -34.8977083,
+    "maxlat": -8.0567551,
+    "maxlon": -34.8976117
+  },
+  "nodes": [
+    5732329262,
+    5732329263
+  ],
+  "geometry": [
+    { "lat": -8.0567637, "lon": -34.8977083 },
+    { "lat": -8.0567551, "lon": -34.8976117 }
+  ],
+  "tags": {
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway"
   }
 },
 {
@@ -3041,6 +4720,50 @@
 },
 {
   "type": "way",
+  "id": 628645806,
+  "bounds": {
+    "minlat": -8.0570219,
+    "minlon": -34.9000384,
+    "maxlat": -8.0567336,
+    "maxlon": -34.8991292
+  },
+  "nodes": [
+    5508744481,
+    7166210236,
+    5508744482,
+    5908100394,
+    5508744483,
+    5673938023,
+    9393150055,
+    5508744484,
+    9393150054,
+    7097034805
+  ],
+  "geometry": [
+    { "lat": -8.0570219, "lon": -34.9000384 },
+    { "lat": -8.0569881, "lon": -34.8999842 },
+    { "lat": -8.0568261, "lon": -34.8997249 },
+    { "lat": -8.0567808, "lon": -34.8996233 },
+    { "lat": -8.0567511, "lon": -34.8995317 },
+    { "lat": -8.0567460, "lon": -34.8994999 },
+    { "lat": -8.0567390, "lon": -34.8994291 },
+    { "lat": -8.0567360, "lon": -34.8993679 },
+    { "lat": -8.0567353, "lon": -34.8993087 },
+    { "lat": -8.0567336, "lon": -34.8991292 }
+  ],
+  "tags": {
+    "bus": "yes",
+    "foot": "no",
+    "highway": "busway",
+    "horse": "no",
+    "lanes": "1",
+    "maxspeed": "30",
+    "name": "Corredor Exclusivo BRT Leste - Oeste",
+    "oneway": "yes"
+  }
+},
+{
+  "type": "way",
   "id": 644048165,
   "bounds": {
     "minlat": -8.0537993,
@@ -3128,6 +4851,43 @@
 },
 {
   "type": "way",
+  "id": 644048168,
+  "bounds": {
+    "minlat": -8.0538083,
+    "minlon": -34.8984639,
+    "maxlat": -8.0536154,
+    "maxlon": -34.8982632
+  },
+  "nodes": [
+    6059098760,
+    6059098765,
+    6059098761,
+    7012118880,
+    7012118879,
+    7012118878,
+    6059098762,
+    7272462976,
+    7012118877,
+    6059098763
+  ],
+  "geometry": [
+    { "lat": -8.0538083, "lon": -34.8984639 },
+    { "lat": -8.0537113, "lon": -34.8983825 },
+    { "lat": -8.0536595, "lon": -34.8983660 },
+    { "lat": -8.0536308, "lon": -34.8983548 },
+    { "lat": -8.0536190, "lon": -34.8983345 },
+    { "lat": -8.0536154, "lon": -34.8983100 },
+    { "lat": -8.0536212, "lon": -34.8982912 },
+    { "lat": -8.0536305, "lon": -34.8982778 },
+    { "lat": -8.0536448, "lon": -34.8982683 },
+    { "lat": -8.0536598, "lon": -34.8982632 }
+  ],
+  "tags": {
+    "highway": "service"
+  }
+},
+{
+  "type": "way",
   "id": 644053955,
   "bounds": {
     "minlat": -8.0529335,
@@ -3158,106 +4918,105 @@
 },
 {
   "type": "way",
-  "id": 662060544,
+  "id": 662054559,
   "bounds": {
-    "minlat": -8.0532310,
-    "minlon": -34.8933923,
-    "maxlat": -8.0529956,
-    "maxlon": -34.8920946
+    "minlat": -8.0524589,
+    "minlon": -34.8985139,
+    "maxlat": -8.0520767,
+    "maxlon": -34.8984576
   },
   "nodes": [
-    6198283604,
-    6198283603,
-    6198283602,
-    7014775591,
-    6198283601,
-    6198283600,
-    6198283599,
-    6198283598,
-    6198283594,
-    6198283595,
-    6198283597,
-    6198283596,
-    7272533972
+    6198235688,
+    6198235687,
+    7016670895,
+    7016670894,
+    8522282255
   ],
   "geometry": [
-    { "lat": -8.0530365, "lon": -34.8920946 },
-    { "lat": -8.0530710, "lon": -34.8921490 },
-    { "lat": -8.0531135, "lon": -34.8922294 },
-    { "lat": -8.0531726, "lon": -34.8923528 },
-    { "lat": -8.0532064, "lon": -34.8924668 },
-    { "lat": -8.0532290, "lon": -34.8925929 },
-    { "lat": -8.0532310, "lon": -34.8927008 },
-    { "lat": -8.0532164, "lon": -34.8928269 },
-    { "lat": -8.0532104, "lon": -34.8928785 },
-    { "lat": -8.0531938, "lon": -34.8929322 },
-    { "lat": -8.0531686, "lon": -34.8929865 },
-    { "lat": -8.0530432, "lon": -34.8932842 },
-    { "lat": -8.0529956, "lon": -34.8933923 }
+    { "lat": -8.0524589, "lon": -34.8984851 },
+    { "lat": -8.0523380, "lon": -34.8985078 },
+    { "lat": -8.0523048, "lon": -34.8985139 },
+    { "lat": -8.0522842, "lon": -34.8985139 },
+    { "lat": -8.0520767, "lon": -34.8984576 }
   ],
   "tags": {
     "highway": "service",
-    "mapillary": "203450331502019",
+    "service": "parking_aisle"
+  }
+},
+{
+  "type": "way",
+  "id": 662054560,
+  "bounds": {
+    "minlat": -8.0525040,
+    "minlon": -34.8984851,
+    "maxlat": -8.0524589,
+    "maxlon": -34.8984834
+  },
+  "nodes": [
+    1001388737,
+    6198235688
+  ],
+  "geometry": [
+    { "lat": -8.0525040, "lon": -34.8984834 },
+    { "lat": -8.0524589, "lon": -34.8984851 }
+  ],
+  "tags": {
+    "highway": "service",
+    "mapillary": "504847910861575",
     "surface": "asphalt",
     "survey:date": "2021-01-26"
   }
 },
 {
   "type": "way",
-  "id": 662234466,
+  "id": 662054561,
   "bounds": {
-    "minlat": -8.0515025,
-    "minlon": -34.8932511,
-    "maxlat": -8.0506888,
-    "maxlon": -34.8924380
+    "minlat": -8.0521496,
+    "minlon": -34.8984488,
+    "maxlat": -8.0520425,
+    "maxlon": -34.8982052
   },
   "nodes": [
-    6199858670,
-    11101689900,
-    11101689898,
-    6199858672,
-    11101689899,
-    6199858670
+    6198235686,
+    7272396974,
+    7272396975,
+    6198235483
   ],
   "geometry": [
-    { "lat": -8.0509124, "lon": -34.8924380 },
-    { "lat": -8.0506888, "lon": -34.8929852 },
-    { "lat": -8.0512477, "lon": -34.8932511 },
-    { "lat": -8.0513071, "lon": -34.8931253 },
-    { "lat": -8.0515025, "lon": -34.8926947 },
-    { "lat": -8.0509124, "lon": -34.8924380 }
+    { "lat": -8.0520425, "lon": -34.8984488 },
+    { "lat": -8.0521209, "lon": -34.8982208 },
+    { "lat": -8.0521335, "lon": -34.8982108 },
+    { "lat": -8.0521496, "lon": -34.8982052 }
+  ],
+  "tags": {
+    "highway": "service",
+    "service": "parking_aisle"
+  }
+},
+{
+  "type": "way",
+  "id": 662054562,
+  "bounds": {
+    "minlat": -8.0518910,
+    "minlon": -34.8984045,
+    "maxlat": -8.0515551,
+    "maxlon": -34.8981624
+  },
+  "nodes": [
+    8526601013,
+    6198235484,
+    6198235482,
+    1036684688
+  ],
+  "geometry": [
+    { "lat": -8.0518910, "lon": -34.8984045 },
+    { "lat": -8.0517152, "lon": -34.8983368 },
+    { "lat": -8.0516249, "lon": -34.8982805 },
+    { "lat": -8.0515551, "lon": -34.8981624 }
   ],
   "tags": {
     "highway": "service"
-  }
-},
-{
-  "type": "way",
-  "id": 662234467,
-  "bounds": {
-    "minlat": -8.0519884,
-    "minlon": -34.8934019,
-    "maxlat": -8.0513071,
-    "maxlon": -34.8931253
-  },
-  "nodes": [
-    6199858673,
-    12853578896,
-    8958058040,
-    6199858672
-  ],
-  "geometry": [
-    { "lat": -8.0519884, "lon": -34.8934019 },
-    { "lat": -8.0519298, "lon": -34.8933783 },
-    { "lat": -8.0519113, "lon": -34.8933709 },
-    { "lat": -8.0513071, "lon": -34.8931253 }
-  ],
-  "tags": {
-    "highway": "service",
-    "mapillary": "232369888655100",
-    "service": "driveway",
-    "surface": "asphalt",
-    "survey:date": "2021-01-26"
   }
 },
 {
@@ -3323,33 +5082,6 @@
     "mapillary": "152454733519413",
     "surface": "asphalt",
     "survey:date": "2021-04-22"
-  }
-},
-{
-  "type": "way",
-  "id": 686742821,
-  "bounds": {
-    "minlat": -8.0528991,
-    "minlon": -34.8911253,
-    "maxlat": -8.0524328,
-    "maxlon": -34.8909866
-  },
-  "nodes": [
-    6437317954,
-    8958058039,
-    7014053612
-  ],
-  "geometry": [
-    { "lat": -8.0528991, "lon": -34.8911253 },
-    { "lat": -8.0528030, "lon": -34.8910975 },
-    { "lat": -8.0524328, "lon": -34.8909866 }
-  ],
-  "tags": {
-    "highway": "service",
-    "mapillary": "236149264510573",
-    "service": "parking_aisle",
-    "surface": "asphalt",
-    "survey:date": "2021-01-26"
   }
 },
 {
@@ -3593,6 +5325,88 @@
 },
 {
   "type": "way",
+  "id": 696041911,
+  "bounds": {
+    "minlat": -8.0573480,
+    "minlon": -34.8982626,
+    "maxlat": -8.0573449,
+    "maxlon": -34.8980944
+  },
+  "nodes": [
+    6536049948,
+    6536049951,
+    6536049950
+  ],
+  "geometry": [
+    { "lat": -8.0573449, "lon": -34.8982626 },
+    { "lat": -8.0573456, "lon": -34.8982261 },
+    { "lat": -8.0573480, "lon": -34.8980944 }
+  ],
+  "tags": {
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway"
+  }
+},
+{
+  "type": "way",
+  "id": 696041912,
+  "bounds": {
+    "minlat": -8.0566023,
+    "minlon": -34.8995412,
+    "maxlat": -8.0563917,
+    "maxlon": -34.8995226
+  },
+  "nodes": [
+    5673938021,
+    9413015810,
+    6536049957,
+    6536049958,
+    3872210339
+  ],
+  "geometry": [
+    { "lat": -8.0566023, "lon": -34.8995259 },
+    { "lat": -8.0565451, "lon": -34.8995407 },
+    { "lat": -8.0565430, "lon": -34.8995412 },
+    { "lat": -8.0565037, "lon": -34.8995412 },
+    { "lat": -8.0563917, "lon": -34.8995226 }
+  ],
+  "tags": {
+    "highway": "footway",
+    "surface": "sand"
+  }
+},
+{
+  "type": "way",
+  "id": 700008053,
+  "bounds": {
+    "minlat": -8.0567352,
+    "minlon": -34.8983399,
+    "maxlat": -8.0567261,
+    "maxlon": -34.8982209
+  },
+  "nodes": [
+    3245364892,
+    5673935509,
+    1462082585
+  ],
+  "geometry": [
+    { "lat": -8.0567352, "lon": -34.8983399 },
+    { "lat": -8.0567328, "lon": -34.8983081 },
+    { "lat": -8.0567261, "lon": -34.8982209 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "2",
+    "name": "Praça do Derby",
+    "oneway": "yes",
+    "postal_code": "52010-140",
+    "source:postal_code": "CNEFE"
+  }
+},
+{
+  "type": "way",
   "id": 700008062,
   "bounds": {
     "minlat": -8.0560548,
@@ -3625,6 +5439,40 @@
     "surface": "concrete",
     "wikidata": "Q9639648",
     "wikipedia": "pt:Avenida Conde da Boa Vista"
+  }
+},
+{
+  "type": "way",
+  "id": 700013821,
+  "bounds": {
+    "minlat": -8.0571458,
+    "minlon": -34.8976215,
+    "maxlat": -8.0566363,
+    "maxlon": -34.8976038
+  },
+  "nodes": [
+    1443830920,
+    3245364894,
+    5732329263,
+    1418601102
+  ],
+  "geometry": [
+    { "lat": -8.0571458, "lon": -34.8976215 },
+    { "lat": -8.0567935, "lon": -34.8976137 },
+    { "lat": -8.0567551, "lon": -34.8976117 },
+    { "lat": -8.0566363, "lon": -34.8976038 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-902",
+    "sidewalk:left": "no",
+    "sidewalk:right": "yes",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
   }
 },
 {
@@ -3719,6 +5567,125 @@
 },
 {
   "type": "way",
+  "id": 704220894,
+  "bounds": {
+    "minlat": -8.0559051,
+    "minlon": -34.8982043,
+    "maxlat": -8.0543722,
+    "maxlon": -34.8975190
+  },
+  "nodes": [
+    3224207506,
+    2633213639,
+    7352232393,
+    1462091590,
+    6000901538,
+    1036684698,
+    6000901539,
+    1036684699,
+    3790964022,
+    1036684700
+  ],
+  "geometry": [
+    { "lat": -8.0543722, "lon": -34.8975190 },
+    { "lat": -8.0545980, "lon": -34.8976961 },
+    { "lat": -8.0546772, "lon": -34.8977582 },
+    { "lat": -8.0547784, "lon": -34.8978376 },
+    { "lat": -8.0549508, "lon": -34.8979290 },
+    { "lat": -8.0550741, "lon": -34.8979860 },
+    { "lat": -8.0552704, "lon": -34.8980797 },
+    { "lat": -8.0554507, "lon": -34.8981332 },
+    { "lat": -8.0556687, "lon": -34.8981707 },
+    { "lat": -8.0559051, "lon": -34.8982043 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 704220895,
+  "bounds": {
+    "minlat": -8.0567675,
+    "minlon": -34.8997207,
+    "maxlat": -8.0566898,
+    "maxlon": -34.8995485
+  },
+  "nodes": [
+    1422749960,
+    5847404420,
+    5847404421,
+    1462083487,
+    5847404426
+  ],
+  "geometry": [
+    { "lat": -8.0566898, "lon": -34.8995485 },
+    { "lat": -8.0567228, "lon": -34.8996439 },
+    { "lat": -8.0567503, "lon": -34.8996946 },
+    { "lat": -8.0567561, "lon": -34.8997029 },
+    { "lat": -8.0567675, "lon": -34.8997207 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "2",
+    "mapillary": "296977172131244",
+    "name": "Praça do Derby",
+    "oneway": "yes",
+    "postal_code": "52010-140",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 704220896,
+  "bounds": {
+    "minlat": -8.0559107,
+    "minlon": -34.9001431,
+    "maxlat": -8.0538911,
+    "maxlon": -34.9000645
+  },
+  "nodes": [
+    3224207505,
+    3224207503,
+    3790929812,
+    7013715229,
+    7013715230,
+    7013715231,
+    7013715232
+  ],
+  "geometry": [
+    { "lat": -8.0559107, "lon": -34.9000645 },
+    { "lat": -8.0552769, "lon": -34.9000734 },
+    { "lat": -8.0548073, "lon": -34.9000714 },
+    { "lat": -8.0543831, "lon": -34.9000695 },
+    { "lat": -8.0541287, "lon": -34.9001022 },
+    { "lat": -8.0539812, "lon": -34.9001256 },
+    { "lat": -8.0538911, "lon": -34.9001431 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "lanes": "2",
+    "name": "Rua Jener de Souza",
+    "oneway": "yes",
+    "postal_code": "52010-130",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
   "id": 704220897,
   "bounds": {
     "minlat": -8.0524581,
@@ -3756,33 +5723,59 @@
 },
 {
   "type": "way",
-  "id": 750224856,
+  "id": 749879438,
   "bounds": {
-    "minlat": -8.0493078,
-    "minlon": -34.8929219,
-    "maxlat": -8.0492461,
-    "maxlon": -34.8928320
+    "minlat": -8.0537113,
+    "minlon": -34.8983825,
+    "maxlat": -8.0536598,
+    "maxlon": -34.8982632
   },
   "nodes": [
-    1416856772,
-    5900474944,
-    7046801797,
-    1416848182
+    6059098763,
+    7272462977,
+    7012118876,
+    7012118874,
+    7012118875,
+    6059098764,
+    6059098765
   ],
   "geometry": [
-    { "lat": -8.0492461, "lon": -34.8928320 },
-    { "lat": -8.0492522, "lon": -34.8928735 },
-    { "lat": -8.0492679, "lon": -34.8929018 },
-    { "lat": -8.0493078, "lon": -34.8929219 }
+    { "lat": -8.0536598, "lon": -34.8982632 },
+    { "lat": -8.0536684, "lon": -34.8982632 },
+    { "lat": -8.0536776, "lon": -34.8982699 },
+    { "lat": -8.0536901, "lon": -34.8982946 },
+    { "lat": -8.0536937, "lon": -34.8983053 },
+    { "lat": -8.0536977, "lon": -34.8983244 },
+    { "lat": -8.0537113, "lon": -34.8983825 }
   ],
   "tags": {
-    "cycleway:right": "lane",
+    "highway": "service"
+  }
+},
+{
+  "type": "way",
+  "id": 750053871,
+  "bounds": {
+    "minlat": -8.0547784,
+    "minlon": -34.8981221,
+    "maxlat": -8.0545809,
+    "maxlon": -34.8978376
+  },
+  "nodes": [
+    1462091590,
+    1462090637
+  ],
+  "geometry": [
+    { "lat": -8.0547784, "lon": -34.8978376 },
+    { "lat": -8.0545809, "lon": -34.8981221 }
+  ],
+  "tags": {
     "highway": "tertiary",
     "lanes": "2",
-    "mapillary": "315660916896787",
-    "name": "Rua Monte Castelo",
-    "oneway": "yes",
-    "postal_code": "50050-310",
+    "mapillary": "840687423239458",
+    "name": "Rua Jornalista Paulo Bittencourt",
+    "oneway": "no",
+    "postal_code": "52010-260",
     "source:postal_code": "CNEFE",
     "surface": "asphalt",
     "survey:date": "2021-01-26"
@@ -3790,257 +5783,185 @@
 },
 {
   "type": "way",
-  "id": 750408266,
+  "id": 750408267,
   "bounds": {
-    "minlat": -8.0525876,
-    "minlon": -34.8908609,
-    "maxlat": -8.0522308,
-    "maxlon": -34.8901340
+    "minlat": -8.0520425,
+    "minlon": -34.8984488,
+    "maxlat": -8.0520294,
+    "maxlon": -34.8984449
   },
   "nodes": [
-    6200544618,
-    6200544619,
-    7014053609,
-    13272313277,
-    7014053608,
-    6200544614,
-    13272324730,
-    6200544616
+    6198235686,
+    8526601014
   ],
   "geometry": [
-    { "lat": -8.0523078, "lon": -34.8908609 },
-    { "lat": -8.0522397, "lon": -34.8908320 },
-    { "lat": -8.0522308, "lon": -34.8908146 },
-    { "lat": -8.0523247, "lon": -34.8904954 },
-    { "lat": -8.0524130, "lon": -34.8902010 },
-    { "lat": -8.0524290, "lon": -34.8901732 },
-    { "lat": -8.0524500, "lon": -34.8901578 },
-    { "lat": -8.0525876, "lon": -34.8901340 }
+    { "lat": -8.0520425, "lon": -34.8984488 },
+    { "lat": -8.0520294, "lon": -34.8984449 }
   ],
   "tags": {
+    "covered": "yes",
+    "highway": "service"
+  }
+},
+{
+  "type": "way",
+  "id": 750408268,
+  "bounds": {
+    "minlat": -8.0520767,
+    "minlon": -34.8984576,
+    "maxlat": -8.0520425,
+    "maxlon": -34.8984488
+  },
+  "nodes": [
+    8522282255,
+    6198235686
+  ],
+  "geometry": [
+    { "lat": -8.0520767, "lon": -34.8984576 },
+    { "lat": -8.0520425, "lon": -34.8984488 }
+  ],
+  "tags": {
+    "covered": "yes",
     "highway": "service",
-    "name": "Rua Conde d'Eu",
-    "postal_code": "50050-470",
-    "service": "parking_aisle",
-    "source:postal_code": "CNEFE"
+    "service": "parking_aisle"
   }
 },
 {
   "type": "way",
-  "id": 754276497,
+  "id": 759731400,
   "bounds": {
-    "minlat": -8.0497912,
-    "minlon": -34.8930887,
-    "maxlat": -8.0493078,
-    "maxlon": -34.8929219
+    "minlat": -8.0565950,
+    "minlon": -34.8974834,
+    "maxlat": -8.0564786,
+    "maxlon": -34.8974477
   },
   "nodes": [
-    1416848182,
-    1416856115
+    5732329257,
+    7097034814,
+    7097034813
   ],
   "geometry": [
-    { "lat": -8.0493078, "lon": -34.8929219 },
-    { "lat": -8.0497912, "lon": -34.8930887 }
+    { "lat": -8.0564786, "lon": -34.8974834 },
+    { "lat": -8.0565161, "lon": -34.8974719 },
+    { "lat": -8.0565950, "lon": -34.8974477 }
   ],
   "tags": {
-    "cycleway:right": "lane",
-    "highway": "tertiary",
-    "lanes": "2",
-    "mapillary": "808586919792333",
-    "name": "Avenida Montevidéu",
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway"
+  }
+},
+{
+  "type": "way",
+  "id": 766596159,
+  "bounds": {
+    "minlat": -8.0567364,
+    "minlon": -34.8991292,
+    "maxlat": -8.0567329,
+    "maxlon": -34.8983399
+  },
+  "nodes": [
+    7097034805,
+    5673935495,
+    5508744485,
+    7143096780,
+    3245364892
+  ],
+  "geometry": [
+    { "lat": -8.0567336, "lon": -34.8991292 },
+    { "lat": -8.0567344, "lon": -34.8989881 },
+    { "lat": -8.0567329, "lon": -34.8987775 },
+    { "lat": -8.0567364, "lon": -34.8985671 },
+    { "lat": -8.0567352, "lon": -34.8983399 }
+  ],
+  "tags": {
+    "bus": "yes",
+    "foot": "no",
+    "highway": "busway",
+    "horse": "no",
+    "maxspeed": "30",
+    "name": "Corredor Exclusivo BRT Leste - Oeste",
     "oneway": "yes",
-    "postal_code": "50050-250",
-    "source:postal_code": "CNEFE",
-    "surface": "asphalt",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 766795494,
+  "bounds": {
+    "minlat": -8.0567247,
+    "minlon": -34.8995039,
+    "maxlat": -8.0566998,
+    "maxlon": -34.8992741
+  },
+  "nodes": [
+    5673935505,
+    7161450439
+  ],
+  "geometry": [
+    { "lat": -8.0566998, "lon": -34.8992741 },
+    { "lat": -8.0567247, "lon": -34.8995039 }
+  ],
+  "tags": {
+    "highway": "footway",
+    "mapillary": "4663223547022784",
+    "surface": "concrete",
     "survey:date": "2021-01-26"
   }
 },
 {
   "type": "way",
-  "id": 766721307,
+  "id": 772524562,
   "bounds": {
-    "minlat": -8.0501940,
-    "minlon": -34.8974147,
-    "maxlat": -8.0500393,
-    "maxlon": -34.8968685
+    "minlat": -8.0583245,
+    "minlon": -34.8982326,
+    "maxlat": -8.0574614,
+    "maxlon": -34.8982295
   },
   "nodes": [
-    7160757810,
-    3790929441,
-    5716195381,
-    5286196798
+    5908100427,
+    1036684681
   ],
   "geometry": [
-    { "lat": -8.0500393, "lon": -34.8974147 },
-    { "lat": -8.0500794, "lon": -34.8972656 },
-    { "lat": -8.0500996, "lon": -34.8971957 },
-    { "lat": -8.0501940, "lon": -34.8968685 }
+    { "lat": -8.0574614, "lon": -34.8982295 },
+    { "lat": -8.0583245, "lon": -34.8982326 }
   ],
   "tags": {
     "highway": "secondary",
     "lanes": "2",
-    "name": "Praça do Entroncamento",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
     "oneway": "yes",
-    "postal_code": "52011-300",
-    "smoothness": "intermediate",
+    "postal_code": "52010-904",
     "source:postal_code": "CNEFE",
     "surface": "asphalt"
   }
 },
 {
   "type": "way",
-  "id": 766721308,
+  "id": 772524563,
   "bounds": {
-    "minlat": -8.0500818,
-    "minlon": -34.8966708,
-    "maxlat": -8.0491003,
-    "maxlon": -34.8964574
+    "minlat": -8.0574623,
+    "minlon": -34.8982295,
+    "maxlat": -8.0574614,
+    "maxlon": -34.8980927
   },
   "nodes": [
-    1467730622,
-    3252921183,
-    8952330998,
-    1467731919
+    5908100427,
+    1462082587
   ],
   "geometry": [
-    { "lat": -8.0500818, "lon": -34.8966708 },
-    { "lat": -8.0495604, "lon": -34.8965023 },
-    { "lat": -8.0494405, "lon": -34.8964801 },
-    { "lat": -8.0491003, "lon": -34.8964574 }
+    { "lat": -8.0574614, "lon": -34.8982295 },
+    { "lat": -8.0574623, "lon": -34.8980927 }
   ],
   "tags": {
-    "highway": "secondary",
-    "lanes": "3",
-    "maxspeed:type": "BR:urban",
-    "name": "Avenida Conselheiro Rosa e Silva",
-    "oneway": "yes",
-    "parking:both": "no",
-    "postal_code": "52050-225",
-    "smoothness": "good",
-    "source:postal_code": "CNEFE",
-    "surface": "asphalt"
-  }
-},
-{
-  "type": "way",
-  "id": 766721309,
-  "bounds": {
-    "minlat": -8.0501940,
-    "minlon": -34.8968685,
-    "maxlat": -8.0500818,
-    "maxlon": -34.8966708
-  },
-  "nodes": [
-    5286196798,
-    7160757816,
-    7160757811,
-    7160757812,
-    7160757813,
-    7160757814,
-    7160757815,
-    1467730622
-  ],
-  "geometry": [
-    { "lat": -8.0501940, "lon": -34.8968685 },
-    { "lat": -8.0501936, "lon": -34.8968296 },
-    { "lat": -8.0501919, "lon": -34.8968097 },
-    { "lat": -8.0501857, "lon": -34.8967837 },
-    { "lat": -8.0501703, "lon": -34.8967535 },
-    { "lat": -8.0501548, "lon": -34.8967327 },
-    { "lat": -8.0501322, "lon": -34.8967109 },
-    { "lat": -8.0500818, "lon": -34.8966708 }
-  ],
-  "tags": {
-    "highway": "secondary",
-    "lanes": "1",
-    "mapillary": "619633738993499",
-    "name": "Praça do Entroncamento",
-    "oneway": "yes",
-    "parking:both": "no",
-    "postal_code": "52011-300",
-    "smoothness": "good",
-    "source:postal_code": "CNEFE",
-    "surface": "asphalt",
-    "survey:date": "2021-04-22"
-  }
-},
-{
-  "type": "way",
-  "id": 770730306,
-  "bounds": {
-    "minlat": -8.0525787,
-    "minlon": -34.8937910,
-    "maxlat": -8.0518620,
-    "maxlon": -34.8922978
-  },
-  "nodes": [
-    1416847716,
-    995388326,
-    9016340170,
-    6199858673,
-    9016340163,
-    995388314,
-    995388310,
-    1443866530
-  ],
-  "geometry": [
-    { "lat": -8.0518620, "lon": -34.8937910 },
-    { "lat": -8.0519264, "lon": -34.8935820 },
-    { "lat": -8.0519579, "lon": -34.8934904 },
-    { "lat": -8.0519884, "lon": -34.8934019 },
-    { "lat": -8.0520511, "lon": -34.8932199 },
-    { "lat": -8.0522515, "lon": -34.8926378 },
-    { "lat": -8.0524780, "lon": -34.8923698 },
-    { "lat": -8.0525787, "lon": -34.8922978 }
-  ],
-  "tags": {
-    "cycleway:right": "lane",
-    "highway": "secondary",
+    "highway": "primary",
     "lanes": "2",
-    "name": "Rua João Fernandes Vieira",
+    "name": "Praça do Derby",
     "oneway": "yes",
-    "oneway:bicycle": "no",
-    "postal_code": "50050-250",
+    "postal_code": "52010-140",
     "source:postal_code": "CNEFE",
-    "surface": "asphalt"
-  }
-},
-{
-  "type": "way",
-  "id": 770730307,
-  "bounds": {
-    "minlat": -8.0518620,
-    "minlon": -34.8938992,
-    "maxlat": -8.0516169,
-    "maxlon": -34.8937910
-  },
-  "nodes": [
-    5900474908,
-    1416847720,
-    5900474916,
-    12853578897,
-    5900474917,
-    5900474918,
-    1416847716
-  ],
-  "geometry": [
-    { "lat": -8.0516169, "lon": -34.8938803 },
-    { "lat": -8.0516800, "lon": -34.8938970 },
-    { "lat": -8.0517245, "lon": -34.8938992 },
-    { "lat": -8.0517588, "lon": -34.8938883 },
-    { "lat": -8.0517656, "lon": -34.8938861 },
-    { "lat": -8.0518067, "lon": -34.8938555 },
-    { "lat": -8.0518620, "lon": -34.8937910 }
-  ],
-  "tags": {
-    "cycleway:right": "lane",
-    "highway": "secondary",
-    "lanes": "1",
-    "name": "Avenida Montevidéu",
-    "oneway": "yes",
-    "postal_code": "50050-250",
-    "source:postal_code": "CNEFE",
-    "surface": "asphalt"
+    "surface": "concrete"
   }
 },
 {
@@ -4101,157 +6022,6 @@
 },
 {
   "type": "way",
-  "id": 778909295,
-  "bounds": {
-    "minlat": -8.0542046,
-    "minlon": -34.8913739,
-    "maxlat": -8.0540137,
-    "maxlon": -34.8912389
-  },
-  "nodes": [
-    7272462970,
-    7272462963
-  ],
-  "geometry": [
-    { "lat": -8.0540137, "lon": -34.8913739 },
-    { "lat": -8.0542046, "lon": -34.8912389 }
-  ],
-  "tags": {
-    "highway": "service"
-  }
-},
-{
-  "type": "way",
-  "id": 778909299,
-  "bounds": {
-    "minlat": -8.0542046,
-    "minlon": -34.8912389,
-    "maxlat": -8.0539142,
-    "maxlon": -34.8905135
-  },
-  "nodes": [
-    7272462964,
-    7272462958,
-    7272462959,
-    7272462960,
-    7272462961,
-    7272462962,
-    7272462963
-  ],
-  "geometry": [
-    { "lat": -8.0540184, "lon": -34.8905135 },
-    { "lat": -8.0539348, "lon": -34.8906315 },
-    { "lat": -8.0539148, "lon": -34.8906724 },
-    { "lat": -8.0539142, "lon": -34.8907502 },
-    { "lat": -8.0539288, "lon": -34.8908105 },
-    { "lat": -8.0539719, "lon": -34.8908977 },
-    { "lat": -8.0542046, "lon": -34.8912389 }
-  ],
-  "tags": {
-    "highway": "service",
-    "oneway": "yes",
-    "service": "parking_aisle"
-  }
-},
-{
-  "type": "way",
-  "id": 778909300,
-  "bounds": {
-    "minlat": -8.0543962,
-    "minlon": -34.8912389,
-    "maxlat": -8.0540764,
-    "maxlon": -34.8905888
-  },
-  "nodes": [
-    7272462963,
-    7272462951,
-    7272462969,
-    7272462968,
-    7272462967,
-    7272462966,
-    7272462965,
-    7272462950
-  ],
-  "geometry": [
-    { "lat": -8.0542046, "lon": -34.8912389 },
-    { "lat": -8.0543000, "lon": -34.8911713 },
-    { "lat": -8.0543749, "lon": -34.8911183 },
-    { "lat": -8.0543915, "lon": -34.8910882 },
-    { "lat": -8.0543962, "lon": -34.8910493 },
-    { "lat": -8.0543869, "lon": -34.8910090 },
-    { "lat": -8.0542886, "lon": -34.8908642 },
-    { "lat": -8.0540764, "lon": -34.8905888 }
-  ],
-  "tags": {
-    "highway": "service",
-    "mapillary": "199757858552526",
-    "oneway": "yes",
-    "service": "parking_aisle",
-    "surface": "asphalt",
-    "survey:date": "2021-01-26"
-  }
-},
-{
-  "type": "way",
-  "id": 778918728,
-  "bounds": {
-    "minlat": -8.0527596,
-    "minlon": -34.8926861,
-    "maxlat": -8.0525637,
-    "maxlon": -34.8924097
-  },
-  "nodes": [
-    7272533963,
-    7272533962
-  ],
-  "geometry": [
-    { "lat": -8.0527596, "lon": -34.8924097 },
-    { "lat": -8.0525637, "lon": -34.8926861 }
-  ],
-  "tags": {
-    "highway": "service",
-    "service": "parking_aisle"
-  }
-},
-{
-  "type": "way",
-  "id": 778918729,
-  "bounds": {
-    "minlat": -8.0528061,
-    "minlon": -34.8927431,
-    "maxlat": -8.0526789,
-    "maxlon": -34.8922533
-  },
-  "nodes": [
-    7272533969,
-    8963683240,
-    7272533963,
-    7272533968,
-    7272533967,
-    7272533966,
-    7272533965,
-    7272533964
-  ],
-  "geometry": [
-    { "lat": -8.0526789, "lon": -34.8922533 },
-    { "lat": -8.0527202, "lon": -34.8923341 },
-    { "lat": -8.0527596, "lon": -34.8924097 },
-    { "lat": -8.0527901, "lon": -34.8924688 },
-    { "lat": -8.0528061, "lon": -34.8925131 },
-    { "lat": -8.0528061, "lon": -34.8925446 },
-    { "lat": -8.0527921, "lon": -34.8925868 },
-    { "lat": -8.0527031, "lon": -34.8927431 }
-  ],
-  "tags": {
-    "highway": "service",
-    "mapillary": "466884957745479",
-    "service": "parking_aisle",
-    "surface": "asphalt",
-    "survey:date": "2021-01-26"
-  }
-},
-{
-  "type": "way",
   "id": 778918730,
   "bounds": {
     "minlat": -8.0539434,
@@ -4269,28 +6039,6 @@
   ],
   "tags": {
     "highway": "service"
-  }
-},
-{
-  "type": "way",
-  "id": 778918731,
-  "bounds": {
-    "minlat": -8.0529956,
-    "minlon": -34.8933923,
-    "maxlat": -8.0527231,
-    "maxlon": -34.8932192
-  },
-  "nodes": [
-    7272533972,
-    7272533971
-  ],
-  "geometry": [
-    { "lat": -8.0529956, "lon": -34.8933923 },
-    { "lat": -8.0527231, "lon": -34.8932192 }
-  ],
-  "tags": {
-    "highway": "service",
-    "service": "parking_aisle"
   }
 },
 {
@@ -4455,6 +6203,63 @@
 },
 {
   "type": "way",
+  "id": 778918739,
+  "bounds": {
+    "minlat": -8.0531343,
+    "minlon": -34.8996870,
+    "maxlat": -8.0528297,
+    "maxlon": -34.8992062
+  },
+  "nodes": [
+    3790929775,
+    7272562123,
+    7272562126,
+    7272562125,
+    8963683241,
+    7272562124
+  ],
+  "geometry": [
+    { "lat": -8.0531343, "lon": -34.8992062 },
+    { "lat": -8.0531115, "lon": -34.8992226 },
+    { "lat": -8.0530962, "lon": -34.8992427 },
+    { "lat": -8.0530530, "lon": -34.8993165 },
+    { "lat": -8.0528731, "lon": -34.8996203 },
+    { "lat": -8.0528297, "lon": -34.8996870 }
+  ],
+  "tags": {
+    "highway": "service",
+    "mapillary": "112271827618131",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 783288223,
+  "bounds": {
+    "minlat": -8.0584786,
+    "minlon": -34.8964750,
+    "maxlat": -8.0578096,
+    "maxlon": -34.8959966
+  },
+  "nodes": [
+    1437147679,
+    1437147677
+  ],
+  "geometry": [
+    { "lat": -8.0578096, "lon": -34.8964750 },
+    { "lat": -8.0584786, "lon": -34.8959966 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "name": "Rua Miguel Couto",
+    "oneway": "no",
+    "postal_code": "50070-150",
+    "source:postal_code": "CNEFE"
+  }
+},
+{
+  "type": "way",
   "id": 783288224,
   "bounds": {
     "minlat": -8.0564803,
@@ -4488,6 +6293,38 @@
     "postal_code": "50070-110",
     "sidewalk:left": "no",
     "sidewalk:right": "yes",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 783288225,
+  "bounds": {
+    "minlat": -8.0573687,
+    "minlon": -34.8951896,
+    "maxlat": -8.0564326,
+    "maxlon": -34.8948366
+  },
+  "nodes": [
+    1437147680,
+    1437147435,
+    8043198873,
+    992020313
+  ],
+  "geometry": [
+    { "lat": -8.0573687, "lon": -34.8948366 },
+    { "lat": -8.0569461, "lon": -34.8950034 },
+    { "lat": -8.0565677, "lon": -34.8951418 },
+    { "lat": -8.0564326, "lon": -34.8951896 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "3",
+    "name": "Rua Dom Bosco",
+    "oneway": "yes",
+    "postal_code": "50070-070",
     "smoothness": "good",
     "source:postal_code": "CNEFE",
     "surface": "asphalt"
@@ -4548,6 +6385,72 @@
     "oneway": "yes",
     "postal_code": "52010-903",
     "sidewalk": "right",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 786325346,
+  "bounds": {
+    "minlat": -8.0547564,
+    "minlon": -34.8977582,
+    "maxlat": -8.0546772,
+    "maxlon": -34.8976449
+  },
+  "nodes": [
+    7352232392,
+    7352232393
+  ],
+  "geometry": [
+    { "lat": -8.0547564, "lon": -34.8976449 },
+    { "lat": -8.0546772, "lon": -34.8977582 }
+  ],
+  "tags": {
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway",
+    "mapillary": "280098983796853",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 786325347,
+  "bounds": {
+    "minlat": -8.0566431,
+    "minlon": -34.8982174,
+    "maxlat": -8.0559051,
+    "maxlon": -34.8982034
+  },
+  "nodes": [
+    1036684700,
+    3872210241,
+    1462082589,
+    3872210337,
+    3245364890,
+    5673935513,
+    1422749957
+  ],
+  "geometry": [
+    { "lat": -8.0559051, "lon": -34.8982043 },
+    { "lat": -8.0559661, "lon": -34.8982034 },
+    { "lat": -8.0561416, "lon": -34.8982087 },
+    { "lat": -8.0563829, "lon": -34.8982097 },
+    { "lat": -8.0564894, "lon": -34.8982102 },
+    { "lat": -8.0565704, "lon": -34.8982138 },
+    { "lat": -8.0566431, "lon": -34.8982174 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
     "smoothness": "good",
     "source:postal_code": "CNEFE",
     "surface": "asphalt"
@@ -4766,6 +6669,379 @@
 },
 {
   "type": "way",
+  "id": 863416904,
+  "bounds": {
+    "minlat": -8.0565322,
+    "minlon": -34.8950222,
+    "maxlat": -8.0564493,
+    "maxlon": -34.8947434
+  },
+  "nodes": [
+    8043217797,
+    8043217800,
+    8043217799,
+    8043217798
+  ],
+  "geometry": [
+    { "lat": -8.0564493, "lon": -34.8947434 },
+    { "lat": -8.0564966, "lon": -34.8949026 },
+    { "lat": -8.0565044, "lon": -34.8949288 },
+    { "lat": -8.0565322, "lon": -34.8950222 }
+  ],
+  "tags": {
+    "covered": "yes",
+    "dog": "yes",
+    "highway": "path",
+    "horse": "no",
+    "lit": "yes",
+    "motor_vehicle": "yes",
+    "stroller": "yes",
+    "surface": "concrete",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 863416905,
+  "bounds": {
+    "minlat": -8.0565677,
+    "minlon": -34.8951418,
+    "maxlat": -8.0565322,
+    "maxlon": -34.8950222
+  },
+  "nodes": [
+    8043217798,
+    8043198873
+  ],
+  "geometry": [
+    { "lat": -8.0565322, "lon": -34.8950222 },
+    { "lat": -8.0565677, "lon": -34.8951418 }
+  ],
+  "tags": {
+    "dog": "yes",
+    "highway": "path",
+    "horse": "no",
+    "lit": "yes",
+    "motor_vehicle": "yes",
+    "stroller": "yes",
+    "surface": "concrete",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 891701420,
+  "bounds": {
+    "minlat": -8.0560826,
+    "minlon": -34.8974670,
+    "maxlat": -8.0558475,
+    "maxlon": -34.8974102
+  },
+  "nodes": [
+    8287638778,
+    8287638779,
+    8287638780,
+    8287638781
+  ],
+  "geometry": [
+    { "lat": -8.0558475, "lon": -34.8974248 },
+    { "lat": -8.0558919, "lon": -34.8974102 },
+    { "lat": -8.0560131, "lon": -34.8974670 },
+    { "lat": -8.0560826, "lon": -34.8974510 }
+  ],
+  "tags": {
+    "highway": "footway"
+  }
+},
+{
+  "type": "way",
+  "id": 891701421,
+  "bounds": {
+    "minlat": -8.0563521,
+    "minlon": -34.8974987,
+    "maxlat": -8.0558687,
+    "maxlon": -34.8974641
+  },
+  "nodes": [
+    8287638782,
+    8287697028,
+    8287638783,
+    8287638784,
+    8287638785,
+    8287638786,
+    8287638787,
+    8287638788,
+    8287638789,
+    8287638790,
+    8287697025,
+    8287638791
+  ],
+  "geometry": [
+    { "lat": -8.0558687, "lon": -34.8974775 },
+    { "lat": -8.0559125, "lon": -34.8974684 },
+    { "lat": -8.0559335, "lon": -34.8974641 },
+    { "lat": -8.0559496, "lon": -34.8974641 },
+    { "lat": -8.0559664, "lon": -34.8974685 },
+    { "lat": -8.0559934, "lon": -34.8974803 },
+    { "lat": -8.0560124, "lon": -34.8974906 },
+    { "lat": -8.0560307, "lon": -34.8974973 },
+    { "lat": -8.0560482, "lon": -34.8974987 },
+    { "lat": -8.0561220, "lon": -34.8974950 },
+    { "lat": -8.0561511, "lon": -34.8974941 },
+    { "lat": -8.0563521, "lon": -34.8974877 }
+  ],
+  "tags": {
+    "highway": "service",
+    "oneway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 891701422,
+  "bounds": {
+    "minlat": -8.0561809,
+    "minlon": -34.8974069,
+    "maxlat": -8.0558403,
+    "maxlon": -34.8973047
+  },
+  "nodes": [
+    8287697019,
+    8287638801,
+    8287638802,
+    8287697026,
+    8287638803
+  ],
+  "geometry": [
+    { "lat": -8.0561809, "lon": -34.8973047 },
+    { "lat": -8.0561738, "lon": -34.8973091 },
+    { "lat": -8.0561519, "lon": -34.8973202 },
+    { "lat": -8.0558865, "lon": -34.8973941 },
+    { "lat": -8.0558403, "lon": -34.8974069 }
+  ],
+  "tags": {
+    "highway": "service",
+    "oneway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 891701423,
+  "bounds": {
+    "minlat": -8.0563009,
+    "minlon": -34.8974973,
+    "maxlat": -8.0560307,
+    "maxlon": -34.8973032
+  },
+  "nodes": [
+    8287638788,
+    8287697024,
+    8287638804,
+    8287638805,
+    8287638806,
+    8287638807,
+    8287638808,
+    8287638809,
+    8287638810,
+    8287638811,
+    8287638812,
+    8287638813,
+    8287638814,
+    8287638815,
+    8287638816,
+    8287697017,
+    8287697018,
+    8287697019
+  ],
+  "geometry": [
+    { "lat": -8.0560307, "lon": -34.8974973 },
+    { "lat": -8.0561507, "lon": -34.8974716 },
+    { "lat": -8.0562549, "lon": -34.8974493 },
+    { "lat": -8.0562703, "lon": -34.8974427 },
+    { "lat": -8.0562827, "lon": -34.8974338 },
+    { "lat": -8.0562914, "lon": -34.8974205 },
+    { "lat": -8.0562973, "lon": -34.8974087 },
+    { "lat": -8.0563002, "lon": -34.8973962 },
+    { "lat": -8.0563009, "lon": -34.8973836 },
+    { "lat": -8.0562907, "lon": -34.8973438 },
+    { "lat": -8.0562841, "lon": -34.8973327 },
+    { "lat": -8.0562739, "lon": -34.8973231 },
+    { "lat": -8.0562593, "lon": -34.8973150 },
+    { "lat": -8.0562454, "lon": -34.8973084 },
+    { "lat": -8.0562301, "lon": -34.8973047 },
+    { "lat": -8.0562147, "lon": -34.8973032 },
+    { "lat": -8.0561979, "lon": -34.8973032 },
+    { "lat": -8.0561809, "lon": -34.8973047 }
+  ],
+  "tags": {
+    "highway": "service",
+    "oneway": "yes",
+    "service": "drive-through"
+  }
+},
+{
+  "type": "way",
+  "id": 891701424,
+  "bounds": {
+    "minlat": -8.0563660,
+    "minlon": -34.8975978,
+    "maxlat": -8.0563521,
+    "maxlon": -34.8974877
+  },
+  "nodes": [
+    8287638791,
+    8287697027,
+    8287638792
+  ],
+  "geometry": [
+    { "lat": -8.0563521, "lon": -34.8974877 },
+    { "lat": -8.0563578, "lon": -34.8975329 },
+    { "lat": -8.0563660, "lon": -34.8975978 }
+  ],
+  "tags": {
+    "highway": "service",
+    "oneway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 891701425,
+  "bounds": {
+    "minlat": -8.0563521,
+    "minlon": -34.8974877,
+    "maxlat": -8.0561809,
+    "maxlon": -34.8972693
+  },
+  "nodes": [
+    8287638791,
+    8287638793,
+    8287638794,
+    8287638795,
+    8287638796,
+    8287638797,
+    8287638798,
+    8287638799,
+    8287638800,
+    8287697019
+  ],
+  "geometry": [
+    { "lat": -8.0563521, "lon": -34.8974877 },
+    { "lat": -8.0563163, "lon": -34.8973062 },
+    { "lat": -8.0563075, "lon": -34.8972870 },
+    { "lat": -8.0562944, "lon": -34.8972767 },
+    { "lat": -8.0562798, "lon": -34.8972715 },
+    { "lat": -8.0562630, "lon": -34.8972693 },
+    { "lat": -8.0562447, "lon": -34.8972722 },
+    { "lat": -8.0562235, "lon": -34.8972803 },
+    { "lat": -8.0561972, "lon": -34.8972944 },
+    { "lat": -8.0561809, "lon": -34.8973047 }
+  ],
+  "tags": {
+    "highway": "service",
+    "oneway": "yes",
+    "service": "parking_aisle"
+  }
+},
+{
+  "type": "way",
+  "id": 891701426,
+  "bounds": {
+    "minlat": -8.0562425,
+    "minlon": -34.8975960,
+    "maxlat": -8.0561517,
+    "maxlon": -34.8975322
+  },
+  "nodes": [
+    8287697020,
+    8287697021,
+    8287697022
+  ],
+  "geometry": [
+    { "lat": -8.0562425, "lon": -34.8975960 },
+    { "lat": -8.0562415, "lon": -34.8975322 },
+    { "lat": -8.0561517, "lon": -34.8975337 }
+  ],
+  "tags": {
+    "highway": "footway"
+  }
+},
+{
+  "type": "way",
+  "id": 891701427,
+  "bounds": {
+    "minlat": -8.0561517,
+    "minlon": -34.8975337,
+    "maxlat": -8.0561503,
+    "maxlon": -34.8974461
+  },
+  "nodes": [
+    8287697022,
+    8287697025,
+    8287697024,
+    8287697023
+  ],
+  "geometry": [
+    { "lat": -8.0561517, "lon": -34.8975337 },
+    { "lat": -8.0561511, "lon": -34.8974941 },
+    { "lat": -8.0561507, "lon": -34.8974716 },
+    { "lat": -8.0561503, "lon": -34.8974461 }
+  ],
+  "tags": {
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway",
+    "traffic_calming": "table"
+  }
+},
+{
+  "type": "way",
+  "id": 891701428,
+  "bounds": {
+    "minlat": -8.0558919,
+    "minlon": -34.8974102,
+    "maxlat": -8.0558865,
+    "maxlon": -34.8973941
+  },
+  "nodes": [
+    8287638779,
+    8287697026
+  ],
+  "geometry": [
+    { "lat": -8.0558919, "lon": -34.8974102 },
+    { "lat": -8.0558865, "lon": -34.8973941 }
+  ],
+  "tags": {
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway",
+    "traffic_calming": "table"
+  }
+},
+{
+  "type": "way",
+  "id": 891701429,
+  "bounds": {
+    "minlat": -8.0559125,
+    "minlon": -34.8974684,
+    "maxlat": -8.0558919,
+    "maxlon": -34.8974102
+  },
+  "nodes": [
+    8287638779,
+    8287697028
+  ],
+  "geometry": [
+    { "lat": -8.0558919, "lon": -34.8974102 },
+    { "lat": -8.0559125, "lon": -34.8974684 }
+  ],
+  "tags": {
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway",
+    "traffic_calming": "table"
+  }
+},
+{
+  "type": "way",
   "id": 914012002,
   "bounds": {
     "minlat": -8.0530358,
@@ -4811,6 +7087,29 @@
 },
 {
   "type": "way",
+  "id": 918069368,
+  "bounds": {
+    "minlat": -8.0520294,
+    "minlon": -34.8984449,
+    "maxlat": -8.0518910,
+    "maxlon": -34.8984045
+  },
+  "nodes": [
+    8526601014,
+    8526601013
+  ],
+  "geometry": [
+    { "lat": -8.0520294, "lon": -34.8984449 },
+    { "lat": -8.0518910, "lon": -34.8984045 }
+  ],
+  "tags": {
+    "covered": "yes",
+    "highway": "service",
+    "tunnel": "building_passage"
+  }
+},
+{
+  "type": "way",
   "id": 918070079,
   "bounds": {
     "minlat": -8.0543483,
@@ -4835,30 +7134,127 @@
 },
 {
   "type": "way",
-  "id": 966244566,
+  "id": 966837057,
   "bounds": {
-    "minlat": -8.0498085,
-    "minlon": -34.8959676,
-    "maxlat": -8.0487410,
-    "maxlon": -34.8941780
+    "minlat": -8.0580120,
+    "minlon": -34.8980927,
+    "maxlat": -8.0574623,
+    "maxlon": -34.8980866
   },
   "nodes": [
-    8939363683,
-    1467731925
+    1462082587,
+    8945096395
   ],
   "geometry": [
-    { "lat": -8.0487410, "lon": -34.8959676 },
-    { "lat": -8.0498085, "lon": -34.8941780 }
+    { "lat": -8.0574623, "lon": -34.8980927 },
+    { "lat": -8.0580120, "lon": -34.8980866 }
   ],
   "tags": {
-    "highway": "residential",
-    "lanes": "2",
-    "name": "Rua São Salvador",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
     "oneway": "yes",
-    "postal_code": "52020-195",
+    "postal_code": "52010-904",
+    "ref": "PE-015",
+    "sidewalk": "left",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 966839312,
+  "bounds": {
+    "minlat": -8.0572889,
+    "minlon": -34.8976272,
+    "maxlat": -8.0571458,
+    "maxlon": -34.8976215
+  },
+  "nodes": [
+    8945106494,
+    1443830920
+  ],
+  "geometry": [
+    { "lat": -8.0572889, "lon": -34.8976272 },
+    { "lat": -8.0571458, "lon": -34.8976215 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "1",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-902",
     "smoothness": "good",
     "source:postal_code": "CNEFE",
     "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 966839313,
+  "bounds": {
+    "minlat": -8.0588647,
+    "minlon": -34.8976430,
+    "maxlat": -8.0572889,
+    "maxlon": -34.8976272
+  },
+  "nodes": [
+    1430717737,
+    5732329318,
+    1437147434,
+    8945106494
+  ],
+  "geometry": [
+    { "lat": -8.0588647, "lon": -34.8976430 },
+    { "lat": -8.0587658, "lon": -34.8976422 },
+    { "lat": -8.0574629, "lon": -34.8976341 },
+    { "lat": -8.0572889, "lon": -34.8976272 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-902",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 967960459,
+  "bounds": {
+    "minlat": -8.0559109,
+    "minlon": -34.9001455,
+    "maxlat": -8.0559107,
+    "maxlon": -34.9000645
+  },
+  "nodes": [
+    3224207505,
+    1462084268
+  ],
+  "geometry": [
+    { "lat": -8.0559107, "lon": -34.9000645 },
+    { "lat": -8.0559109, "lon": -34.9001455 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "lanes": "1",
+    "mapillary": "952963555479702",
+    "name": "Praça do Derby",
+    "oneway": "yes",
+    "postal_code": "52010-140",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
   }
 },
 {
@@ -5251,6 +7647,98 @@
 },
 {
   "type": "way",
+  "id": 968244262,
+  "bounds": {
+    "minlat": -8.0525017,
+    "minlon": -34.8998453,
+    "maxlat": -8.0524615,
+    "maxlon": -34.8995139
+  },
+  "nodes": [
+    1036684690,
+    12050999534,
+    3224207511
+  ],
+  "geometry": [
+    { "lat": -8.0524615, "lon": -34.8995139 },
+    { "lat": -8.0524754, "lon": -34.8996282 },
+    { "lat": -8.0525017, "lon": -34.8998453 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lanes": "3",
+    "name": "Rua Joaquim Nabuco",
+    "oneway": "yes",
+    "postal_code": "52011-005",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 968244263,
+  "bounds": {
+    "minlat": -8.0527794,
+    "minlon": -34.9022808,
+    "maxlat": -8.0525017,
+    "maxlon": -34.8998453
+  },
+  "nodes": [
+    3224207511,
+    5534820000,
+    1467736512,
+    3245364887,
+    1462087773
+  ],
+  "geometry": [
+    { "lat": -8.0525017, "lon": -34.8998453 },
+    { "lat": -8.0525926, "lon": -34.9006687 },
+    { "lat": -8.0526480, "lon": -34.9011707 },
+    { "lat": -8.0527655, "lon": -34.9020916 },
+    { "lat": -8.0527794, "lon": -34.9022808 }
+  ],
+  "tags": {
+    "highway": "primary",
+    "lanes": "3",
+    "name": "Rua Joaquim Nabuco",
+    "oneway": "yes",
+    "postal_code": "52011-005",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 968244264,
+  "bounds": {
+    "minlat": -8.0527692,
+    "minlon": -34.8996592,
+    "maxlat": -8.0524615,
+    "maxlon": -34.8995139
+  },
+  "nodes": [
+    3224207509,
+    1036684690
+  ],
+  "geometry": [
+    { "lat": -8.0527692, "lon": -34.8996592 },
+    { "lat": -8.0524615, "lon": -34.8995139 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "lanes": "2",
+    "mapillary": "307133550864710",
+    "name": "Rua Amaro Bezerra",
+    "oneway": "yes",
+    "postal_code": "52010-150",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
   "id": 968263992,
   "bounds": {
     "minlat": -8.0519745,
@@ -5315,6 +7803,76 @@
 },
 {
   "type": "way",
+  "id": 968531963,
+  "bounds": {
+    "minlat": -8.0563545,
+    "minlon": -34.9000645,
+    "maxlat": -8.0559107,
+    "maxlon": -34.9000569
+  },
+  "nodes": [
+    5908100413,
+    3224207505
+  ],
+  "geometry": [
+    { "lat": -8.0563545, "lon": -34.9000569 },
+    { "lat": -8.0559107, "lon": -34.9000645 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "lanes": "2",
+    "mapillary": "952963555479702",
+    "name": "Rua Jener de Souza",
+    "oneway": "yes",
+    "postal_code": "52010-130",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 969921079,
+  "bounds": {
+    "minlat": -8.0532490,
+    "minlon": -34.8992470,
+    "maxlat": -8.0531596,
+    "maxlon": -34.8991392
+  },
+  "nodes": [
+    3790929815,
+    3790929767,
+    3790929816,
+    3790929780,
+    3790929811,
+    3790929785,
+    3790929760,
+    3790929763,
+    3790929789,
+    1462091601
+  ],
+  "geometry": [
+    { "lat": -8.0531596, "lon": -34.8992388 },
+    { "lat": -8.0531787, "lon": -34.8992464 },
+    { "lat": -8.0531988, "lon": -34.8992470 },
+    { "lat": -8.0532184, "lon": -34.8992406 },
+    { "lat": -8.0532294, "lon": -34.8992329 },
+    { "lat": -8.0532423, "lon": -34.8992167 },
+    { "lat": -8.0532490, "lon": -34.8991971 },
+    { "lat": -8.0532486, "lon": -34.8991764 },
+    { "lat": -8.0532412, "lon": -34.8991570 },
+    { "lat": -8.0532249, "lon": -34.8991392 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "name": "Rua Doutor José de Barros",
+    "postal_code": "52010-270",
+    "source:postal_code": "CNEFE"
+  }
+},
+{
+  "type": "way",
   "id": 974218494,
   "bounds": {
     "minlat": -8.0558117,
@@ -5340,99 +7898,30 @@
 },
 {
   "type": "way",
-  "id": 974237626,
+  "id": 974515916,
   "bounds": {
-    "minlat": -8.0521926,
-    "minlon": -34.8935323,
-    "maxlat": -8.0519579,
-    "maxlon": -34.8932199
+    "minlat": -8.0530139,
+    "minlon": -34.8988961,
+    "maxlat": -8.0524400,
+    "maxlon": -34.8987699
   },
   "nodes": [
-    9016340170,
-    9016340162,
-    12853637015,
-    9016340169,
-    9016340168,
-    9016340167,
-    9016340166,
-    9016340165,
-    9016340164,
-    12853637014,
-    9016340161,
-    9016340163
+    9018768431,
+    9018768430,
+    9018768429,
+    9018768428
   ],
   "geometry": [
-    { "lat": -8.0519579, "lon": -34.8934904 },
-    { "lat": -8.0519927, "lon": -34.8935022 },
-    { "lat": -8.0520044, "lon": -34.8935062 },
-    { "lat": -8.0520810, "lon": -34.8935323 },
-    { "lat": -8.0521003, "lon": -34.8935290 },
-    { "lat": -8.0521136, "lon": -34.8935176 },
-    { "lat": -8.0521926, "lon": -34.8933077 },
-    { "lat": -8.0521912, "lon": -34.8932829 },
-    { "lat": -8.0521839, "lon": -34.8932708 },
-    { "lat": -8.0521015, "lon": -34.8932392 },
-    { "lat": -8.0520892, "lon": -34.8932345 },
-    { "lat": -8.0520511, "lon": -34.8932199 }
+    { "lat": -8.0524400, "lon": -34.8987699 },
+    { "lat": -8.0525119, "lon": -34.8987861 },
+    { "lat": -8.0527974, "lon": -34.8988250 },
+    { "lat": -8.0530139, "lon": -34.8988961 }
   ],
   "tags": {
     "highway": "service",
-    "mapillary": "1487625304924659",
+    "mapillary": "818217495757510",
     "surface": "asphalt",
     "survey:date": "2021-01-26"
-  }
-},
-{
-  "type": "way",
-  "id": 974335913,
-  "bounds": {
-    "minlat": -8.0515187,
-    "minlon": -34.8913416,
-    "maxlat": -8.0509769,
-    "maxlon": -34.8899982
-  },
-  "nodes": [
-    9017120740,
-    9017120739,
-    9017120738,
-    9017120737,
-    9017120728,
-    9017120727,
-    9017120736,
-    9017120735,
-    9412668871,
-    9412668873,
-    9412668872,
-    9412668870,
-    9017120734,
-    9017120733,
-    9017120732,
-    9017120731,
-    9017120730,
-    9017120729
-  ],
-  "geometry": [
-    { "lat": -8.0513222, "lon": -34.8899982 },
-    { "lat": -8.0513155, "lon": -34.8903224 },
-    { "lat": -8.0513155, "lon": -34.8903693 },
-    { "lat": -8.0513328, "lon": -34.8903827 },
-    { "lat": -8.0514855, "lon": -34.8903908 },
-    { "lat": -8.0515107, "lon": -34.8904069 },
-    { "lat": -8.0515187, "lon": -34.8904458 },
-    { "lat": -8.0514868, "lon": -34.8906925 },
-    { "lat": -8.0514784, "lon": -34.8907767 },
-    { "lat": -8.0514739, "lon": -34.8908685 },
-    { "lat": -8.0514681, "lon": -34.8909556 },
-    { "lat": -8.0514600, "lon": -34.8910492 },
-    { "lat": -8.0514536, "lon": -34.8911110 },
-    { "lat": -8.0512451, "lon": -34.8910989 },
-    { "lat": -8.0512079, "lon": -34.8911257 },
-    { "lat": -8.0512040, "lon": -34.8912974 },
-    { "lat": -8.0511774, "lon": -34.8913108 },
-    { "lat": -8.0509769, "lon": -34.8913416 }
-  ],
-  "tags": {
-    "highway": "service"
   }
 },
 {
@@ -5474,66 +7963,159 @@
 },
 {
   "type": "way",
-  "id": 1020545062,
+  "id": 1018390956,
   "bounds": {
-    "minlat": -8.0527242,
-    "minlon": -34.8922332,
-    "maxlat": -8.0526305,
-    "maxlon": -34.8921217
+    "minlat": -8.0566984,
+    "minlon": -34.8989969,
+    "maxlat": -8.0566946,
+    "maxlon": -34.8987088
   },
   "nodes": [
-    9412662194,
-    9412662200,
-    9412662195,
-    9412662196,
-    9412662197,
-    9412662198,
-    9412662208,
-    9412662199
+    7161450434,
+    7161450431
   ],
   "geometry": [
-    { "lat": -8.0527242, "lon": -34.8922332 },
-    { "lat": -8.0527201, "lon": -34.8922257 },
-    { "lat": -8.0527149, "lon": -34.8922161 },
-    { "lat": -8.0526916, "lon": -34.8921982 },
-    { "lat": -8.0526716, "lon": -34.8921803 },
-    { "lat": -8.0526525, "lon": -34.8921582 },
-    { "lat": -8.0526456, "lon": -34.8921467 },
-    { "lat": -8.0526305, "lon": -34.8921217 }
+    { "lat": -8.0566946, "lon": -34.8987088 },
+    { "lat": -8.0566984, "lon": -34.8989969 }
   ],
   "tags": {
-    "highway": "cycleway",
-    "mapillary": "2268806703250281",
-    "name": "Rua Fernandes Vieira",
-    "surface": "asphalt",
+    "highway": "footway",
+    "mapillary": "231642601681350",
+    "surface": "concrete",
     "survey:date": "2021-01-26"
   }
 },
 {
   "type": "way",
-  "id": 1020545064,
+  "id": 1018390957,
   "bounds": {
-    "minlat": -8.0526305,
-    "minlon": -34.8922978,
-    "maxlat": -8.0525787,
-    "maxlon": -34.8921217
+    "minlat": -8.0566919,
+    "minlon": -34.8984227,
+    "maxlat": -8.0566910,
+    "maxlon": -34.8983107
   },
   "nodes": [
-    1443866530,
-    9412662199
+    7161450433,
+    9393150036
   ],
   "geometry": [
-    { "lat": -8.0525787, "lon": -34.8922978 },
-    { "lat": -8.0526305, "lon": -34.8921217 }
+    { "lat": -8.0566919, "lon": -34.8984227 },
+    { "lat": -8.0566910, "lon": -34.8983107 }
   ],
   "tags": {
-    "foot": "yes",
-    "highway": "secondary",
-    "lanes": "1",
-    "name": "Rua Joaquim Felipe",
-    "oneway": "yes",
-    "postal_code": "50050-340",
+    "highway": "footway"
+  }
+},
+{
+  "type": "way",
+  "id": 1018390960,
+  "bounds": {
+    "minlat": -8.0566998,
+    "minlon": -34.8992741,
+    "maxlat": -8.0566984,
+    "maxlon": -34.8989969
+  },
+  "nodes": [
+    5673935505,
+    9393150051,
+    7161450431
+  ],
+  "geometry": [
+    { "lat": -8.0566998, "lon": -34.8992741 },
+    { "lat": -8.0566997, "lon": -34.8992642 },
+    { "lat": -8.0566984, "lon": -34.8989969 }
+  ],
+  "tags": {
+    "access": "yes",
+    "covered": "yes",
+    "highway": "corridor",
+    "indoor": "yes",
+    "level": "0",
+    "mapillary": "147216517454821",
+    "stroller": "yes",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 1018390961,
+  "bounds": {
+    "minlat": -8.0566946,
+    "minlon": -34.8987088,
+    "maxlat": -8.0566919,
+    "maxlon": -34.8984227
+  },
+  "nodes": [
+    7161450434,
+    9393150052,
+    7161450433
+  ],
+  "geometry": [
+    { "lat": -8.0566946, "lon": -34.8987088 },
+    { "lat": -8.0566921, "lon": -34.8984428 },
+    { "lat": -8.0566919, "lon": -34.8984227 }
+  ],
+  "tags": {
+    "access": "yes",
+    "covered": "yes",
+    "highway": "corridor",
+    "indoor": "yes",
+    "level": "0",
+    "mapillary": "892550017996180",
+    "stroller": "yes",
+    "surface": "concrete",
+    "survey:date": "2021-01-26",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 1020545075,
+  "bounds": {
+    "minlat": -8.0561006,
+    "minlon": -34.8952582,
+    "maxlat": -8.0560581,
+    "maxlon": -34.8951497
+  },
+  "nodes": [
+    7017038881,
+    8043217818
+  ],
+  "geometry": [
+    { "lat": -8.0560581, "lon": -34.8952582 },
+    { "lat": -8.0561006, "lon": -34.8951497 }
+  ],
+  "tags": {
+    "highway": "footway",
     "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 1020587213,
+  "bounds": {
+    "minlat": -8.0566843,
+    "minlon": -34.8997349,
+    "maxlat": -8.0566304,
+    "maxlon": -34.8996575
+  },
+  "nodes": [
+    5908100423,
+    9413015812
+  ],
+  "geometry": [
+    { "lat": -8.0566843, "lon": -34.8997349 },
+    { "lat": -8.0566304, "lon": -34.8996575 }
+  ],
+  "tags": {
+    "crossing": "marked",
+    "footway": "crossing",
+    "highway": "footway",
+    "mapillary": "227276378860239",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
   }
 },
 {
@@ -5614,6 +8196,78 @@
     "service": "drive-through",
     "surface": "asphalt",
     "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 1081404372,
+  "bounds": {
+    "minlat": -8.0541766,
+    "minlon": -34.8987220,
+    "maxlat": -8.0538083,
+    "maxlon": -34.8984639
+  },
+  "nodes": [
+    6059098756,
+    6059098757,
+    6059098758,
+    6059098759,
+    6059098760
+  ],
+  "geometry": [
+    { "lat": -8.0541766, "lon": -34.8987220 },
+    { "lat": -8.0541164, "lon": -34.8986844 },
+    { "lat": -8.0540339, "lon": -34.8986411 },
+    { "lat": -8.0539045, "lon": -34.8985377 },
+    { "lat": -8.0538083, "lon": -34.8984639 }
+  ],
+  "tags": {
+    "highway": "service"
+  }
+},
+{
+  "type": "way",
+  "id": 1082600086,
+  "bounds": {
+    "minlat": -8.0551440,
+    "minlon": -34.8972568,
+    "maxlat": -8.0549789,
+    "maxlon": -34.8970362
+  },
+  "nodes": [
+    9921686162,
+    9921686163
+  ],
+  "geometry": [
+    { "lat": -8.0549789, "lon": -34.8972568 },
+    { "lat": -8.0551440, "lon": -34.8970362 }
+  ],
+  "tags": {
+    "highway": "service",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 1082600087,
+  "bounds": {
+    "minlat": -8.0552793,
+    "minlon": -34.8973487,
+    "maxlat": -8.0551473,
+    "maxlon": -34.8970844
+  },
+  "nodes": [
+    9921686164,
+    9921686165
+  ],
+  "geometry": [
+    { "lat": -8.0551473, "lon": -34.8973487 },
+    { "lat": -8.0552793, "lon": -34.8970844 }
+  ],
+  "tags": {
+    "highway": "service",
+    "smoothness": "good",
+    "surface": "paving_stones"
   }
 },
 {
@@ -5846,178 +8500,6 @@
     "name": "Ciclovia Agamenon Magalhães",
     "oneway": "yes",
     "surface": "concrete"
-  }
-},
-{
-  "type": "way",
-  "id": 1341774504,
-  "bounds": {
-    "minlat": -8.0501583,
-    "minlon": -34.8927920,
-    "maxlat": -8.0488640,
-    "maxlon": -34.8900727
-  },
-  "nodes": [
-    12412171636,
-    12412171659,
-    12412171637,
-    12412171638,
-    12412171660,
-    12412171639,
-    12412171640,
-    12412171641,
-    12412171662,
-    12412171642,
-    12412171664,
-    12412171643,
-    12412171644,
-    12412171645,
-    12412171646,
-    12412171647,
-    12412171648,
-    12412171649,
-    12412171650,
-    12412171651,
-    12412171652,
-    12412171653,
-    12412171654,
-    12412171636
-  ],
-  "geometry": [
-    { "lat": -8.0491874, "lon": -34.8919450 },
-    { "lat": -8.0488729, "lon": -34.8926066 },
-    { "lat": -8.0488640, "lon": -34.8926271 },
-    { "lat": -8.0488700, "lon": -34.8926457 },
-    { "lat": -8.0489297, "lon": -34.8926763 },
-    { "lat": -8.0490002, "lon": -34.8927108 },
-    { "lat": -8.0492156, "lon": -34.8927920 },
-    { "lat": -8.0492304, "lon": -34.8927886 },
-    { "lat": -8.0492394, "lon": -34.8927776 },
-    { "lat": -8.0493513, "lon": -34.8926375 },
-    { "lat": -8.0493852, "lon": -34.8925983 },
-    { "lat": -8.0498102, "lon": -34.8921515 },
-    { "lat": -8.0499164, "lon": -34.8920425 },
-    { "lat": -8.0499394, "lon": -34.8919774 },
-    { "lat": -8.0499522, "lon": -34.8918605 },
-    { "lat": -8.0501583, "lon": -34.8901375 },
-    { "lat": -8.0501300, "lon": -34.8900898 },
-    { "lat": -8.0497630, "lon": -34.8900727 },
-    { "lat": -8.0497373, "lon": -34.8900897 },
-    { "lat": -8.0496072, "lon": -34.8907940 },
-    { "lat": -8.0495246, "lon": -34.8911192 },
-    { "lat": -8.0494482, "lon": -34.8913449 },
-    { "lat": -8.0493032, "lon": -34.8916742 },
-    { "lat": -8.0491874, "lon": -34.8919450 }
-  ],
-  "tags": {
-    "footway": "sidewalk",
-    "highway": "footway"
-  }
-},
-{
-  "type": "way",
-  "id": 1341774513,
-  "bounds": {
-    "minlat": -8.0493185,
-    "minlon": -34.8928236,
-    "maxlat": -8.0492932,
-    "maxlon": -34.8928098
-  },
-  "nodes": [
-    12412171634,
-    12412171663
-  ],
-  "geometry": [
-    { "lat": -8.0492932, "lon": -34.8928098 },
-    { "lat": -8.0493185, "lon": -34.8928236 }
-  ],
-  "tags": {
-    "highway": "path"
-  }
-},
-{
-  "type": "way",
-  "id": 1341776025,
-  "bounds": {
-    "minlat": -8.0492539,
-    "minlon": -34.8938357,
-    "maxlat": -8.0491807,
-    "maxlon": -34.8937908
-  },
-  "nodes": [
-    12412170431,
-    12412170430,
-    12412170432
-  ],
-  "geometry": [
-    { "lat": -8.0492539, "lon": -34.8938357 },
-    { "lat": -8.0492189, "lon": -34.8938134 },
-    { "lat": -8.0491807, "lon": -34.8937908 }
-  ],
-  "tags": {
-    "crossing": "uncontrolled",
-    "crossing:markings": "yes",
-    "footway": "crossing",
-    "highway": "footway"
-  }
-},
-{
-  "type": "way",
-  "id": 1388573252,
-  "bounds": {
-    "minlat": -8.0521705,
-    "minlon": -34.8939711,
-    "maxlat": -8.0517576,
-    "maxlon": -34.8927018
-  },
-  "nodes": [
-    12853578893,
-    12853578896,
-    12853578894,
-    12853578897,
-    12853578895
-  ],
-  "geometry": [
-    { "lat": -8.0521705, "lon": -34.8927018 },
-    { "lat": -8.0519298, "lon": -34.8933783 },
-    { "lat": -8.0517576, "lon": -34.8938625 },
-    { "lat": -8.0517588, "lon": -34.8938883 },
-    { "lat": -8.0517628, "lon": -34.8939711 }
-  ],
-  "tags": {
-    "footway": "sidewalk",
-    "highway": "footway"
-  }
-},
-{
-  "type": "way",
-  "id": 1388573253,
-  "bounds": {
-    "minlat": -8.0518799,
-    "minlon": -34.8940051,
-    "maxlat": -8.0517061,
-    "maxlon": -34.8939569
-  },
-  "nodes": [
-    12853578898,
-    12853578900,
-    12853578895,
-    12853637001,
-    12853578899
-  ],
-  "geometry": [
-    { "lat": -8.0517061, "lon": -34.8940051 },
-    { "lat": -8.0517206, "lon": -34.8939964 },
-    { "lat": -8.0517628, "lon": -34.8939711 },
-    { "lat": -8.0518442, "lon": -34.8939612 },
-    { "lat": -8.0518799, "lon": -34.8939569 }
-  ],
-  "tags": {
-    "crossing": "uncontrolled",
-    "crossing:markings": "zebra",
-    "footway": "crossing",
-    "highway": "footway",
-    "surface": "asphalt"
   }
 },
 {
@@ -6315,6 +8797,32 @@
   ],
   "tags": {
     "highway": "service"
+  }
+},
+{
+  "type": "way",
+  "id": 1530674899,
+  "bounds": {
+    "minlat": -8.0575037,
+    "minlon": -34.8982939,
+    "maxlat": -8.0574266,
+    "maxlon": -34.8982926
+  },
+  "nodes": [
+    13950621296,
+    12050999551,
+    13950621297
+  ],
+  "geometry": [
+    { "lat": -8.0575037, "lon": -34.8982932 },
+    { "lat": -8.0574627, "lon": -34.8982926 },
+    { "lat": -8.0574266, "lon": -34.8982939 }
+  ],
+  "tags": {
+    "crossing": "uncontrolled",
+    "crossing:markings": "yes",
+    "footway": "crossing",
+    "highway": "footway"
   }
 },
 {

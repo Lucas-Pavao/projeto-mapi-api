@@ -102,63 +102,6 @@
     "VLCOMPRIM": 1277.4
    },
    "type": "Feature"
-  },
-  {
-   "geometry": {
-    "coordinates": [
-     [
-      291306.8197999997,
-      9109731.1498
-     ],
-     [
-      291252.1766999997,
-      9109659.8564
-     ],
-     [
-      291157.94070000015,
-      9109538.2713
-     ],
-     [
-      291146.49650000036,
-      9109522.3463
-     ]
-    ],
-    "type": "LineString"
-   },
-   "id": 159,
-   "properties": {
-    "BACIA": "Beberibe",
-    "CLASSIFICACAO": "A Céu Aberto",
-    "COD_BACIA": "002",
-    "COD_BACIA_SECUND": "002",
-    "COD_CAD_CANAL": "036.002.002.002.202",
-    "COD_CURSO": "036",
-    "COD_CURSO_RECEPTOR": "002",
-    "COD_JUSANTE": "2",
-    "COD_ORDEM_LOCACIONAL": "02",
-    "CREATED_DATE": null,
-    "CREATED_USER": null,
-    "DB2GSE.SdeLength(SHAPE)": 263.26507149957934,
-    "ESTADO_CONSERVACAO": "Regular",
-    "FOTO1": "ok",
-    "LARGURA": 13.5,
-    "LAST_EDITED_DATE": 1793043304000,
-    "LAST_EDITED_USER": "ESI2",
-    "NOME": "Canal Derby Tacaruna",
-    "OBJECTID": 159,
-    "OBSERVACOES": "Ocorrem inundações.",
-    "ORDEM": 27,
-    "PROFUNDIDADE": 2.8,
-    "REVESTIMENTO": "Revestido",
-    "RIO": "Beberibe",
-    "TEXTO_FOTO1": null,
-    "TIPO_LIMPEZA": "Manual",
-    "TIPO_REVESTIMENTO": "Placa de Concreto",
-    "TIPO_SECAO": "Trapesoidal",
-    "TRECHO": "C",
-    "VLCOMPRIM": 263.26
-   },
-   "type": "Feature"
   }
  ],
  "type": "FeatureCollection"

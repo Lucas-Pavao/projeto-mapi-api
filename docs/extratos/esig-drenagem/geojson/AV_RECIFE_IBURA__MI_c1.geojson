@@ -122,34 +122,6 @@
    "geometry": {
     "coordinates": [
      [
-      287738.3820000002,
-      9103554.232
-     ],
-     [
-      287738.77799999993,
-      9103548.718
-     ]
-    ],
-    "type": "LineString"
-   },
-   "id": 107575,
-   "properties": {
-    "COMPRIMENTO_K2": 0.0055282,
-    "CREATED_DATE": null,
-    "CREATED_USER": null,
-    "DB2GSE.SdeLength(SHAPE)": 5.528201515863907,
-    "LAST_EDITED_DATE": 1793044983000,
-    "LAST_EDITED_USER": "ESI2",
-    "OBJECTID": 107575,
-    "REDE_TIPO": "Tubulação",
-    "VLCOMPRIM": 5.52
-   },
-   "type": "Feature"
-  },
-  {
-   "geometry": {
-    "coordinates": [
-     [
       287758.20100000035,
       9103448.973
      ],
@@ -1487,34 +1459,6 @@
     "OBJECTID": 107678,
     "REDE_TIPO": "Tubulação",
     "VLCOMPRIM": 11.79
-   },
-   "type": "Feature"
-  },
-  {
-   "geometry": {
-    "coordinates": [
-     [
-      287911.04000000004,
-      9103407.449
-     ],
-     [
-      287911.60199999996,
-      9103417.647
-     ]
-    ],
-    "type": "LineString"
-   },
-   "id": 107679,
-   "properties": {
-    "COMPRIMENTO_K2": 0.01021347,
-    "CREATED_DATE": null,
-    "CREATED_USER": null,
-    "DB2GSE.SdeLength(SHAPE)": 10.213473845856756,
-    "LAST_EDITED_DATE": 1793044983000,
-    "LAST_EDITED_USER": "ESI2",
-    "OBJECTID": 107679,
-    "REDE_TIPO": "Tubulação",
-    "VLCOMPRIM": 10.21
    },
    "type": "Feature"
   },
@@ -4126,6 +4070,34 @@
    "geometry": {
     "coordinates": [
      [
+      287838.61199999973,
+      9103031.007
+     ],
+     [
+      287839.699,
+      9103031.152
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 107930,
+   "properties": {
+    "COMPRIMENTO_K2": 0.00109662,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "DB2GSE.SdeLength(SHAPE)": 1.0966284694462387,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 107930,
+    "REDE_TIPO": "Tubulação",
+    "VLCOMPRIM": 1.09
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
       287896.0445999997,
       9103114.96
      ],
@@ -4147,6 +4119,34 @@
     "OBJECTID": 107940,
     "REDE_TIPO": "Tubulação",
     "VLCOMPRIM": 15.01
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      287892.15589999966,
+      9103093.422
+     ],
+     [
+      287899.01960000023,
+      9103094.359
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 107945,
+   "properties": {
+    "COMPRIMENTO_K2": 0.00692736,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "DB2GSE.SdeLength(SHAPE)": 6.927362174016889,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 107945,
+    "REDE_TIPO": "Tubulação",
+    "VLCOMPRIM": 6.92
    },
    "type": "Feature"
   },
@@ -4651,34 +4651,6 @@
     "OBJECTID": 108044,
     "REDE_TIPO": "Tubulação",
     "VLCOMPRIM": 67.56
-   },
-   "type": "Feature"
-  },
-  {
-   "geometry": {
-    "coordinates": [
-     [
-      287738.77799999993,
-      9103548.718
-     ],
-     [
-      287756.5360000003,
-      9103551.265
-     ]
-    ],
-    "type": "LineString"
-   },
-   "id": 108088,
-   "properties": {
-    "COMPRIMENTO_K2": 0.01793972,
-    "CREATED_DATE": null,
-    "CREATED_USER": null,
-    "DB2GSE.SdeLength(SHAPE)": 17.939726112736505,
-    "LAST_EDITED_DATE": 1793044983000,
-    "LAST_EDITED_USER": "ESI2",
-    "OBJECTID": 108088,
-    "REDE_TIPO": "Tubulação",
-    "VLCOMPRIM": 17.93
    },
    "type": "Feature"
   },
@@ -8270,27 +8242,27 @@
    "geometry": {
     "coordinates": [
      [
-      287954.49899999984,
-      9103305.455
+      287688.3476,
+      9102938.529
      ],
      [
-      287942.91000000015,
-      9103303.378
+      287684.4698000001,
+      9102963.28
      ]
     ],
     "type": "LineString"
    },
-   "id": 122954,
+   "id": 122991,
    "properties": {
-    "COMPRIMENTO_K2": 0.01177365,
+    "COMPRIMENTO_K2": 0.02505293,
     "CREATED_DATE": null,
     "CREATED_USER": null,
-    "DB2GSE.SdeLength(SHAPE)": 11.773650665787567,
+    "DB2GSE.SdeLength(SHAPE)": 25.052930643739067,
     "LAST_EDITED_DATE": 1793044983000,
     "LAST_EDITED_USER": "ESI2",
-    "OBJECTID": 122954,
+    "OBJECTID": 122991,
     "REDE_TIPO": "Tubulação",
-    "VLCOMPRIM": 11.77
+    "VLCOMPRIM": 25.05
    },
    "type": "Feature"
   },

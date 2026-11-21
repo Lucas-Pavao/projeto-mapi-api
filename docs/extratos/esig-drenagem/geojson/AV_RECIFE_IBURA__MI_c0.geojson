@@ -3505,52 +3505,6 @@
   {
    "geometry": {
     "coordinates": [
-     287911.04000000004,
-     9103407.449
-    ],
-    "type": "Point"
-   },
-   "id": 3347,
-   "properties": {
-    "COD_MICROBACIA": null,
-    "COTA_FUNDO": null,
-    "COTA_JUSANTE": null,
-    "COTA_MONTANTE_01": null,
-    "COTA_MONTANTE_02": null,
-    "COTA_MONTANTE_03": null,
-    "CREATED_DATE": null,
-    "CREATED_USER": null,
-    "CRPAAACODI": 6,
-    "CÓDIGO": null,
-    "DATA_LEVANTAMENTO": 1539129600000,
-    "ESTADO_CONSERVAÇÃO_TAMPA": null,
-    "LAST_EDITED_DATE": 1540389910000,
-    "LAST_EDITED_USER": "rosemira.mendes",
-    "LOGRADOURO_OFICIAL": null,
-    "NUM": 24472,
-    "Nº_DESENHO_ESQ": null,
-    "OBJECTID": 3347,
-    "QTD_CONEXÕES": 1,
-    "TIPO": "CG",
-    "TIPO_CALÇADA": null,
-    "TIPO_MEIO_FIO": null,
-    "TIPO_PAVIMENTAÇÃO": null,
-    "TIPO_TAMPA": null,
-    "VLHFUNDO": 0.6,
-    "VLTBJUSAN1": 0.4,
-    "VLTBJUSAN2": null,
-    "VLTBMONT1": null,
-    "VLTBMONT2": null,
-    "VLTBMONT3": null,
-    "X": 287911.04,
-    "Y": 9103407.449,
-    "Z": 1.417
-   },
-   "type": "Feature"
-  },
-  {
-   "geometry": {
-    "coordinates": [
      287890.7740000002,
      9103405.594
     ],
@@ -5391,52 +5345,6 @@
   {
    "geometry": {
     "coordinates": [
-     287738.77799999993,
-     9103548.718
-    ],
-    "type": "Point"
-   },
-   "id": 3419,
-   "properties": {
-    "COD_MICROBACIA": null,
-    "COTA_FUNDO": null,
-    "COTA_JUSANTE": null,
-    "COTA_MONTANTE_01": null,
-    "COTA_MONTANTE_02": null,
-    "COTA_MONTANTE_03": null,
-    "CREATED_DATE": null,
-    "CREATED_USER": null,
-    "CRPAAACODI": 6,
-    "CÓDIGO": null,
-    "DATA_LEVANTAMENTO": 1539129600000,
-    "ESTADO_CONSERVAÇÃO_TAMPA": null,
-    "LAST_EDITED_DATE": 1540385974000,
-    "LAST_EDITED_USER": "rosemira.mendes",
-    "LOGRADOURO_OFICIAL": null,
-    "NUM": 24552,
-    "Nº_DESENHO_ESQ": null,
-    "OBJECTID": 3419,
-    "QTD_CONEXÕES": 3,
-    "TIPO": "CG",
-    "TIPO_CALÇADA": null,
-    "TIPO_MEIO_FIO": null,
-    "TIPO_PAVIMENTAÇÃO": null,
-    "TIPO_TAMPA": null,
-    "VLHFUNDO": 1.45,
-    "VLTBJUSAN1": null,
-    "VLTBJUSAN2": 0.6,
-    "VLTBMONT1": 0.3,
-    "VLTBMONT2": 0.6,
-    "VLTBMONT3": null,
-    "X": 287738.778,
-    "Y": 9103548.718,
-    "Z": 1.664
-   },
-   "type": "Feature"
-  },
-  {
-   "geometry": {
-    "coordinates": [
      287718.16700000037,
      9103545.687
     ],
@@ -5799,6 +5707,52 @@
     "X": 287896.045,
     "Y": 9103114.96,
     "Z": 2.397
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     287892.1560000004,
+     9103093.422
+    ],
+    "type": "Point"
+   },
+   "id": 3475,
+   "properties": {
+    "COD_MICROBACIA": null,
+    "COTA_FUNDO": null,
+    "COTA_JUSANTE": null,
+    "COTA_MONTANTE_01": null,
+    "COTA_MONTANTE_02": null,
+    "COTA_MONTANTE_03": null,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "CRPAAACODI": 6,
+    "CÓDIGO": null,
+    "DATA_LEVANTAMENTO": 1570060800000,
+    "ESTADO_CONSERVAÇÃO_TAMPA": null,
+    "LAST_EDITED_DATE": 1583250784000,
+    "LAST_EDITED_USER": "woliveira",
+    "LOGRADOURO_OFICIAL": null,
+    "NUM": 24616,
+    "Nº_DESENHO_ESQ": null,
+    "OBJECTID": 3475,
+    "QTD_CONEXÕES": 1,
+    "TIPO": "CG",
+    "TIPO_CALÇADA": null,
+    "TIPO_MEIO_FIO": null,
+    "TIPO_PAVIMENTAÇÃO": null,
+    "TIPO_TAMPA": null,
+    "VLHFUNDO": null,
+    "VLTBJUSAN1": 0.3,
+    "VLTBJUSAN2": null,
+    "VLTBMONT1": null,
+    "VLTBMONT2": null,
+    "VLTBMONT3": null,
+    "X": 287892.156,
+    "Y": 9103093.422,
+    "Z": 2.279
    },
    "type": "Feature"
   },
@@ -7599,6 +7553,52 @@
   {
    "geometry": {
     "coordinates": [
+     287838.61199999973,
+     9103031.007
+    ],
+    "type": "Point"
+   },
+   "id": 3622,
+   "properties": {
+    "COD_MICROBACIA": null,
+    "COTA_FUNDO": null,
+    "COTA_JUSANTE": null,
+    "COTA_MONTANTE_01": null,
+    "COTA_MONTANTE_02": null,
+    "COTA_MONTANTE_03": null,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "CRPAAACODI": 6,
+    "CÓDIGO": null,
+    "DATA_LEVANTAMENTO": 1570060800000,
+    "ESTADO_CONSERVAÇÃO_TAMPA": null,
+    "LAST_EDITED_DATE": 1583176792000,
+    "LAST_EDITED_USER": "woliveira",
+    "LOGRADOURO_OFICIAL": null,
+    "NUM": 24792,
+    "Nº_DESENHO_ESQ": null,
+    "OBJECTID": 3622,
+    "QTD_CONEXÕES": 1,
+    "TIPO": "BL",
+    "TIPO_CALÇADA": null,
+    "TIPO_MEIO_FIO": null,
+    "TIPO_PAVIMENTAÇÃO": null,
+    "TIPO_TAMPA": null,
+    "VLHFUNDO": 0.75,
+    "VLTBJUSAN1": 0.3,
+    "VLTBJUSAN2": null,
+    "VLTBMONT1": null,
+    "VLTBMONT2": null,
+    "VLTBMONT3": null,
+    "X": 287838.612,
+    "Y": 9103031.007,
+    "Z": 1.942
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
      287838.16199999955,
      9103123.193
     ],
@@ -8927,52 +8927,6 @@
     "X": 287777.537,
     "Y": 9103509.065,
     "Z": 1.305
-   },
-   "type": "Feature"
-  },
-  {
-   "geometry": {
-    "coordinates": [
-     287738.3820000002,
-     9103554.232
-    ],
-    "type": "Point"
-   },
-   "id": 3729,
-   "properties": {
-    "COD_MICROBACIA": null,
-    "COTA_FUNDO": null,
-    "COTA_JUSANTE": null,
-    "COTA_MONTANTE_01": null,
-    "COTA_MONTANTE_02": null,
-    "COTA_MONTANTE_03": null,
-    "CREATED_DATE": null,
-    "CREATED_USER": null,
-    "CRPAAACODI": 6,
-    "CÓDIGO": null,
-    "DATA_LEVANTAMENTO": 1539129600000,
-    "ESTADO_CONSERVAÇÃO_TAMPA": null,
-    "LAST_EDITED_DATE": 1540386052000,
-    "LAST_EDITED_USER": "rosemira.mendes",
-    "LOGRADOURO_OFICIAL": null,
-    "NUM": 24914,
-    "Nº_DESENHO_ESQ": null,
-    "OBJECTID": 3729,
-    "QTD_CONEXÕES": 1,
-    "TIPO": "BL",
-    "TIPO_CALÇADA": null,
-    "TIPO_MEIO_FIO": null,
-    "TIPO_PAVIMENTAÇÃO": null,
-    "TIPO_TAMPA": null,
-    "VLHFUNDO": 0.7,
-    "VLTBJUSAN1": 0.3,
-    "VLTBJUSAN2": null,
-    "VLTBMONT1": null,
-    "VLTBMONT2": null,
-    "VLTBMONT3": null,
-    "X": 287738.382,
-    "Y": 9103554.232,
-    "Z": 1.49
    },
    "type": "Feature"
   },
@@ -10767,52 +10721,6 @@
     "X": 287777.833,
     "Y": 9103505.223,
     "Z": 1.388
-   },
-   "type": "Feature"
-  },
-  {
-   "geometry": {
-    "coordinates": [
-     287942.91000000015,
-     9103303.378
-    ],
-    "type": "Point"
-   },
-   "id": 3921,
-   "properties": {
-    "COD_MICROBACIA": null,
-    "COTA_FUNDO": null,
-    "COTA_JUSANTE": null,
-    "COTA_MONTANTE_01": null,
-    "COTA_MONTANTE_02": null,
-    "COTA_MONTANTE_03": null,
-    "CREATED_DATE": null,
-    "CREATED_USER": null,
-    "CRPAAACODI": 6,
-    "CÓDIGO": null,
-    "DATA_LEVANTAMENTO": null,
-    "ESTADO_CONSERVAÇÃO_TAMPA": null,
-    "LAST_EDITED_DATE": null,
-    "LAST_EDITED_USER": null,
-    "LOGRADOURO_OFICIAL": null,
-    "NUM": 25144,
-    "Nº_DESENHO_ESQ": null,
-    "OBJECTID": 3921,
-    "QTD_CONEXÕES": null,
-    "TIPO": "PV",
-    "TIPO_CALÇADA": null,
-    "TIPO_MEIO_FIO": null,
-    "TIPO_PAVIMENTAÇÃO": null,
-    "TIPO_TAMPA": null,
-    "VLHFUNDO": null,
-    "VLTBJUSAN1": null,
-    "VLTBJUSAN2": null,
-    "VLTBMONT1": null,
-    "VLTBMONT2": null,
-    "VLTBMONT3": null,
-    "X": 287942.91,
-    "Y": 9103303.378,
-    "Z": 2.258
    },
    "type": "Feature"
   },
@@ -14263,6 +14171,52 @@
     "X": 287679.421,
     "Y": 9102998.602,
     "Z": 1.752
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     287684.46999999974,
+     9102963.28
+    ],
+    "type": "Point"
+   },
+   "id": 31564,
+   "properties": {
+    "COD_MICROBACIA": null,
+    "COTA_FUNDO": null,
+    "COTA_JUSANTE": null,
+    "COTA_MONTANTE_01": null,
+    "COTA_MONTANTE_02": null,
+    "COTA_MONTANTE_03": null,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "CRPAAACODI": 6,
+    "CÓDIGO": null,
+    "DATA_LEVANTAMENTO": null,
+    "ESTADO_CONSERVAÇÃO_TAMPA": null,
+    "LAST_EDITED_DATE": null,
+    "LAST_EDITED_USER": null,
+    "LOGRADOURO_OFICIAL": null,
+    "NUM": 55277,
+    "Nº_DESENHO_ESQ": null,
+    "OBJECTID": 31564,
+    "QTD_CONEXÕES": null,
+    "TIPO": "CG",
+    "TIPO_CALÇADA": null,
+    "TIPO_MEIO_FIO": null,
+    "TIPO_PAVIMENTAÇÃO": null,
+    "TIPO_TAMPA": null,
+    "VLHFUNDO": null,
+    "VLTBJUSAN1": null,
+    "VLTBJUSAN2": null,
+    "VLTBMONT1": null,
+    "VLTBMONT2": null,
+    "VLTBMONT3": null,
+    "X": 287684.47,
+    "Y": 9102963.28,
+    "Z": 2.085
    },
    "type": "Feature"
   },

@@ -5,6 +5,579 @@
   },
   "type": "name"
  },
- "features": [],
+ "features": [
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      289469.9960000003,
+      9103453.0316
+     ],
+     [
+      289453.5099999998,
+      9103456.2556
+     ],
+     [
+      289446.9079999998,
+      9103457.5416
+     ],
+     [
+      289441.17899999954,
+      9103458.5716
+     ],
+     [
+      289434.426,
+      9103459.8456
+     ],
+     [
+      289428.23199999984,
+      9103460.9856
+     ],
+     [
+      289421.6509999996,
+      9103462.2246
+     ],
+     [
+      289412.2539999997,
+      9103464.2396
+     ],
+     [
+      289404.08019999973,
+      9103465.8969
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 90028,
+   "properties": {
+    "COMPRIMENTO_K2": 0.06757893,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "DB2GSE.SdeLength(SHAPE)": 67.16273096366827,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 90028,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 67.16
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      289469.9960000003,
+      9103452.304
+     ],
+     [
+      289453.5099999998,
+      9103455.528
+     ],
+     [
+      289446.9079999998,
+      9103456.814
+     ],
+     [
+      289441.17899999954,
+      9103457.844
+     ],
+     [
+      289434.426,
+      9103459.118
+     ],
+     [
+      289428.23199999984,
+      9103460.258
+     ],
+     [
+      289421.6509999996,
+      9103461.497
+     ],
+     [
+      289412.2539999997,
+      9103463.512
+     ],
+     [
+      289404.04360000044,
+      9103465.1767
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 90029,
+   "properties": {
+    "COMPRIMENTO_K2": 0.06757893,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "DB2GSE.SdeLength(SHAPE)": 67.20007155259233,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 90029,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 67.2
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      289395.86369999964,
+      9103420.5983
+     ],
+     [
+      289396.85639999993,
+      9103426.4985
+     ],
+     [
+      289398.0882000001,
+      9103433.4539
+     ],
+     [
+      289399.1886,
+      9103439.8332
+     ],
+     [
+      289400.38630000036,
+      9103446.6115
+     ],
+     [
+      289402.3492999999,
+      9103456.2929
+     ],
+     [
+      289404.04360000044,
+      9103465.1767
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 176771,
+   "properties": {
+    "COMPRIMENTO_K2": 0.06757893,
+    "CREATED_DATE": 1750254475000,
+    "CREATED_USER": "US_GISEL",
+    "DB2GSE.SdeLength(SHAPE)": 45.325901726046915,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 176771,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 45.32
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      289395.2142000003,
+      9103420.7607
+     ],
+     [
+      289396.19689999986,
+      9103426.6387
+     ],
+     [
+      289397.4166000001,
+      9103433.568
+     ],
+     [
+      289398.5061999997,
+      9103439.9234
+     ],
+     [
+      289399.6922000004,
+      9103446.6763
+     ],
+     [
+      289401.63740000036,
+      9103456.3216
+     ],
+     [
+      289403.3113000002,
+      9103465.1289
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 176772,
+   "properties": {
+    "COMPRIMENTO_K2": 0.06757893,
+    "CREATED_DATE": 1750254475000,
+    "CREATED_USER": "US_GISEL",
+    "DB2GSE.SdeLength(SHAPE)": 45.104240484955845,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 176772,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 45.1
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      289404.08019999973,
+      9103465.8969
+     ],
+     [
+      289404.9930999996,
+      9103471.2444
+     ],
+     [
+      289406.2248999998,
+      9103478.1998
+     ],
+     [
+      289407.3252999997,
+      9103484.5791
+     ],
+     [
+      289408.52300000004,
+      9103491.3574
+     ],
+     [
+      289410.48599999957,
+      9103501.0388
+     ],
+     [
+      289412.1755999997,
+      9103509.8791
+     ],
+     [
+      289420.85780000035,
+      9103555.9157
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 179644,
+   "properties": {
+    "COMPRIMENTO_K2": 0.09157217,
+    "CREATED_DATE": 1758556211000,
+    "CREATED_USER": "US_GISEL",
+    "DB2GSE.SdeLength(SHAPE)": 91.5721778425733,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 179644,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 91.57
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      289403.3113000002,
+      9103465.1289
+     ],
+     [
+      289403.39829999954,
+      9103465.7904
+     ],
+     [
+      289404.33359999955,
+      9103471.3846
+     ],
+     [
+      289405.5532999998,
+      9103478.3139
+     ],
+     [
+      289406.6429000003,
+      9103484.6693
+     ],
+     [
+      289407.8289000001,
+      9103491.4222
+     ],
+     [
+      289409.77410000004,
+      9103501.0675
+     ],
+     [
+      289411.32799999975,
+      9103509.2437
+     ],
+     [
+      289420.23929999955,
+      9103556.0253
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 179645,
+   "properties": {
+    "COMPRIMENTO_K2": 0.09246408,
+    "CREATED_DATE": 1758556211000,
+    "CREATED_USER": "US_GISEL",
+    "DB2GSE.SdeLength(SHAPE)": 92.46408058045407,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 179645,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 92.46
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      289236.0303999996,
+      9103153.7596
+     ],
+     [
+      289232.1573000001,
+      9103154.2438
+     ],
+     [
+      289227.49700000044,
+      9103154.8996
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 180100,
+   "properties": {
+    "COMPRIMENTO_K2": 0.00860946,
+    "CREATED_DATE": 1761930751000,
+    "CREATED_USER": "US_GISEL",
+    "DB2GSE.SdeLength(SHAPE)": 8.609465136730579,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 180100,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 8.6
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      289236.08690000046,
+      9103154.0501
+     ],
+     [
+      289232.25409999955,
+      9103154.5342
+     ],
+     [
+      289227.5939999996,
+      9103155.3048
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 180101,
+   "properties": {
+    "COMPRIMENTO_K2": 0.00858663,
+    "CREATED_DATE": 1761930751000,
+    "CREATED_USER": "US_GISEL",
+    "DB2GSE.SdeLength(SHAPE)": 8.586635042333798,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 180101,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 8.58
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      289233.2729000002,
+      9103184.1597
+     ],
+     [
+      289227.5939999996,
+      9103155.3048
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 180102,
+   "properties": {
+    "COMPRIMENTO_K2": 0.02940841,
+    "CREATED_DATE": 1761930751000,
+    "CREATED_USER": "US_GISEL",
+    "DB2GSE.SdeLength(SHAPE)": 29.40841986948636,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 180102,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 29.4
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      289233.01970000006,
+      9103184.2033
+     ],
+     [
+      289227.3328,
+      9103155.1817
+     ],
+     [
+      289222.10670000035,
+      9103127.8402
+     ],
+     [
+      289216.02809999976,
+      9103096.3953
+     ],
+     [
+      289210.23900000006,
+      9103064.46
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 180106,
+   "properties": {
+    "COMPRIMENTO_K2": 0.12189282,
+    "CREATED_DATE": 1761931922000,
+    "CREATED_USER": "US_GISEL",
+    "DB2GSE.SdeLength(SHAPE)": 121.89282750237363,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 180106,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 121.89
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      289222.4769000001,
+      9103127.531
+     ],
+     [
+      289216.3622000003,
+      9103096.1291
+     ],
+     [
+      289210.6763000004,
+      9103064.4449
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 180107,
+   "properties": {
+    "COMPRIMENTO_K2": 0.06418204,
+    "CREATED_DATE": 1761931922000,
+    "CREATED_USER": "US_GISEL",
+    "DB2GSE.SdeLength(SHAPE)": 64.18204015550504,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 180107,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 64.18
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      289230.6835000003,
+      9103125.9891
+     ],
+     [
+      289226.9550000001,
+      9103126.7121
+     ],
+     [
+      289222.4769000001,
+      9103127.531
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 180108,
+   "properties": {
+    "COMPRIMENTO_K2": 0.00835031,
+    "CREATED_DATE": 1761936799000,
+    "CREATED_USER": "US_GISEL",
+    "DB2GSE.SdeLength(SHAPE)": 8.350311722638665,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 180108,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 8.35
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      289230.80229999963,
+      9103126.4178
+     ],
+     [
+      289227.04279999994,
+      9103127.2079
+     ],
+     [
+      289222.5667000003,
+      9103128.0207
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 180109,
+   "properties": {
+    "COMPRIMENTO_K2": 0.00839092,
+    "CREATED_DATE": 1761936799000,
+    "CREATED_USER": "US_GISEL",
+    "DB2GSE.SdeLength(SHAPE)": 8.390925335947282,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 180109,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 8.39
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      289227.49700000044,
+      9103154.8996
+     ],
+     [
+      289222.5667000003,
+      9103128.0207
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 180112,
+   "properties": {
+    "COMPRIMENTO_K2": 0.02732733,
+    "CREATED_DATE": 1761936799000,
+    "CREATED_USER": "US_GISEL",
+    "DB2GSE.SdeLength(SHAPE)": 27.327332897668587,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 180112,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 27.32
+   },
+   "type": "Feature"
+  }
+ ],
  "type": "FeatureCollection"
 }

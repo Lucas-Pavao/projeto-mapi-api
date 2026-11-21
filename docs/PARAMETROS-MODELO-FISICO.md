@@ -73,6 +73,11 @@ scripts/capacidade-galeria` (6 testes). Saída: `scripts/capacidade-galeria/capa
 | AGAMENON_DERBY | sem dado | sem dado | **sem dado** | nó com tubo mais próximo a 81,1 m do ponto baixo; nenhuma BL no alcance |
 | MASCARENHAS_IMBIRIBEIRA | sem dado | sem dado | **sem dado** | nó com tubo mais próximo a 129,0 m; nenhuma BL cadastrada a 300 m |
 
+**Depois do alinhamento dos pontos por notícia (2026-11-21, `docs/ALINHAMENTO-PONTOS.md`), mesmo método:** Ibura igual (entrada 0,093
+m³/s); Derby com entrada de 0,279 m³/s (3 BL) e cano sem dado (trecho sem cota de fundo na outra ponta); Imbiribeira com cano de
+0,226 m³/s (D 0,6 m, S 0,0018, n 0,015) e entrada sem dado (nenhuma BL no alcance); CIn sem dado. Continua **nenhum ponto completo**.
+A tabela acima é a da posição antiga; o CSV atual é o da posição nova.
+
 Comparação (sem rodar alerta nem validação):
 
 - **Nenhum ponto tem capacidade completa pelo cadastro público.** O valor do alerta continua sendo 125,4 mm/h pela IDF (ADR 0026/0027).

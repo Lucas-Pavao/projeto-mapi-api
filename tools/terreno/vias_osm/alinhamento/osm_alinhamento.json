@@ -1,0 +1,7388 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-11-21T23:18:01Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 560397918,
+  "lat": -8.0616569,
+  "lon": -34.9041980,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Restaurante Novo Varanda"
+  }
+},
+{
+  "type": "node",
+  "id": 2633213637,
+  "lat": -8.0545725,
+  "lon": -34.8976359,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Hospital da Restauração",
+    "public_transport": "platform",
+    "ref": "180158",
+    "shelter": "yes",
+    "source": "Dados Abertos Governo de Pernambuco",
+    "source:date": "2013-03-14"
+  }
+},
+{
+  "type": "node",
+  "id": 2633213639,
+  "lat": -8.0545980,
+  "lon": -34.8976961,
+  "tags": {
+    "bus": "yes",
+    "name": "Hospital da Restauração",
+    "public_transport": "stop_position",
+    "ref": "180159",
+    "source": "Dados Abertos Governo de Pernambuco",
+    "source:date": "2013-03-14"
+  }
+},
+{
+  "type": "node",
+  "id": 7352232389,
+  "lat": -8.0545879,
+  "lon": -34.8977163,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Hospital da Restauração",
+    "public_transport": "platform",
+    "ref": "180159",
+    "shelter": "yes",
+    "source": "Dados Abertos Governo de Pernambuco",
+    "source:date": "2013-03-14"
+  }
+},
+{
+  "type": "node",
+  "id": 7352232390,
+  "lat": -8.0546144,
+  "lon": -34.8975454,
+  "tags": {
+    "bus": "yes",
+    "name": "Hospital da Restauração",
+    "public_transport": "stop_position",
+    "ref": "180158",
+    "source": "Dados Abertos Governo de Pernambuco",
+    "source:date": "2013-03-14"
+  }
+},
+{
+  "type": "node",
+  "id": 7352232391,
+  "lat": -8.0549922,
+  "lon": -34.8977908,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Hospital da Restauração",
+    "public_transport": "platform",
+    "ref": "180160",
+    "source": "Dados Abertos Governo de Pernambuco",
+    "source:date": "2013-03-14"
+  }
+},
+{
+  "type": "node",
+  "id": 13112920862,
+  "lat": -8.0456370,
+  "lon": -34.8978500,
+  "tags": {
+    "access": "yes",
+    "amenity": "bicycle_parking",
+    "bicycle_parking": "stands",
+    "capacity": "10",
+    "covered": "no",
+    "fee": "no",
+    "name": "Restaurante Pahu Poke",
+    "operator": "Prefeitura do Recife",
+    "ref": "P506"
+  }
+},
+{
+  "type": "node",
+  "id": 14040043301,
+  "lat": -8.0400642,
+  "lon": -34.8998043,
+  "tags": {
+    "addr:housenumber": "99",
+    "addr:postcode": "52050050",
+    "addr:street": "Avenida Santos Dumont",
+    "amenity": "restaurant",
+    "cuisine": "italian",
+    "diet:vegan": "yes",
+    "diet:vegetarian": "yes",
+    "name": "Il Padrino - Restaurante Italiano Casual",
+    "opening_hours": "Tu-Su 11:00-15:30, 18:00-23:00",
+    "phone": "+5581999326120",
+    "self_service": "no"
+  }
+},
+{
+  "type": "way",
+  "id": 85529952,
+  "bounds": {
+    "minlat": -8.0644355,
+    "minlon": -34.8970678,
+    "maxlat": -8.0637229,
+    "maxlon": -34.8969925
+  },
+  "nodes": [
+    992020095,
+    11643246224,
+    1425838077
+  ],
+  "geometry": [
+    { "lat": -8.0644355, "lon": -34.8969925 },
+    { "lat": -8.0639936, "lon": -34.8970386 },
+    { "lat": -8.0637229, "lon": -34.8970678 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "60",
+    "maxspeed:type": "sign",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50070-255",
+    "sidewalk": "right",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 89381807,
+  "bounds": {
+    "minlat": -8.0522791,
+    "minlon": -34.8960482,
+    "maxlat": -8.0453981,
+    "maxlon": -34.8907516
+  },
+  "nodes": [
+    1416846143,
+    1477508822,
+    1477507897,
+    4339636000,
+    1441197045,
+    5222109493,
+    1467733187,
+    3251108969,
+    1422758063,
+    1467733194,
+    5416461465,
+    1467731925,
+    9520227576,
+    3258965768,
+    6534512364,
+    1467730261,
+    3258965775,
+    6534512349,
+    1418602355
+  ],
+  "geometry": [
+    { "lat": -8.0453981, "lon": -34.8907516 },
+    { "lat": -8.0459480, "lon": -34.8912002 },
+    { "lat": -8.0465180, "lon": -34.8916254 },
+    { "lat": -8.0468252, "lon": -34.8918583 },
+    { "lat": -8.0470469, "lon": -34.8920382 },
+    { "lat": -8.0475614, "lon": -34.8924726 },
+    { "lat": -8.0479366, "lon": -34.8927421 },
+    { "lat": -8.0483500, "lon": -34.8930437 },
+    { "lat": -8.0485338, "lon": -34.8931854 },
+    { "lat": -8.0492564, "lon": -34.8937490 },
+    { "lat": -8.0494051, "lon": -34.8938647 },
+    { "lat": -8.0498085, "lon": -34.8941780 },
+    { "lat": -8.0509832, "lon": -34.8951012 },
+    { "lat": -8.0510278, "lon": -34.8951361 },
+    { "lat": -8.0511667, "lon": -34.8952425 },
+    { "lat": -8.0512626, "lon": -34.8953169 },
+    { "lat": -8.0520569, "lon": -34.8958776 },
+    { "lat": -8.0521861, "lon": -34.8959768 },
+    { "lat": -8.0522791, "lon": -34.8960482 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "40",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52020-000",
+    "smoothness": "good",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 89436341,
+  "bounds": {
+    "minlat": -8.1187536,
+    "minlon": -34.9237269,
+    "maxlat": -8.1162553,
+    "maxlon": -34.9215686
+  },
+  "nodes": [
+    324724325,
+    7972173323,
+    1553380484,
+    1553378634,
+    3243189974,
+    1553378626
+  ],
+  "geometry": [
+    { "lat": -8.1187536, "lon": -34.9215686 },
+    { "lat": -8.1177528, "lon": -34.9224321 },
+    { "lat": -8.1173956, "lon": -34.9227402 },
+    { "lat": -8.1171018, "lon": -34.9230028 },
+    { "lat": -8.1163226, "lon": -34.9236655 },
+    { "lat": -8.1162553, "lon": -34.9237269 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Presidente Dutra",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "51350-670",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 128158208,
+  "bounds": {
+    "minlat": -8.0462669,
+    "minlon": -34.8912236,
+    "maxlat": -8.0440699,
+    "maxlon": -34.8886069
+  },
+  "nodes": [
+    324278728,
+    1855195082,
+    7055199662,
+    7055199663,
+    324278730,
+    1855195081,
+    324278731
+  ],
+  "geometry": [
+    { "lat": -8.0440699, "lon": -34.8886069 },
+    { "lat": -8.0444097, "lon": -34.8893389 },
+    { "lat": -8.0445822, "lon": -34.8896309 },
+    { "lat": -8.0448370, "lon": -34.8899878 },
+    { "lat": -8.0449809, "lon": -34.8901774 },
+    { "lat": -8.0452129, "lon": -34.8904070 },
+    { "lat": -8.0462669, "lon": -34.8912236 }
+  ],
+  "tags": {
+    "alt_name": "Viaduto João de Barros",
+    "bridge": "viaduct",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "2",
+    "layer": "1",
+    "lit": "yes",
+    "maxspeed": "50",
+    "maxweight:signed": "no",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52031-330",
+    "ref": "PE-015",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 128158209,
+  "bounds": {
+    "minlat": -8.0466829,
+    "minlon": -34.8911075,
+    "maxlat": -8.0443667,
+    "maxlon": -34.8884918
+  },
+  "nodes": [
+    7049078545,
+    7049078546,
+    7049078547,
+    7049078548,
+    324277772,
+    7049078553,
+    7049078552,
+    7049078551,
+    7049078549,
+    7049078550,
+    324277773
+  ],
+  "geometry": [
+    { "lat": -8.0466829, "lon": -34.8911075 },
+    { "lat": -8.0458512, "lon": -34.8905289 },
+    { "lat": -8.0454854, "lon": -34.8902345 },
+    { "lat": -8.0453766, "lon": -34.8901348 },
+    { "lat": -8.0452377, "lon": -34.8899961 },
+    { "lat": -8.0451328, "lon": -34.8898656 },
+    { "lat": -8.0450272, "lon": -34.8897322 },
+    { "lat": -8.0449728, "lon": -34.8896573 },
+    { "lat": -8.0448699, "lon": -34.8895110 },
+    { "lat": -8.0447955, "lon": -34.8893829 },
+    { "lat": -8.0443667, "lon": -34.8884918 }
+  ],
+  "tags": {
+    "alt_name": "Viaduto João de Barros",
+    "bridge": "viaduct",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "2",
+    "layer": "1",
+    "lit": "yes",
+    "maxspeed": "50",
+    "maxweight:signed": "no",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50070-160",
+    "ref": "PE-015",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 128158210,
+  "bounds": {
+    "minlat": -8.0465407,
+    "minlon": -34.8914403,
+    "maxlat": -8.0462669,
+    "maxlon": -34.8912236
+  },
+  "nodes": [
+    324278731,
+    7055199660
+  ],
+  "geometry": [
+    { "lat": -8.0462669, "lon": -34.8912236 },
+    { "lat": -8.0465407, "lon": -34.8914403 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "foot": "yes",
+    "highway": "trunk",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52020-000",
+    "sidewalk": "no",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 128158211,
+  "bounds": {
+    "minlat": -8.0441883,
+    "minlon": -34.8880576,
+    "maxlat": -8.0423194,
+    "maxlon": -34.8839625
+  },
+  "nodes": [
+    1416895436,
+    994527995,
+    3243189189,
+    1416895713,
+    1416895709,
+    1416853880,
+    324277775,
+    3733856465,
+    3733856463,
+    7179424827,
+    1416901975
+  ],
+  "geometry": [
+    { "lat": -8.0441883, "lon": -34.8880576 },
+    { "lat": -8.0438461, "lon": -34.8873288 },
+    { "lat": -8.0438001, "lon": -34.8872299 },
+    { "lat": -8.0434949, "lon": -34.8865515 },
+    { "lat": -8.0434600, "lon": -34.8864781 },
+    { "lat": -8.0428391, "lon": -34.8850784 },
+    { "lat": -8.0426263, "lon": -34.8846752 },
+    { "lat": -8.0426079, "lon": -34.8846394 },
+    { "lat": -8.0425811, "lon": -34.8845808 },
+    { "lat": -8.0425575, "lon": -34.8845278 },
+    { "lat": -8.0423194, "lon": -34.8839625 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxheight:signed": "no",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50070-160",
+    "ref": "PE-015",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 128158504,
+  "bounds": {
+    "minlat": -8.0453981,
+    "minlon": -34.8907516,
+    "maxlat": -8.0445940,
+    "maxlon": -34.8901856
+  },
+  "nodes": [
+    4339635996,
+    8952331009,
+    8952331010,
+    8952331011,
+    1416846142,
+    1416846143
+  ],
+  "geometry": [
+    { "lat": -8.0445940, "lon": -34.8901860 },
+    { "lat": -8.0446395, "lon": -34.8901856 },
+    { "lat": -8.0446946, "lon": -34.8901977 },
+    { "lat": -8.0447677, "lon": -34.8902238 },
+    { "lat": -8.0448419, "lon": -34.8902727 },
+    { "lat": -8.0453981, "lon": -34.8907516 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52020-000",
+    "sidewalk": "right",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 128158805,
+  "bounds": {
+    "minlat": -8.0455183,
+    "minlon": -34.8899428,
+    "maxlat": -8.0453173,
+    "maxlon": -34.8895763
+  },
+  "nodes": [
+    1416895438,
+    1416895433
+  ],
+  "geometry": [
+    { "lat": -8.0453173, "lon": -34.8895763 },
+    { "lat": -8.0455183, "lon": -34.8899428 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "cycleway:left": "lane",
+    "highway": "residential",
+    "mapillary": "339829570827934",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50110-000",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 128159481,
+  "bounds": {
+    "minlat": -8.0424770,
+    "minlon": -34.8860603,
+    "maxlat": -8.0421849,
+    "maxlon": -34.8853737
+  },
+  "nodes": [
+    7046543196,
+    7046543199,
+    3540281597,
+    1416854124
+  ],
+  "geometry": [
+    { "lat": -8.0424770, "lon": -34.8860603 },
+    { "lat": -8.0422201, "lon": -34.8854882 },
+    { "lat": -8.0421888, "lon": -34.8854126 },
+    { "lat": -8.0421849, "lon": -34.8853737 }
+  ],
+  "tags": {
+    "cycleway:left": "opposite_lane",
+    "highway": "residential",
+    "lane_markings": "no",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52020-000",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 128159586,
+  "bounds": {
+    "minlat": -8.0443382,
+    "minlon": -34.8901370,
+    "maxlat": -8.0442698,
+    "maxlon": -34.8898546
+  },
+  "nodes": [
+    1416855829,
+    3889674101,
+    1416849875,
+    1416854874,
+    3289007564
+  ],
+  "geometry": [
+    { "lat": -8.0442840, "lon": -34.8898546 },
+    { "lat": -8.0443187, "lon": -34.8899407 },
+    { "lat": -8.0443382, "lon": -34.8900091 },
+    { "lat": -8.0443292, "lon": -34.8900687 },
+    { "lat": -8.0442698, "lon": -34.8901370 }
+  ],
+  "tags": {
+    "cycleway:left": "opposite_lane",
+    "highway": "residential",
+    "mapillary": "311384240666808",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "no",
+    "postal_code": "50070-255",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 128159728,
+  "bounds": {
+    "minlat": -8.0445349,
+    "minlon": -34.8898576,
+    "maxlat": -8.0442840,
+    "maxlon": -34.8897860
+  },
+  "nodes": [
+    1416855826,
+    1416855825,
+    1416855828,
+    1416855827,
+    1416855829
+  ],
+  "geometry": [
+    { "lat": -8.0445349, "lon": -34.8897860 },
+    { "lat": -8.0444672, "lon": -34.8898345 },
+    { "lat": -8.0444036, "lon": -34.8898519 },
+    { "lat": -8.0443418, "lon": -34.8898576 },
+    { "lat": -8.0442840, "lon": -34.8898546 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "mapillary": "4095120253902611",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52020-000",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 128164046,
+  "bounds": {
+    "minlat": -8.0453173,
+    "minlon": -34.8895763,
+    "maxlat": -8.0432300,
+    "maxlon": -34.8851727
+  },
+  "nodes": [
+    1468884821,
+    1468886382,
+    1416895712,
+    1416895711,
+    1416849642,
+    1477507883,
+    1477504299,
+    1477504302,
+    1416895438
+  ],
+  "geometry": [
+    { "lat": -8.0432300, "lon": -34.8851727 },
+    { "lat": -8.0435442, "lon": -34.8858556 },
+    { "lat": -8.0437742, "lon": -34.8863231 },
+    { "lat": -8.0438069, "lon": -34.8863965 },
+    { "lat": -8.0441313, "lon": -34.8870833 },
+    { "lat": -8.0444430, "lon": -34.8877213 },
+    { "lat": -8.0447346, "lon": -34.8883871 },
+    { "lat": -8.0451597, "lon": -34.8892607 },
+    { "lat": -8.0453173, "lon": -34.8895763 }
+  ],
+  "tags": {
+    "cycleway:right": "lane",
+    "highway": "residential",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52020-000",
+    "source:postal_code": "CNEFE"
+  }
+},
+{
+  "type": "way",
+  "id": 128164522,
+  "bounds": {
+    "minlat": -8.0440699,
+    "minlon": -34.8886069,
+    "maxlat": -8.0423744,
+    "maxlon": -34.8849796
+  },
+  "nodes": [
+    582300961,
+    1416854120,
+    1416896529,
+    1416896527,
+    3251108964,
+    994527997,
+    1416855823,
+    324278728
+  ],
+  "geometry": [
+    { "lat": -8.0423744, "lon": -34.8849796 },
+    { "lat": -8.0426187, "lon": -34.8854638 },
+    { "lat": -8.0431685, "lon": -34.8866199 },
+    { "lat": -8.0432031, "lon": -34.8866910 },
+    { "lat": -8.0434977, "lon": -34.8873731 },
+    { "lat": -8.0435367, "lon": -34.8874663 },
+    { "lat": -8.0438591, "lon": -34.8882232 },
+    { "lat": -8.0440699, "lon": -34.8886069 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "40",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50070-160",
+    "ref": "PE-015",
+    "sidewalk:both": "no",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 128333663,
+  "bounds": {
+    "minlat": -8.0658485,
+    "minlon": -34.8970741,
+    "maxlat": -8.0648388,
+    "maxlon": -34.8969979
+  },
+  "nodes": [
+    1418574061,
+    7014000427
+  ],
+  "geometry": [
+    { "lat": -8.0658485, "lon": -34.8969979 },
+    { "lat": -8.0648388, "lon": -34.8970741 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhãe",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50070-425",
+    "ref": "PE-015",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 128340007,
+  "bounds": {
+    "minlat": -8.0650921,
+    "minlon": -34.8974610,
+    "maxlat": -8.0647736,
+    "maxlon": -34.8973203
+  },
+  "nodes": [
+    324278745,
+    324278746
+  ],
+  "geometry": [
+    { "lat": -8.0647736, "lon": -34.8974610 },
+    { "lat": -8.0650921, "lon": -34.8973203 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhãe",
+    "bridge": "yes",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "layer": "1",
+    "lit": "yes",
+    "maxspeed": "50",
+    "maxweight:signed": "no",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50070-255",
+    "ref": "PE-015",
+    "sidewalk": "left",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 128476062,
+  "bounds": {
+    "minlat": -8.1190819,
+    "minlon": -34.9271612,
+    "maxlat": -8.1079844,
+    "maxlon": -34.9214323
+  },
+  "nodes": [
+    1493619791,
+    9509508657,
+    8824807455,
+    8824807465,
+    8824807463,
+    2633214453,
+    8936878702,
+    5825710648,
+    9019409784,
+    9019409781,
+    4272548971,
+    1419738977,
+    1419738969,
+    8954751724,
+    5975283305,
+    5975283304,
+    7143022804,
+    1553378631,
+    5975283307,
+    5975283308,
+    1419738968,
+    7143022800,
+    5975283309,
+    1553378655,
+    5975283312,
+    1419738965,
+    7143022806,
+    1553378627,
+    8038337087,
+    10136431766,
+    3249515542,
+    1553378630,
+    7143022807,
+    1737263870,
+    1737263968,
+    1737263932,
+    9019784628,
+    1737264109,
+    1737264026,
+    7143022808,
+    1737264040,
+    324726659
+  ],
+  "geometry": [
+    { "lat": -8.1079844, "lon": -34.9271612 },
+    { "lat": -8.1080555, "lon": -34.9271511 },
+    { "lat": -8.1083435, "lon": -34.9271104 },
+    { "lat": -8.1084245, "lon": -34.9270990 },
+    { "lat": -8.1084973, "lon": -34.9270887 },
+    { "lat": -8.1086637, "lon": -34.9270652 },
+    { "lat": -8.1087752, "lon": -34.9270494 },
+    { "lat": -8.1090085, "lon": -34.9270165 },
+    { "lat": -8.1096350, "lon": -34.9269249 },
+    { "lat": -8.1100008, "lon": -34.9268737 },
+    { "lat": -8.1120045, "lon": -34.9265785 },
+    { "lat": -8.1121847, "lon": -34.9265487 },
+    { "lat": -8.1125280, "lon": -34.9264921 },
+    { "lat": -8.1125783, "lon": -34.9264840 },
+    { "lat": -8.1127688, "lon": -34.9264454 },
+    { "lat": -8.1128914, "lon": -34.9264241 },
+    { "lat": -8.1129349, "lon": -34.9264133 },
+    { "lat": -8.1130180, "lon": -34.9263927 },
+    { "lat": -8.1131284, "lon": -34.9263605 },
+    { "lat": -8.1132652, "lon": -34.9263116 },
+    { "lat": -8.1133425, "lon": -34.9262812 },
+    { "lat": -8.1133985, "lon": -34.9262519 },
+    { "lat": -8.1135024, "lon": -34.9261977 },
+    { "lat": -8.1136752, "lon": -34.9261066 },
+    { "lat": -8.1138502, "lon": -34.9259932 },
+    { "lat": -8.1140156, "lon": -34.9258749 },
+    { "lat": -8.1141705, "lon": -34.9257358 },
+    { "lat": -8.1151365, "lon": -34.9248686 },
+    { "lat": -8.1154301, "lon": -34.9245979 },
+    { "lat": -8.1155299, "lon": -34.9245227 },
+    { "lat": -8.1162778, "lon": -34.9238652 },
+    { "lat": -8.1163353, "lon": -34.9238186 },
+    { "lat": -8.1166345, "lon": -34.9235632 },
+    { "lat": -8.1167530, "lon": -34.9234612 },
+    { "lat": -8.1171786, "lon": -34.9230963 },
+    { "lat": -8.1175843, "lon": -34.9227496 },
+    { "lat": -8.1179297, "lon": -34.9224455 },
+    { "lat": -8.1179907, "lon": -34.9223922 },
+    { "lat": -8.1184024, "lon": -34.9220321 },
+    { "lat": -8.1185438, "lon": -34.9219125 },
+    { "lat": -8.1188164, "lon": -34.9216850 },
+    { "lat": -8.1190819, "lon": -34.9214323 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Presidente Dutra",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "50860-000",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 129484189,
+  "bounds": {
+    "minlat": -8.1079377,
+    "minlon": -34.9159903,
+    "maxlat": -8.1071325,
+    "maxlon": -34.9150836
+  },
+  "nodes": [
+    7123475132,
+    8570662946,
+    3251152079,
+    6200162229,
+    7972173327,
+    1428544938
+  ],
+  "geometry": [
+    { "lat": -8.1079377, "lon": -34.9159903 },
+    { "lat": -8.1078569, "lon": -34.9158994 },
+    { "lat": -8.1078114, "lon": -34.9158483 },
+    { "lat": -8.1075731, "lon": -34.9155734 },
+    { "lat": -8.1074094, "lon": -34.9153914 },
+    { "lat": -8.1071325, "lon": -34.9150836 }
+  ],
+  "tags": {
+    "cycleway:est_width": "3",
+    "cycleway:left": "lane",
+    "highway": "secondary",
+    "lanes": "3",
+    "lanes:backward": "1",
+    "name": "Rua Jean Emile Favre",
+    "oneway": "no",
+    "oneway:bicycle": "no",
+    "postal_code": "51200-060",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 129484190,
+  "bounds": {
+    "minlat": -8.1079840,
+    "minlon": -34.9160413,
+    "maxlat": -8.1079567,
+    "maxlon": -34.9160101
+  },
+  "nodes": [
+    1428544945,
+    1428544944
+  ],
+  "geometry": [
+    { "lat": -8.1079840, "lon": -34.9160413 },
+    { "lat": -8.1079567, "lon": -34.9160101 }
+  ],
+  "tags": {
+    "bridge": "yes",
+    "cycleway:right": "lane",
+    "highway": "secondary",
+    "lanes": "4",
+    "layer": "1",
+    "name": "Rua Jean Emile Favre",
+    "oneway": "no",
+    "postal_code": "51200-060",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 129484249,
+  "bounds": {
+    "minlat": -8.1063520,
+    "minlon": -34.9137210,
+    "maxlat": -8.1059633,
+    "maxlon": -34.9114672
+  },
+  "nodes": [
+    1428545119,
+    1684185557,
+    7972173280,
+    1684184931,
+    3243189824,
+    11914574740,
+    1428545123
+  ],
+  "geometry": [
+    { "lat": -8.1063520, "lon": -34.9114672 },
+    { "lat": -8.1062198, "lon": -34.9122213 },
+    { "lat": -8.1061377, "lon": -34.9126736 },
+    { "lat": -8.1060844, "lon": -34.9129669 },
+    { "lat": -8.1059858, "lon": -34.9135790 },
+    { "lat": -8.1059729, "lon": -34.9136608 },
+    { "lat": -8.1059633, "lon": -34.9137210 }
+  ],
+  "tags": {
+    "highway": "tertiary",
+    "lanes": "3",
+    "name": "Rua Jean Emile Favre",
+    "oneway": "yes",
+    "postal_code": "51200-060",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 129485533,
+  "bounds": {
+    "minlat": -8.1022214,
+    "minlon": -34.9279001,
+    "maxlat": -8.1016594,
+    "maxlon": -34.9278291
+  },
+  "nodes": [
+    1428560972,
+    2009636302
+  ],
+  "geometry": [
+    { "lat": -8.1022214, "lon": -34.9278291 },
+    { "lat": -8.1016594, "lon": -34.9279001 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "3",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "50781-000",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 129485534,
+  "bounds": {
+    "minlat": -8.1022549,
+    "minlon": -34.9280255,
+    "maxlat": -8.1016988,
+    "maxlon": -34.9279627
+  },
+  "nodes": [
+    1428560970,
+    7606663697,
+    6644165360,
+    1428560973
+  ],
+  "geometry": [
+    { "lat": -8.1016988, "lon": -34.9280255 },
+    { "lat": -8.1020198, "lon": -34.9279902 },
+    { "lat": -8.1021368, "lon": -34.9279761 },
+    { "lat": -8.1022549, "lon": -34.9279627 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "3",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "50870-800",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 129485535,
+  "bounds": {
+    "minlat": -8.1025726,
+    "minlon": -34.9279627,
+    "maxlat": -8.1022549,
+    "maxlon": -34.9279216
+  },
+  "nodes": [
+    1428560973,
+    1428560969
+  ],
+  "geometry": [
+    { "lat": -8.1022549, "lon": -34.9279627 },
+    { "lat": -8.1025726, "lon": -34.9279216 }
+  ],
+  "tags": {
+    "bridge": "yes",
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "3",
+    "layer": "1",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "51220-120",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 129485536,
+  "bounds": {
+    "minlat": -8.1025596,
+    "minlon": -34.9278291,
+    "maxlat": -8.1022214,
+    "maxlon": -34.9277846
+  },
+  "nodes": [
+    1428560971,
+    1428560972
+  ],
+  "geometry": [
+    { "lat": -8.1025596, "lon": -34.9277846 },
+    { "lat": -8.1022214, "lon": -34.9278291 }
+  ],
+  "tags": {
+    "bridge": "yes",
+    "description": "Ponte sobre o Rio Tejipió",
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "3",
+    "layer": "1",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "51350-670",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 131150223,
+  "bounds": {
+    "minlat": -8.0512759,
+    "minlon": -34.8945865,
+    "maxlat": -8.0489622,
+    "maxlon": -34.8927443
+  },
+  "nodes": [
+    1416848215,
+    1443848727,
+    1416856118,
+    1416857003
+  ],
+  "geometry": [
+    { "lat": -8.0512759, "lon": -34.8945865 },
+    { "lat": -8.0506168, "lon": -34.8940492 },
+    { "lat": -8.0496552, "lon": -34.8933179 },
+    { "lat": -8.0489622, "lon": -34.8927443 }
+  ],
+  "tags": {
+    "alt_name": "Parca Odilia Freire Dos Santos",
+    "highway": "secondary",
+    "lanes": "2",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "note": "There is a slight spelling difference between the IBGE data (Avenida Governador Agamenon Magalhaes) and the OSM data (Avenida Agamenon Magalhaes-Pista local)",
+    "oneway": "yes",
+    "postal_code": "52021-900",
+    "source:postal_code": "CNEFE",
+    "surface": "paved"
+  }
+},
+{
+  "type": "way",
+  "id": 134367802,
+  "bounds": {
+    "minlat": -8.0447325,
+    "minlon": -34.8877213,
+    "maxlat": -8.0444430,
+    "maxlon": -34.8868389
+  },
+  "nodes": [
+    1477507875,
+    1477507878,
+    7047296903,
+    7046543205,
+    1477507905,
+    7046543206,
+    1477507899,
+    7046669457,
+    7046543207,
+    7046543208,
+    8410830115,
+    3766235385,
+    1477507883
+  ],
+  "geometry": [
+    { "lat": -8.0447325, "lon": -34.8868389 },
+    { "lat": -8.0446756, "lon": -34.8871401 },
+    { "lat": -8.0446601, "lon": -34.8872600 },
+    { "lat": -8.0446561, "lon": -34.8872777 },
+    { "lat": -8.0446481, "lon": -34.8872902 },
+    { "lat": -8.0446276, "lon": -34.8873076 },
+    { "lat": -8.0446120, "lon": -34.8873197 },
+    { "lat": -8.0446027, "lon": -34.8873384 },
+    { "lat": -8.0445319, "lon": -34.8875812 },
+    { "lat": -8.0445107, "lon": -34.8876382 },
+    { "lat": -8.0444901, "lon": -34.8876647 },
+    { "lat": -8.0444841, "lon": -34.8876724 },
+    { "lat": -8.0444430, "lon": -34.8877213 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "name": "Travessa Agamenon",
+    "postal_code": "50110-111",
+    "source:postal_code": "CNEFE"
+  }
+},
+{
+  "type": "way",
+  "id": 136119292,
+  "bounds": {
+    "minlat": -8.1070411,
+    "minlon": -34.9276220,
+    "maxlat": -8.1069913,
+    "maxlon": -34.9272815
+  },
+  "nodes": [
+    7044502598,
+    9509508683,
+    7044603808
+  ],
+  "geometry": [
+    { "lat": -8.1069913, "lon": -34.9272815 },
+    { "lat": -8.1070033, "lon": -34.9273755 },
+    { "lat": -8.1070411, "lon": -34.9276220 }
+  ],
+  "tags": {
+    "alt_name": "Rua Medeiros Neto",
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "50",
+    "name": "Avenida Dom Hélder Câmara",
+    "oneway": "yes",
+    "postal_code": "51220-120",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 136121285,
+  "bounds": {
+    "minlat": -8.1079120,
+    "minlon": -34.9314152,
+    "maxlat": -8.1072966,
+    "maxlon": -34.9290416
+  },
+  "nodes": [
+    2317366840,
+    7246515540,
+    7043852089,
+    2317366819,
+    5825710870,
+    5825710874,
+    7043852088,
+    5825710900,
+    1641507043,
+    1493619804,
+    7043852087,
+    10136403207,
+    7043852086
+  ],
+  "geometry": [
+    { "lat": -8.1079120, "lon": -34.9314152 },
+    { "lat": -8.1078729, "lon": -34.9312706 },
+    { "lat": -8.1078350, "lon": -34.9311302 },
+    { "lat": -8.1078010, "lon": -34.9310026 },
+    { "lat": -8.1077142, "lon": -34.9306763 },
+    { "lat": -8.1075894, "lon": -34.9302387 },
+    { "lat": -8.1075698, "lon": -34.9301634 },
+    { "lat": -8.1074931, "lon": -34.9298528 },
+    { "lat": -8.1073832, "lon": -34.9294763 },
+    { "lat": -8.1073404, "lon": -34.9293083 },
+    { "lat": -8.1073124, "lon": -34.9291851 },
+    { "lat": -8.1073017, "lon": -34.9291091 },
+    { "lat": -8.1072966, "lon": -34.9290416 }
+  ],
+  "tags": {
+    "cycleway:left": "lane",
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "40",
+    "name": "Avenida Dom Hélder Câmara",
+    "oneway": "yes",
+    "oneway:bicycle": "yes",
+    "postal_code": "51220-120",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 161790534,
+  "bounds": {
+    "minlat": -8.1122376,
+    "minlon": -34.9124482,
+    "maxlat": -8.1089337,
+    "maxlon": -34.9117771
+  },
+  "nodes": [
+    1737494284,
+    5618470838,
+    5618470840,
+    5618470850,
+    3122627520,
+    7202200903,
+    3243189853,
+    3257062821,
+    1037912791,
+    7202200972,
+    8763921099,
+    3243189837,
+    1428539742
+  ],
+  "geometry": [
+    { "lat": -8.1122376, "lon": -34.9124482 },
+    { "lat": -8.1121253, "lon": -34.9124272 },
+    { "lat": -8.1120618, "lon": -34.9124153 },
+    { "lat": -8.1119978, "lon": -34.9124033 },
+    { "lat": -8.1117271, "lon": -34.9123456 },
+    { "lat": -8.1115523, "lon": -34.9123147 },
+    { "lat": -8.1113317, "lon": -34.9122757 },
+    { "lat": -8.1102066, "lon": -34.9120423 },
+    { "lat": -8.1101352, "lon": -34.9120280 },
+    { "lat": -8.1098159, "lon": -34.9119614 },
+    { "lat": -8.1090937, "lon": -34.9118108 },
+    { "lat": -8.1090611, "lon": -34.9118040 },
+    { "lat": -8.1089337, "lon": -34.9117771 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "shoulder": "no",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 174869709,
+  "bounds": {
+    "minlat": -8.0447179,
+    "minlon": -34.8890799,
+    "maxlat": -8.0441883,
+    "maxlon": -34.8880576
+  },
+  "nodes": [
+    1416895423,
+    1416895439,
+    1855196639,
+    7049078539,
+    1416895436
+  ],
+  "geometry": [
+    { "lat": -8.0447179, "lon": -34.8890799 },
+    { "lat": -8.0445638, "lon": -34.8887573 },
+    { "lat": -8.0444755, "lon": -34.8885649 },
+    { "lat": -8.0444098, "lon": -34.8884428 },
+    { "lat": -8.0441883, "lon": -34.8880576 }
+  ],
+  "tags": {
+    "destination:ref": "PE-015",
+    "highway": "trunk_link",
+    "lanes": "1",
+    "lit": "yes",
+    "mapillary": "326319405557840",
+    "name": "Avenida Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50110-000",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 190346057,
+  "bounds": {
+    "minlat": -8.1016594,
+    "minlon": -34.9285552,
+    "maxlat": -8.0969989,
+    "maxlon": -34.9279001
+  },
+  "nodes": [
+    2009636302,
+    2020455322,
+    8936918414,
+    7266390153,
+    2020458998,
+    2020458999,
+    3243189807,
+    7973888185,
+    4272549392,
+    2081499235,
+    7973888190,
+    3243189799,
+    2633214396,
+    3208003035
+  ],
+  "geometry": [
+    { "lat": -8.1016594, "lon": -34.9279001 },
+    { "lat": -8.1008363, "lon": -34.9280046 },
+    { "lat": -8.1007948, "lon": -34.9280131 },
+    { "lat": -8.1007496, "lon": -34.9280176 },
+    { "lat": -8.1006733, "lon": -34.9280309 },
+    { "lat": -8.1005932, "lon": -34.9280428 },
+    { "lat": -8.1003655, "lon": -34.9280747 },
+    { "lat": -8.0998183, "lon": -34.9281533 },
+    { "lat": -8.0996292, "lon": -34.9281804 },
+    { "lat": -8.0993247, "lon": -34.9282241 },
+    { "lat": -8.0975395, "lon": -34.9284780 },
+    { "lat": -8.0975192, "lon": -34.9284809 },
+    { "lat": -8.0970466, "lon": -34.9285505 },
+    { "lat": -8.0969989, "lon": -34.9285552 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "50781-000",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 190346058,
+  "bounds": {
+    "minlat": -8.1016988,
+    "minlon": -34.9288078,
+    "maxlat": -8.0962462,
+    "maxlon": -34.9280255
+  },
+  "nodes": [
+    2009726676,
+    2633214441,
+    5612533481,
+    6779686551,
+    3243189803,
+    7973888187,
+    4272549399,
+    6145977092,
+    7191422772,
+    7143022782,
+    5555441664,
+    7191422771,
+    3243189806,
+    2016138684,
+    2317366571,
+    8936914170,
+    1428560970
+  ],
+  "geometry": [
+    { "lat": -8.0962462, "lon": -34.9288078 },
+    { "lat": -8.0969907, "lon": -34.9287016 },
+    { "lat": -8.0971262, "lon": -34.9286808 },
+    { "lat": -8.0973759, "lon": -34.9286449 },
+    { "lat": -8.0974024, "lon": -34.9286411 },
+    { "lat": -8.0974311, "lon": -34.9286369 },
+    { "lat": -8.0974600, "lon": -34.9286327 },
+    { "lat": -8.0977005, "lon": -34.9285928 },
+    { "lat": -8.0992520, "lon": -34.9283682 },
+    { "lat": -8.0996343, "lon": -34.9283157 },
+    { "lat": -8.0999865, "lon": -34.9282644 },
+    { "lat": -8.1001840, "lon": -34.9282374 },
+    { "lat": -8.1003859, "lon": -34.9282106 },
+    { "lat": -8.1008822, "lon": -34.9281480 },
+    { "lat": -8.1015237, "lon": -34.9280497 },
+    { "lat": -8.1016319, "lon": -34.9280347 },
+    { "lat": -8.1016988, "lon": -34.9280255 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "50870-800",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 193299818,
+  "bounds": {
+    "minlat": -8.1124749,
+    "minlon": -34.9126739,
+    "maxlat": -8.1100012,
+    "maxlon": -34.9121778
+  },
+  "nodes": [
+    1211016621,
+    3257062822,
+    1737480344,
+    5618533300,
+    2633214188,
+    5618533302,
+    3257062826,
+    1745113680
+  ],
+  "geometry": [
+    { "lat": -8.1100012, "lon": -34.9121778 },
+    { "lat": -8.1111855, "lon": -34.9124376 },
+    { "lat": -8.1113810, "lon": -34.9124732 },
+    { "lat": -8.1114410, "lon": -34.9124845 },
+    { "lat": -8.1116586, "lon": -34.9125256 },
+    { "lat": -8.1120749, "lon": -34.9126041 },
+    { "lat": -8.1123309, "lon": -34.9126524 },
+    { "lat": -8.1124749, "lon": -34.9126739 }
+  ],
+  "tags": {
+    "alt_name": "Imbiribeira",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "sidewalk": "right",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 247488808,
+  "bounds": {
+    "minlat": -8.0546896,
+    "minlon": -34.8987133,
+    "maxlat": -8.0528632,
+    "maxlon": -34.8968120
+  },
+  "nodes": [
+    2543675258,
+    2543675267,
+    6059098732,
+    4448555246,
+    3881251421,
+    9911626300,
+    5732329299,
+    6059098744,
+    3790995234,
+    3790995277,
+    2543675287,
+    2543675293,
+    5571437236,
+    2543675298,
+    2543675304,
+    6059098751,
+    6059098766,
+    2543675311,
+    6059098755,
+    3790995324,
+    6059098754,
+    3790995342,
+    2543675316,
+    2543675258
+  ],
+  "geometry": [
+    { "lat": -8.0541373, "lon": -34.8986607 },
+    { "lat": -8.0546896, "lon": -34.8978460 },
+    { "lat": -8.0543218, "lon": -34.8975778 },
+    { "lat": -8.0541326, "lon": -34.8974437 },
+    { "lat": -8.0540350, "lon": -34.8973739 },
+    { "lat": -8.0534388, "lon": -34.8969300 },
+    { "lat": -8.0532814, "lon": -34.8968120 },
+    { "lat": -8.0532037, "lon": -34.8968911 },
+    { "lat": -8.0530885, "lon": -34.8970445 },
+    { "lat": -8.0530443, "lon": -34.8971071 },
+    { "lat": -8.0529754, "lon": -34.8971996 },
+    { "lat": -8.0529415, "lon": -34.8973384 },
+    { "lat": -8.0528983, "lon": -34.8974879 },
+    { "lat": -8.0528632, "lon": -34.8976086 },
+    { "lat": -8.0536134, "lon": -34.8981363 },
+    { "lat": -8.0536672, "lon": -34.8982329 },
+    { "lat": -8.0535629, "lon": -34.8982906 },
+    { "lat": -8.0535178, "lon": -34.8984579 },
+    { "lat": -8.0535511, "lon": -34.8984718 },
+    { "lat": -8.0537850, "lon": -34.8985694 },
+    { "lat": -8.0540035, "lon": -34.8986627 },
+    { "lat": -8.0540692, "lon": -34.8986971 },
+    { "lat": -8.0541021, "lon": -34.8987133 },
+    { "lat": -8.0541373, "lon": -34.8986607 }
+  ],
+  "tags": {
+    "addr:city": "Recife",
+    "addr:postcode": "52011-000",
+    "addr:street": "Avenida Agamenon Magalhães-Pista local",
+    "addr:suburb": "Derby",
+    "amenity": "hospital",
+    "healthcare": "hospital",
+    "name": "Hospital da Restauração",
+    "phone": "+55 81 3181 5400",
+    "website": "http://www.hr.saude.pe.gov.br",
+    "wikidata": "Q10298519",
+    "wikipedia": "pt:Hospital da Restauração"
+  }
+},
+{
+  "type": "way",
+  "id": 305540241,
+  "bounds": {
+    "minlat": -8.1089337,
+    "minlon": -34.9117771,
+    "maxlat": -8.1075955,
+    "maxlon": -34.9115484
+  },
+  "nodes": [
+    1428539742,
+    2317396510,
+    7202200964,
+    3257062817,
+    1428545122
+  ],
+  "geometry": [
+    { "lat": -8.1089337, "lon": -34.9117771 },
+    { "lat": -8.1081358, "lon": -34.9116334 },
+    { "lat": -8.1077036, "lon": -34.9115645 },
+    { "lat": -8.1076896, "lon": -34.9115623 },
+    { "lat": -8.1075955, "lon": -34.9115484 }
+  ],
+  "tags": {
+    "alt_name": "Rua Projetada",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 306527860,
+  "bounds": {
+    "minlat": -8.0515867,
+    "minlon": -34.8949340,
+    "maxlat": -8.0487477,
+    "maxlon": -34.8927345
+  },
+  "nodes": [
+    1416847666,
+    1443848715,
+    7059911820,
+    3251108972,
+    12412171626,
+    1416859226,
+    8632695498
+  ],
+  "geometry": [
+    { "lat": -8.0515867, "lon": -34.8949340 },
+    { "lat": -8.0507900, "lon": -34.8943101 },
+    { "lat": -8.0496703, "lon": -34.8934480 },
+    { "lat": -8.0488968, "lon": -34.8928480 },
+    { "lat": -8.0488343, "lon": -34.8928029 },
+    { "lat": -8.0487586, "lon": -34.8927432 },
+    { "lat": -8.0487477, "lon": -34.8927345 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "note": "There is a slight spelling difference between the IBGE data (Avenida Governador Agamenon Magalhaes) and the OSM data (Avenida Agamenon Magalhaes-Pista central)",
+    "oneway": "yes",
+    "postal_code": "52021-900",
+    "ref": "PE-015",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 307186026,
+  "bounds": {
+    "minlat": -8.1100012,
+    "minlon": -34.9121778,
+    "maxlat": -8.1075844,
+    "maxlon": -34.9117098
+  },
+  "nodes": [
+    1428545120,
+    7202200965,
+    8960681539,
+    8960681536,
+    3257062818,
+    1428539732,
+    7202200969,
+    7202200966,
+    7202200973,
+    3243189843,
+    1211016621
+  ],
+  "geometry": [
+    { "lat": -8.1075844, "lon": -34.9117098 },
+    { "lat": -8.1076704, "lon": -34.9117261 },
+    { "lat": -8.1077225, "lon": -34.9117360 },
+    { "lat": -8.1081134, "lon": -34.9118099 },
+    { "lat": -8.1086411, "lon": -34.9119097 },
+    { "lat": -8.1088347, "lon": -34.9119457 },
+    { "lat": -8.1090245, "lon": -34.9119810 },
+    { "lat": -8.1093115, "lon": -34.9120393 },
+    { "lat": -8.1097779, "lon": -34.9121340 },
+    { "lat": -8.1098589, "lon": -34.9121505 },
+    { "lat": -8.1100012, "lon": -34.9121778 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "shoulder": "no",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 314754250,
+  "bounds": {
+    "minlat": -8.0647736,
+    "minlon": -34.8977184,
+    "maxlat": -8.0624903,
+    "maxlon": -34.8974610
+  },
+  "nodes": [
+    8945140461,
+    1422741506,
+    2706007560,
+    3243189471,
+    13378597674,
+    1462082584,
+    3766060038,
+    324278745
+  ],
+  "geometry": [
+    { "lat": -8.0624903, "lon": -34.8977184 },
+    { "lat": -8.0625538, "lon": -34.8977128 },
+    { "lat": -8.0627435, "lon": -34.8976932 },
+    { "lat": -8.0637315, "lon": -34.8975975 },
+    { "lat": -8.0639281, "lon": -34.8975735 },
+    { "lat": -8.0643861, "lon": -34.8975264 },
+    { "lat": -8.0646174, "lon": -34.8974887 },
+    { "lat": -8.0647736, "lon": -34.8974610 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50070-255",
+    "ref": "PE-015",
+    "sidewalk": "left",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 314754255,
+  "bounds": {
+    "minlat": -8.0624550,
+    "minlon": -34.8978556,
+    "maxlat": -8.0622991,
+    "maxlon": -34.8978343
+  },
+  "nodes": [
+    1462082581,
+    1422741505
+  ],
+  "geometry": [
+    { "lat": -8.0622991, "lon": -34.8978556 },
+    { "lat": -8.0624550, "lon": -34.8978343 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-902",
+    "smoothness": "excellent",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 314754258,
+  "bounds": {
+    "minlat": -8.0665828,
+    "minlon": -34.8980909,
+    "maxlat": -8.0626175,
+    "maxlon": -34.8975986
+  },
+  "nodes": [
+    8945140456,
+    2706007561,
+    3243189472,
+    7312443720,
+    7272017272,
+    7272017271,
+    7272017273,
+    7272017270,
+    6208544306,
+    3766060077,
+    1422713194,
+    1422713200,
+    6200008657,
+    3766060074,
+    7272017274,
+    7272017275,
+    7272017276,
+    7272017277,
+    1422713176
+  ],
+  "geometry": [
+    { "lat": -8.0626175, "lon": -34.8978192 },
+    { "lat": -8.0631432, "lon": -34.8977701 },
+    { "lat": -8.0636513, "lon": -34.8977319 },
+    { "lat": -8.0642006, "lon": -34.8976732 },
+    { "lat": -8.0647362, "lon": -34.8975986 },
+    { "lat": -8.0648318, "lon": -34.8976019 },
+    { "lat": -8.0650025, "lon": -34.8976381 },
+    { "lat": -8.0651319, "lon": -34.8976737 },
+    { "lat": -8.0655143, "lon": -34.8978473 },
+    { "lat": -8.0658349, "lon": -34.8980028 },
+    { "lat": -8.0659554, "lon": -34.8980539 },
+    { "lat": -8.0661607, "lon": -34.8980861 },
+    { "lat": -8.0662752, "lon": -34.8980909 },
+    { "lat": -8.0663949, "lon": -34.8980878 },
+    { "lat": -8.0664521, "lon": -34.8980723 },
+    { "lat": -8.0664939, "lon": -34.8980545 },
+    { "lat": -8.0665391, "lon": -34.8980294 },
+    { "lat": -8.0665653, "lon": -34.8979942 },
+    { "lat": -8.0665828, "lon": -34.8979478 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-902",
+    "smoothness": "good",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 314754266,
+  "bounds": {
+    "minlat": -8.0624572,
+    "minlon": -34.8972668,
+    "maxlat": -8.0620927,
+    "maxlon": -34.8972241
+  },
+  "nodes": [
+    1002219328,
+    992019989
+  ],
+  "geometry": [
+    { "lat": -8.0624572, "lon": -34.8972241 },
+    { "lat": -8.0620927, "lon": -34.8972668 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50070-255",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 314754305,
+  "bounds": {
+    "minlat": -8.1069699,
+    "minlon": -34.9271695,
+    "maxlat": -8.1069214,
+    "maxlon": -34.9271612
+  },
+  "nodes": [
+    1493632483,
+    8461648959
+  ],
+  "geometry": [
+    { "lat": -8.1069699, "lon": -34.9271612 },
+    { "lat": -8.1069214, "lon": -34.9271695 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Presidente Dutra",
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "51190-730",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 314754306,
+  "bounds": {
+    "minlat": -8.1069913,
+    "minlon": -34.9272815,
+    "maxlat": -8.1069699,
+    "maxlon": -34.9271612
+  },
+  "nodes": [
+    1493632483,
+    7044502598
+  ],
+  "geometry": [
+    { "lat": -8.1069699, "lon": -34.9271612 },
+    { "lat": -8.1069913, "lon": -34.9272815 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "name": "Avenida Dom Hélder Câmara",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "postal_code": "51350-530",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 314754307,
+  "bounds": {
+    "minlat": -8.1069399,
+    "minlon": -34.9279216,
+    "maxlat": -8.1025726,
+    "maxlon": -34.9272897
+  },
+  "nodes": [
+    1428560969,
+    6644165361,
+    12615341632,
+    7191422770,
+    11918684286,
+    3244644368,
+    7143022783,
+    9019775904,
+    9509518166,
+    3244644369,
+    9509518168,
+    8461648958
+  ],
+  "geometry": [
+    { "lat": -8.1025726, "lon": -34.9279216 },
+    { "lat": -8.1028324, "lon": -34.9278857 },
+    { "lat": -8.1028917, "lon": -34.9278781 },
+    { "lat": -8.1032298, "lon": -34.9278351 },
+    { "lat": -8.1034400, "lon": -34.9278039 },
+    { "lat": -8.1038660, "lon": -34.9277433 },
+    { "lat": -8.1048188, "lon": -34.9276023 },
+    { "lat": -8.1065666, "lon": -34.9273437 },
+    { "lat": -8.1068699, "lon": -34.9272994 },
+    { "lat": -8.1068887, "lon": -34.9272961 },
+    { "lat": -8.1069031, "lon": -34.9272942 },
+    { "lat": -8.1069399, "lon": -34.9272897 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Presidente Dutra",
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "50860-000",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 314754309,
+  "bounds": {
+    "minlat": -8.1162553,
+    "minlon": -34.9245116,
+    "maxlat": -8.1153625,
+    "maxlon": -34.9237269
+  },
+  "nodes": [
+    1553378626,
+    11914223058,
+    7972173324,
+    10136431763,
+    8038337096,
+    8038337097,
+    1553378622
+  ],
+  "geometry": [
+    { "lat": -8.1162553, "lon": -34.9237269 },
+    { "lat": -8.1162008, "lon": -34.9237748 },
+    { "lat": -8.1160254, "lon": -34.9239290 },
+    { "lat": -8.1154558, "lon": -34.9244296 },
+    { "lat": -8.1154459, "lon": -34.9244383 },
+    { "lat": -8.1154354, "lon": -34.9244475 },
+    { "lat": -8.1153625, "lon": -34.9245116 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Presidente Dutra",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "51350-670",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 314754310,
+  "bounds": {
+    "minlat": -8.1193341,
+    "minlon": -34.9215686,
+    "maxlat": -8.1187536,
+    "maxlon": -34.9209592
+  },
+  "nodes": [
+    1678997271,
+    6058223267,
+    11914239644,
+    1553378648,
+    6058195482,
+    324724324,
+    324724325
+  ],
+  "geometry": [
+    { "lat": -8.1193341, "lon": -34.9209592 },
+    { "lat": -8.1193137, "lon": -34.9209889 },
+    { "lat": -8.1192764, "lon": -34.9210369 },
+    { "lat": -8.1192130, "lon": -34.9211183 },
+    { "lat": -8.1191471, "lon": -34.9211955 },
+    { "lat": -8.1190901, "lon": -34.9212568 },
+    { "lat": -8.1187536, "lon": -34.9215686 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Presidente Dutra",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "51200-235",
+    "source:postal_code": "CNEFE"
+  }
+},
+{
+  "type": "way",
+  "id": 314754312,
+  "bounds": {
+    "minlat": -8.1194265,
+    "minlon": -34.9209592,
+    "maxlat": -8.1193341,
+    "maxlon": -34.9208463
+  },
+  "nodes": [
+    1678997272,
+    1678997271
+  ],
+  "geometry": [
+    { "lat": -8.1194265, "lon": -34.9208463 },
+    { "lat": -8.1193341, "lon": -34.9209592 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Presidente Dutra",
+    "highway": "primary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "51200-235",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 314754313,
+  "bounds": {
+    "minlat": -8.1194402,
+    "minlon": -34.9211407,
+    "maxlat": -8.1193502,
+    "maxlon": -34.9210247
+  },
+  "nodes": [
+    324726660,
+    11914239651,
+    5373032197,
+    1754554183
+  ],
+  "geometry": [
+    { "lat": -8.1193502, "lon": -34.9211407 },
+    { "lat": -8.1193635, "lon": -34.9211220 },
+    { "lat": -8.1194125, "lon": -34.9210637 },
+    { "lat": -8.1194402, "lon": -34.9210247 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Presidente Dutra",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "51190-505",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 314754316,
+  "bounds": {
+    "minlat": -8.1203417,
+    "minlon": -34.9210247,
+    "maxlat": -8.1194402,
+    "maxlon": -34.9194991
+  },
+  "nodes": [
+    1754554183,
+    1754554184,
+    11914321094,
+    1553378652,
+    7143022809,
+    5373032195,
+    11914239657,
+    1553378623,
+    1553378674
+  ],
+  "geometry": [
+    { "lat": -8.1194402, "lon": -34.9210247 },
+    { "lat": -8.1195068, "lon": -34.9209360 },
+    { "lat": -8.1195757, "lon": -34.9208210 },
+    { "lat": -8.1195819, "lon": -34.9208110 },
+    { "lat": -8.1198625, "lon": -34.9203393 },
+    { "lat": -8.1198937, "lon": -34.9202852 },
+    { "lat": -8.1202715, "lon": -34.9196318 },
+    { "lat": -8.1203086, "lon": -34.9195633 },
+    { "lat": -8.1203417, "lon": -34.9194991 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Presidente Dutra",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "51190-505",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 314754318,
+  "bounds": {
+    "minlat": -8.1223041,
+    "minlon": -34.9145400,
+    "maxlat": -8.1216967,
+    "maxlon": -34.9144343
+  },
+  "nodes": [
+    1428449175,
+    1428449205
+  ],
+  "geometry": [
+    { "lat": -8.1216967, "lon": -34.9144343 },
+    { "lat": -8.1223041, "lon": -34.9145400 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Des Jose Neves",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 314754322,
+  "bounds": {
+    "minlat": -8.1161820,
+    "minlon": -34.9134037,
+    "maxlat": -8.1155704,
+    "maxlon": -34.9132875
+  },
+  "nodes": [
+    1678997280,
+    3257062829,
+    1737263987
+  ],
+  "geometry": [
+    { "lat": -8.1155704, "lon": -34.9132875 },
+    { "lat": -8.1160482, "lon": -34.9133785 },
+    { "lat": -8.1161820, "lon": -34.9134037 }
+  ],
+  "tags": {
+    "alt_name": "Imbiribeira;Avenida Marechal Mascarenhas de Moraes",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "sidewalk": "right",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 314754323,
+  "bounds": {
+    "minlat": -8.1155704,
+    "minlon": -34.9132875,
+    "maxlat": -8.1124749,
+    "maxlon": -34.9126739
+  },
+  "nodes": [
+    1745113680,
+    6058343072,
+    7227580531,
+    6058343730,
+    7202200975,
+    3257062828,
+    1737448727,
+    7202200976,
+    1678997280
+  ],
+  "geometry": [
+    { "lat": -8.1124749, "lon": -34.9126739 },
+    { "lat": -8.1136041, "lon": -34.9128865 },
+    { "lat": -8.1137095, "lon": -34.9129074 },
+    { "lat": -8.1141488, "lon": -34.9129944 },
+    { "lat": -8.1144058, "lon": -34.9130405 },
+    { "lat": -8.1147966, "lon": -34.9131138 },
+    { "lat": -8.1148804, "lon": -34.9131323 },
+    { "lat": -8.1154821, "lon": -34.9132650 },
+    { "lat": -8.1155704, "lon": -34.9132875 }
+  ],
+  "tags": {
+    "alt_name": "Imbiribeira",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 314754325,
+  "bounds": {
+    "minlat": -8.1048761,
+    "minlon": -34.9111646,
+    "maxlat": -8.0984968,
+    "maxlon": -34.9101696
+  },
+  "nodes": [
+    1651168806,
+    7202200944,
+    324727459,
+    324727460,
+    7243022799,
+    9349731110,
+    1684183199,
+    1684183278,
+    7202200945,
+    3243189809,
+    7202200951,
+    1684184191,
+    3243189820,
+    7202200956,
+    3208003038
+  ],
+  "geometry": [
+    { "lat": -8.0984968, "lon": -34.9101696 },
+    { "lat": -8.0993639, "lon": -34.9102171 },
+    { "lat": -8.0994039, "lon": -34.9102198 },
+    { "lat": -8.1003527, "lon": -34.9102767 },
+    { "lat": -8.1005239, "lon": -34.9103022 },
+    { "lat": -8.1010942, "lon": -34.9104141 },
+    { "lat": -8.1016709, "lon": -34.9105273 },
+    { "lat": -8.1027054, "lon": -34.9107327 },
+    { "lat": -8.1030712, "lon": -34.9108079 },
+    { "lat": -8.1031588, "lon": -34.9108243 },
+    { "lat": -8.1032218, "lon": -34.9108354 },
+    { "lat": -8.1036973, "lon": -34.9109340 },
+    { "lat": -8.1047038, "lon": -34.9111320 },
+    { "lat": -8.1047706, "lon": -34.9111444 },
+    { "lat": -8.1048761, "lon": -34.9111646 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "3",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 315073864,
+  "bounds": {
+    "minlat": -8.0513331,
+    "minlon": -34.8952195,
+    "maxlat": -8.0485921,
+    "maxlon": -34.8930457
+  },
+  "nodes": [
+    1416859225,
+    5416461466,
+    3243189247,
+    6534512363,
+    1418581593
+  ],
+  "geometry": [
+    { "lat": -8.0485921, "lon": -34.8930457 },
+    { "lat": -8.0493124, "lon": -34.8936174 },
+    { "lat": -8.0511205, "lon": -34.8950538 },
+    { "lat": -8.0512425, "lon": -34.8951519 },
+    { "lat": -8.0513331, "lon": -34.8952195 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52020-000",
+    "ref": "PE-015",
+    "sidewalk": "both",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 315073865,
+  "bounds": {
+    "minlat": -8.0488122,
+    "minlon": -34.8926502,
+    "maxlat": -8.0456570,
+    "maxlon": -34.8899818
+  },
+  "nodes": [
+    2152849234,
+    1443852586,
+    12412171625,
+    3267111542,
+    1416848222,
+    1855195084,
+    1416848218,
+    6449390839,
+    3889675080,
+    6449390838,
+    3889675105,
+    6449390841,
+    6449390840,
+    9492956269,
+    1416848221
+  ],
+  "geometry": [
+    { "lat": -8.0488122, "lon": -34.8926502 },
+    { "lat": -8.0479572, "lon": -34.8919629 },
+    { "lat": -8.0474096, "lon": -34.8915419 },
+    { "lat": -8.0466427, "lon": -34.8909531 },
+    { "lat": -8.0457205, "lon": -34.8902447 },
+    { "lat": -8.0456763, "lon": -34.8901986 },
+    { "lat": -8.0456570, "lon": -34.8901475 },
+    { "lat": -8.0456606, "lon": -34.8901184 },
+    { "lat": -8.0456712, "lon": -34.8900903 },
+    { "lat": -8.0456868, "lon": -34.8900628 },
+    { "lat": -8.0457068, "lon": -34.8900343 },
+    { "lat": -8.0457423, "lon": -34.8900086 },
+    { "lat": -8.0457629, "lon": -34.8900014 },
+    { "lat": -8.0458038, "lon": -34.8899916 },
+    { "lat": -8.0458444, "lon": -34.8899818 }
+  ],
+  "tags": {
+    "cycleway:right": "lane",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52021-900",
+    "source:postal_code": "CNEFE",
+    "surface": "paved"
+  }
+},
+{
+  "type": "way",
+  "id": 315073867,
+  "bounds": {
+    "minlat": -8.0516526,
+    "minlon": -34.8948725,
+    "maxlat": -8.0512759,
+    "maxlon": -34.8945865
+  },
+  "nodes": [
+    1443846288,
+    1416848215
+  ],
+  "geometry": [
+    { "lat": -8.0516526, "lon": -34.8948725 },
+    { "lat": -8.0512759, "lon": -34.8945865 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-904",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 315073869,
+  "bounds": {
+    "minlat": -8.0523513,
+    "minlon": -34.8959444,
+    "maxlat": -8.0513331,
+    "maxlon": -34.8952195
+  },
+  "nodes": [
+    1418581593,
+    3243189250,
+    6534512351,
+    995388322
+  ],
+  "geometry": [
+    { "lat": -8.0513331, "lon": -34.8952195 },
+    { "lat": -8.0521564, "lon": -34.8958096 },
+    { "lat": -8.0522571, "lon": -34.8958780 },
+    { "lat": -8.0523513, "lon": -34.8959444 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Agamenon Magalhães- Pista Central",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50100-010",
+    "ref": "PE-015",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 315073870,
+  "bounds": {
+    "minlat": -8.0532567,
+    "minlon": -34.8965826,
+    "maxlat": -8.0523513,
+    "maxlon": -34.8959444
+  },
+  "nodes": [
+    995388322,
+    12050999541,
+    7556782213,
+    3267111555,
+    12050999532,
+    1001388747
+  ],
+  "geometry": [
+    { "lat": -8.0523513, "lon": -34.8959444 },
+    { "lat": -8.0524904, "lon": -34.8960426 },
+    { "lat": -8.0526895, "lon": -34.8961832 },
+    { "lat": -8.0530795, "lon": -34.8964585 },
+    { "lat": -8.0531731, "lon": -34.8965240 },
+    { "lat": -8.0532567, "lon": -34.8965826 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52020-900",
+    "ref": "PE-015",
+    "sidewalk": "left",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 315073871,
+  "bounds": {
+    "minlat": -8.0525053,
+    "minlon": -34.8962071,
+    "maxlat": -8.0522791,
+    "maxlon": -34.8960482
+  },
+  "nodes": [
+    1418602355,
+    12050999540,
+    1036684695
+  ],
+  "geometry": [
+    { "lat": -8.0522791, "lon": -34.8960482 },
+    { "lat": -8.0524125, "lon": -34.8961419 },
+    { "lat": -8.0525053, "lon": -34.8962071 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 315073873,
+  "bounds": {
+    "minlat": -8.0540344,
+    "minlon": -34.8971391,
+    "maxlat": -8.0532567,
+    "maxlon": -34.8965826
+  },
+  "nodes": [
+    1001388747,
+    8957998426,
+    8955309430,
+    5732329297,
+    7016708010
+  ],
+  "geometry": [
+    { "lat": -8.0532567, "lon": -34.8965826 },
+    { "lat": -8.0532773, "lon": -34.8965977 },
+    { "lat": -8.0533440, "lon": -34.8966446 },
+    { "lat": -8.0533935, "lon": -34.8966824 },
+    { "lat": -8.0540344, "lon": -34.8971391 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
+    "ref": "PE-015",
+    "sidewalk": "left",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 315073874,
+  "bounds": {
+    "minlat": -8.0536366,
+    "minlon": -34.8962558,
+    "maxlat": -8.0526786,
+    "maxlon": -34.8955759
+  },
+  "nodes": [
+    1443846306,
+    6199978854,
+    3258965781,
+    6534512354
+  ],
+  "geometry": [
+    { "lat": -8.0536366, "lon": -34.8962558 },
+    { "lat": -8.0530634, "lon": -34.8958484 },
+    { "lat": -8.0526897, "lon": -34.8955823 },
+    { "lat": -8.0526786, "lon": -34.8955759 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "60",
+    "maxspeed:type": "sign",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-904",
+    "sidewalk": "right",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 315073877,
+  "bounds": {
+    "minlat": -8.0567261,
+    "minlon": -34.8982209,
+    "maxlat": -8.0566431,
+    "maxlon": -34.8982174
+  },
+  "nodes": [
+    1422749957,
+    7161450437,
+    1462082585
+  ],
+  "geometry": [
+    { "lat": -8.0566431, "lon": -34.8982174 },
+    { "lat": -8.0566738, "lon": -34.8982187 },
+    { "lat": -8.0567261, "lon": -34.8982209 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 315073878,
+  "bounds": {
+    "minlat": -8.0574614,
+    "minlon": -34.8982295,
+    "maxlat": -8.0567261,
+    "maxlon": -34.8982209
+  },
+  "nodes": [
+    1462082585,
+    5673935511,
+    3245364900,
+    6536049951,
+    5908100427
+  ],
+  "geometry": [
+    { "lat": -8.0567261, "lon": -34.8982209 },
+    { "lat": -8.0567822, "lon": -34.8982221 },
+    { "lat": -8.0573297, "lon": -34.8982256 },
+    { "lat": -8.0573456, "lon": -34.8982261 },
+    { "lat": -8.0574614, "lon": -34.8982295 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-904",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 315073880,
+  "bounds": {
+    "minlat": -8.0567071,
+    "minlon": -34.8981077,
+    "maxlat": -8.0566448,
+    "maxlon": -34.8981057
+  },
+  "nodes": [
+    1422749971,
+    1421504679
+  ],
+  "geometry": [
+    { "lat": -8.0566448, "lon": -34.8981057 },
+    { "lat": -8.0567071, "lon": -34.8981077 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Agamenon Magalhães- Pista central",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-040",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 315073881,
+  "bounds": {
+    "minlat": -8.0574623,
+    "minlon": -34.8981100,
+    "maxlat": -8.0567071,
+    "maxlon": -34.8980927
+  },
+  "nodes": [
+    1421504679,
+    5673935512,
+    3245364899,
+    6536049950,
+    1462082587
+  ],
+  "geometry": [
+    { "lat": -8.0567071, "lon": -34.8981077 },
+    { "lat": -8.0567783, "lon": -34.8981100 },
+    { "lat": -8.0572669, "lon": -34.8980956 },
+    { "lat": -8.0573480, "lon": -34.8980944 },
+    { "lat": -8.0574623, "lon": -34.8980927 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-904",
+    "ref": "PE-015",
+    "sidewalk": "left",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 315073883,
+  "bounds": {
+    "minlat": -8.0566508,
+    "minlon": -34.8977105,
+    "maxlat": -8.0565883,
+    "maxlon": -34.8977080
+  },
+  "nodes": [
+    324277765,
+    1422749962
+  ],
+  "geometry": [
+    { "lat": -8.0566508, "lon": -34.8977080 },
+    { "lat": -8.0565883, "lon": -34.8977105 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Agamenon Magalhães- Pista central",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 315073885,
+  "bounds": {
+    "minlat": -8.0565883,
+    "minlon": -34.8977105,
+    "maxlat": -8.0535414,
+    "maxlon": -34.8963274
+  },
+  "nodes": [
+    1422749962,
+    5732329255,
+    324277766,
+    1443833546,
+    7016708012,
+    6059139129,
+    324277767,
+    3267121062,
+    1443835941,
+    3267111558,
+    5732329293,
+    6534512367,
+    994519759
+  ],
+  "geometry": [
+    { "lat": -8.0565883, "lon": -34.8977105 },
+    { "lat": -8.0564842, "lon": -34.8977087 },
+    { "lat": -8.0559311, "lon": -34.8976983 },
+    { "lat": -8.0557241, "lon": -34.8976725 },
+    { "lat": -8.0554904, "lon": -34.8976162 },
+    { "lat": -8.0554041, "lon": -34.8975823 },
+    { "lat": -8.0552547, "lon": -34.8975153 },
+    { "lat": -8.0549807, "lon": -34.8973577 },
+    { "lat": -8.0542433, "lon": -34.8968158 },
+    { "lat": -8.0537326, "lon": -34.8964580 },
+    { "lat": -8.0536706, "lon": -34.8964138 },
+    { "lat": -8.0536523, "lon": -34.8964012 },
+    { "lat": -8.0535414, "lon": -34.8963274 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
+    "ref": "PE-015",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 315073891,
+  "bounds": {
+    "minlat": -8.0566363,
+    "minlon": -34.8976038,
+    "maxlat": -8.0565559,
+    "maxlon": -34.8976004
+  },
+  "nodes": [
+    1418601102,
+    2152849238
+  ],
+  "geometry": [
+    { "lat": -8.0566363, "lon": -34.8976038 },
+    { "lat": -8.0565559, "lon": -34.8976004 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-040",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 315073893,
+  "bounds": {
+    "minlat": -8.0565559,
+    "minlon": -34.8976004,
+    "maxlat": -8.0536366,
+    "maxlon": -34.8962558
+  },
+  "nodes": [
+    2152849238,
+    5732329256,
+    8287638792,
+    8287697020,
+    1418601100,
+    3766060014,
+    5900474899,
+    1418601101,
+    3766060016,
+    6059139131,
+    9921686164,
+    3267121063,
+    9921686162,
+    6059139132,
+    1443835945,
+    14363285339,
+    3267111559,
+    5732329294,
+    6534512366,
+    1443846306
+  ],
+  "geometry": [
+    { "lat": -8.0565559, "lon": -34.8976004 },
+    { "lat": -8.0564812, "lon": -34.8975995 },
+    { "lat": -8.0563660, "lon": -34.8975978 },
+    { "lat": -8.0562425, "lon": -34.8975960 },
+    { "lat": -8.0559890, "lon": -34.8975923 },
+    { "lat": -8.0559100, "lon": -34.8975805 },
+    { "lat": -8.0558806, "lon": -34.8975761 },
+    { "lat": -8.0556970, "lon": -34.8975561 },
+    { "lat": -8.0553132, "lon": -34.8974289 },
+    { "lat": -8.0552279, "lon": -34.8973895 },
+    { "lat": -8.0551473, "lon": -34.8973487 },
+    { "lat": -8.0550155, "lon": -34.8972818 },
+    { "lat": -8.0549789, "lon": -34.8972568 },
+    { "lat": -8.0548624, "lon": -34.8971771 },
+    { "lat": -8.0544636, "lon": -34.8968668 },
+    { "lat": -8.0539575, "lon": -34.8964880 },
+    { "lat": -8.0538805, "lon": -34.8964304 },
+    { "lat": -8.0537856, "lon": -34.8963685 },
+    { "lat": -8.0537720, "lon": -34.8963593 },
+    { "lat": -8.0536366, "lon": -34.8962558 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-040",
+    "smoothness": "excellent",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 315073900,
+  "bounds": {
+    "minlat": -8.0599971,
+    "minlon": -34.8981794,
+    "maxlat": -8.0592609,
+    "maxlon": -34.8981224
+  },
+  "nodes": [
+    8945112539,
+    1430717432,
+    1425844401,
+    5358898486
+  ],
+  "geometry": [
+    { "lat": -8.0592609, "lon": -34.8981794 },
+    { "lat": -8.0595032, "lon": -34.8981571 },
+    { "lat": -8.0599017, "lon": -34.8981335 },
+    { "lat": -8.0599971, "lon": -34.8981224 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "1",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-902",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 315073902,
+  "bounds": {
+    "minlat": -8.0593973,
+    "minlon": -34.8980755,
+    "maxlat": -8.0589148,
+    "maxlon": -34.8980340
+  },
+  "nodes": [
+    1430717732,
+    3228683687
+  ],
+  "geometry": [
+    { "lat": -8.0589148, "lon": -34.8980755 },
+    { "lat": -8.0593973, "lon": -34.8980340 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "5",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50070-255",
+    "ref": "PE-015",
+    "sidewalk": "left",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 315073904,
+  "bounds": {
+    "minlat": -8.0588762,
+    "minlon": -34.8977436,
+    "maxlat": -8.0566508,
+    "maxlon": -34.8977080
+  },
+  "nodes": [
+    1430717734,
+    5732329317,
+    1443830922,
+    3245364893,
+    5732329262,
+    324277765
+  ],
+  "geometry": [
+    { "lat": -8.0588762, "lon": -34.8977436 },
+    { "lat": -8.0587695, "lon": -34.8977432 },
+    { "lat": -8.0574616, "lon": -34.8977345 },
+    { "lat": -8.0567749, "lon": -34.8977083 },
+    { "lat": -8.0567637, "lon": -34.8977083 },
+    { "lat": -8.0566508, "lon": -34.8977080 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
+    "ref": "PE-015",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 316707899,
+  "bounds": {
+    "minlat": -8.0623229,
+    "minlon": -34.8979996,
+    "maxlat": -8.0597383,
+    "maxlon": -34.8977331
+  },
+  "nodes": [
+    8945096394,
+    8957602299,
+    3245399338,
+    1462082586
+  ],
+  "geometry": [
+    { "lat": -8.0597383, "lon": -34.8979996 },
+    { "lat": -8.0610598, "lon": -34.8978665 },
+    { "lat": -8.0621503, "lon": -34.8977567 },
+    { "lat": -8.0623229, "lon": -34.8977331 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50070-255",
+    "ref": "PE-015",
+    "sidewalk": "left",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 316707900,
+  "bounds": {
+    "minlat": -8.0624199,
+    "minlon": -34.8975392,
+    "maxlat": -8.0606652,
+    "maxlon": -34.8973654
+  },
+  "nodes": [
+    1462082583,
+    7138295545,
+    1443827207
+  ],
+  "geometry": [
+    { "lat": -8.0624199, "lon": -34.8973654 },
+    { "lat": -8.0615339, "lon": -34.8974443 },
+    { "lat": -8.0606652, "lon": -34.8975392 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50070-255",
+    "ref": "PE-015",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 316707901,
+  "bounds": {
+    "minlat": -8.0620927,
+    "minlon": -34.8974619,
+    "maxlat": -8.0603942,
+    "maxlon": -34.8972668
+  },
+  "nodes": [
+    992019989,
+    8945112536
+  ],
+  "geometry": [
+    { "lat": -8.0620927, "lon": -34.8972668 },
+    { "lat": -8.0603942, "lon": -34.8974619 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "60",
+    "maxspeed:type": "sign",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-902",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 316972784,
+  "bounds": {
+    "minlat": -8.1063520,
+    "minlon": -34.9114672,
+    "maxlat": -8.1048761,
+    "maxlon": -34.9111646
+  },
+  "nodes": [
+    3208003038,
+    8944685401,
+    3243189826,
+    1428545119
+  ],
+  "geometry": [
+    { "lat": -8.1048761, "lon": -34.9111646 },
+    { "lat": -8.1062506, "lon": -34.9114485 },
+    { "lat": -8.1062642, "lon": -34.9114513 },
+    { "lat": -8.1063520, "lon": -34.9114672 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "3",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 316972785,
+  "bounds": {
+    "minlat": -8.0960861,
+    "minlon": -34.9290862,
+    "maxlat": -8.0940356,
+    "maxlon": -34.9288219
+  },
+  "nodes": [
+    3208003033,
+    1428560500,
+    3244644365,
+    7973888193,
+    2009727947
+  ],
+  "geometry": [
+    { "lat": -8.0940356, "lon": -34.9290862 },
+    { "lat": -8.0948415, "lon": -34.9289818 },
+    { "lat": -8.0956528, "lon": -34.9288717 },
+    { "lat": -8.0958185, "lon": -34.9288521 },
+    { "lat": -8.0960861, "lon": -34.9288219 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "50870-901",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 367517835,
+  "bounds": {
+    "minlat": -8.0658431,
+    "minlon": -34.8969925,
+    "maxlat": -8.0644355,
+    "maxlon": -34.8968060
+  },
+  "nodes": [
+    7014000425,
+    7014000423,
+    7014000426,
+    1430612769,
+    992020095
+  ],
+  "geometry": [
+    { "lat": -8.0658431, "lon": -34.8968060 },
+    { "lat": -8.0657846, "lon": -34.8968448 },
+    { "lat": -8.0656895, "lon": -34.8968797 },
+    { "lat": -8.0651496, "lon": -34.8969252 },
+    { "lat": -8.0644355, "lon": -34.8969925 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhães",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50070-255",
+    "sidewalk": "both",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 368075236,
+  "bounds": {
+    "minlat": -8.0442840,
+    "minlon": -34.8898546,
+    "maxlat": -8.0428481,
+    "maxlon": -34.8868391
+  },
+  "nodes": [
+    1416855829,
+    7046669456,
+    7046543191,
+    7046543192
+  ],
+  "geometry": [
+    { "lat": -8.0442840, "lon": -34.8898546 },
+    { "lat": -8.0439396, "lon": -34.8892427 },
+    { "lat": -8.0432149, "lon": -34.8876612 },
+    { "lat": -8.0428481, "lon": -34.8868391 }
+  ],
+  "tags": {
+    "cycleway:left": "opposite_lane",
+    "highway": "residential",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52020-000",
+    "source:postal_code": "CNEFE"
+  }
+},
+{
+  "type": "way",
+  "id": 375748960,
+  "bounds": {
+    "minlat": -8.0603778,
+    "minlon": -34.8982837,
+    "maxlat": -8.0603665,
+    "maxlon": -34.8980782
+  },
+  "nodes": [
+    3790964031,
+    11643263483,
+    3790964032
+  ],
+  "geometry": [
+    { "lat": -8.0603665, "lon": -34.8982837 },
+    { "lat": -8.0603742, "lon": -34.8981439 },
+    { "lat": -8.0603778, "lon": -34.8980782 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "postal_code": "50070-255",
+    "source:postal_code": "CNEFE"
+  }
+},
+{
+  "type": "way",
+  "id": 383930074,
+  "bounds": {
+    "minlat": -8.0451346,
+    "minlon": -34.8854372,
+    "maxlat": -8.0449275,
+    "maxlon": -34.8851930
+  },
+  "nodes": [
+    3872343849,
+    3872343871,
+    3872343866,
+    3872343828,
+    3872343822,
+    7080212879,
+    3872343761,
+    3872343825,
+    3872343849
+  ],
+  "geometry": [
+    { "lat": -8.0450625, "lon": -34.8851930 },
+    { "lat": -8.0451346, "lon": -34.8852445 },
+    { "lat": -8.0450714, "lon": -34.8853347 },
+    { "lat": -8.0450392, "lon": -34.8853806 },
+    { "lat": -8.0449996, "lon": -34.8854372 },
+    { "lat": -8.0449275, "lon": -34.8853857 },
+    { "lat": -8.0449645, "lon": -34.8853329 },
+    { "lat": -8.0450270, "lon": -34.8852437 },
+    { "lat": -8.0450625, "lon": -34.8851930 }
+  ],
+  "tags": {
+    "addr:city": "Recife",
+    "addr:housenumber": "35",
+    "addr:postcode": "50100-420",
+    "addr:street": "Rua Tamoios",
+    "addr:suburb": "Santo Amaro",
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Restaurante Popular Naíde Teodósio",
+    "source": "Prefeitura do Recife"
+  }
+},
+{
+  "type": "way",
+  "id": 384770616,
+  "bounds": {
+    "minlat": -8.0540350,
+    "minlon": -34.8975693,
+    "maxlat": -8.0530885,
+    "maxlon": -34.8968120
+  },
+  "nodes": [
+    3790995234,
+    6059098744,
+    5732329299,
+    9911626300,
+    3881251421,
+    3790995242,
+    3790995234
+  ],
+  "geometry": [
+    { "lat": -8.0530885, "lon": -34.8970445 },
+    { "lat": -8.0532037, "lon": -34.8968911 },
+    { "lat": -8.0532814, "lon": -34.8968120 },
+    { "lat": -8.0534388, "lon": -34.8969300 },
+    { "lat": -8.0540350, "lon": -34.8973739 },
+    { "lat": -8.0537950, "lon": -34.8975693 },
+    { "lat": -8.0530885, "lon": -34.8970445 }
+  ],
+  "tags": {
+    "amenity": "parking",
+    "name": "Hospital da Restauração",
+    "parking": "surface"
+  }
+},
+{
+  "type": "way",
+  "id": 428111860,
+  "bounds": {
+    "minlat": -8.0973375,
+    "minlon": -34.9288533,
+    "maxlat": -8.0962462,
+    "maxlon": -34.9287338
+  },
+  "nodes": [
+    2009726676,
+    11918684325,
+    4272549417,
+    6058281557,
+    5612511455,
+    4272549405,
+    6779686552,
+    7266992281
+  ],
+  "geometry": [
+    { "lat": -8.0962462, "lon": -34.9288078 },
+    { "lat": -8.0963486, "lon": -34.9288253 },
+    { "lat": -8.0965782, "lon": -34.9288489 },
+    { "lat": -8.0966491, "lon": -34.9288521 },
+    { "lat": -8.0967057, "lon": -34.9288533 },
+    { "lat": -8.0967597, "lon": -34.9288485 },
+    { "lat": -8.0971952, "lon": -34.9287621 },
+    { "lat": -8.0973375, "lon": -34.9287338 }
+  ],
+  "tags": {
+    "highway": "service",
+    "name": "Acesso ao Bompreço Avenida Recife",
+    "oneway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 428111862,
+  "bounds": {
+    "minlat": -8.0968534,
+    "minlon": -34.9295620,
+    "maxlat": -8.0967815,
+    "maxlon": -34.9295105
+  },
+  "nodes": [
+    4272549423,
+    11918684305,
+    4272549424
+  ],
+  "geometry": [
+    { "lat": -8.0967815, "lon": -34.9295620 },
+    { "lat": -8.0968181, "lon": -34.9295366 },
+    { "lat": -8.0968534, "lon": -34.9295105 }
+  ],
+  "tags": {
+    "highway": "service",
+    "name": "Acesso ao Walmart Avenida Recife",
+    "oneway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 428111863,
+  "bounds": {
+    "minlat": -8.0968050,
+    "minlon": -34.9295182,
+    "maxlat": -8.0967412,
+    "maxlon": -34.9294572
+  },
+  "nodes": [
+    4272549425,
+    6779686545,
+    5612511456
+  ],
+  "geometry": [
+    { "lat": -8.0968050, "lon": -34.9294572 },
+    { "lat": -8.0967801, "lon": -34.9294805 },
+    { "lat": -8.0967412, "lon": -34.9295182 }
+  ],
+  "tags": {
+    "highway": "service",
+    "name": "Saida Walmart Avenida Recife",
+    "oneway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 436027543,
+  "bounds": {
+    "minlat": -8.0524984,
+    "minlon": -34.8955919,
+    "maxlat": -8.0515867,
+    "maxlon": -34.8949340
+  },
+  "nodes": [
+    324277769,
+    6534512357,
+    3258965771,
+    1416847666
+  ],
+  "geometry": [
+    { "lat": -8.0524984, "lon": -34.8955919 },
+    { "lat": -8.0517168, "lon": -34.8950287 },
+    { "lat": -8.0516935, "lon": -34.8950122 },
+    { "lat": -8.0515867, "lon": -34.8949340 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Agamenon Magalhães- Pista Central",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
+    "ref": "PE-015",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 547074761,
+  "bounds": {
+    "minlat": -8.0637229,
+    "minlon": -34.8972241,
+    "maxlat": -8.0624572,
+    "maxlon": -34.8970678
+  },
+  "nodes": [
+    1425838077,
+    7272017261,
+    3245399342,
+    1002219328
+  ],
+  "geometry": [
+    { "lat": -8.0637229, "lon": -34.8970678 },
+    { "lat": -8.0636916, "lon": -34.8970725 },
+    { "lat": -8.0626205, "lon": -34.8972066 },
+    { "lat": -8.0624572, "lon": -34.8972241 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "60",
+    "maxspeed:type": "sign",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50070-255",
+    "sidewalk": "right",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 647530694,
+  "bounds": {
+    "minlat": -8.1310909,
+    "minlon": -34.9157235,
+    "maxlat": -8.1289396,
+    "maxlon": -34.9153141
+  },
+  "nodes": [
+    7066940229,
+    1428455255,
+    1428455258,
+    6080962398,
+    6080962399,
+    1428455263,
+    1428455271,
+    6399708815,
+    1731732661,
+    1428455275,
+    1428455284,
+    6080962400,
+    6080962401
+  ],
+  "geometry": [
+    { "lat": -8.1310909, "lon": -34.9157235 },
+    { "lat": -8.1307794, "lon": -34.9154638 },
+    { "lat": -8.1306186, "lon": -34.9153623 },
+    { "lat": -8.1305158, "lon": -34.9153265 },
+    { "lat": -8.1304055, "lon": -34.9153141 },
+    { "lat": -8.1303129, "lon": -34.9153170 },
+    { "lat": -8.1300662, "lon": -34.9153800 },
+    { "lat": -8.1300199, "lon": -34.9153975 },
+    { "lat": -8.1297819, "lon": -34.9154815 },
+    { "lat": -8.1295509, "lon": -34.9155653 },
+    { "lat": -8.1294235, "lon": -34.9155888 },
+    { "lat": -8.1292436, "lon": -34.9155882 },
+    { "lat": -8.1289396, "lon": -34.9155719 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 649773217,
+  "bounds": {
+    "minlat": -8.1197509,
+    "minlon": -34.9140874,
+    "maxlat": -8.1161820,
+    "maxlon": -34.9134037
+  },
+  "nodes": [
+    1737263987,
+    7202200984,
+    6211997244,
+    7202200985,
+    1737448715,
+    9016034939,
+    7228321993,
+    1737241448,
+    6198207562,
+    1745084814,
+    1552752243
+  ],
+  "geometry": [
+    { "lat": -8.1161820, "lon": -34.9134037 },
+    { "lat": -8.1162780, "lon": -34.9134251 },
+    { "lat": -8.1164392, "lon": -34.9134611 },
+    { "lat": -8.1166839, "lon": -34.9135157 },
+    { "lat": -8.1172735, "lon": -34.9136496 },
+    { "lat": -8.1177841, "lon": -34.9137450 },
+    { "lat": -8.1183479, "lon": -34.9138504 },
+    { "lat": -8.1186007, "lon": -34.9138974 },
+    { "lat": -8.1192590, "lon": -34.9140050 },
+    { "lat": -8.1193969, "lon": -34.9140282 },
+    { "lat": -8.1197509, "lon": -34.9140874 }
+  ],
+  "tags": {
+    "alt_name": "Rua Joaquim Pinheiro",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 649802742,
+  "bounds": {
+    "minlat": -8.1080589,
+    "minlon": -34.9319740,
+    "maxlat": -8.1079120,
+    "maxlon": -34.9314152
+  },
+  "nodes": [
+    7043852090,
+    6097790116,
+    2317366840
+  ],
+  "geometry": [
+    { "lat": -8.1080589, "lon": -34.9319740 },
+    { "lat": -8.1079558, "lon": -34.9315795 },
+    { "lat": -8.1079120, "lon": -34.9314152 }
+  ],
+  "tags": {
+    "alt_name": "Rua Meridiano",
+    "cycleway:left": "lane",
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "40",
+    "name": "Avenida Dom Hélder Câmara",
+    "oneway": "yes",
+    "oneway:bicycle": "yes",
+    "postal_code": "51220-120",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 649802743,
+  "bounds": {
+    "minlat": -8.1091524,
+    "minlon": -34.9352269,
+    "maxlat": -8.1080589,
+    "maxlon": -34.9319740
+  },
+  "nodes": [
+    1493619771,
+    4272548958,
+    7250954156,
+    1493619776,
+    7246515538,
+    1493619779,
+    7043852095,
+    1493619759,
+    1745738140,
+    6124991391,
+    7043852094,
+    1493619789,
+    7043852093,
+    7043852092,
+    7043852091,
+    7043852090
+  ],
+  "geometry": [
+    { "lat": -8.1091524, "lon": -34.9352269 },
+    { "lat": -8.1091142, "lon": -34.9351703 },
+    { "lat": -8.1090977, "lon": -34.9351445 },
+    { "lat": -8.1090425, "lon": -34.9350583 },
+    { "lat": -8.1089518, "lon": -34.9349177 },
+    { "lat": -8.1088825, "lon": -34.9348102 },
+    { "lat": -8.1088022, "lon": -34.9346593 },
+    { "lat": -8.1087498, "lon": -34.9345346 },
+    { "lat": -8.1086621, "lon": -34.9341939 },
+    { "lat": -8.1086535, "lon": -34.9341604 },
+    { "lat": -8.1085659, "lon": -34.9338178 },
+    { "lat": -8.1084729, "lon": -34.9334845 },
+    { "lat": -8.1084214, "lon": -34.9332923 },
+    { "lat": -8.1082884, "lon": -34.9328022 },
+    { "lat": -8.1081787, "lon": -34.9323909 },
+    { "lat": -8.1080589, "lon": -34.9319740 }
+  ],
+  "tags": {
+    "cycleway:left": "lane",
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "40",
+    "name": "Avenida Dom Hélder Câmara",
+    "oneway": "yes",
+    "oneway:bicycle": "yes",
+    "postal_code": "51220-120",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 656032038,
+  "bounds": {
+    "minlat": -8.0962462,
+    "minlon": -34.9288219,
+    "maxlat": -8.0960861,
+    "maxlon": -34.9288078
+  },
+  "nodes": [
+    2009727947,
+    2009726679,
+    2009726676
+  ],
+  "geometry": [
+    { "lat": -8.0960861, "lon": -34.9288219 },
+    { "lat": -8.0961325, "lon": -34.9288195 },
+    { "lat": -8.0962462, "lon": -34.9288078 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "50870-800",
+    "source:postal_code": "CNEFE"
+  }
+},
+{
+  "type": "way",
+  "id": 688310539,
+  "bounds": {
+    "minlat": -8.1099159,
+    "minlon": -34.9182496,
+    "maxlat": -8.1085846,
+    "maxlon": -34.9167285
+  },
+  "nodes": [
+    1493638095,
+    10136538147,
+    1678991169,
+    2633214342,
+    10136538129,
+    1428544937
+  ],
+  "geometry": [
+    { "lat": -8.1099159, "lon": -34.9182496 },
+    { "lat": -8.1098661, "lon": -34.9181891 },
+    { "lat": -8.1089912, "lon": -34.9171811 },
+    { "lat": -8.1087877, "lon": -34.9169546 },
+    { "lat": -8.1086340, "lon": -34.9167835 },
+    { "lat": -8.1085846, "lon": -34.9167285 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "4",
+    "name": "Rua Jean Emile Favre",
+    "oneway": "no",
+    "postal_code": "51190-450",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 700013819,
+  "bounds": {
+    "minlat": -8.0606652,
+    "minlon": -34.8977436,
+    "maxlat": -8.0588762,
+    "maxlon": -34.8975392
+  },
+  "nodes": [
+    1443827207,
+    3245364908,
+    1430717734
+  ],
+  "geometry": [
+    { "lat": -8.0606652, "lon": -34.8975392 },
+    { "lat": -8.0590758, "lon": -34.8977336 },
+    { "lat": -8.0588762, "lon": -34.8977436 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50070-255",
+    "ref": "PE-015",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 700013820,
+  "bounds": {
+    "minlat": -8.0602382,
+    "minlon": -34.8976430,
+    "maxlat": -8.0588647,
+    "maxlon": -34.8974793
+  },
+  "nodes": [
+    1443827218,
+    1443788041,
+    3245364907,
+    1430717737
+  ],
+  "geometry": [
+    { "lat": -8.0602382, "lon": -34.8974793 },
+    { "lat": -8.0601356, "lon": -34.8974928 },
+    { "lat": -8.0590740, "lon": -34.8976194 },
+    { "lat": -8.0588647, "lon": -34.8976430 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "60",
+    "maxspeed:type": "sign",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-902",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 700013821,
+  "bounds": {
+    "minlat": -8.0571458,
+    "minlon": -34.8976215,
+    "maxlat": -8.0566363,
+    "maxlon": -34.8976038
+  },
+  "nodes": [
+    1443830920,
+    3245364894,
+    5732329263,
+    1418601102
+  ],
+  "geometry": [
+    { "lat": -8.0571458, "lon": -34.8976215 },
+    { "lat": -8.0567935, "lon": -34.8976137 },
+    { "lat": -8.0567551, "lon": -34.8976117 },
+    { "lat": -8.0566363, "lon": -34.8976038 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-902",
+    "sidewalk:left": "no",
+    "sidewalk:right": "yes",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 704218852,
+  "bounds": {
+    "minlat": -8.0639641,
+    "minlon": -34.8973654,
+    "maxlat": -8.0624199,
+    "maxlon": -34.8971829
+  },
+  "nodes": [
+    8192178947,
+    7239117665,
+    7239117666,
+    3245399341,
+    1462082583
+  ],
+  "geometry": [
+    { "lat": -8.0639641, "lon": -34.8971829 },
+    { "lat": -8.0639267, "lon": -34.8971875 },
+    { "lat": -8.0636068, "lon": -34.8972273 },
+    { "lat": -8.0626121, "lon": -34.8973446 },
+    { "lat": -8.0624199, "lon": -34.8973654 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhãe",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50070-425",
+    "ref": "PE-015",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 704220892,
+  "bounds": {
+    "minlat": -8.0485921,
+    "minlon": -34.8930457,
+    "maxlat": -8.0471439,
+    "maxlon": -34.8919054
+  },
+  "nodes": [
+    12412171623,
+    5222109494,
+    3251108970,
+    1416859225
+  ],
+  "geometry": [
+    { "lat": -8.0471439, "lon": -34.8919054 },
+    { "lat": -8.0479682, "lon": -34.8925554 },
+    { "lat": -8.0484647, "lon": -34.8929456 },
+    { "lat": -8.0485921, "lon": -34.8930457 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52020-000",
+    "ref": "PE-015",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 704220893,
+  "bounds": {
+    "minlat": -8.0566448,
+    "minlon": -34.8981057,
+    "maxlat": -8.0540344,
+    "maxlon": -34.8971391
+  },
+  "nodes": [
+    7016708010,
+    7352232390,
+    7352232392,
+    1462091602,
+    7352232391,
+    324278740,
+    324278741,
+    3790964026,
+    1421511146,
+    324278742,
+    3245364889,
+    5673935514,
+    1422749971
+  ],
+  "geometry": [
+    { "lat": -8.0540344, "lon": -34.8971391 },
+    { "lat": -8.0546144, "lon": -34.8975454 },
+    { "lat": -8.0547564, "lon": -34.8976449 },
+    { "lat": -8.0547894, "lon": -34.8976680 },
+    { "lat": -8.0549922, "lon": -34.8977908 },
+    { "lat": -8.0551023, "lon": -34.8978501 },
+    { "lat": -8.0553548, "lon": -34.8979573 },
+    { "lat": -8.0555256, "lon": -34.8980124 },
+    { "lat": -8.0557092, "lon": -34.8980446 },
+    { "lat": -8.0560763, "lon": -34.8980879 },
+    { "lat": -8.0564587, "lon": -34.8980997 },
+    { "lat": -8.0565682, "lon": -34.8981032 },
+    { "lat": -8.0566448, "lon": -34.8981057 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
+    "ref": "PE-015",
+    "sidewalk": "left",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 704220894,
+  "bounds": {
+    "minlat": -8.0559051,
+    "minlon": -34.8982043,
+    "maxlat": -8.0543722,
+    "maxlon": -34.8975190
+  },
+  "nodes": [
+    3224207506,
+    2633213639,
+    7352232393,
+    1462091590,
+    6000901538,
+    1036684698,
+    6000901539,
+    1036684699,
+    3790964022,
+    1036684700
+  ],
+  "geometry": [
+    { "lat": -8.0543722, "lon": -34.8975190 },
+    { "lat": -8.0545980, "lon": -34.8976961 },
+    { "lat": -8.0546772, "lon": -34.8977582 },
+    { "lat": -8.0547784, "lon": -34.8978376 },
+    { "lat": -8.0549508, "lon": -34.8979290 },
+    { "lat": -8.0550741, "lon": -34.8979860 },
+    { "lat": -8.0552704, "lon": -34.8980797 },
+    { "lat": -8.0554507, "lon": -34.8981332 },
+    { "lat": -8.0556687, "lon": -34.8981707 },
+    { "lat": -8.0559051, "lon": -34.8982043 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 704220897,
+  "bounds": {
+    "minlat": -8.0524581,
+    "minlon": -34.8954512,
+    "maxlat": -8.0516526,
+    "maxlon": -34.8948725
+  },
+  "nodes": [
+    7556782215,
+    3258965774,
+    6534512358,
+    3258965773,
+    1443846288
+  ],
+  "geometry": [
+    { "lat": -8.0524581, "lon": -34.8954512 },
+    { "lat": -8.0519319, "lon": -34.8950759 },
+    { "lat": -8.0517681, "lon": -34.8949669 },
+    { "lat": -8.0517459, "lon": -34.8949522 },
+    { "lat": -8.0516526, "lon": -34.8948725 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "60",
+    "maxspeed:type": "sign",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-904",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 705991869,
+  "bounds": {
+    "minlat": -8.0589378,
+    "minlon": -34.8982326,
+    "maxlat": -8.0583245,
+    "maxlon": -34.8982092
+  },
+  "nodes": [
+    1036684681,
+    3245364904,
+    5732329315,
+    1036684678
+  ],
+  "geometry": [
+    { "lat": -8.0583245, "lon": -34.8982326 },
+    { "lat": -8.0587224, "lon": -34.8982212 },
+    { "lat": -8.0588444, "lon": -34.8982161 },
+    { "lat": -8.0589378, "lon": -34.8982092 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-904",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 707010073,
+  "bounds": {
+    "minlat": -8.1252226,
+    "minlon": -34.9149391,
+    "maxlat": -8.1232019,
+    "maxlon": -34.9145464
+  },
+  "nodes": [
+    1428449646,
+    7972173319,
+    9016993147,
+    6200421991,
+    9016993143,
+    6200421992,
+    1428447810
+  ],
+  "geometry": [
+    { "lat": -8.1252226, "lon": -34.9149391 },
+    { "lat": -8.1250543, "lon": -34.9149064 },
+    { "lat": -8.1246309, "lon": -34.9148241 },
+    { "lat": -8.1244571, "lon": -34.9147903 },
+    { "lat": -8.1242899, "lon": -34.9147578 },
+    { "lat": -8.1239739, "lon": -34.9146964 },
+    { "lat": -8.1232019, "lon": -34.9145464 }
+  ],
+  "tags": {
+    "alt_name": "Rua Joaquim Pinheiro",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 707010074,
+  "bounds": {
+    "minlat": -8.1232019,
+    "minlon": -34.9145464,
+    "maxlat": -8.1198586,
+    "maxlon": -34.9139186
+  },
+  "nodes": [
+    1428447810,
+    1737263873,
+    6057986998,
+    3243189990,
+    6057986995,
+    7202200989,
+    6057986994,
+    7202194683,
+    5600340315,
+    7222705638,
+    5927914292,
+    1428451194
+  ],
+  "geometry": [
+    { "lat": -8.1232019, "lon": -34.9145464 },
+    { "lat": -8.1217415, "lon": -34.9142722 },
+    { "lat": -8.1211274, "lon": -34.9141569 },
+    { "lat": -8.1209215, "lon": -34.9141182 },
+    { "lat": -8.1208860, "lon": -34.9141115 },
+    { "lat": -8.1208649, "lon": -34.9141076 },
+    { "lat": -8.1208131, "lon": -34.9140976 },
+    { "lat": -8.1206218, "lon": -34.9140619 },
+    { "lat": -8.1206077, "lon": -34.9140592 },
+    { "lat": -8.1202765, "lon": -34.9139971 },
+    { "lat": -8.1199802, "lon": -34.9139414 },
+    { "lat": -8.1198586, "lon": -34.9139186 }
+  ],
+  "tags": {
+    "alt_name": "Rua Joaquim Pinheiro",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 707010092,
+  "bounds": {
+    "minlat": -8.1234524,
+    "minlon": -34.9147850,
+    "maxlat": -8.1223041,
+    "maxlon": -34.9145400
+  },
+  "nodes": [
+    1428449205,
+    6591677992
+  ],
+  "geometry": [
+    { "lat": -8.1223041, "lon": -34.9145400 },
+    { "lat": -8.1234524, "lon": -34.9147850 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Des José Neves",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "5",
+    "lit": "yes",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 707010093,
+  "bounds": {
+    "minlat": -8.1344452,
+    "minlon": -34.9167132,
+    "maxlat": -8.1234524,
+    "maxlon": -34.9147850
+  },
+  "nodes": [
+    6591677992,
+    1428449186,
+    1428447836,
+    2633214193,
+    10136525118,
+    8936311443,
+    1737233045,
+    6009790642,
+    2633214194,
+    7395489553,
+    3243190015,
+    9016993148,
+    7066654826,
+    1428447827,
+    5556604891,
+    1737233051,
+    9017131072,
+    9017131074,
+    6080962319,
+    1641510105,
+    1428469772,
+    6353073346,
+    1428469771,
+    1552880497,
+    3251152082,
+    8252703309,
+    5556604888,
+    2633214195,
+    6009790643,
+    1552880522
+  ],
+  "geometry": [
+    { "lat": -8.1234524, "lon": -34.9147850 },
+    { "lat": -8.1238871, "lon": -34.9148777 },
+    { "lat": -8.1242229, "lon": -34.9149453 },
+    { "lat": -8.1246800, "lon": -34.9150329 },
+    { "lat": -8.1253562, "lon": -34.9151507 },
+    { "lat": -8.1253849, "lon": -34.9151557 },
+    { "lat": -8.1260822, "lon": -34.9152914 },
+    { "lat": -8.1264469, "lon": -34.9153550 },
+    { "lat": -8.1272074, "lon": -34.9154669 },
+    { "lat": -8.1274185, "lon": -34.9154979 },
+    { "lat": -8.1275630, "lon": -34.9155192 },
+    { "lat": -8.1276466, "lon": -34.9155352 },
+    { "lat": -8.1280109, "lon": -34.9156049 },
+    { "lat": -8.1280653, "lon": -34.9156170 },
+    { "lat": -8.1284892, "lon": -34.9156981 },
+    { "lat": -8.1286331, "lon": -34.9157226 },
+    { "lat": -8.1288825, "lon": -34.9157623 },
+    { "lat": -8.1290189, "lon": -34.9157840 },
+    { "lat": -8.1290466, "lon": -34.9157884 },
+    { "lat": -8.1295944, "lon": -34.9158785 },
+    { "lat": -8.1306066, "lon": -34.9160520 },
+    { "lat": -8.1307539, "lon": -34.9160836 },
+    { "lat": -8.1309797, "lon": -34.9161213 },
+    { "lat": -8.1316881, "lon": -34.9162267 },
+    { "lat": -8.1325136, "lon": -34.9163642 },
+    { "lat": -8.1325827, "lon": -34.9163760 },
+    { "lat": -8.1326122, "lon": -34.9163810 },
+    { "lat": -8.1333672, "lon": -34.9165179 },
+    { "lat": -8.1334507, "lon": -34.9165330 },
+    { "lat": -8.1344452, "lon": -34.9167132 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Des José Neves",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxheight": "default",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 722757400,
+  "bounds": {
+    "minlat": -8.0969989,
+    "minlon": -34.9305654,
+    "maxlat": -8.0871564,
+    "maxlon": -34.9285552
+  },
+  "nodes": [
+    3208003035,
+    7973888192,
+    3244644366,
+    2081499647,
+    7973888194,
+    1713489480,
+    3208003032,
+    3243189782,
+    7973888195,
+    13826233368,
+    11914548753,
+    13826233369,
+    2020463709,
+    1713489491,
+    7973888196,
+    3243189560,
+    7191422767,
+    1713489486,
+    7191422768,
+    1713493374,
+    1713489482,
+    1713489485,
+    1428555740,
+    324724332,
+    1428556511,
+    1428551215
+  ],
+  "geometry": [
+    { "lat": -8.0969989, "lon": -34.9285552 },
+    { "lat": -8.0958127, "lon": -34.9287315 },
+    { "lat": -8.0957366, "lon": -34.9287424 },
+    { "lat": -8.0954387, "lon": -34.9287853 },
+    { "lat": -8.0950325, "lon": -34.9288415 },
+    { "lat": -8.0941633, "lon": -34.9289619 },
+    { "lat": -8.0939706, "lon": -34.9289842 },
+    { "lat": -8.0926340, "lon": -34.9291772 },
+    { "lat": -8.0921642, "lon": -34.9292422 },
+    { "lat": -8.0910367, "lon": -34.9293983 },
+    { "lat": -8.0910014, "lon": -34.9294032 },
+    { "lat": -8.0909601, "lon": -34.9294089 },
+    { "lat": -8.0908614, "lon": -34.9294226 },
+    { "lat": -8.0895508, "lon": -34.9296062 },
+    { "lat": -8.0894960, "lon": -34.9296139 },
+    { "lat": -8.0888989, "lon": -34.9296980 },
+    { "lat": -8.0887296, "lon": -34.9297187 },
+    { "lat": -8.0885444, "lon": -34.9297569 },
+    { "lat": -8.0884036, "lon": -34.9297864 },
+    { "lat": -8.0882755, "lon": -34.9298166 },
+    { "lat": -8.0881228, "lon": -34.9298736 },
+    { "lat": -8.0879595, "lon": -34.9299480 },
+    { "lat": -8.0877698, "lon": -34.9300680 },
+    { "lat": -8.0876842, "lon": -34.9301278 },
+    { "lat": -8.0874443, "lon": -34.9303088 },
+    { "lat": -8.0871564, "lon": -34.9305654 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "50781-000",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 750224855,
+  "bounds": {
+    "minlat": -8.0489622,
+    "minlon": -34.8927443,
+    "maxlat": -8.0488122,
+    "maxlon": -34.8926502
+  },
+  "nodes": [
+    1416857003,
+    12412171627,
+    2152849234
+  ],
+  "geometry": [
+    { "lat": -8.0489622, "lon": -34.8927443 },
+    { "lat": -8.0489035, "lon": -34.8927109 },
+    { "lat": -8.0488122, "lon": -34.8926502 }
+  ],
+  "tags": {
+    "alt_name": "Parca Odilia Freire Dos Santos",
+    "cycleway:right": "lane",
+    "highway": "secondary",
+    "lanes": "2",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "note": "There is a slight spelling difference between the IBGE data (Avenida Governador Agamenon Magalhaes) and the OSM data (Avenida Agamenon Magalhaes-Pista local)",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "postal_code": "52021-900",
+    "source:postal_code": "CNEFE",
+    "surface": "paved"
+  }
+},
+{
+  "type": "way",
+  "id": 761542910,
+  "bounds": {
+    "minlat": -8.1133005,
+    "minlon": -34.9221056,
+    "maxlat": -8.1112369,
+    "maxlon": -34.9197527
+  },
+  "nodes": [
+    1641479133,
+    10136534716,
+    1641491414,
+    1493634775,
+    1641494044,
+    1641479335,
+    1641497968,
+    10136534699,
+    1641498226,
+    8945112212,
+    8945112211,
+    2633214339,
+    8945112210,
+    10136481790,
+    1553380967
+  ],
+  "geometry": [
+    { "lat": -8.1133005, "lon": -34.9221056 },
+    { "lat": -8.1132191, "lon": -34.9220128 },
+    { "lat": -8.1129805, "lon": -34.9217408 },
+    { "lat": -8.1128536, "lon": -34.9215961 },
+    { "lat": -8.1126857, "lon": -34.9214046 },
+    { "lat": -8.1124914, "lon": -34.9211831 },
+    { "lat": -8.1123779, "lon": -34.9210537 },
+    { "lat": -8.1121423, "lon": -34.9207850 },
+    { "lat": -8.1120492, "lon": -34.9206789 },
+    { "lat": -8.1118357, "lon": -34.9204355 },
+    { "lat": -8.1116649, "lon": -34.9202408 },
+    { "lat": -8.1115865, "lon": -34.9201514 },
+    { "lat": -8.1114986, "lon": -34.9200512 },
+    { "lat": -8.1112903, "lon": -34.9198136 },
+    { "lat": -8.1112369, "lon": -34.9197527 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "4",
+    "name": "Rua Jean Emile Favre",
+    "oneway": "no",
+    "postal_code": "51190-450",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 761542911,
+  "bounds": {
+    "minlat": -8.1075955,
+    "minlon": -34.9115484,
+    "maxlat": -8.0966337,
+    "maxlon": -34.9096524
+  },
+  "nodes": [
+    1428545122,
+    7202200960,
+    9016034957,
+    7202200904,
+    3243189827,
+    8944685400,
+    6097154819,
+    3257062810,
+    3627412583,
+    3208003037,
+    7202200955,
+    1684188183,
+    6200641732,
+    7202200950,
+    3243189816,
+    7202200906,
+    6200641728,
+    7261325402,
+    3255177127,
+    324728338,
+    1684190253,
+    7202200907,
+    7202200939,
+    1684193321,
+    3257062807,
+    1651168807,
+    6094466082,
+    7260599467,
+    3208003039
+  ],
+  "geometry": [
+    { "lat": -8.1075955, "lon": -34.9115484 },
+    { "lat": -8.1075013, "lon": -34.9115291 },
+    { "lat": -8.1071622, "lon": -34.9114598 },
+    { "lat": -8.1067433, "lon": -34.9113741 },
+    { "lat": -8.1062789, "lon": -34.9112791 },
+    { "lat": -8.1062699, "lon": -34.9112773 },
+    { "lat": -8.1061199, "lon": -34.9112467 },
+    { "lat": -8.1050163, "lon": -34.9110215 },
+    { "lat": -8.1049790, "lon": -34.9110129 },
+    { "lat": -8.1048990, "lon": -34.9109959 },
+    { "lat": -8.1048010, "lon": -34.9109759 },
+    { "lat": -8.1037496, "lon": -34.9107707 },
+    { "lat": -8.1035159, "lon": -34.9107253 },
+    { "lat": -8.1033885, "lon": -34.9106981 },
+    { "lat": -8.1033346, "lon": -34.9106872 },
+    { "lat": -8.1028196, "lon": -34.9105811 },
+    { "lat": -8.1027041, "lon": -34.9105603 },
+    { "lat": -8.1018158, "lon": -34.9103945 },
+    { "lat": -8.1017375, "lon": -34.9103799 },
+    { "lat": -8.1003567, "lon": -34.9101321 },
+    { "lat": -8.0989802, "lon": -34.9100238 },
+    { "lat": -8.0989416, "lon": -34.9100201 },
+    { "lat": -8.0986834, "lon": -34.9099955 },
+    { "lat": -8.0986085, "lon": -34.9099883 },
+    { "lat": -8.0985480, "lon": -34.9099825 },
+    { "lat": -8.0982841, "lon": -34.9099669 },
+    { "lat": -8.0978366, "lon": -34.9098931 },
+    { "lat": -8.0972246, "lon": -34.9097682 },
+    { "lat": -8.0966337, "lon": -34.9096524 }
+  ],
+  "tags": {
+    "alt_name": "Rua Projetada",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 764026177,
+  "bounds": {
+    "minlat": -8.0432300,
+    "minlon": -34.8851727,
+    "maxlat": -8.0429925,
+    "maxlon": -34.8846905
+  },
+  "nodes": [
+    1416849641,
+    1468884825,
+    1468884821
+  ],
+  "geometry": [
+    { "lat": -8.0429925, "lon": -34.8846905 },
+    { "lat": -8.0431541, "lon": -34.8850045 },
+    { "lat": -8.0432300, "lon": -34.8851727 }
+  ],
+  "tags": {
+    "cycleway:right": "lane",
+    "highway": "residential",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "note": "Pista Local",
+    "oneway": "yes",
+    "postal_code": "50110-000",
+    "source:postal_code": "CNEFE"
+  }
+},
+{
+  "type": "way",
+  "id": 764604822,
+  "bounds": {
+    "minlat": -8.1070996,
+    "minlon": -34.9280539,
+    "maxlat": -8.1070411,
+    "maxlon": -34.9276220
+  },
+  "nodes": [
+    7044603808,
+    1493651495,
+    7044460567
+  ],
+  "geometry": [
+    { "lat": -8.1070411, "lon": -34.9276220 },
+    { "lat": -8.1070737, "lon": -34.9278792 },
+    { "lat": -8.1070996, "lon": -34.9280539 }
+  ],
+  "tags": {
+    "alt_name": "Rua Medeiros Neto",
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "50",
+    "name": "Avenida Dom Hélder Câmara",
+    "oneway": "yes",
+    "postal_code": "51220-120",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 764604828,
+  "bounds": {
+    "minlat": -8.1193502,
+    "minlon": -34.9214323,
+    "maxlat": -8.1190819,
+    "maxlon": -34.9211407
+  },
+  "nodes": [
+    324726659,
+    1553378673,
+    324726660
+  ],
+  "geometry": [
+    { "lat": -8.1190819, "lon": -34.9214323 },
+    { "lat": -8.1191952, "lon": -34.9213178 },
+    { "lat": -8.1193502, "lon": -34.9211407 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Presidente Dutra",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "50860-000",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 771504825,
+  "bounds": {
+    "minlat": -8.1289396,
+    "minlon": -34.9155719,
+    "maxlat": -8.1252226,
+    "maxlon": -34.9149391
+  },
+  "nodes": [
+    6080962401,
+    1731732632,
+    9016993131,
+    5556604890,
+    10047090077,
+    7395489552,
+    3243190011,
+    7202194671,
+    9016993135,
+    10047033316,
+    1737233105,
+    1737233100,
+    1737233108,
+    7202194672,
+    8936311442,
+    10136525117,
+    1428449646
+  ],
+  "geometry": [
+    { "lat": -8.1289396, "lon": -34.9155719 },
+    { "lat": -8.1288106, "lon": -34.9155495 },
+    { "lat": -8.1286326, "lon": -34.9155186 },
+    { "lat": -8.1286021, "lon": -34.9155133 },
+    { "lat": -8.1280138, "lon": -34.9154072 },
+    { "lat": -8.1277900, "lon": -34.9153668 },
+    { "lat": -8.1277112, "lon": -34.9153526 },
+    { "lat": -8.1276042, "lon": -34.9153342 },
+    { "lat": -8.1274679, "lon": -34.9153126 },
+    { "lat": -8.1271128, "lon": -34.9152498 },
+    { "lat": -8.1267361, "lon": -34.9151852 },
+    { "lat": -8.1261945, "lon": -34.9151048 },
+    { "lat": -8.1256255, "lon": -34.9150108 },
+    { "lat": -8.1254286, "lon": -34.9149758 },
+    { "lat": -8.1254145, "lon": -34.9149733 },
+    { "lat": -8.1253107, "lon": -34.9149548 },
+    { "lat": -8.1252226, "lon": -34.9149391 }
+  ],
+  "tags": {
+    "alt_name": "Rua Joaquim Pinheiro",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 771504827,
+  "bounds": {
+    "minlat": -8.1175308,
+    "minlon": -34.9134815,
+    "maxlat": -8.1122376,
+    "maxlon": -34.9124482
+  },
+  "nodes": [
+    7202194684,
+    1745084826,
+    5902847513,
+    5902847516,
+    7202200983,
+    3243189973,
+    1428447838,
+    1745096695,
+    1737448713,
+    7202200979,
+    3243189965,
+    7202200902,
+    6197370072,
+    9048134784,
+    6094491567,
+    3243189852,
+    10136530594,
+    3122627519,
+    1737494284
+  ],
+  "geometry": [
+    { "lat": -8.1175308, "lon": -34.9134815 },
+    { "lat": -8.1174295, "lon": -34.9134617 },
+    { "lat": -8.1172355, "lon": -34.9134239 },
+    { "lat": -8.1164414, "lon": -34.9132688 },
+    { "lat": -8.1163072, "lon": -34.9132426 },
+    { "lat": -8.1162773, "lon": -34.9132368 },
+    { "lat": -8.1161805, "lon": -34.9132179 },
+    { "lat": -8.1157540, "lon": -34.9131347 },
+    { "lat": -8.1155199, "lon": -34.9130889 },
+    { "lat": -8.1151713, "lon": -34.9130209 },
+    { "lat": -8.1151260, "lon": -34.9130121 },
+    { "lat": -8.1144446, "lon": -34.9128790 },
+    { "lat": -8.1142110, "lon": -34.9128334 },
+    { "lat": -8.1139109, "lon": -34.9127748 },
+    { "lat": -8.1134697, "lon": -34.9126887 },
+    { "lat": -8.1125845, "lon": -34.9125159 },
+    { "lat": -8.1125478, "lon": -34.9125087 },
+    { "lat": -8.1124237, "lon": -34.9124845 },
+    { "lat": -8.1122376, "lon": -34.9124482 }
+  ],
+  "tags": {
+    "alt_name": "Rua Joaquim Pinheiro",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 772524562,
+  "bounds": {
+    "minlat": -8.0583245,
+    "minlon": -34.8982326,
+    "maxlat": -8.0574614,
+    "maxlon": -34.8982295
+  },
+  "nodes": [
+    5908100427,
+    1036684681
+  ],
+  "geometry": [
+    { "lat": -8.0574614, "lon": -34.8982295 },
+    { "lat": -8.0583245, "lon": -34.8982326 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-904",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 772547599,
+  "bounds": {
+    "minlat": -8.0589148,
+    "minlon": -34.8980866,
+    "maxlat": -8.0580120,
+    "maxlon": -34.8980755
+  },
+  "nodes": [
+    8945096395,
+    3245364905,
+    5732329316,
+    1430717732
+  ],
+  "geometry": [
+    { "lat": -8.0580120, "lon": -34.8980866 },
+    { "lat": -8.0587248, "lon": -34.8980786 },
+    { "lat": -8.0588398, "lon": -34.8980775 },
+    { "lat": -8.0589148, "lon": -34.8980755 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "5",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-904",
+    "ref": "PE-015",
+    "sidewalk": "left",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 775807190,
+  "bounds": {
+    "minlat": -8.1315044,
+    "minlon": -34.9160193,
+    "maxlat": -8.1289396,
+    "maxlon": -34.9155719
+  },
+  "nodes": [
+    1428455265,
+    6353073347,
+    6080962306,
+    1428455285,
+    6080962401
+  ],
+  "geometry": [
+    { "lat": -8.1315044, "lon": -34.9160193 },
+    { "lat": -8.1307805, "lon": -34.9158930 },
+    { "lat": -8.1297789, "lon": -34.9157182 },
+    { "lat": -8.1291035, "lon": -34.9156003 },
+    { "lat": -8.1289396, "lon": -34.9155719 }
+  ],
+  "tags": {
+    "alt_name": "Rua Joaquim Pinheiro",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxheight": "default",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 777105570,
+  "bounds": {
+    "minlat": -8.1075844,
+    "minlon": -34.9117098,
+    "maxlat": -8.1063520,
+    "maxlon": -34.9114672
+  },
+  "nodes": [
+    1428545119,
+    7202200957,
+    3243189832,
+    7202200961,
+    1428545120
+  ],
+  "geometry": [
+    { "lat": -8.1063520, "lon": -34.9114672 },
+    { "lat": -8.1072253, "lon": -34.9116377 },
+    { "lat": -8.1074141, "lon": -34.9116745 },
+    { "lat": -8.1074659, "lon": -34.9116852 },
+    { "lat": -8.1075844, "lon": -34.9117098 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "3",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 777105571,
+  "bounds": {
+    "minlat": -8.1153625,
+    "minlon": -34.9270139,
+    "maxlat": -8.1079672,
+    "maxlon": -34.9245116
+  },
+  "nodes": [
+    1553378622,
+    1641457475,
+    5975283311,
+    324724326,
+    324724327,
+    5975283310,
+    1553378670,
+    5975283306,
+    324724328,
+    1553378643,
+    8954751723,
+    1552441109,
+    7973888064,
+    5373032204,
+    9019409779,
+    1552441075,
+    1553395236,
+    7973888065,
+    1553395229,
+    1552441107,
+    1553395230,
+    1553394608,
+    9509508656,
+    3244644372,
+    1493632488
+  ],
+  "geometry": [
+    { "lat": -8.1153625, "lon": -34.9245116 },
+    { "lat": -8.1140574, "lon": -34.9256765 },
+    { "lat": -8.1139506, "lon": -34.9257719 },
+    { "lat": -8.1138306, "lon": -34.9258614 },
+    { "lat": -8.1136037, "lon": -34.9260098 },
+    { "lat": -8.1133300, "lon": -34.9261559 },
+    { "lat": -8.1131713, "lon": -34.9262167 },
+    { "lat": -8.1130532, "lon": -34.9262566 },
+    { "lat": -8.1129472, "lon": -34.9262843 },
+    { "lat": -8.1126278, "lon": -34.9263594 },
+    { "lat": -8.1125619, "lon": -34.9263697 },
+    { "lat": -8.1124019, "lon": -34.9263947 },
+    { "lat": -8.1117331, "lon": -34.9264882 },
+    { "lat": -8.1116151, "lon": -34.9265047 },
+    { "lat": -8.1115492, "lon": -34.9265133 },
+    { "lat": -8.1108456, "lon": -34.9266027 },
+    { "lat": -8.1103710, "lon": -34.9266755 },
+    { "lat": -8.1100537, "lon": -34.9267170 },
+    { "lat": -8.1098655, "lon": -34.9267396 },
+    { "lat": -8.1093875, "lon": -34.9267997 },
+    { "lat": -8.1089220, "lon": -34.9268666 },
+    { "lat": -8.1084208, "lon": -34.9269423 },
+    { "lat": -8.1080380, "lon": -34.9270018 },
+    { "lat": -8.1080257, "lon": -34.9270039 },
+    { "lat": -8.1079672, "lon": -34.9270139 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Presidente Dutra",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "51350-670",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 777105572,
+  "bounds": {
+    "minlat": -8.1079672,
+    "minlon": -34.9271612,
+    "maxlat": -8.1069699,
+    "maxlon": -34.9270139
+  },
+  "nodes": [
+    1493632488,
+    9509490899,
+    9509518160,
+    9509518159,
+    3243189831,
+    1493632483
+  ],
+  "geometry": [
+    { "lat": -8.1079672, "lon": -34.9270139 },
+    { "lat": -8.1078074, "lon": -34.9270380 },
+    { "lat": -8.1070416, "lon": -34.9271506 },
+    { "lat": -8.1070179, "lon": -34.9271544 },
+    { "lat": -8.1070010, "lon": -34.9271573 },
+    { "lat": -8.1069699, "lon": -34.9271612 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Presidente Dutra",
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "51350-670",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 786325345,
+  "bounds": {
+    "minlat": -8.0530671,
+    "minlon": -34.8966021,
+    "maxlat": -8.0525053,
+    "maxlon": -34.8962071
+  },
+  "nodes": [
+    1036684695,
+    7016670892,
+    3267111554,
+    8955309437
+  ],
+  "geometry": [
+    { "lat": -8.0525053, "lon": -34.8962071 },
+    { "lat": -8.0529219, "lon": -34.8964999 },
+    { "lat": -8.0529952, "lon": -34.8965514 },
+    { "lat": -8.0530671, "lon": -34.8966021 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
+    "sidewalk": "right",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 786325347,
+  "bounds": {
+    "minlat": -8.0566431,
+    "minlon": -34.8982174,
+    "maxlat": -8.0559051,
+    "maxlon": -34.8982034
+  },
+  "nodes": [
+    1036684700,
+    3872210241,
+    1462082589,
+    3872210337,
+    3245364890,
+    5673935513,
+    1422749957
+  ],
+  "geometry": [
+    { "lat": -8.0559051, "lon": -34.8982043 },
+    { "lat": -8.0559661, "lon": -34.8982034 },
+    { "lat": -8.0561416, "lon": -34.8982087 },
+    { "lat": -8.0563829, "lon": -34.8982097 },
+    { "lat": -8.0564894, "lon": -34.8982102 },
+    { "lat": -8.0565704, "lon": -34.8982138 },
+    { "lat": -8.0566431, "lon": -34.8982174 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 791161088,
+  "bounds": {
+    "minlat": -8.1216967,
+    "minlon": -34.9144343,
+    "maxlat": -8.1197509,
+    "maxlon": -34.9140874
+  },
+  "nodes": [
+    1552752243,
+    7202200991,
+    7202200986,
+    3257062838,
+    1737241441,
+    1428449175
+  ],
+  "geometry": [
+    { "lat": -8.1197509, "lon": -34.9140874 },
+    { "lat": -8.1205176, "lon": -34.9142256 },
+    { "lat": -8.1208251, "lon": -34.9142810 },
+    { "lat": -8.1208864, "lon": -34.9142921 },
+    { "lat": -8.1213753, "lon": -34.9143769 },
+    { "lat": -8.1216967, "lon": -34.9144343 }
+  ],
+  "tags": {
+    "alt_name": "Rua Joaquim Pinheiro",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 808118093,
+  "bounds": {
+    "minlat": -8.0526786,
+    "minlon": -34.8955759,
+    "maxlat": -8.0524038,
+    "maxlon": -34.8953021
+  },
+  "nodes": [
+    6534512354,
+    7556782214,
+    7556782217,
+    8958069534
+  ],
+  "geometry": [
+    { "lat": -8.0526786, "lon": -34.8955759 },
+    { "lat": -8.0525577, "lon": -34.8954933 },
+    { "lat": -8.0525199, "lon": -34.8954698 },
+    { "lat": -8.0524038, "lon": -34.8953021 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-904",
+    "sidewalk": "right",
+    "smoothness": "good",
+    "source": "https://www.diariodepernambuco.com.br/static/app/noticia_127983242361/2020/05/22/829872/20200522151722116775o.jpg",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 814715795,
+  "bounds": {
+    "minlat": -8.0535414,
+    "minlon": -34.8963274,
+    "maxlat": -8.0524984,
+    "maxlon": -34.8955919
+  },
+  "nodes": [
+    994519759,
+    3258965780,
+    6534512355,
+    324277769
+  ],
+  "geometry": [
+    { "lat": -8.0535414, "lon": -34.8963274 },
+    { "lat": -8.0526306, "lon": -34.8956729 },
+    { "lat": -8.0526231, "lon": -34.8956680 },
+    { "lat": -8.0524984, "lon": -34.8955919 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
+    "ref": "PE-015",
+    "sidewalk": "left",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 814715796,
+  "bounds": {
+    "minlat": -8.0543722,
+    "minlon": -34.8975190,
+    "maxlat": -8.0532724,
+    "maxlon": -34.8967438
+  },
+  "nodes": [
+    8955309438,
+    5732329298,
+    7016708011,
+    7012118873,
+    3224207506
+  ],
+  "geometry": [
+    { "lat": -8.0532724, "lon": -34.8967438 },
+    { "lat": -8.0533353, "lon": -34.8967904 },
+    { "lat": -8.0541428, "lon": -34.8973578 },
+    { "lat": -8.0543483, "lon": -34.8975022 },
+    { "lat": -8.0543722, "lon": -34.8975190 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
+    "sidewalk": "right",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 816957292,
+  "bounds": {
+    "minlat": -8.0622991,
+    "minlon": -34.8981224,
+    "maxlat": -8.0599971,
+    "maxlon": -34.8978556
+  },
+  "nodes": [
+    5358898486,
+    3790964032,
+    8957602302,
+    3245399337,
+    1462082581
+  ],
+  "geometry": [
+    { "lat": -8.0599971, "lon": -34.8981224 },
+    { "lat": -8.0603778, "lon": -34.8980782 },
+    { "lat": -8.0607952, "lon": -34.8980297 },
+    { "lat": -8.0621318, "lon": -34.8978744 },
+    { "lat": -8.0622991, "lon": -34.8978556 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-902",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 854786890,
+  "bounds": {
+    "minlat": -8.1112369,
+    "minlon": -34.9197527,
+    "maxlat": -8.1099159,
+    "maxlon": -34.9182496
+  },
+  "nodes": [
+    1553380967,
+    10136481789,
+    2633214340,
+    10136538144,
+    1493638095
+  ],
+  "geometry": [
+    { "lat": -8.1112369, "lon": -34.9197527 },
+    { "lat": -8.1111811, "lon": -34.9196890 },
+    { "lat": -8.1102878, "lon": -34.9186706 },
+    { "lat": -8.1099468, "lon": -34.9182818 },
+    { "lat": -8.1099159, "lon": -34.9182496 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "4",
+    "name": "Rua Jean Emile Favre",
+    "oneway": "no",
+    "postal_code": "51190-450",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 854786891,
+  "bounds": {
+    "minlat": -8.1085846,
+    "minlon": -34.9167285,
+    "maxlat": -8.1079840,
+    "maxlon": -34.9160413
+  },
+  "nodes": [
+    1428544937,
+    10136538127,
+    7972173282,
+    1641462125,
+    14251332824,
+    14251332823,
+    10136534920,
+    1641462122,
+    1428544945
+  ],
+  "geometry": [
+    { "lat": -8.1085846, "lon": -34.9167285 },
+    { "lat": -8.1085270, "lon": -34.9166628 },
+    { "lat": -8.1084365, "lon": -34.9165597 },
+    { "lat": -8.1082633, "lon": -34.9163633 },
+    { "lat": -8.1081915, "lon": -34.9162835 },
+    { "lat": -8.1081390, "lon": -34.9162238 },
+    { "lat": -8.1080943, "lon": -34.9161731 },
+    { "lat": -8.1080474, "lon": -34.9161205 },
+    { "lat": -8.1079840, "lon": -34.9160413 }
+  ],
+  "tags": {
+    "cycleway:right": "lane",
+    "highway": "secondary",
+    "lanes": "4",
+    "name": "Rua Jean Emile Favre",
+    "oneway": "no",
+    "postal_code": "51190-450",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 854786897,
+  "bounds": {
+    "minlat": -8.1198586,
+    "minlon": -34.9139186,
+    "maxlat": -8.1175308,
+    "maxlon": -34.9134815
+  },
+  "nodes": [
+    1428451194,
+    6198207561,
+    6200110985,
+    6200110782,
+    1737241447,
+    7227385976,
+    5618533863,
+    7202200885,
+    5618533865,
+    7202194684
+  ],
+  "geometry": [
+    { "lat": -8.1198586, "lon": -34.9139186 },
+    { "lat": -8.1193186, "lon": -34.9138172 },
+    { "lat": -8.1191767, "lon": -34.9137906 },
+    { "lat": -8.1190075, "lon": -34.9137588 },
+    { "lat": -8.1189213, "lon": -34.9137426 },
+    { "lat": -8.1187871, "lon": -34.9137174 },
+    { "lat": -8.1185669, "lon": -34.9136761 },
+    { "lat": -8.1182253, "lon": -34.9136119 },
+    { "lat": -8.1179192, "lon": -34.9135544 },
+    { "lat": -8.1175308, "lon": -34.9134815 }
+  ],
+  "tags": {
+    "alt_name": "Rua Joaquim Pinheiro",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "60",
+    "name": "Avenida Marechal Mascarenhas de Moraes",
+    "oneway": "yes",
+    "postal_code": "51150-000",
+    "ref": "PE-008",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q18486815",
+    "wikipedia": "pt:Avenida Marechal Mascarenhas de Morais"
+  }
+},
+{
+  "type": "way",
+  "id": 863027576,
+  "bounds": {
+    "minlat": -8.1068728,
+    "minlon": -34.9147832,
+    "maxlat": -8.1059633,
+    "maxlon": -34.9137210
+  },
+  "nodes": [
+    1428545123,
+    3257062813,
+    7972173281,
+    3122627522,
+    7227447762
+  ],
+  "geometry": [
+    { "lat": -8.1059633, "lon": -34.9137210 },
+    { "lat": -8.1061607, "lon": -34.9139597 },
+    { "lat": -8.1066936, "lon": -34.9145760 },
+    { "lat": -8.1068631, "lon": -34.9147700 },
+    { "lat": -8.1068728, "lon": -34.9147832 }
+  ],
+  "tags": {
+    "cycleway:est_width": "3",
+    "cycleway:right": "lane",
+    "highway": "secondary",
+    "lanes": "2",
+    "name": "Rua Jean Emile Favre",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "postal_code": "51200-060",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 911290356,
+  "bounds": {
+    "minlat": -8.1074296,
+    "minlon": -34.9284619,
+    "maxlat": -8.1071066,
+    "maxlon": -34.9281136
+  },
+  "nodes": [
+    8461648942,
+    8461648943,
+    8461648944,
+    8461648945,
+    8461648946,
+    8461648947,
+    8461648948,
+    8461648949,
+    8461648950,
+    8461648951,
+    8824807440,
+    9509518197,
+    8461648952,
+    8461648991,
+    8461648953
+  ],
+  "geometry": [
+    { "lat": -8.1074080, "lon": -34.9284619 },
+    { "lat": -8.1074296, "lon": -34.9283628 },
+    { "lat": -8.1074284, "lon": -34.9283231 },
+    { "lat": -8.1074130, "lon": -34.9282918 },
+    { "lat": -8.1073917, "lon": -34.9282695 },
+    { "lat": -8.1073569, "lon": -34.9282527 },
+    { "lat": -8.1073221, "lon": -34.9282378 },
+    { "lat": -8.1072819, "lon": -34.9282257 },
+    { "lat": -8.1072376, "lon": -34.9282067 },
+    { "lat": -8.1071813, "lon": -34.9281756 },
+    { "lat": -8.1071619, "lon": -34.9281610 },
+    { "lat": -8.1071443, "lon": -34.9281492 },
+    { "lat": -8.1071398, "lon": -34.9281444 },
+    { "lat": -8.1071279, "lon": -34.9281331 },
+    { "lat": -8.1071066, "lon": -34.9281136 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "50",
+    "name": "Avenida Dom Hélder Câmara",
+    "oneway": "yes",
+    "postal_code": "51220-120",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 911290358,
+  "bounds": {
+    "minlat": -8.1071066,
+    "minlon": -34.9281136,
+    "maxlat": -8.1069399,
+    "maxlon": -34.9272897
+  },
+  "nodes": [
+    8461648953,
+    8461648954,
+    8461648955,
+    8461648956,
+    8461648957,
+    9509508682,
+    8461648958
+  ],
+  "geometry": [
+    { "lat": -8.1071066, "lon": -34.9281136 },
+    { "lat": -8.1070788, "lon": -34.9280664 },
+    { "lat": -8.1070604, "lon": -34.9280132 },
+    { "lat": -8.1070533, "lon": -34.9279906 },
+    { "lat": -8.1070420, "lon": -34.9279433 },
+    { "lat": -8.1069543, "lon": -34.9273838 },
+    { "lat": -8.1069399, "lon": -34.9272897 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "50",
+    "name": "Avenida Dom Hélder Câmara",
+    "oneway": "yes",
+    "postal_code": "51220-120",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 911290359,
+  "bounds": {
+    "minlat": -8.1090956,
+    "minlon": -34.9352740,
+    "maxlat": -8.1072068,
+    "maxlon": -34.9289766
+  },
+  "nodes": [
+    8461649015,
+    10136403208,
+    10136403209,
+    7043831773,
+    7043831774,
+    6209350960,
+    7043831775,
+    7043831776,
+    7043831777,
+    7043831778,
+    7043831779,
+    7043831780,
+    7043831781,
+    6124991390,
+    1493619792,
+    2534587382,
+    6200223994,
+    1493619777,
+    2534587383,
+    9509518192,
+    1493619775,
+    7043874908
+  ],
+  "geometry": [
+    { "lat": -8.1072068, "lon": -34.9289766 },
+    { "lat": -8.1072276, "lon": -34.9291191 },
+    { "lat": -8.1072399, "lon": -34.9292038 },
+    { "lat": -8.1072591, "lon": -34.9293037 },
+    { "lat": -8.1074187, "lon": -34.9298637 },
+    { "lat": -8.1075256, "lon": -34.9302484 },
+    { "lat": -8.1076058, "lon": -34.9305538 },
+    { "lat": -8.1077047, "lon": -34.9309253 },
+    { "lat": -8.1078044, "lon": -34.9312972 },
+    { "lat": -8.1079173, "lon": -34.9316955 },
+    { "lat": -8.1080494, "lon": -34.9321970 },
+    { "lat": -8.1082625, "lon": -34.9329849 },
+    { "lat": -8.1084417, "lon": -34.9336602 },
+    { "lat": -8.1085918, "lon": -34.9342248 },
+    { "lat": -8.1086017, "lon": -34.9342543 },
+    { "lat": -8.1086894, "lon": -34.9345869 },
+    { "lat": -8.1087292, "lon": -34.9346875 },
+    { "lat": -8.1087936, "lon": -34.9348343 },
+    { "lat": -8.1088533, "lon": -34.9349396 },
+    { "lat": -8.1090302, "lon": -34.9351896 },
+    { "lat": -8.1090552, "lon": -34.9352239 },
+    { "lat": -8.1090956, "lon": -34.9352740 }
+  ],
+  "tags": {
+    "cycleway:left": "lane",
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "40",
+    "name": "Avenida Dom Hélder Câmara",
+    "oneway": "yes",
+    "oneway:bicycle": "yes",
+    "postal_code": "51220-120",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 911290360,
+  "bounds": {
+    "minlat": -8.1071066,
+    "minlon": -34.9281136,
+    "maxlat": -8.1070996,
+    "maxlon": -34.9280539
+  },
+  "nodes": [
+    7044460567,
+    8461648953
+  ],
+  "geometry": [
+    { "lat": -8.1070996, "lon": -34.9280539 },
+    { "lat": -8.1071066, "lon": -34.9281136 }
+  ],
+  "tags": {
+    "cycleway:right": "opposite",
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "50",
+    "name": "Avenida Dom Hélder Câmara",
+    "oneway": "yes",
+    "postal_code": "51220-120",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 911290363,
+  "bounds": {
+    "minlat": -8.1069913,
+    "minlon": -34.9272897,
+    "maxlat": -8.1069399,
+    "maxlon": -34.9272815
+  },
+  "nodes": [
+    8461648958,
+    7044502598
+  ],
+  "geometry": [
+    { "lat": -8.1069399, "lon": -34.9272897 },
+    { "lat": -8.1069913, "lon": -34.9272815 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Presidente Dutra",
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "50860-000",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 911290364,
+  "bounds": {
+    "minlat": -8.1069399,
+    "minlon": -34.9272897,
+    "maxlat": -8.1069214,
+    "maxlon": -34.9271695
+  },
+  "nodes": [
+    8461648958,
+    8461648959
+  ],
+  "geometry": [
+    { "lat": -8.1069399, "lon": -34.9272897 },
+    { "lat": -8.1069214, "lon": -34.9271695 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "50",
+    "name": "Avenida Dom Hélder Câmara",
+    "oneway": "yes",
+    "postal_code": "51220-120",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 911290365,
+  "bounds": {
+    "minlat": -8.1068535,
+    "minlon": -34.9277846,
+    "maxlat": -8.1025596,
+    "maxlon": -34.9271796
+  },
+  "nodes": [
+    9509518167,
+    1553387235,
+    7191422769,
+    1553387234,
+    3243189823,
+    11918684285,
+    1641501721,
+    7973888066,
+    1428560971
+  ],
+  "geometry": [
+    { "lat": -8.1068535, "lon": -34.9271796 },
+    { "lat": -8.1064442, "lon": -34.9272323 },
+    { "lat": -8.1057664, "lon": -34.9273310 },
+    { "lat": -8.1050037, "lon": -34.9274361 },
+    { "lat": -8.1038499, "lon": -34.9276041 },
+    { "lat": -8.1034251, "lon": -34.9276650 },
+    { "lat": -8.1033334, "lon": -34.9276762 },
+    { "lat": -8.1030734, "lon": -34.9277126 },
+    { "lat": -8.1025596, "lon": -34.9277846 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Presidente Dutra",
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "51190-730",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 911290366,
+  "bounds": {
+    "minlat": -8.1079844,
+    "minlon": -34.9272815,
+    "maxlat": -8.1069913,
+    "maxlon": -34.9271612
+  },
+  "nodes": [
+    7044502598,
+    9509518163,
+    8630215214,
+    9509518162,
+    7143022794,
+    9509490898,
+    3244644371,
+    1493619791
+  ],
+  "geometry": [
+    { "lat": -8.1069913, "lon": -34.9272815 },
+    { "lat": -8.1070259, "lon": -34.9272790 },
+    { "lat": -8.1070357, "lon": -34.9272779 },
+    { "lat": -8.1070458, "lon": -34.9272766 },
+    { "lat": -8.1074120, "lon": -34.9272316 },
+    { "lat": -8.1078249, "lon": -34.9271808 },
+    { "lat": -8.1078886, "lon": -34.9271729 },
+    { "lat": -8.1079844, "lon": -34.9271612 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Presidente Dutra",
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "50860-000",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 911290371,
+  "bounds": {
+    "minlat": -8.1078018,
+    "minlon": -34.9289516,
+    "maxlat": -8.1072974,
+    "maxlon": -34.9277902
+  },
+  "nodes": [
+    8630218129,
+    8630218126,
+    7043852085,
+    7043831784,
+    7043831783,
+    1493619808,
+    9040255264,
+    8461648942,
+    7043831782,
+    8461648992,
+    7044479476,
+    5825710620
+  ],
+  "geometry": [
+    { "lat": -8.1072974, "lon": -34.9289516 },
+    { "lat": -8.1072975, "lon": -34.9289463 },
+    { "lat": -8.1072979, "lon": -34.9289046 },
+    { "lat": -8.1073059, "lon": -34.9288114 },
+    { "lat": -8.1073305, "lon": -34.9286820 },
+    { "lat": -8.1073690, "lon": -34.9285546 },
+    { "lat": -8.1073897, "lon": -34.9285053 },
+    { "lat": -8.1074080, "lon": -34.9284619 },
+    { "lat": -8.1074420, "lon": -34.9283809 },
+    { "lat": -8.1075859, "lon": -34.9281081 },
+    { "lat": -8.1077764, "lon": -34.9278252 },
+    { "lat": -8.1078018, "lon": -34.9277902 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "40",
+    "name": "Avenida Dom Hélder Câmara",
+    "oneway": "yes",
+    "postal_code": "51220-120",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 911290373,
+  "bounds": {
+    "minlat": -8.1072068,
+    "minlon": -34.9289766,
+    "maxlat": -8.1071239,
+    "maxlon": -34.9282552
+  },
+  "nodes": [
+    8630218125,
+    1493619773,
+    8461649015
+  ],
+  "geometry": [
+    { "lat": -8.1071239, "lon": -34.9282552 },
+    { "lat": -8.1071678, "lon": -34.9286706 },
+    { "lat": -8.1072068, "lon": -34.9289766 }
+  ],
+  "tags": {
+    "cycleway:left": "lane",
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "50",
+    "name": "Avenida Dom Hélder Câmara",
+    "oneway": "yes",
+    "oneway:bicycle": "yes",
+    "postal_code": "51220-120",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 930790695,
+  "bounds": {
+    "minlat": -8.1070389,
+    "minlon": -34.9273520,
+    "maxlat": -8.1069699,
+    "maxlon": -34.9271612
+  },
+  "nodes": [
+    8630215211,
+    9509518164,
+    9509518163,
+    8630215213,
+    1493632483
+  ],
+  "geometry": [
+    { "lat": -8.1070389, "lon": -34.9273520 },
+    { "lat": -8.1070312, "lon": -34.9273174 },
+    { "lat": -8.1070259, "lon": -34.9272790 },
+    { "lat": -8.1070194, "lon": -34.9272212 },
+    { "lat": -8.1069699, "lon": -34.9271612 }
+  ],
+  "tags": {
+    "crossing": "marked",
+    "cycleway": "crossing",
+    "highway": "cycleway",
+    "name": "Avenida Dom Hélder Câmara"
+  }
+},
+{
+  "type": "way",
+  "id": 930790696,
+  "bounds": {
+    "minlat": -8.1071742,
+    "minlon": -34.9280869,
+    "maxlat": -8.1070389,
+    "maxlon": -34.9273520
+  },
+  "nodes": [
+    8630215211,
+    8630215215,
+    8630215216,
+    8630218117,
+    8630218122,
+    8630218118,
+    8630218123,
+    8630218119,
+    8630218120,
+    8630218121
+  ],
+  "geometry": [
+    { "lat": -8.1070389, "lon": -34.9273520 },
+    { "lat": -8.1071208, "lon": -34.9279580 },
+    { "lat": -8.1071230, "lon": -34.9279740 },
+    { "lat": -8.1071270, "lon": -34.9279960 },
+    { "lat": -8.1071307, "lon": -34.9280047 },
+    { "lat": -8.1071350, "lon": -34.9280141 },
+    { "lat": -8.1071402, "lon": -34.9280248 },
+    { "lat": -8.1071456, "lon": -34.9280368 },
+    { "lat": -8.1071587, "lon": -34.9280617 },
+    { "lat": -8.1071742, "lon": -34.9280869 }
+  ],
+  "tags": {
+    "bicycle": "designated",
+    "highway": "footway",
+    "name": "Avenida Dom Hélder Câmara"
+  }
+},
+{
+  "type": "way",
+  "id": 930790697,
+  "bounds": {
+    "minlat": -8.1071742,
+    "minlon": -34.9281944,
+    "maxlat": -8.1071564,
+    "maxlon": -34.9280869
+  },
+  "nodes": [
+    8630218121,
+    9509518196,
+    11411366069,
+    8824807439,
+    8824807440,
+    11411320568,
+    8630218124
+  ],
+  "geometry": [
+    { "lat": -8.1071742, "lon": -34.9280869 },
+    { "lat": -8.1071701, "lon": -34.9281145 },
+    { "lat": -8.1071693, "lon": -34.9281178 },
+    { "lat": -8.1071667, "lon": -34.9281322 },
+    { "lat": -8.1071619, "lon": -34.9281610 },
+    { "lat": -8.1071596, "lon": -34.9281760 },
+    { "lat": -8.1071564, "lon": -34.9281944 }
+  ],
+  "tags": {
+    "crossing": "marked",
+    "cycleway": "crossing",
+    "highway": "cycleway",
+    "name": "Avenida Dom Hélder Câmara"
+  }
+},
+{
+  "type": "way",
+  "id": 930790698,
+  "bounds": {
+    "minlat": -8.1071239,
+    "minlon": -34.9282552,
+    "maxlat": -8.1071066,
+    "maxlon": -34.9281136
+  },
+  "nodes": [
+    8461648953,
+    9509518202,
+    8630218125
+  ],
+  "geometry": [
+    { "lat": -8.1071066, "lon": -34.9281136 },
+    { "lat": -8.1071103, "lon": -34.9281458 },
+    { "lat": -8.1071239, "lon": -34.9282552 }
+  ],
+  "tags": {
+    "cycleway:right": "opposite",
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "50",
+    "name": "Avenida Dom Hélder Câmara",
+    "oneway": "yes",
+    "postal_code": "51220-120",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 930790699,
+  "bounds": {
+    "minlat": -8.1072974,
+    "minlon": -34.9289516,
+    "maxlat": -8.1071354,
+    "maxlon": -34.9282522
+  },
+  "nodes": [
+    8630218129,
+    11411320567,
+    8630218128,
+    8630218127
+  ],
+  "geometry": [
+    { "lat": -8.1072974, "lon": -34.9289516 },
+    { "lat": -8.1072531, "lon": -34.9289110 },
+    { "lat": -8.1072040, "lon": -34.9288674 },
+    { "lat": -8.1071354, "lon": -34.9282522 }
+  ],
+  "tags": {
+    "foot": "no",
+    "highway": "cycleway",
+    "name": "Avenida Dom Hélder Câmara",
+    "oneway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 930790700,
+  "bounds": {
+    "minlat": -8.1071564,
+    "minlon": -34.9282522,
+    "maxlat": -8.1071354,
+    "maxlon": -34.9281944
+  },
+  "nodes": [
+    8630218124,
+    8630218127
+  ],
+  "geometry": [
+    { "lat": -8.1071564, "lon": -34.9281944 },
+    { "lat": -8.1071354, "lon": -34.9282522 }
+  ],
+  "tags": {
+    "foot": "no",
+    "highway": "cycleway",
+    "name": "Avenida Dom Hélder Câmara",
+    "oneway": "no"
+  }
+},
+{
+  "type": "way",
+  "id": 930790701,
+  "bounds": {
+    "minlat": -8.1072974,
+    "minlon": -34.9290416,
+    "maxlat": -8.1072966,
+    "maxlon": -34.9289516
+  },
+  "nodes": [
+    7043852086,
+    8630218129
+  ],
+  "geometry": [
+    { "lat": -8.1072966, "lon": -34.9290416 },
+    { "lat": -8.1072974, "lon": -34.9289516 }
+  ],
+  "tags": {
+    "cycleway:left": "lane",
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "2",
+    "maxspeed": "40",
+    "name": "Avenida Dom Hélder Câmara",
+    "oneway": "yes",
+    "oneway:bicycle": "yes",
+    "postal_code": "51220-120",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 966044300,
+  "bounds": {
+    "minlat": -8.1079901,
+    "minlon": -34.9277902,
+    "maxlat": -8.1078018,
+    "maxlon": -34.9271612
+  },
+  "nodes": [
+    5825710620,
+    1493619787,
+    7044479475,
+    5975283290,
+    5975283289,
+    1493619788,
+    5975283288,
+    1493619791
+  ],
+  "geometry": [
+    { "lat": -8.1078018, "lon": -34.9277902 },
+    { "lat": -8.1078844, "lon": -34.9276574 },
+    { "lat": -8.1079273, "lon": -34.9275652 },
+    { "lat": -8.1079565, "lon": -34.9274740 },
+    { "lat": -8.1079777, "lon": -34.9273731 },
+    { "lat": -8.1079891, "lon": -34.9272472 },
+    { "lat": -8.1079901, "lon": -34.9272094 },
+    { "lat": -8.1079844, "lon": -34.9271612 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "secondary",
+    "lanes": "3",
+    "maxspeed": "50",
+    "name": "Avenida Dom Hélder Câmara",
+    "oneway": "yes",
+    "postal_code": "51220-120",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 966217041,
+  "bounds": {
+    "minlat": -8.1071325,
+    "minlon": -34.9150836,
+    "maxlat": -8.1068728,
+    "maxlon": -34.9147832
+  },
+  "nodes": [
+    7227447762,
+    11914574718,
+    1428544938
+  ],
+  "geometry": [
+    { "lat": -8.1068728, "lon": -34.9147832 },
+    { "lat": -8.1069858, "lon": -34.9149139 },
+    { "lat": -8.1071325, "lon": -34.9150836 }
+  ],
+  "tags": {
+    "cycleway:est_width": "3",
+    "cycleway:right": "lane",
+    "highway": "secondary",
+    "lanes": "1",
+    "name": "Rua Jean Emile Favre",
+    "oneway": "yes",
+    "oneway:bicycle": "no",
+    "postal_code": "51200-060",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 966813469,
+  "bounds": {
+    "minlat": -8.1079567,
+    "minlon": -34.9160101,
+    "maxlat": -8.1079377,
+    "maxlon": -34.9159903
+  },
+  "nodes": [
+    1428544944,
+    7123475132
+  ],
+  "geometry": [
+    { "lat": -8.1079567, "lon": -34.9160101 },
+    { "lat": -8.1079377, "lon": -34.9159903 }
+  ],
+  "tags": {
+    "cycleway:est_width": "3",
+    "cycleway:left": "lane",
+    "highway": "secondary",
+    "lanes": "4",
+    "name": "Rua Jean Emile Favre",
+    "oneway": "no",
+    "postal_code": "51200-060",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 966837056,
+  "bounds": {
+    "minlat": -8.0597383,
+    "minlon": -34.8980340,
+    "maxlat": -8.0593973,
+    "maxlon": -34.8979996
+  },
+  "nodes": [
+    3228683687,
+    8945096394
+  ],
+  "geometry": [
+    { "lat": -8.0593973, "lon": -34.8980340 },
+    { "lat": -8.0597383, "lon": -34.8979996 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "5",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50070-255",
+    "ref": "PE-015",
+    "sidewalk": "left",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 966837057,
+  "bounds": {
+    "minlat": -8.0580120,
+    "minlon": -34.8980927,
+    "maxlat": -8.0574623,
+    "maxlon": -34.8980866
+  },
+  "nodes": [
+    1462082587,
+    8945096395
+  ],
+  "geometry": [
+    { "lat": -8.0574623, "lon": -34.8980927 },
+    { "lat": -8.0580120, "lon": -34.8980866 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-904",
+    "ref": "PE-015",
+    "sidewalk": "left",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 966838892,
+  "bounds": {
+    "minlat": -8.0603942,
+    "minlon": -34.8974793,
+    "maxlat": -8.0602382,
+    "maxlon": -34.8974619
+  },
+  "nodes": [
+    8945112536,
+    1443827218
+  ],
+  "geometry": [
+    { "lat": -8.0603942, "lon": -34.8974619 },
+    { "lat": -8.0602382, "lon": -34.8974793 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "1",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-902",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 966838893,
+  "bounds": {
+    "minlat": -8.0592609,
+    "minlon": -34.8982092,
+    "maxlat": -8.0589378,
+    "maxlon": -34.8981794
+  },
+  "nodes": [
+    1036684678,
+    8945112539
+  ],
+  "geometry": [
+    { "lat": -8.0589378, "lon": -34.8982092 },
+    { "lat": -8.0592609, "lon": -34.8981794 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-902",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 966839312,
+  "bounds": {
+    "minlat": -8.0572889,
+    "minlon": -34.8976272,
+    "maxlat": -8.0571458,
+    "maxlon": -34.8976215
+  },
+  "nodes": [
+    8945106494,
+    1443830920
+  ],
+  "geometry": [
+    { "lat": -8.0572889, "lon": -34.8976272 },
+    { "lat": -8.0571458, "lon": -34.8976215 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "1",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-902",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 966839313,
+  "bounds": {
+    "minlat": -8.0588647,
+    "minlon": -34.8976430,
+    "maxlat": -8.0572889,
+    "maxlon": -34.8976272
+  },
+  "nodes": [
+    1430717737,
+    5732329318,
+    1437147434,
+    8945106494
+  ],
+  "geometry": [
+    { "lat": -8.0588647, "lon": -34.8976430 },
+    { "lat": -8.0587658, "lon": -34.8976422 },
+    { "lat": -8.0574629, "lon": -34.8976341 },
+    { "lat": -8.0572889, "lon": -34.8976272 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-902",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 966843270,
+  "bounds": {
+    "minlat": -8.0624903,
+    "minlon": -34.8977331,
+    "maxlat": -8.0623229,
+    "maxlon": -34.8977184
+  },
+  "nodes": [
+    1462082586,
+    8945140461
+  ],
+  "geometry": [
+    { "lat": -8.0623229, "lon": -34.8977331 },
+    { "lat": -8.0624903, "lon": -34.8977184 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50070-255",
+    "ref": "PE-015",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 966843271,
+  "bounds": {
+    "minlat": -8.0626175,
+    "minlon": -34.8978343,
+    "maxlat": -8.0624550,
+    "maxlon": -34.8978192
+  },
+  "nodes": [
+    1422741505,
+    8945140456
+  ],
+  "geometry": [
+    { "lat": -8.0624550, "lon": -34.8978343 },
+    { "lat": -8.0626175, "lon": -34.8978192 }
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "2",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-902",
+    "smoothness": "good",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 967604829,
+  "bounds": {
+    "minlat": -8.1202826,
+    "minlon": -34.9208463,
+    "maxlat": -8.1194265,
+    "maxlon": -34.9194178
+  },
+  "nodes": [
+    1737263962,
+    11914239654,
+    8954903223,
+    7972173322,
+    8954903222,
+    3249515545,
+    1678997272
+  ],
+  "geometry": [
+    { "lat": -8.1202826, "lon": -34.9194178 },
+    { "lat": -8.1201851, "lon": -34.9195660 },
+    { "lat": -8.1200505, "lon": -34.9197982 },
+    { "lat": -8.1199368, "lon": -34.9199921 },
+    { "lat": -8.1198915, "lon": -34.9200674 },
+    { "lat": -8.1194866, "lon": -34.9207658 },
+    { "lat": -8.1194265, "lon": -34.9208463 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Presidente Dutra",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "51190-515",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 967981839,
+  "bounds": {
+    "minlat": -8.0531878,
+    "minlon": -34.8966846,
+    "maxlat": -8.0530671,
+    "maxlon": -34.8966021
+  },
+  "nodes": [
+    8955309437,
+    1036684696
+  ],
+  "geometry": [
+    { "lat": -8.0530671, "lon": -34.8966021 },
+    { "lat": -8.0531878, "lon": -34.8966846 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "highway": "secondary",
+    "lanes": "1",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt"
+  }
+},
+{
+  "type": "way",
+  "id": 967981841,
+  "bounds": {
+    "minlat": -8.0532724,
+    "minlon": -34.8967438,
+    "maxlat": -8.0531878,
+    "maxlon": -34.8966846
+  },
+  "nodes": [
+    1036684696,
+    8955309438
+  ],
+  "geometry": [
+    { "lat": -8.0531878, "lon": -34.8966846 },
+    { "lat": -8.0532724, "lon": -34.8967438 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhaes",
+    "highway": "secondary",
+    "lanes": "1",
+    "lit": "yes",
+    "mapillary": "295944065570747",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52010-903",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "survey:date": "2021-01-26"
+  }
+},
+{
+  "type": "way",
+  "id": 968203100,
+  "bounds": {
+    "minlat": -8.0443667,
+    "minlon": -34.8884918,
+    "maxlat": -8.0441883,
+    "maxlon": -34.8880576
+  },
+  "nodes": [
+    324277773,
+    1416895436
+  ],
+  "geometry": [
+    { "lat": -8.0443667, "lon": -34.8884918 },
+    { "lat": -8.0441883, "lon": -34.8880576 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50070-160",
+    "ref": "PE-015",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 968272495,
+  "bounds": {
+    "minlat": -8.0471278,
+    "minlon": -34.8914534,
+    "maxlat": -8.0466829,
+    "maxlon": -34.8911075
+  },
+  "nodes": [
+    3267111544,
+    7049078545
+  ],
+  "geometry": [
+    { "lat": -8.0471278, "lon": -34.8914534 },
+    { "lat": -8.0466829, "lon": -34.8911075 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "2",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "note": "There is a slight spelling difference between the IBGE data (Avenida Governador Agamenon Magalhaes) and the OSM data (Avenida Agamenon Magalhaes-Pista central)",
+    "oneway": "yes",
+    "postal_code": "52021-900",
+    "ref": "PE-015",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 969857667,
+  "bounds": {
+    "minlat": -8.0428481,
+    "minlon": -34.8868391,
+    "maxlat": -8.0424770,
+    "maxlon": -34.8860603
+  },
+  "nodes": [
+    7046543192,
+    7046543193,
+    7046543196
+  ],
+  "geometry": [
+    { "lat": -8.0428481, "lon": -34.8868391 },
+    { "lat": -8.0428169, "lon": -34.8867785 },
+    { "lat": -8.0424770, "lon": -34.8860603 }
+  ],
+  "tags": {
+    "cycleway:left": "opposite_lane",
+    "highway": "residential",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52020-000",
+    "source:postal_code": "CNEFE"
+  }
+},
+{
+  "type": "way",
+  "id": 1003660200,
+  "bounds": {
+    "minlat": -8.0648388,
+    "minlon": -34.8971829,
+    "maxlat": -8.0639641,
+    "maxlon": -34.8970741
+  },
+  "nodes": [
+    7014000427,
+    11643246225,
+    8192178947
+  ],
+  "geometry": [
+    { "lat": -8.0648388, "lon": -34.8970741 },
+    { "lat": -8.0640061, "lon": -34.8971770 },
+    { "lat": -8.0639641, "lon": -34.8971829 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Governador Agamenon Magalhãe",
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "50070-425",
+    "ref": "PE-015",
+    "sidewalk:left": "yes",
+    "sidewalk:right": "no",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 1105544819,
+  "bounds": {
+    "minlat": -8.0487092,
+    "minlon": -34.8929950,
+    "maxlat": -8.0485773,
+    "maxlon": -34.8927623
+  },
+  "nodes": [
+    10116693544,
+    11463277556,
+    12636043984,
+    12636043986,
+    10116693545
+  ],
+  "geometry": [
+    { "lat": -8.0487092, "lon": -34.8927623 },
+    { "lat": -8.0486925, "lon": -34.8927918 },
+    { "lat": -8.0486601, "lon": -34.8928435 },
+    { "lat": -8.0485938, "lon": -34.8929680 },
+    { "lat": -8.0485773, "lon": -34.8929950 }
+  ],
+  "tags": {
+    "bicycle": "designated",
+    "highway": "footway",
+    "name": "Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 1107451333,
+  "bounds": {
+    "minlat": -8.0485921,
+    "minlon": -34.8930457,
+    "maxlat": -8.0485773,
+    "maxlon": -34.8929950
+  },
+  "nodes": [
+    10116693545,
+    1416859225
+  ],
+  "geometry": [
+    { "lat": -8.0485773, "lon": -34.8929950 },
+    { "lat": -8.0485921, "lon": -34.8930457 }
+  ],
+  "tags": {
+    "bicycle": "designated",
+    "foot": "permissive",
+    "footway": "sidewalk",
+    "highway": "footway",
+    "name": "Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 1107451334,
+  "bounds": {
+    "minlat": -8.0487586,
+    "minlon": -34.8927623,
+    "maxlat": -8.0487092,
+    "maxlon": -34.8927432
+  },
+  "nodes": [
+    10116693544,
+    1416859226
+  ],
+  "geometry": [
+    { "lat": -8.0487092, "lon": -34.8927623 },
+    { "lat": -8.0487586, "lon": -34.8927432 }
+  ],
+  "tags": {
+    "bicycle": "designated",
+    "foot": "permissive",
+    "footway": "sidewalk",
+    "highway": "footway",
+    "name": "Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 1176342694,
+  "bounds": {
+    "minlat": -8.0426187,
+    "minlon": -34.8854638,
+    "maxlat": -8.0421849,
+    "maxlon": -34.8852818
+  },
+  "nodes": [
+    1416854124,
+    3540281598,
+    1416854127,
+    7046543198,
+    3540281599,
+    7046543197,
+    1416854122,
+    1416854126,
+    1416854120
+  ],
+  "geometry": [
+    { "lat": -8.0421849, "lon": -34.8853737 },
+    { "lat": -8.0421915, "lon": -34.8853301 },
+    { "lat": -8.0422227, "lon": -34.8853000 },
+    { "lat": -8.0422552, "lon": -34.8852879 },
+    { "lat": -8.0423044, "lon": -34.8852818 },
+    { "lat": -8.0423449, "lon": -34.8852906 },
+    { "lat": -8.0424246, "lon": -34.8853268 },
+    { "lat": -8.0425195, "lon": -34.8853871 },
+    { "lat": -8.0426187, "lon": -34.8854638 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "lane_markings": "no",
+    "lit": "yes",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52020-000",
+    "smoothness": "good",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 1176343943,
+  "bounds": {
+    "minlat": -8.0421849,
+    "minlon": -34.8853737,
+    "maxlat": -8.0421068,
+    "maxlon": -34.8849440
+  },
+  "nodes": [
+    1416854124,
+    10133232110
+  ],
+  "geometry": [
+    { "lat": -8.0421849, "lon": -34.8853737 },
+    { "lat": -8.0421068, "lon": -34.8849440 }
+  ],
+  "tags": {
+    "bicycle": "designated",
+    "foot": "permissive",
+    "footway": "sidewalk",
+    "highway": "footway",
+    "name": "Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 1234964959,
+  "bounds": {
+    "minlat": -8.0639183,
+    "minlon": -34.8980522,
+    "maxlat": -8.0485773,
+    "maxlon": -34.8929950
+  },
+  "nodes": [
+    10116693545,
+    12636043985,
+    11463269025,
+    11463269026,
+    11463269027,
+    6534512362,
+    11463269028,
+    11463269029,
+    11463269030,
+    3258965778,
+    11463269031,
+    11463269032,
+    13611184923,
+    13611184925,
+    13611184924,
+    11463269033,
+    11463269034,
+    11463269035,
+    11463269036,
+    11463269037,
+    11463269038,
+    11463269039,
+    11463269040,
+    11463269041,
+    11463269042,
+    11463269043,
+    11463269044,
+    11463269045,
+    11463269046,
+    11463269047,
+    11463269048,
+    11463269049,
+    11463269050,
+    11463269051,
+    14262283968,
+    11463269052,
+    11463269053
+  ],
+  "geometry": [
+    { "lat": -8.0485773, "lon": -34.8929950 },
+    { "lat": -8.0486056, "lon": -34.8930181 },
+    { "lat": -8.0486654, "lon": -34.8930751 },
+    { "lat": -8.0494643, "lon": -34.8937110 },
+    { "lat": -8.0501102, "lon": -34.8942093 },
+    { "lat": -8.0512678, "lon": -34.8951228 },
+    { "lat": -8.0512913, "lon": -34.8951408 },
+    { "lat": -8.0514643, "lon": -34.8952724 },
+    { "lat": -8.0518796, "lon": -34.8955801 },
+    { "lat": -8.0523746, "lon": -34.8959091 },
+    { "lat": -8.0524154, "lon": -34.8959362 },
+    { "lat": -8.0532082, "lon": -34.8964936 },
+    { "lat": -8.0532797, "lon": -34.8965500 },
+    { "lat": -8.0533637, "lon": -34.8966162 },
+    { "lat": -8.0534164, "lon": -34.8966578 },
+    { "lat": -8.0534354, "lon": -34.8966728 },
+    { "lat": -8.0539883, "lon": -34.8970649 },
+    { "lat": -8.0547679, "lon": -34.8976309 },
+    { "lat": -8.0548914, "lon": -34.8977094 },
+    { "lat": -8.0551397, "lon": -34.8978421 },
+    { "lat": -8.0553077, "lon": -34.8979052 },
+    { "lat": -8.0555248, "lon": -34.8979749 },
+    { "lat": -8.0556204, "lon": -34.8979890 },
+    { "lat": -8.0556894, "lon": -34.8979897 },
+    { "lat": -8.0560001, "lon": -34.8980239 },
+    { "lat": -8.0563089, "lon": -34.8980306 },
+    { "lat": -8.0567874, "lon": -34.8980435 },
+    { "lat": -8.0571215, "lon": -34.8980400 },
+    { "lat": -8.0575325, "lon": -34.8980470 },
+    { "lat": -8.0588131, "lon": -34.8980522 },
+    { "lat": -8.0591772, "lon": -34.8980348 },
+    { "lat": -8.0597578, "lon": -34.8979674 },
+    { "lat": -8.0608053, "lon": -34.8978606 },
+    { "lat": -8.0611807, "lon": -34.8978158 },
+    { "lat": -8.0623345, "lon": -34.8976929 },
+    { "lat": -8.0629863, "lon": -34.8976234 },
+    { "lat": -8.0639183, "lon": -34.8975171 }
+  ],
+  "tags": {
+    "highway": "cycleway",
+    "name": "Ciclovia Agamenon Magalhães",
+    "oneway": "yes",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 1234964960,
+  "bounds": {
+    "minlat": -8.0638812,
+    "minlon": -34.8978237,
+    "maxlat": -8.0486925,
+    "maxlon": -34.8927918
+  },
+  "nodes": [
+    14262283963,
+    14262283969,
+    14262283967,
+    11463269056,
+    11463269057,
+    11463269058,
+    11463269059,
+    11463269060,
+    11463269061,
+    11463269062,
+    11463269063,
+    11463269064,
+    11463269065,
+    11463269066,
+    11463269067,
+    11463269068,
+    12853640083,
+    11463280669,
+    11463280670,
+    6534512356,
+    12853670680,
+    11463280671,
+    11463280672,
+    11463277556
+  ],
+  "geometry": [
+    { "lat": -8.0638812, "lon": -34.8972552 },
+    { "lat": -8.0623962, "lon": -34.8974112 },
+    { "lat": -8.0604632, "lon": -34.8976143 },
+    { "lat": -8.0590447, "lon": -34.8977731 },
+    { "lat": -8.0586795, "lon": -34.8978237 },
+    { "lat": -8.0567641, "lon": -34.8978138 },
+    { "lat": -8.0559801, "lon": -34.8978000 },
+    { "lat": -8.0557513, "lon": -34.8977707 },
+    { "lat": -8.0555560, "lon": -34.8977322 },
+    { "lat": -8.0553272, "lon": -34.8976551 },
+    { "lat": -8.0551290, "lon": -34.8975596 },
+    { "lat": -8.0549169, "lon": -34.8974318 },
+    { "lat": -8.0546775, "lon": -34.8972531 },
+    { "lat": -8.0540521, "lon": -34.8968017 },
+    { "lat": -8.0531887, "lon": -34.8961624 },
+    { "lat": -8.0526628, "lon": -34.8957879 },
+    { "lat": -8.0525819, "lon": -34.8957365 },
+    { "lat": -8.0523750, "lon": -34.8956050 },
+    { "lat": -8.0517803, "lon": -34.8952198 },
+    { "lat": -8.0516451, "lon": -34.8951149 },
+    { "lat": -8.0514522, "lon": -34.8949652 },
+    { "lat": -8.0514029, "lon": -34.8949270 },
+    { "lat": -8.0488250, "lon": -34.8928966 },
+    { "lat": -8.0486925, "lon": -34.8927918 }
+  ],
+  "tags": {
+    "highway": "cycleway",
+    "name": "Ciclovia Agamenon Magalhães",
+    "oneway": "yes",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 1241145626,
+  "bounds": {
+    "minlat": -8.0487477,
+    "minlon": -34.8927345,
+    "maxlat": -8.0471278,
+    "maxlon": -34.8914534
+  },
+  "nodes": [
+    8632695498,
+    1443852583,
+    12412171622,
+    3267111544
+  ],
+  "geometry": [
+    { "lat": -8.0487477, "lon": -34.8927345 },
+    { "lat": -8.0476308, "lon": -34.8918443 },
+    { "lat": -8.0473472, "lon": -34.8916275 },
+    { "lat": -8.0471278, "lon": -34.8914534 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "note": "There is a slight spelling difference between the IBGE data (Avenida Governador Agamenon Magalhaes) and the OSM data (Avenida Agamenon Magalhaes-Pista central)",
+    "oneway": "yes",
+    "postal_code": "52021-900",
+    "ref": "PE-015",
+    "source:postal_code": "CNEFE",
+    "surface": "asphalt",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 1284731466,
+  "bounds": {
+    "minlat": -8.0967412,
+    "minlon": -34.9295299,
+    "maxlat": -8.0966598,
+    "maxlon": -34.9295182
+  },
+  "nodes": [
+    5612511456,
+    11918684304,
+    11918684330,
+    7266992282
+  ],
+  "geometry": [
+    { "lat": -8.0967412, "lon": -34.9295182 },
+    { "lat": -8.0967019, "lon": -34.9295291 },
+    { "lat": -8.0966916, "lon": -34.9295299 },
+    { "lat": -8.0966598, "lon": -34.9295273 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "name": "Saida Walmart Avenida Recife",
+    "oneway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 1284731467,
+  "bounds": {
+    "minlat": -8.0967815,
+    "minlon": -34.9296067,
+    "maxlat": -8.0967286,
+    "maxlon": -34.9295620
+  },
+  "nodes": [
+    2016128117,
+    11918684331,
+    4272549423
+  ],
+  "geometry": [
+    { "lat": -8.0967286, "lon": -34.9296067 },
+    { "lat": -8.0967452, "lon": -34.9295902 },
+    { "lat": -8.0967815, "lon": -34.9295620 }
+  ],
+  "tags": {
+    "highway": "residential",
+    "name": "Acesso ao Walmart Avenida Recife",
+    "oneway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 1299031427,
+  "bounds": {
+    "minlat": -8.1069214,
+    "minlon": -34.9271796,
+    "maxlat": -8.1068535,
+    "maxlon": -34.9271695
+  },
+  "nodes": [
+    8461648959,
+    9509518167
+  ],
+  "geometry": [
+    { "lat": -8.1069214, "lon": -34.9271695 },
+    { "lat": -8.1068535, "lon": -34.9271796 }
+  ],
+  "tags": {
+    "alt_name": "Avenida Presidente Dutra",
+    "dual_carriageway": "yes",
+    "highway": "primary",
+    "lanes": "3",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Recife",
+    "oneway": "yes",
+    "postal_code": "51190-730",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete"
+  }
+},
+{
+  "type": "way",
+  "id": 1342125630,
+  "bounds": {
+    "minlat": -8.0471439,
+    "minlon": -34.8919054,
+    "maxlat": -8.0465407,
+    "maxlon": -34.8914403
+  },
+  "nodes": [
+    7055199660,
+    9136414090,
+    12412171623
+  ],
+  "geometry": [
+    { "lat": -8.0465407, "lon": -34.8914403 },
+    { "lat": -8.0466879, "lon": -34.8915532 },
+    { "lat": -8.0471439, "lon": -34.8919054 }
+  ],
+  "tags": {
+    "dual_carriageway": "yes",
+    "highway": "trunk",
+    "lanes": "4",
+    "lit": "yes",
+    "maxspeed": "50",
+    "name": "Avenida Governador Agamenon Magalhães",
+    "oneway": "yes",
+    "postal_code": "52020-000",
+    "ref": "PE-015",
+    "sidewalk:both": "no",
+    "source:postal_code": "CNEFE",
+    "surface": "concrete",
+    "wikidata": "Q51545330",
+    "wikipedia": "pt:Avenida Governador Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 1458792181,
+  "bounds": {
+    "minlat": -8.0652232,
+    "minlon": -34.8975510,
+    "maxlat": -8.0649470,
+    "maxlon": -34.8973985
+  },
+  "nodes": [
+    11463280675,
+    11463280676
+  ],
+  "geometry": [
+    { "lat": -8.0649470, "lon": -34.8975510 },
+    { "lat": -8.0652232, "lon": -34.8973985 }
+  ],
+  "tags": {
+    "bicycle": "designated",
+    "ford": "yes",
+    "highway": "footway",
+    "layer": "-1",
+    "name": "Ciclovia Agamenon Magalhães"
+  }
+},
+{
+  "type": "way",
+  "id": 1458792183,
+  "bounds": {
+    "minlat": -8.0649470,
+    "minlon": -34.8976294,
+    "maxlat": -8.0639183,
+    "maxlon": -34.8975171
+  },
+  "nodes": [
+    11463269053,
+    13378597674,
+    14262283962,
+    11463281741,
+    11463280673,
+    11463280674,
+    11463280675
+  ],
+  "geometry": [
+    { "lat": -8.0639183, "lon": -34.8975171 },
+    { "lat": -8.0639281, "lon": -34.8975735 },
+    { "lat": -8.0639368, "lon": -34.8976294 },
+    { "lat": -8.0639850, "lon": -34.8976222 },
+    { "lat": -8.0640190, "lon": -34.8976229 },
+    { "lat": -8.0647643, "lon": -34.8975431 },
+    { "lat": -8.0649470, "lon": -34.8975510 }
+  ],
+  "tags": {
+    "bicycle": "designated",
+    "ford": "yes",
+    "highway": "footway",
+    "layer": "-1",
+    "name": "Ciclovia Agamenon Magalhães"
+  }
+}
+
+  ]
+}
