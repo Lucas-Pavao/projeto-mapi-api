@@ -71,6 +71,10 @@ public class LiveStreamServiceImpl implements LiveStreamService {
             emitter.complete();
         });
         emitter.onError(e -> remove.run());
+        // Heartbeat imediato: o SseEmitter só escreve os cabeçalhos no primeiro evento. Sem isto o navegador ficava até
+        // 25 s (o próximo heartbeat agendado) sem saber que a conexão abriu e a tela mostrava "Conectando…" /
+        // "Sem atualização ao vivo" (achado na revisão das telas de 21/11).
+        send(sub, new Buffered(0, "heartbeat", java.util.Map.of("at", clock.instant().toString()), false));
         replay(sub, lastEventId);
         return emitter;
     }
