@@ -212,7 +212,7 @@ public class AlertEvaluatorImpl implements AlertEvaluator {
                     if (rule.getStationId() != null && !HourlyRainService.sameStation(r.stationId(), rule.getStationId())) continue;
                     boolean in = r.mm() >= rule.getThreshold();
                     out.add(new Candidate("station:" + r.stationId(), null, r.stationId(), in, Alert.Severity.WARNING,
-                            "Chuva forte no pluviômetro " + r.stationId(),
+                            "Chuva forte em " + stationLabel(s.sensors, r.stationId()),
                             String.format(Locale.ROOT, "%.1f mm na hora encerrada em %s (soma horária; limiar %.1f mm/h; fonte: %s).",
                                     r.mm(), r.hourEnd(), rule.getThreshold(), rule.getThresholdSource()),
                             r.mm(), null, null, null));
@@ -228,7 +228,9 @@ public class AlertEvaluatorImpl implements AlertEvaluator {
                     if (!wanted) continue;
                     boolean in = sensor.getAgeSeconds() > minutes * 60;
                     out.add(new Candidate("station:" + sensor.getSensorId(), null, sensor.getSensorId(), in, Alert.Severity.WARNING,
-                            "Sensor sem resposta: " + sensor.getSensorId(),
+                            (sensor.getStationName() != null && !sensor.getStationName().isBlank()
+                                    ? "Pluviômetro " + cleanName(sensor.getStationName()) + " sem resposta"
+                                    : "Sensor sem resposta: " + sensor.getSensorId()),
                             String.format(Locale.ROOT, "Última leitura há %d min (limite %.0f min).",
                                     sensor.getAgeSeconds() / 60, minutes),
                             sensor.getAgeSeconds() / 60.0, null, null, null));
@@ -236,6 +238,23 @@ public class AlertEvaluatorImpl implements AlertEvaluator {
             }
         }
         return out;
+    }
+
+    /**
+     * Nome da estação para o título do alerta (a tela mostrava só o código, "APAC-PLUVIO-261160612A"). O código continua
+     * em stationId e aparece na linha de detalhe. Sem nome no feed, fica o código.
+     */
+    static String stationLabel(List<SensorResponseDTO> sensors, String stationId) {
+        for (SensorResponseDTO x : sensors) {
+            if (x.getStationName() == null || x.getStationName().isBlank()) continue;
+            if (stationId.equals(x.getSensorId()) || HourlyRainService.sameStation(stationId, x.getSensorId())) return cleanName(x.getStationName());
+        }
+        return "pluviômetro " + stationId;
+    }
+
+    /** "[CEMADEN] Pina" → "Pina": a fonte já está no código da estação. */
+    static String cleanName(String name) {
+        return name.replaceFirst("^\\[[^\\]]*\\]\\s*", "").trim();
     }
 
     /**
