@@ -60,6 +60,15 @@ public class RainForecastServiceImpl implements RainForecastService {
     }
 
     @Override
+    public Inputs inputs(long floodPointId, String slug, double lat, double lon) {
+        Instant now = clock.instant();
+        List<Reading> readings = repo.neighborReadings(floodPointId, now.minus(LOOKBACK), now);
+        if (readings.isEmpty()) return new Inputs(List.of(), List.of());
+        Instant latest = readings.get(readings.size() - 1).ts();
+        return new Inputs(readings, openMeteoHours(floodPointId, slug, lat, lon, latest));
+    }
+
+    @Override
     public RainAlertRules.Forecast forecastForAlert(long floodPointId, String slug, double lat, double lon) {
         Run r = run(floodPointId, slug, lat, lon);
         if (r.failure() != null) return RainAlertRules.Forecast.failed(r.failure());

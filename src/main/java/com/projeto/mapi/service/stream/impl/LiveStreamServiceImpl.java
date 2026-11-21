@@ -1,11 +1,8 @@
 package com.projeto.mapi.service.stream.impl;
 
 import com.projeto.mapi.dto.AlertDTO;
-import com.projeto.mapi.dto.PredictionSummaryDTO;
 import com.projeto.mapi.exception.TooManyRequestsException;
 import com.projeto.mapi.service.alert.AlertCreatedEvent;
-import com.projeto.mapi.service.flood.PredictionCycleCompletedEvent;
-import com.projeto.mapi.service.flood.PredictionQueryService;
 import com.projeto.mapi.service.sensor.SensorReadingSavedEvent;
 import com.projeto.mapi.service.stream.LiveStreamService;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +33,6 @@ public class LiveStreamServiceImpl implements LiveStreamService {
     static final long EMITTER_TIMEOUT_MS = 30 * 60 * 1000L;
     static final int BUFFER_SIZE = 200;
 
-    private final PredictionQueryService predictionQuery;
     private final Clock clock;
 
     private final List<Subscriber> subscribers = new CopyOnWriteArrayList<>();
@@ -118,20 +114,8 @@ public class LiveStreamServiceImpl implements LiveStreamService {
 
     // ---- fontes de evento ----
 
-    /** Depois do avaliador de alertas (ordem mais alta): publica previsões e a contagem por nível. */
-    @EventListener
-    @Order(Ordered.LOWEST_PRECEDENCE)
-    public void onCycleCompleted(PredictionCycleCompletedEvent event) {
-        if (subscribers.isEmpty()) return;
-        try {
-            for (PredictionSummaryDTO p : predictionQuery.latestPerActivePoint()) {
-                broadcast("prediction", p, false);
-            }
-            broadcast("risk-summary", predictionQuery.riskSummary(), false);
-        } catch (Exception e) {
-            log.warn("Falha ao publicar o fim do ciclo no stream: {}", e.getMessage());
-        }
-    }
+    // Os eventos "prediction" e "risk-summary" (classificador de alagamento) saíram em 21/11/2026. O alerta por
+    // regressão publica "flood-forecast" a cada ciclo do alerta por ponto (AlertaCycleServiceImpl).
 
     @EventListener
     public void onAlert(AlertCreatedEvent event) {

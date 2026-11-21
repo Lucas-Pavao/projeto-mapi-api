@@ -23,6 +23,9 @@ public class FloodPointResponseDTO {
     private FloodPointRequestDTO.SensorConfigDTO sensorConfig;
     private java.util.List<String> nearbySensorIds;
     private MapiResponseDTO.PreciseData liveData;
+    // Classificador de alagamento retirado em 21/11/2026 (prompt de 20/11): o campo fica só para uso interno e não sai
+    // mais na resposta. O nível do ponto vem de GET /api/alagamento/pontos (alerta por regressão).
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private FloodPredictionResponseDTO floodPrediction;
     private Boolean active;
     private Double tideHeight;

@@ -1,16 +1,13 @@
 package com.projeto.mapi.integration;
 
-import com.projeto.mapi.dto.DegradationReason;
-import com.projeto.mapi.dto.ModelValidationStatus;
-import com.projeto.mapi.dto.PredictionSummaryDTO;
-import com.projeto.mapi.dto.RiskLevel;
+import com.projeto.mapi.dto.AlagamentoPontoDTO;
 import com.projeto.mapi.dto.SensorResponseDTO;
 import com.projeto.mapi.model.FloodPoint;
 import com.projeto.mapi.repository.FloodEventRepository;
 import com.projeto.mapi.repository.FloodPointRepository;
 import com.projeto.mapi.repository.FloodPredictionRepository;
 import com.projeto.mapi.service.alert.AlertEvaluator;
-import com.projeto.mapi.service.flood.PredictionQueryService;
+import com.projeto.mapi.service.alagamento.FloodForecastService;
 import com.projeto.mapi.service.sensor.SensorService;
 import com.projeto.mapi.service.tide.TideService;
 import com.projeto.mapi.support.AbstractApiIntegrationTest;
@@ -41,7 +38,7 @@ class AlertsIntegrationTest extends AbstractApiIntegrationTest {
     @Autowired FloodPredictionRepository predictionRepository;
     @Autowired JdbcTemplate jdbc;
 
-    @MockitoBean PredictionQueryService predictionQuery;
+    @MockitoBean FloodForecastService floodForecast;
     @MockitoBean SensorService sensorService;
     @MockitoBean com.projeto.mapi.service.sensor.HourlyRainService hourlyRain;
     @MockitoBean TideService tideService;
@@ -58,7 +55,8 @@ class AlertsIntegrationTest extends AbstractApiIntegrationTest {
         pointRepository.save(FloodPoint.builder().slug("p-alerta").name("Ponto alerta").latitude(-8.05).longitude(-34.88).build());
         when(sensorService.getLatestWithFreshness(any())).thenReturn(List.of());
         when(hourlyRain.latestClosedHour()).thenReturn(List.of());
-        when(predictionQuery.latestPerActivePoint()).thenReturn(List.of());
+        when(floodForecast.shadow()).thenReturn(false);
+        when(floodForecast.current()).thenReturn(List.of());
     }
 
     private void regra(String kind, String minRisk, Double threshold, String source) {
@@ -66,10 +64,17 @@ class AlertsIntegrationTest extends AbstractApiIntegrationTest {
                 + "VALUES (?,?,?,?,TRUE,'teste',now())", kind, minRisk, threshold, source);
     }
 
-    private void previsao(RiskLevel level, DegradationReason reason) {
-        when(predictionQuery.latestPerActivePoint()).thenReturn(List.of(new PredictionSummaryDTO("p-alerta", level,
-                level == RiskLevel.UNKNOWN ? null : 0.9, Instant.now(), null, 3, "m1", reason, null,
-                ModelValidationStatus.NOT_VALIDATED, null, null, null, null, null)));
+    /** Nível do alerta por regressão do ponto no ciclo (ALERTA, ATENCAO, SEM_ALERTA, SEM_DADO com motivo). */
+    private void nivel(String level, String reason) {
+        boolean semDado = "SEM_DADO".equals(level);
+        when(floodForecast.current()).thenReturn(List.of(new AlagamentoPontoDTO(1L, "p-alerta", "Ponto alerta", level,
+                semDado ? null : 1, reason, semDado ? "previsão de chuva (rain_v1) fora do ar" : null,
+                "ALERTA".equals(level) ? 17.7 : 0.0, 0.0, List.of(), null, null, null, null, null, Map.of(), List.of(), List.of(),
+                null, Instant.now(), Instant.now(), true, false, "regra", AlagamentoPontoDTO.ATTRIBUTION)));
+    }
+
+    private void previsao(String level) {
+        nivel(level, null);
     }
 
     private static com.projeto.mapi.service.sensor.HourlyRainService.StationRain rain(String id, double mm) {
@@ -81,86 +86,86 @@ class AlertsIntegrationTest extends AbstractApiIntegrationTest {
     }
 
     @Test
-    void risco_alertaSoNaTransicao_comSupressaoDe30Min() {
-        regra("RISK_LEVEL", "HIGH", null, null);
+    void soAlerta_entraNaTransicao_saiComAviso_eSupressaoDe30Min() {
+        regra("RISK_LEVEL", "HIGH", null, null); // "Só alerta"
 
-        previsao(RiskLevel.LOW, null);
+        previsao("SEM_ALERTA");
         assertThat(evaluator.evaluate()).isZero();
 
-        previsao(RiskLevel.HIGH, null);
+        previsao("ALERTA");
         assertThat(evaluator.evaluate()).isEqualTo(1);
         assertThat(evaluator.evaluate()).as("segundo ciclo igual não repete").isZero();
-        assertThat(alertas()).isEqualTo(1);
-        assertThat(jdbc.queryForMap("SELECT severity, model_validation_status, risk_level FROM alert"))
+        assertThat(jdbc.queryForMap("SELECT severity, model_validation_status, risk_level, title, detail FROM alert"))
                 .containsEntry("severity", "CRITICAL").containsEntry("model_validation_status", "NOT_VALIDATED")
-                .containsEntry("risk_level", "HIGH");
+                .containsEntry("risk_level", "ALERTA").containsEntry("title", "Ponto alerta: alerta em 1 h · lâmina 17,7 cm")
+                .containsEntry("detail", "Alerta experimental (chuva prevista + balde), não validado.");
 
-        // sai e volta dentro de 30 min: suprimido
-        previsao(RiskLevel.LOW, null);
-        evaluator.evaluate();
-        previsao(RiskLevel.HIGH, null);
+        // sai: aviso "saiu do alerta"; volta dentro de 30 min: suprimido
+        previsao("SEM_ALERTA");
+        assertThat(evaluator.evaluate()).isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT title FROM alert ORDER BY id DESC LIMIT 1", String.class)).isEqualTo("Ponto alerta: saiu do alerta");
+        previsao("ALERTA");
         assertThat(evaluator.evaluate()).isZero();
-        assertThat(alertas()).isEqualTo(1);
+        assertThat(alertas()).isEqualTo(2);
 
         // passados 30 min do primeiro alerta, sai e volta: alerta novo
-        previsao(RiskLevel.LOW, null);
+        previsao("SEM_ALERTA");
         evaluator.evaluate();
         jdbc.update("UPDATE alert SET triggered_at = now() - interval '31 minutes'");
-        previsao(RiskLevel.HIGH, null);
+        previsao("ALERTA");
         assertThat(evaluator.evaluate()).isEqualTo(1);
-        assertThat(alertas()).isEqualTo(2);
+        assertThat(alertas()).isEqualTo(4);
     }
 
     @Test
-    void escaladaMediumParaHigh_geraAlertaMaiorMesmoDentroDe30Min_eSupressaoVaiPorNivel() {
-        regra("RISK_LEVEL", "MEDIUM", null, null);
+    void atencaoOuAlerta_escalaDeAtencaoParaAlerta_eSupressaoVaiPorNivel() {
+        regra("RISK_LEVEL", "MEDIUM", null, null); // "Atenção ou alerta"
 
-        previsao(RiskLevel.LOW, null);
+        previsao("SEM_ALERTA");
         assertThat(evaluator.evaluate()).isZero();
 
-        previsao(RiskLevel.MEDIUM, null);
-        assertThat(evaluator.evaluate()).as("entrada em MEDIUM").isEqualTo(1);
+        previsao("ATENCAO");
+        assertThat(evaluator.evaluate()).as("entrada em ATENÇÃO").isEqualTo(1);
         assertThat(jdbc.queryForObject("SELECT severity FROM alert ORDER BY id DESC LIMIT 1", String.class)).isEqualTo("WARNING");
 
-        previsao(RiskLevel.HIGH, null);
-        assertThat(evaluator.evaluate()).as("escalada MEDIUM -> HIGH, dentro dos 30 min").isEqualTo(1);
+        previsao("ALERTA");
+        assertThat(evaluator.evaluate()).as("escalada ATENÇÃO -> ALERTA, dentro dos 30 min").isEqualTo(1);
         assertThat(jdbc.queryForObject("SELECT severity FROM alert ORDER BY id DESC LIMIT 1", String.class)).isEqualTo("CRITICAL");
-        assertThat(alertas()).isEqualTo(2);
+        assertThat(evaluator.evaluate()).as("ALERTA repetido: nada").isZero();
 
-        assertThat(evaluator.evaluate()).as("HIGH repetido: nada").isZero();
-
-        // desce para MEDIUM (continua em condição): sem alerta; volta a HIGH dentro de 30 min: mesmo nível, suprimido
-        previsao(RiskLevel.MEDIUM, null);
+        // desce para ATENÇÃO (continua em condição): sem alerta; volta a ALERTA dentro de 30 min: suprimido
+        previsao("ATENCAO");
         assertThat(evaluator.evaluate()).isZero();
-        previsao(RiskLevel.HIGH, null);
+        previsao("ALERTA");
         assertThat(evaluator.evaluate()).as("mesmo nível dentro da supressão").isZero();
         assertThat(alertas()).isEqualTo(2);
-
-        // passados 30 min, uma nova escalada alerta de novo
-        previsao(RiskLevel.MEDIUM, null);
-        evaluator.evaluate();
-        jdbc.update("UPDATE alert SET triggered_at = now() - interval '31 minutes'");
-        previsao(RiskLevel.HIGH, null);
-        assertThat(evaluator.evaluate()).isEqualTo(1);
-        assertThat(alertas()).isEqualTo(3);
     }
 
     @Test
-    void unknownNaoEhQuedaDeRisco_eGeraPredictionUnavailableComMotivo() {
+    void semDadoNaoEhSaidaDoAlerta_eGeraAvisoComMotivo() {
         regra("RISK_LEVEL", "HIGH", null, null);
         regra("PREDICTION_UNAVAILABLE", null, null, null);
 
-        previsao(RiskLevel.HIGH, null);
+        previsao("ALERTA");
         assertThat(evaluator.evaluate()).isEqualTo(1);
 
-        previsao(RiskLevel.UNKNOWN, DegradationReason.AI_TIMEOUT);
-        assertThat(evaluator.evaluate()).isEqualTo(1);
-        assertThat(jdbc.queryForMap("SELECT kind, degradation_reason FROM alert WHERE kind='PREDICTION_UNAVAILABLE'"))
-                .containsEntry("degradation_reason", "AI_TIMEOUT");
+        nivel("SEM_DADO", "PREVISAO_INDISPONIVEL");
+        assertThat(evaluator.evaluate()).as("só o aviso de sem dado; nada de 'saiu do alerta'").isEqualTo(1);
+        assertThat(jdbc.queryForMap("SELECT kind, degradation_reason, title FROM alert WHERE kind='PREDICTION_UNAVAILABLE'"))
+                .containsEntry("degradation_reason", "PREVISAO_INDISPONIVEL").containsEntry("title", "Ponto alerta: alerta sem dado");
 
-        // HIGH de novo logo depois do UNKNOWN: o estado de RISK_LEVEL não foi zerado, então não é "entrada" nova
-        previsao(RiskLevel.HIGH, null);
+        // ALERTA de novo logo depois do SEM_DADO: o estado de RISK_LEVEL não foi zerado, então não é "entrada" nova
+        previsao("ALERTA");
         assertThat(evaluator.evaluate()).isZero();
+    }
+
+    @Test
+    void modoSombra_naoAvaliaAsRegrasDoAlertaPorRegressao() {
+        regra("RISK_LEVEL", "MEDIUM", null, null);
+        when(floodForecast.shadow()).thenReturn(true);
+        previsao("ALERTA");
+        assertThat(evaluator.evaluate()).isZero();
+        assertThat(alertas()).isZero();
     }
 
     @Test
@@ -204,7 +209,7 @@ class AlertsIntegrationTest extends AbstractApiIntegrationTest {
     void regraDesativadaNaoDispara() {
         regra("RISK_LEVEL", "HIGH", null, null);
         jdbc.update("UPDATE alert_rule SET enabled = FALSE");
-        previsao(RiskLevel.HIGH, null);
+        previsao("ALERTA");
         assertThat(evaluator.evaluate()).isZero();
     }
 
@@ -221,7 +226,7 @@ class AlertsIntegrationTest extends AbstractApiIntegrationTest {
     @Test
     void alertasERegras_matrizDePerfis() throws Exception {
         regra("RISK_LEVEL", "HIGH", null, null);
-        previsao(RiskLevel.HIGH, null);
+        previsao("ALERTA");
         evaluator.evaluate();
         Long alertId = jdbc.queryForObject("SELECT id FROM alert", Long.class);
         Long ruleId = jdbc.queryForObject("SELECT id FROM alert_rule", Long.class);
@@ -247,7 +252,7 @@ class AlertsIntegrationTest extends AbstractApiIntegrationTest {
     @Test
     void ackEhIdempotente_eListagemPorStatus() throws Exception {
         regra("RISK_LEVEL", "HIGH", null, null);
-        previsao(RiskLevel.HIGH, null);
+        previsao("ALERTA");
         evaluator.evaluate();
         Long id = jdbc.queryForObject("SELECT id FROM alert", Long.class);
 
@@ -298,7 +303,7 @@ class AlertsIntegrationTest extends AbstractApiIntegrationTest {
     @Test
     void apagarRegraMantemAlertasJaDisparados() throws Exception {
         regra("RISK_LEVEL", "HIGH", null, null);
-        previsao(RiskLevel.HIGH, null);
+        previsao("ALERTA");
         evaluator.evaluate();
         Long ruleId = jdbc.queryForObject("SELECT id FROM alert_rule", Long.class);
         mockMvc.perform(as(delete("/api/alert-rules/" + ruleId), operadorToken())).andExpect(status().isNoContent());

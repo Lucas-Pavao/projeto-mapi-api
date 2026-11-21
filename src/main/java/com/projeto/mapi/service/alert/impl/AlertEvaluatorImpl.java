@@ -1,7 +1,6 @@
 package com.projeto.mapi.service.alert.impl;
 
-import com.projeto.mapi.dto.PredictionSummaryDTO;
-import com.projeto.mapi.dto.RiskLevel;
+import com.projeto.mapi.dto.AlagamentoPontoDTO;
 import com.projeto.mapi.dto.SensorResponseDTO;
 import com.projeto.mapi.mapper.AlertMapper;
 import com.projeto.mapi.model.Alert;
@@ -15,7 +14,7 @@ import com.projeto.mapi.repository.AlertStateRepository;
 import com.projeto.mapi.repository.FloodPointRepository;
 import com.projeto.mapi.service.alert.AlertCreatedEvent;
 import com.projeto.mapi.service.alert.AlertEvaluator;
-import com.projeto.mapi.service.flood.PredictionQueryService;
+import com.projeto.mapi.service.alagamento.FloodForecastService;
 import com.projeto.mapi.service.sensor.HourlyRainService;
 import com.projeto.mapi.service.sensor.SensorService;
 import com.projeto.mapi.service.tide.TideService;
@@ -47,7 +46,7 @@ public class AlertEvaluatorImpl implements AlertEvaluator {
     private final AlertRepository alertRepository;
     private final AlertStateRepository stateRepository;
     private final FloodPointRepository pointRepository;
-    private final PredictionQueryService predictionQuery;
+    private final FloodForecastService floodForecast;
     private final SensorService sensorService;
     private final HourlyRainService hourlyRain;
     private final TideService tideService;
@@ -90,14 +89,14 @@ public class AlertEvaluatorImpl implements AlertEvaluator {
     /** Dados lidos uma vez por avaliação (cada regra os reaproveita). */
     private static final class Snapshot {
         final List<FloodPoint> points;
-        final Map<String, PredictionSummaryDTO> predictions;
+        final Map<String, AlagamentoPontoDTO> flood;
         final List<SensorResponseDTO> sensors;
         final List<HourlyRainService.StationRain> rainLastHour;
 
-        Snapshot(List<FloodPoint> points, Map<String, PredictionSummaryDTO> predictions,
+        Snapshot(List<FloodPoint> points, Map<String, AlagamentoPontoDTO> flood,
                  List<SensorResponseDTO> sensors, List<HourlyRainService.StationRain> rainLastHour) {
             this.points = points;
-            this.predictions = predictions;
+            this.flood = flood;
             this.sensors = sensors;
             this.rainLastHour = rainLastHour;
         }
@@ -111,8 +110,9 @@ public class AlertEvaluatorImpl implements AlertEvaluator {
         Instant now = clock.instant();
         Snapshot snap = new Snapshot(
                 pointRepository.findByActiveTrue(),
-                predictionQuery.latestPerActivePoint().stream()
-                        .collect(Collectors.toMap(PredictionSummaryDTO::slug, Function.identity(), (a, b) -> a)),
+                // Alerta por regressão (V38). Em modo sombra fica vazio: a Central não mostra a operadores o que só o ADMIN vê.
+                floodForecast.shadow() ? Map.of() : floodForecast.current().stream()
+                        .collect(Collectors.toMap(AlagamentoPontoDTO::slug, Function.identity(), (a, b) -> a)),
                 sensorService.getLatestWithFreshness(null),
                 hourlyRain.latestClosedHour());
 
@@ -143,6 +143,16 @@ public class AlertEvaluatorImpl implements AlertEvaluator {
         boolean escalated = c.inCondition && wasIn && previous.getSeverity() != null
                 && c.severity.ordinal() > previous.getSeverity().ordinal();
         boolean createdAlert = false;
+        // Saída do alerta por regressão: um aviso INFO "saiu do alerta" (5.10), com a mesma supressão.
+        if (rule.getKind() == AlertKind.RISK_LEVEL && wasIn && !c.inCondition && c.point != null) {
+            Alert exit = alertRepository.save(Alert.builder()
+                    .rule(rule).kind(rule.getKind()).severity(Alert.Severity.INFO)
+                    .floodPoint(c.point).title(c.point.getName() + ": saiu do alerta")
+                    .detail("Alerta experimental (chuva prevista + balde), não validado.")
+                    .observedValue(c.observedValue).riskLevel(c.riskLevel).triggeredAt(now).build());
+            publisher.publishEvent(new AlertCreatedEvent(alertMapper.toDto(exit)));
+            createdAlert = true;
+        }
         if ((entered || escalated) && !suppressed(rule, c, now)) {
             Alert alert = alertRepository.save(Alert.builder()
                     .rule(rule).kind(rule.getKind()).severity(c.severity)
@@ -181,8 +191,8 @@ public class AlertEvaluatorImpl implements AlertEvaluator {
                 for (FloodPoint p : s.points) {
                     if (rule.getFloodPoint() != null && !rule.getFloodPoint().getId().equals(p.getId())) continue;
                     Candidate c = switch (kind) {
-                        case RISK_LEVEL -> riskCandidate(rule, p, s.predictions.get(p.getSlug()));
-                        case PREDICTION_UNAVAILABLE -> unavailableCandidate(p, s.predictions.get(p.getSlug()));
+                        case RISK_LEVEL -> riskCandidate(rule, p, s.flood.get(p.getSlug()));
+                        case PREDICTION_UNAVAILABLE -> unavailableCandidate(p, s.flood.get(p.getSlug()));
                         default -> tideCandidate(rule, p);
                     };
                     if (c != null) out.add(c);
@@ -228,30 +238,30 @@ public class AlertEvaluatorImpl implements AlertEvaluator {
         return out;
     }
 
-    private Candidate riskCandidate(AlertRule rule, FloodPoint p, PredictionSummaryDTO pred) {
-        // UNKNOWN nunca é queda de risco: não muda o estado (ADR 0011).
-        if (pred == null || pred.riskLevel() == RiskLevel.UNKNOWN) return null;
-        RiskLevel min = "MEDIUM".equals(rule.getMinRisk()) ? RiskLevel.MEDIUM : RiskLevel.HIGH;
-        boolean in = pred.riskLevel().ordinal() >= min.ordinal();
-        Alert.Severity severity = pred.riskLevel() == RiskLevel.HIGH ? Alert.Severity.CRITICAL : Alert.Severity.WARNING;
-        return new Candidate("point:" + p.getSlug(), p, null, in, severity,
-                "Risco " + pred.riskLevel() + " em " + p.getName(),
-                "Previsão experimental (modelo não validado)"
-                        + (pred.modelVersion() != null ? ", modelo " + pred.modelVersion() : "") + ".",
-                pred.probability(), pred.riskLevel().name(), null,
-                pred.modelValidationStatus() == null ? null : pred.modelValidationStatus().name());
+    /**
+     * Regra "Atenção ou alerta" (min_risk MEDIUM) ou "Só alerta" (min_risk HIGH) sobre o nível do alerta por regressão.
+     * SEM_DADO nunca é saída do alerta: não muda o estado (como o UNKNOWN da ADR 0011).
+     */
+    private Candidate riskCandidate(AlertRule rule, FloodPoint p, AlagamentoPontoDTO a) {
+        if (a == null || "SEM_DADO".equals(a.level())) return null;
+        boolean onlyAlert = "HIGH".equals(rule.getMinRisk());
+        boolean in = "ALERTA".equals(a.level()) || (!onlyAlert && "ATENCAO".equals(a.level()));
+        Alert.Severity severity = "ALERTA".equals(a.level()) ? Alert.Severity.CRITICAL : Alert.Severity.WARNING;
+        String what = "ALERTA".equals(a.level()) ? "alerta" : "ATENCAO".equals(a.level()) ? "atenção" : "sem alerta";
+        String title = String.format(Locale.forLanguageTag("pt-BR"), "%s: %s em %s h%s", p.getName(), what,
+                a.worstHorizonHours() == null ? "?" : a.worstHorizonHours(),
+                a.hNowCm() == null ? "" : String.format(Locale.forLanguageTag("pt-BR"), " · lâmina %.1f cm", a.hNowCm()));
+        return new Candidate("point:" + p.getSlug(), p, null, in, severity, title,
+                "Alerta experimental (chuva prevista + balde), não validado.", a.hNowCm(), a.level(), null, "NOT_VALIDATED");
     }
 
-    private Candidate unavailableCandidate(FloodPoint p, PredictionSummaryDTO pred) {
-        if (pred == null) return null;
-        boolean in = pred.riskLevel() == RiskLevel.UNKNOWN;
-        String reason = pred.degradationReason() == null ? null : pred.degradationReason().name();
+    private Candidate unavailableCandidate(FloodPoint p, AlagamentoPontoDTO a) {
+        if (a == null) return null;
+        boolean in = "SEM_DADO".equals(a.level());
         return new Candidate("point:" + p.getSlug(), p, null, in, Alert.Severity.WARNING,
-                "Previsão indisponível em " + p.getName(),
-                "Sem previsão válida" + (reason != null ? " (" + reason + ")" : "")
-                        + ". Isto não indica risco baixo.",
-                null, RiskLevel.UNKNOWN.name(), reason,
-                pred.modelValidationStatus() == null ? null : pred.modelValidationStatus().name());
+                p.getName() + ": alerta sem dado",
+                "Sem dado" + (a.reasonText() != null ? " (" + a.reasonText() + ")" : "") + ". Sem dado não é sem alerta.",
+                null, "SEM_DADO", a.reason(), "NOT_VALIDATED");
     }
 
     private Candidate tideCandidate(AlertRule rule, FloodPoint p) {

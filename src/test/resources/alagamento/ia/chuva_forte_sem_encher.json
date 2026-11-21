@@ -1,0 +1,837 @@
+{
+ "version": "flood_reg_v1",
+ "model_versions": {
+  "flood": "flood_reg_v1",
+  "rain": {
+   "version": "rain_v1",
+   "training_data": "MEASURED",
+   "target": "MEASURED"
+  },
+  "bucket": {
+   "version": "balde-M1a-10min",
+   "training_data": "NONE_PHYSICAL",
+   "calibrated": false
+  }
+ },
+ "code_version": "0000000000000000000000000000000000000000",
+ "code_dirty": "false",
+ "issued_at": "2026-11-20T17:00:00Z",
+ "hcrit_cm": 15.0,
+ "rule": {
+  "ALERTA": "a lâmina máxima do cenário q50 (provável) chega a 15 cm no horizonte",
+  "ATENCAO": "só a lâmina máxima do cenário q95 (pessimista) chega a 15 cm no horizonte",
+  "SEM_ALERTA": "nenhum dos dois cenários chega a 15 cm no horizonte (não quer dizer sem risco)",
+  "SEM_DADO": "falta entrada para calcular; nunca vira SEM_ALERTA"
+ },
+ "rule_text": "ALERTA se a lâmina do cenário q50 chega a 15 cm; ATENÇÃO se só a do cenário q95 chega; SEM ALERTA caso contrário. Limiar e regra fixados antes do teste (20/11).",
+ "distribution": "chuva prevista em (t, t+h] distribuída por igual nos passos de 10 min do horizonte",
+ "sheet_max": "máximo entre a lâmina de agora e a lâmina prevista a cada 10 min no horizonte",
+ "experimental": true,
+ "experimental_note": "experimental: a validação externa (Etapa 2.3, dias da Defesa Civil) ainda não foi aprovada; o balde não está calibrado",
+ "validated": false,
+ "attribution": "DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC",
+ "slug": "MASCARENHAS_IMBIRIBEIRA",
+ "h_now_cm": 0.0,
+ "rain_now_10min_mm": 7.5,
+ "rain_last_60min_measured_mm": 45.0,
+ "level": "SEM_ALERTA",
+ "worst_horizon_hours": 6,
+ "reason": null,
+ "reason_text": null,
+ "reason_detail": null,
+ "horizons": [
+  {
+   "hours": 1,
+   "level": "SEM_ALERTA",
+   "rain_q50_mm": 12.0,
+   "rain_q95_mm": 24.0,
+   "sheet_q50_cm": 0.0,
+   "sheet_q95_cm": 0.0,
+   "valid_from": "2026-11-20T17:00:00Z",
+   "valid_until": "2026-11-20T18:00:00Z"
+  },
+  {
+   "hours": 3,
+   "level": "SEM_ALERTA",
+   "rain_q50_mm": 20.0,
+   "rain_q95_mm": 40.0,
+   "sheet_q50_cm": 0.0,
+   "sheet_q95_cm": 0.0,
+   "valid_from": "2026-11-20T17:00:00Z",
+   "valid_until": "2026-11-20T20:00:00Z"
+  },
+  {
+   "hours": 6,
+   "level": "SEM_ALERTA",
+   "rain_q50_mm": 26.0,
+   "rain_q95_mm": 52.0,
+   "sheet_q50_cm": 0.0,
+   "sheet_q95_cm": 0.0,
+   "valid_from": "2026-11-20T17:00:00Z",
+   "valid_until": "2026-11-20T23:00:00Z"
+  }
+ ],
+ "explanation": {
+  "served_scenario": "q50",
+  "served_horizon_hours": 6,
+  "shap": {
+   "available": true,
+   "method": "TreeSHAP exato do XGBoost (pred_contribs)",
+   "horizon_hours": 6,
+   "quantile": "q50",
+   "base_mm": 0.9346,
+   "raw_prediction_mm": 16.934,
+   "sum_check_mm": 16.934,
+   "top": [
+    {
+     "feature": "p_10",
+     "label": "chuva no ponto (até 5 km) nos últimos 10 min: 7,5 mm",
+     "value": 7.5,
+     "unit": "mm",
+     "contribution_mm": 4.497,
+     "text": "chuva no ponto (até 5 km) nos últimos 10 min: 7,5 mm (+4,5 mm na previsão)"
+    },
+    {
+     "feature": "r5_15_mean_60",
+     "label": "chuva média nas estações a 5–15 km na última hora: 45,0 mm",
+     "value": 45.0,
+     "unit": "mm",
+     "contribution_mm": 4.304,
+     "text": "chuva média nas estações a 5–15 km na última hora: 45,0 mm (+4,3 mm na previsão)"
+    },
+    {
+     "feature": "r5_15_frac_wet_60",
+     "label": "estações a 5–15 km com chuva na última hora: 100%",
+     "value": 1.0,
+     "unit": "%",
+     "contribution_mm": 3.363,
+     "text": "estações a 5–15 km com chuva na última hora: 100% (+3,4 mm na previsão)"
+    }
+   ]
+  },
+  "counterfactual": {
+   "extra_mm": 157.0,
+   "reached": true,
+   "base_rain_1h_mm": 12.0,
+   "text": "mais 157,0 mm de chuva na próxima hora, além dos 12,0 mm previstos (q50), levariam a lâmina a 15 cm"
+  },
+  "sensitivity": {
+   "horizon_hours": 6,
+   "scenario": "q50",
+   "min_cm": 0.0,
+   "max_cm": 63.5,
+   "levels_seen": [
+    "ALERTA",
+    "SEM_ALERTA"
+   ],
+   "level_changes": true,
+   "n_combinations": 162,
+   "ranges": {
+    "f": [
+     0.0,
+     0.2,
+     0.4,
+     0.6,
+     0.8,
+     1.0
+    ],
+    "C": [
+     0.7,
+     0.86,
+     0.95
+    ],
+    "tr_anos": [
+     2.0,
+     5.0,
+     10.0
+    ],
+    "te_min": [
+     5.0,
+     10.0,
+     15.0
+    ]
+   },
+   "one_at_a_time": {
+    "f": {
+     "values": [
+      0.0,
+      0.2,
+      0.4,
+      0.6,
+      0.8,
+      1.0
+     ],
+     "min_cm": 0.0,
+     "max_cm": 56.5,
+     "source": "sem fonte (cadastro da galeria não é público; faixa de 0 a projeto)"
+    },
+    "C": {
+     "values": [
+      0.7,
+      0.86,
+      0.95
+     ],
+     "min_cm": 0.0,
+     "max_cm": 0.0,
+     "source": "URB Recife (2018) e faixa do documento de parâmetros"
+    },
+    "tr_anos": {
+     "values": [
+      2.0,
+      5.0,
+      10.0
+     ],
+     "min_cm": 0.0,
+     "max_cm": 0.0,
+     "source": "Silva e Araújo (2013), Eq. 16; TR é escolha de projeto"
+    },
+    "te_min": {
+     "values": [
+      5.0,
+      10.0,
+      15.0
+     ],
+     "min_cm": 0.0,
+     "max_cm": 0.0,
+     "source": "tempo de entrada típico de microdrenagem; central 10 min"
+    }
+   },
+   "heaviest_parameter": "f",
+   "text": "lâmina máxima entre 0,0 e 63,5 cm com f, C e i_T na faixa; o nível muda"
+  },
+  "decomposition": [
+   {
+    "t": "2026-11-20T14:10:00Z",
+    "minutes_from_now": -170,
+    "kind": "medido",
+    "rain_mm": 0.0,
+    "inflow_m3_h": 0.0,
+    "outflow_m3_h": 0.0,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T14:20:00Z",
+    "minutes_from_now": -160,
+    "kind": "medido",
+    "rain_mm": 0.0,
+    "inflow_m3_h": 0.0,
+    "outflow_m3_h": 0.0,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T14:30:00Z",
+    "minutes_from_now": -150,
+    "kind": "medido",
+    "rain_mm": 0.0,
+    "inflow_m3_h": 0.0,
+    "outflow_m3_h": 0.0,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T14:40:00Z",
+    "minutes_from_now": -140,
+    "kind": "medido",
+    "rain_mm": 0.0,
+    "inflow_m3_h": 0.0,
+    "outflow_m3_h": 0.0,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T14:50:00Z",
+    "minutes_from_now": -130,
+    "kind": "medido",
+    "rain_mm": 0.0,
+    "inflow_m3_h": 0.0,
+    "outflow_m3_h": 0.0,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T15:00:00Z",
+    "minutes_from_now": -120,
+    "kind": "medido",
+    "rain_mm": 0.0,
+    "inflow_m3_h": 0.0,
+    "outflow_m3_h": 0.0,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T15:10:00Z",
+    "minutes_from_now": -110,
+    "kind": "medido",
+    "rain_mm": 7.5,
+    "inflow_m3_h": 774.0,
+    "outflow_m3_h": 774.0,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T15:20:00Z",
+    "minutes_from_now": -100,
+    "kind": "medido",
+    "rain_mm": 7.5,
+    "inflow_m3_h": 774.0,
+    "outflow_m3_h": 774.0,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T15:30:00Z",
+    "minutes_from_now": -90,
+    "kind": "medido",
+    "rain_mm": 7.5,
+    "inflow_m3_h": 774.0,
+    "outflow_m3_h": 774.0,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T15:40:00Z",
+    "minutes_from_now": -80,
+    "kind": "medido",
+    "rain_mm": 7.5,
+    "inflow_m3_h": 774.0,
+    "outflow_m3_h": 774.0,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T15:50:00Z",
+    "minutes_from_now": -70,
+    "kind": "medido",
+    "rain_mm": 7.5,
+    "inflow_m3_h": 774.0,
+    "outflow_m3_h": 774.0,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T16:00:00Z",
+    "minutes_from_now": -60,
+    "kind": "medido",
+    "rain_mm": 7.5,
+    "inflow_m3_h": 774.0,
+    "outflow_m3_h": 774.0,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T16:10:00Z",
+    "minutes_from_now": -50,
+    "kind": "medido",
+    "rain_mm": 7.5,
+    "inflow_m3_h": 774.0,
+    "outflow_m3_h": 774.0,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T16:20:00Z",
+    "minutes_from_now": -40,
+    "kind": "medido",
+    "rain_mm": 7.5,
+    "inflow_m3_h": 774.0,
+    "outflow_m3_h": 774.0,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T16:30:00Z",
+    "minutes_from_now": -30,
+    "kind": "medido",
+    "rain_mm": 7.5,
+    "inflow_m3_h": 774.0,
+    "outflow_m3_h": 774.0,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T16:40:00Z",
+    "minutes_from_now": -20,
+    "kind": "medido",
+    "rain_mm": 7.5,
+    "inflow_m3_h": 774.0,
+    "outflow_m3_h": 774.0,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T16:50:00Z",
+    "minutes_from_now": -10,
+    "kind": "medido",
+    "rain_mm": 7.5,
+    "inflow_m3_h": 774.0,
+    "outflow_m3_h": 774.0,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T17:00:00Z",
+    "minutes_from_now": 0,
+    "kind": "medido",
+    "rain_mm": 7.5,
+    "inflow_m3_h": 774.0,
+    "outflow_m3_h": 774.0,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T17:10:00Z",
+    "minutes_from_now": 10,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T17:20:00Z",
+    "minutes_from_now": 20,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T17:30:00Z",
+    "minutes_from_now": 30,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T17:40:00Z",
+    "minutes_from_now": 40,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T17:50:00Z",
+    "minutes_from_now": 50,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T18:00:00Z",
+    "minutes_from_now": 60,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T18:10:00Z",
+    "minutes_from_now": 70,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T18:20:00Z",
+    "minutes_from_now": 80,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T18:30:00Z",
+    "minutes_from_now": 90,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T18:40:00Z",
+    "minutes_from_now": 100,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T18:50:00Z",
+    "minutes_from_now": 110,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T19:00:00Z",
+    "minutes_from_now": 120,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T19:10:00Z",
+    "minutes_from_now": 130,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T19:20:00Z",
+    "minutes_from_now": 140,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T19:30:00Z",
+    "minutes_from_now": 150,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T19:40:00Z",
+    "minutes_from_now": 160,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T19:50:00Z",
+    "minutes_from_now": 170,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T20:00:00Z",
+    "minutes_from_now": 180,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T20:10:00Z",
+    "minutes_from_now": 190,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T20:20:00Z",
+    "minutes_from_now": 200,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T20:30:00Z",
+    "minutes_from_now": 210,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T20:40:00Z",
+    "minutes_from_now": 220,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T20:50:00Z",
+    "minutes_from_now": 230,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T21:00:00Z",
+    "minutes_from_now": 240,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T21:10:00Z",
+    "minutes_from_now": 250,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T21:20:00Z",
+    "minutes_from_now": 260,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T21:30:00Z",
+    "minutes_from_now": 270,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T21:40:00Z",
+    "minutes_from_now": 280,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T21:50:00Z",
+    "minutes_from_now": 290,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T22:00:00Z",
+    "minutes_from_now": 300,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T22:10:00Z",
+    "minutes_from_now": 310,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T22:20:00Z",
+    "minutes_from_now": 320,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T22:30:00Z",
+    "minutes_from_now": 330,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T22:40:00Z",
+    "minutes_from_now": 340,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T22:50:00Z",
+    "minutes_from_now": 350,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   },
+   {
+    "t": "2026-11-20T23:00:00Z",
+    "minutes_from_now": 360,
+    "kind": "previsto",
+    "rain_mm": 0.722,
+    "inflow_m3_h": 74.533,
+    "outflow_m3_h": 74.533,
+    "capacity_m3_h": 2156.836,
+    "volume_m3": 0.0,
+    "sheet_cm": 0.0
+   }
+  ],
+  "capacity_m3_h": 2156.84,
+  "initial_state": {
+   "volume_m3": 0.0,
+   "h_now_cm": 0.0,
+   "steps_measured": 144,
+   "n_fora_da_curva": 0
+  }
+ },
+ "sources": [
+  "CEMADEN_PED"
+ ],
+ "missing_inputs": [
+  "L_frac_wet_60",
+  "L_max_30",
+  "L_max_60",
+  "L_min_since_onset",
+  "N_min_since_onset",
+  "O_min_since_onset",
+  "S_frac_wet_60",
+  "S_max_30",
+  "S_max_60",
+  "S_min_since_onset",
+  "om_1h",
+  "om_3h",
+  "om_6h",
+  "r15_40_frac_wet_60",
+  "r15_40_max_60",
+  "r15_40_mean_60"
+ ],
+ "latest_reading_utc": "2026-11-20T17:00:00Z",
+ "latest_reading_age_minutes": 0.0,
+ "stations_valid_near": 1,
+ "bucket_params": {
+  "C": 0.86,
+  "tr_anos": 5.0,
+  "te_min": 10.0,
+  "i_cap_mm_h": 125.4,
+  "f": 1.0
+ }
+}

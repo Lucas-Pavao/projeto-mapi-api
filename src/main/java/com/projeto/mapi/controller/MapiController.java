@@ -37,20 +37,6 @@ public class MapiController {
         return ResponseEntity.ok(mapiService.getEnvironmentalData(latitude, longitude));
     }
 
-    // Roda uma nova avaliação de risco de alagamento (chama a MAPI AI) e grava o resultado em
-    // flood_predictions. Responde 200 também em UNKNOWN (ADR 0007 §5): é resposta válida, não recurso
-    // criado. POST porque cria um novo registro de auditoria a cada chamada — não é
-    // idempotente nem "seguro" no sentido HTTP (tem efeito colateral real), então GET seria a
-    // semântica errada aqui mesmo sendo só coordenadas como entrada.
-    @PostMapping("/flood-predictions")
-    @Operation(summary = "Roda uma nova predição de risco de alagamento da IA para as coordenadas informadas e grava a auditoria",
-            description = "Responde 200 também quando não há previsão válida (riskLevel UNKNOWN com degradationReason).")
-    public ResponseEntity<FloodPredictionResponseDTO> createFloodPrediction(
-            @RequestParam double latitude,
-            @RequestParam double longitude) {
-        return ResponseEntity.ok(mapiService.createFloodPrediction(latitude, longitude));
-    }
-
     @PostMapping("/pontos")
     @org.springframework.security.access.prepost.PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Registra um novo ponto de monitoramento de alagamento (ADMIN, ADR 0010)")

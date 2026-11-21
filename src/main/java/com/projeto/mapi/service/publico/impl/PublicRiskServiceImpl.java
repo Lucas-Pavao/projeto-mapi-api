@@ -1,13 +1,9 @@
 package com.projeto.mapi.service.publico.impl;
 
-import com.projeto.mapi.dto.FloodPredictionResponseDTO;
-import com.projeto.mapi.dto.ModelValidationStatus;
 import com.projeto.mapi.dto.PublicRiskDTO;
-import com.projeto.mapi.dto.RiskLevel;
 import com.projeto.mapi.exception.UnprocessableEntityException;
 import com.projeto.mapi.model.FloodPoint;
 import com.projeto.mapi.repository.FloodPointRepository;
-import com.projeto.mapi.service.flood.FloodPredictionHistoryService;
 import com.projeto.mapi.service.publico.PublicRiskService;
 import com.projeto.mapi.service.publico.RiskMeaning;
 import com.projeto.mapi.service.sensor.HourlyRainService;
@@ -35,7 +31,7 @@ public class PublicRiskServiceImpl implements PublicRiskService {
     static final int CACHE_MAX_CELLS = 2000;
 
     private final FloodPointRepository pointRepository;
-    private final FloodPredictionHistoryService history;
+    private final com.projeto.mapi.service.alagamento.FloodForecastService floodForecast;
     private final HourlyRainService hourlyRain;
     private final Clock clock;
 
@@ -67,20 +63,22 @@ public class PublicRiskServiceImpl implements PublicRiskService {
                 .min(Comparator.comparingDouble(p -> km(lat, lon, p.getLatitude(), p.getLongitude())));
 
         Rain rain = nearestRain(lat, lon);
+        boolean inTest = floodForecast.shadow();
         if (nearest.isEmpty()) {
-            return new PublicRiskDTO(null, rain.mm(), rain.station(), ModelValidationStatus.NOT_VALIDATED, RiskMeaning.NO_POINT);
+            return new PublicRiskDTO(null, rain.mm(), rain.station(), true, inTest, RiskMeaning.NO_POINT);
         }
         FloodPoint p = nearest.get();
-        Optional<FloodPredictionResponseDTO> pred = history.findLatest(p.getId(), p.getLatitude(), p.getLongitude());
-        RiskLevel level = pred.map(FloodPredictionResponseDTO::riskLevel).orElse(RiskLevel.UNKNOWN);
         int distanceM = (int) (Math.round(km(lat, lon, p.getLatitude(), p.getLongitude()) * 1000.0 / 50.0) * 50);
-        var point = new PublicRiskDTO.NearestPoint(p.getSlug(), p.getName(), distanceM, level,
-                pred.map(FloodPredictionResponseDTO::issuedAt).orElse(null),
-                pred.map(FloodPredictionResponseDTO::validUntil).orElse(null),
-                pred.map(FloodPredictionResponseDTO::degradationReason).orElse(null));
-        return new PublicRiskDTO(point, rain.mm(), rain.station(),
-                pred.map(FloodPredictionResponseDTO::modelValidationStatus).orElse(ModelValidationStatus.NOT_VALIDATED),
-                RiskMeaning.of(level));
+        if (inTest) {
+            // Modo sombra: o nível não sai para o público; nunca vira "sem alerta".
+            var point = new PublicRiskDTO.NearestPoint(p.getSlug(), p.getName(), distanceM, "SEM_DADO", null, null, "EM_TESTE");
+            return new PublicRiskDTO(point, rain.mm(), rain.station(), true, true, RiskMeaning.IN_TEST);
+        }
+        var a = floodForecast.current().stream().filter(x -> x.slug().equals(p.getSlug())).findFirst().orElse(null);
+        String level = a == null ? "SEM_DADO" : a.level();
+        var point = new PublicRiskDTO.NearestPoint(p.getSlug(), p.getName(), distanceM, level, a == null ? null : a.worstHorizonHours(),
+                a == null ? null : a.issuedAt(), a == null ? "SEM_CALCULO" : a.reason());
+        return new PublicRiskDTO(point, rain.mm(), rain.station(), true, false, RiskMeaning.of(level));
     }
 
     private record Rain(Double mm, String station) {

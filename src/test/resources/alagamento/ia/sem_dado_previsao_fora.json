@@ -1,0 +1,46 @@
+{
+ "version": "flood_reg_v1",
+ "model_versions": {
+  "flood": "flood_reg_v1",
+  "rain": {
+   "version": "rain_v1",
+   "training_data": "MEASURED",
+   "target": "MEASURED"
+  },
+  "bucket": {
+   "version": "balde-M1a-10min",
+   "training_data": "NONE_PHYSICAL",
+   "calibrated": false
+  }
+ },
+ "code_version": "0000000000000000000000000000000000000000",
+ "code_dirty": "false",
+ "issued_at": null,
+ "hcrit_cm": 15.0,
+ "rule": {
+  "ALERTA": "a lâmina máxima do cenário q50 (provável) chega a 15 cm no horizonte",
+  "ATENCAO": "só a lâmina máxima do cenário q95 (pessimista) chega a 15 cm no horizonte",
+  "SEM_ALERTA": "nenhum dos dois cenários chega a 15 cm no horizonte (não quer dizer sem risco)",
+  "SEM_DADO": "falta entrada para calcular; nunca vira SEM_ALERTA"
+ },
+ "rule_text": "ALERTA se a lâmina do cenário q50 chega a 15 cm; ATENÇÃO se só a do cenário q95 chega; SEM ALERTA caso contrário. Limiar e regra fixados antes do teste (20/11).",
+ "distribution": "chuva prevista em (t, t+h] distribuída por igual nos passos de 10 min do horizonte",
+ "sheet_max": "máximo entre a lâmina de agora e a lâmina prevista a cada 10 min no horizonte",
+ "experimental": true,
+ "experimental_note": "experimental: a validação externa (Etapa 2.3, dias da Defesa Civil) ainda não foi aprovada; o balde não está calibrado",
+ "validated": false,
+ "attribution": "DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC",
+ "level": "SEM_DADO",
+ "reason": "PREVISAO_INDISPONIVEL",
+ "reason_text": "previsão de chuva (rain_v1) fora do ar",
+ "reason_detail": "falha no rain_v1: ConnectionError",
+ "worst_horizon_hours": null,
+ "horizons": [],
+ "explanation": null,
+ "sources": [],
+ "missing_inputs": [],
+ "slug": "MASCARENHAS_IMBIRIBEIRA",
+ "h_now_cm": 0.0,
+ "rain_now_10min_mm": 7.5,
+ "rain_last_60min_measured_mm": 45.0
+}
