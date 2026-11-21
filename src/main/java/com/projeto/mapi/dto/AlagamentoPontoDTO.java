@@ -26,6 +26,8 @@ public record AlagamentoPontoDTO(
         Double rainStationDistanceKm,
         Double latestReadingAgeMinutes,
         Map<String, String> modelVersions,
+        List<String> sources,
+        List<String> missingInputs,
         String codeVersion,
         Instant issuedAt,
         Instant evaluatedAt,

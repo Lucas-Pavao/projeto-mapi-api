@@ -73,6 +73,7 @@ class FloodForecastContractTest {
             assertThat(d.modelVersions()).containsEntry("rain", "rain_v1").containsEntry("bucket", "balde-M1a-10min")
                     .containsEntry("flood", "flood_reg_v1");
             assertThat(d.codeVersion()).hasSize(40);
+            assertThat(d.sources()).contains("CEMADEN_PED");
             assertThat(d.hNowCm()).isNotNull();
         }
     }
@@ -103,7 +104,7 @@ class FloodForecastContractTest {
         JsonNode j = mapper.readTree(mapper.writeValueAsString(FloodForecastMapper.toDto(ia("atencao_3h"), ctx())));
         assertThat(List.of("floodPointId", "slug", "name", "level", "worstHorizonHours", "reason", "reasonText", "hNowCm",
                 "rainLastHourMm", "horizons", "explanation", "rainStation", "rainStationName", "rainStationDistanceKm", "latestReadingAgeMinutes",
-                "modelVersions", "codeVersion", "issuedAt", "evaluatedAt", "experimental", "shadow", "rule", "attribution"))
+                "modelVersions", "sources", "missingInputs", "codeVersion", "issuedAt", "evaluatedAt", "experimental", "shadow", "rule", "attribution"))
                 .allSatisfy(k -> assertThat(j.has(k)).as(k).isTrue());
         assertThat(j.path("horizons").get(0).fieldNames()).toIterable().containsExactlyInAnyOrder("hours", "level", "rainQ50Mm",
                 "rainQ95Mm", "sheetQ50Cm", "sheetQ95Cm", "validUntil");

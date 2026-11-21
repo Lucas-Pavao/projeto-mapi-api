@@ -39,7 +39,7 @@ public final class FloodForecastMapper {
     public static AlagamentoPontoDTO unavailable(PointContext c, String reason) {
         String r = REASONS.containsKey(reason) ? reason : "PREVISAO_INDISPONIVEL";
         return new AlagamentoPontoDTO(c.floodPointId(), c.slug(), c.name(), "SEM_DADO", null, r, REASONS.get(r), null,
-                c.rainLastHourMm(), List.of(), null, c.rainStation(), c.rainStationName(), c.rainStationKm(), null, Map.of(), null, null,
+                c.rainLastHourMm(), List.of(), null, c.rainStation(), c.rainStationName(), c.rainStationKm(), null, Map.of(), List.of(), List.of(), null, null,
                 c.evaluatedAt(), true, c.shadow(), RULE, AlagamentoPontoDTO.ATTRIBUTION);
     }
 
@@ -69,7 +69,7 @@ public final class FloodForecastMapper {
                 "SEM_DADO".equals(level) ? null : intOrNull(ai, "worst_horizon_hours"), reason,
                 reason == null ? null : REASONS.get(reason), dbl(ai, "h_now_cm"), c.rainLastHourMm(), hs,
                 explanation(ai.path("explanation")), c.rainStation(), c.rainStationName(), c.rainStationKm(), dbl(ai, "latest_reading_age_minutes"),
-                mv, text(ai, "code_version"), inst(ai, "issued_at"), c.evaluatedAt(), true, c.shadow(), RULE,
+                mv, strings(ai.path("sources")), strings(ai.path("missing_inputs")), text(ai, "code_version"), inst(ai, "issued_at"), c.evaluatedAt(), true, c.shadow(), RULE,
                 AlagamentoPontoDTO.ATTRIBUTION);
     }
 
@@ -88,6 +88,12 @@ public final class FloodForecastMapper {
         }
         return new AlagamentoPontoDTO.Explanation(text(e, "served_scenario"), intOrNull(e, "served_horizon_hours"), shap,
                 dbl(cf, "extra_mm"), text(cf, "text"), sens, steps, dbl(e, "capacity_m3_h"));
+    }
+
+    private static List<String> strings(JsonNode a) {
+        List<String> out = new ArrayList<>();
+        for (JsonNode x : a) if (x.isTextual()) out.add(x.asText());
+        return out;
     }
 
     private static String text(JsonNode n, String f) {
