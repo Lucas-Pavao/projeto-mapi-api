@@ -110,10 +110,10 @@
    ]
   },
   "counterfactual": {
-   "extra_mm": 126.86,
+   "extra_mm": 169.01,
    "reached": true,
    "base_rain_1h_mm": 0.0,
-   "text": "mais 126,9 mm de chuva na próxima hora, além dos 0,0 mm previstos (q50), levariam a lâmina a 15 cm"
+   "text": "mais 169,0 mm de chuva na próxima hora, além dos 0,0 mm previstos (q50), levariam a lâmina a 15 cm"
   },
   "sensitivity": {
    "horizon_hours": 6,
@@ -121,10 +121,9 @@
    "min_cm": 0.0,
    "max_cm": 0.0,
    "levels_seen": [
-    "ATENCAO",
     "SEM_ALERTA"
    ],
-   "level_changes": true,
+   "level_changes": false,
    "n_combinations": 162,
    "ranges": {
     "f": [
@@ -197,7 +196,7 @@
     }
    },
    "heaviest_parameter": "f",
-   "text": "lâmina máxima entre 0,0 e 0,0 cm com f, C e i_T na faixa; o nível muda"
+   "text": "lâmina máxima entre 0,0 e 0,0 cm com f, C e i_T na faixa; o nível não muda"
   },
   "decomposition": [
    {
