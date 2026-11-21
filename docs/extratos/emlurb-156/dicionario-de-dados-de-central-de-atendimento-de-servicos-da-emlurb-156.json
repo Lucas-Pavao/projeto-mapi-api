@@ -1,0 +1,118 @@
+{
+	"metadados": {
+		"cabecalho": {
+			"titulo": "Central de Atendimento de Serviços da Emlurb – 156",
+			"descricao": "São os dados das demandas de serviços de arborização, Drenagem, Iluminação, Limpeza, Pavimentação, tapa buracos, entre outros serviços de reparação da Cidade do Recife, solicitados pelo cidadão via atendimento online ou telefônico através do 156.",
+			"categoria_vcge": "http://vocab.e.gov.br/id/governo#servicos-urbanos",
+			"fonte_dados": "http://dados.recife.pe.gov.br",
+			"licenca": "Open Database License (ODbL)",
+			"responsavel_dados": "EMLURB",
+			"responsavel_disponibilizar": "Emprel",
+			"frequencia_atualizacao": "mensal",
+			"endereco_dataset": "http://dados.recife.pe.gov.br/dataset/central-de-atendimento-de-servicos-da-emlurb-156",
+			"status": "ativo",
+			"endereco_dataset_substituto": "",
+			"granularidade": "por chamados ao atendimento 156, contendo o último status",
+			"etiquetas": "emlurb,156,manutençăo,serviços,cidade,atendimento,cidadăo"
+		},
+		"recursos": [
+			{ 
+				"identificador": "http://dados.recife.pe.gov.br/dataset/central-de-atendimento-de-servicos-da-emlurb-156/resource/0ddc24f2-fc53-4f57-bccf-8cc37ed8599b",
+				"titulo": "Descriçăo dos atendimentos de solicitaçőes da Emlurb (156) – 2012",
+				"formato": "csv",
+				"descricao": "Descriçăo dos atendimentos de solicitaçőes de serviços solicitados a Emlurb através do número 156 ou pelo site da prefeitura –Ano de 2012"
+			},
+			{ 
+				"identificador": "http://dados.recife.pe.gov.br/dataset/central-de-atendimento-de-servicos-da-emlurb-156/resource/5721b921-e994-45cc-b864-3c57a7193784",
+				"titulo": "Descriçăo dos atendimentos de solicitaçőes da Emlurb (156) – 2013",
+				"formato": "csv",
+				"descricao": "Descriçăo dos atendimentos de solicitaçőes de serviços solicitados a Emlurb através do número 156 ou pelo site da prefeitura –Ano de 2013"
+			},
+			{ 
+				"identificador": "http://dados.recife.pe.gov.br/dataset/central-de-atendimento-de-servicos-da-emlurb-156/resource/b5f87b62-b270-46d1-b923-6f7ec478242e",				
+				"titulo": "Descriçăo dos atendimentos de solicitaçőes da Emlurb (156) – 2014",
+				"formato": "csv",
+				"descricao": "Descriçăo dos atendimentos de solicitaçőes de serviços solicitados a Emlurb através do número 156 ou pelo site da prefeitura –Ano de 2014"
+			}
+		],
+		"campos": [
+			{
+				"codigo": "GRUPOSERVICO_CODIGO",
+				"descricao": "Código do Grupo de Serviço",
+				"tipo": "Num",
+				"tamanho": 10,
+				"valores_permitidos": ""
+			},
+			{
+				"codigo": "GRUPOSERVICO_DESCRICAO",
+				"descricao": "Descriçăo do Grupo de Serviço",
+				"tipo": "Char",
+				"tamanho": 60,
+				"valores_permitidos": ""
+			},
+			{
+				"codigo": "SERVICO_CODIGO",
+				"descricao": "Código do Serviço",
+				"tipo": "Num",
+				"tamanho": 10,
+				"valores_permitidos": ""
+			},
+			{
+				"codigo": "SERVICO_DESCRICAO",
+				"descricao": "Descriçăo do Serviço",
+				"tipo": "Char",
+				"tamanho": 60,
+				"valores_permitidos": ""
+			},
+			{
+				"codigo": "LOGRADOURO",
+				"descricao": "Endereço da reclamaçăo",
+				"tipo": "Char",
+				"tamanho": 100,
+				"valores_permitidos": ""
+			},
+			{
+				"codigo": "NUMERO",
+				"descricao": "Número do endereço",
+				"tipo": "Num",
+				"tamanho": 10,
+				"valores_permitidos": ""
+			},
+			{
+				"codigo": "BAIRRO",
+				"descricao": "Descriçăo do bairro",
+				"tipo": "Num",
+				"tamanho": 10,
+				"valores_permitidos": ""
+			},
+			{
+				"codigo": "RPA",
+				"descricao": "Regiăo Politico Administrativa – RPA",
+				"tipo": "Char",
+				"tamanho": 40,
+				"valores_permitidos": ""
+			},
+			{
+				"codigo": "DATA_DEMANDA",
+				"descricao": "Data de Cadastro",
+				"tipo": "Data (AAAA-MM-DD)",
+				"tamanho": 10,
+				"valores_permitidos": ""
+			},
+			{
+				"codigo": "SITUACAO",
+				"descricao": "Descriçăo da Situaçăo Atual",
+				"tipo": "Text",
+				"tamanho": 50,
+				"valores_permitidos": ""
+			},
+			{
+				"codigo": "DATA_ULT_SITUACAO",
+				"descricao": "Data que ocorreu a ultima movimentaçăo",
+				"tipo": "Data (AAAA-MM-DD)",
+				"tamanho": 10,
+				"valores_permitidos": ""
+			}
+		]
+	}
+}
