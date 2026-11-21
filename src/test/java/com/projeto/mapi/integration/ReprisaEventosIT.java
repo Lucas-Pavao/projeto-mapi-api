@@ -54,7 +54,9 @@ import static org.mockito.Mockito.mockingDetails;
  * Saída: target/reprise/&lt;evento&gt;/sistema.json e serie10min_&lt;ponto&gt;.csv, que o check.py da IA confere contra o balde fora.
  */
 @TestPropertySource(properties = {"mapi.rain-forecast.enabled=true", "mapi.rain-forecast.open-meteo-enabled=false",
-        "app.ai.api-url=${AI_API_URL:http://localhost:8000}"})
+        "app.ai.api-url=${AI_API_URL:http://localhost:8000}",
+        // a reprise confere o balde congelado (ADR 0027): sem refluxo nem limpeza, que vieram depois (onda 14)
+        "mapi.alerta.refluxo.enabled=false", "mapi.limpeza.enabled=false"})
 class ReprisaEventosIT extends AbstractTimescaleIntegrationTest {
 
     static final Path DATA = Path.of(System.getProperty("mapi.reprise.dir", "../projeto-mapi-ai/data/reprise"));

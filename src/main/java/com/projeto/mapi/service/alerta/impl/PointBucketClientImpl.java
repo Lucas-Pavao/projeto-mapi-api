@@ -36,7 +36,14 @@ public class PointBucketClientImpl implements PointBucketClient {
     record AiRequest(@JsonProperty("rain_10min_mm") List<Double> rain, AiPoint point, @JsonProperty("tr_anos") double tr,
                      @JsonProperty("te_min") double te, @JsonProperty("forecast_1h_q50_mm") Double q50,
                      @JsonProperty("forecast_1h_q80_mm") Double q80,
-                     @JsonProperty("days_since_cleaning") Double days, @JsonProperty("lambda_re_per_day") Double lambda) {}
+                     @JsonProperty("days_since_cleaning") Double days, @JsonProperty("lambda_re_per_day") Double lambda,
+                     @JsonProperty("tide_nr_m") List<Double> tide, @JsonProperty("outlet_sill_nr_m") Double sill,
+                     @JsonProperty("outlet_diameter_m") Double diameter) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    record AiBackflow(@JsonProperty("fator_agora") double now, @JsonProperty("fator_min_projecao") double minProj,
+                      @JsonProperty("mare_agora_nr_m") double tideNow, @JsonProperty("soleira_nr_m") double sill,
+                      @JsonProperty("diametro_m") double diameter) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     record AiCleaning(@JsonProperty("dias_desde_limpeza") double days, @JsonProperty("lambda_re_por_dia") double lambda,
@@ -51,15 +58,19 @@ public class PointBucketClientImpl implements PointBucketClient {
     @JsonIgnoreProperties(ignoreUnknown = true)
     record AiResponse(String version, @JsonProperty("h_now_mm") double hNow, Map<String, AiProj> projection,
                       @JsonProperty("i_cap_mm_h") double iCap, @JsonProperty("runtime_ms") double runtimeMs,
-                      AiCleaning limpeza) {}
+                      AiCleaning limpeza, AiBackflow refluxo) {}
 
     @Override
     public Result evaluate(List<Double> rain10min, Terrain t, double trYears, double teMinutes, Double q50Mm, Double q80Mm,
-                           Double daysSinceCleaning, Double lambdaRePerDay) {
+                           Extras x) {
+        Double daysSinceCleaning = x == null ? null : x.daysSinceCleaning();
+        Double lambdaRePerDay = x == null ? null : x.lambdaRePerDay();
+        List<Double> tide = x == null ? null : x.tideNrM();
         try {
             AiResponse r = restClient.post().uri("/v1/bucket/point10").contentType(MediaType.APPLICATION_JSON)
                     .body(new AiRequest(rain10min, new AiPoint(t.slug(), t.areaM2(), t.zCurveM(), t.vCurveM3(), t.streetRelM()),
-                            trYears, teMinutes, q50Mm, q80Mm, daysSinceCleaning, lambdaRePerDay))
+                            trYears, teMinutes, q50Mm, q80Mm, daysSinceCleaning, lambdaRePerDay, tide,
+                            tide == null ? null : x.outletSillNrM(), tide == null ? null : x.outletDiameterM()))
                     .retrieve().body(AiResponse.class);
             if (r == null) return null;
             Cleaning c = null;
@@ -68,7 +79,9 @@ public class PointBucketClientImpl implements PointBucketClient {
                 c = new Cleaning(r.limpeza().days(), r.limpeza().lambda(), r.limpeza().pClogged(), r.limpeza().hNow(),
                         r.limpeza().probNow(), r.limpeza().prob60(), pq == null ? null : pq.minutes());
             }
-            return new Result(r.version(), r.hNow(), proj(r, "q50"), proj(r, "q80"), r.iCap(), r.runtimeMs(), c);
+            Backflow bf = r.refluxo() == null ? null : new Backflow(r.refluxo().now(), r.refluxo().minProj(),
+                    r.refluxo().tideNow(), r.refluxo().sill(), r.refluxo().diameter());
+            return new Result(r.version(), r.hNow(), proj(r, "q50"), proj(r, "q80"), r.iCap(), r.runtimeMs(), c, bf);
         } catch (Exception e) {
             log.warn("Balde a 10 min indisponível para {}: {}", t.slug(), e.toString());
             return null;

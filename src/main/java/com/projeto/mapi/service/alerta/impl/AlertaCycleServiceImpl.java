@@ -68,6 +68,7 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
     private final Clock clock;
     private final com.projeto.mapi.service.limpeza.LimpezaService limpeza;
     private final com.projeto.mapi.config.LimpezaProperties limpezaProps;
+    private final com.projeto.mapi.service.tide.TideLevelService tide;
 
     @Override
     public synchronized CycleSummary run(String origin) {
@@ -186,10 +187,16 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
                 Double fq50 = f.failure() == null ? f.q50_1h() : null, fq80 = f.failure() == null ? f.q80_1h() : null;
                 // limpeza recente (Central 156): só quando há data da última limpeza e taxa do ponto; senão, a regra de sempre
                 var lz = limpeza.dados(p);
-                br = lz.isPresent()
-                        ? bucket.evaluate(rain, bt, props.getCapacity().getTrYears(), props.getCapacity().getTeMinutes(), fq50, fq80,
-                                lz.get().dias(), lz.get().lambdaRePorDia())
-                        : bucket.evaluate(rain, bt, props.getCapacity().getTrYears(), props.getCapacity().getTeMinutes(), fq50, fq80);
+                // refluxo de maré (ADR 0009 emenda 3): maré prevista em cada passo da série e nos 6 da projeção
+                List<Double> mare = mareDosPassos(p.getSlug(), slots, start, last);
+                AlertaProperties.Refluxo.Saida saida = props.getRefluxo().getPontos().get(p.getSlug());
+                PointBucketClient.Extras ex = new PointBucketClient.Extras(lz.map(d -> d.dias()).orElse(null),
+                        lz.map(d -> d.lambdaRePorDia()).orElse(null), mare,
+                        mare == null ? null : saida.getSoleiraMdtM() + props.getRefluxo().getViesMdtM() + props.getRefluxo().getDeltaM(),
+                        mare == null ? null : saida.getDiametroM());
+                br = ex.empty()
+                        ? bucket.evaluate(rain, bt, props.getCapacity().getTrYears(), props.getCapacity().getTeMinutes(), fq50, fq80)
+                        : bucket.evaluate(rain, bt, props.getCapacity().getTrYears(), props.getCapacity().getTeMinutes(), fq50, fq80, ex);
                 if (br != null) aiAt = clock.instant();
                 if (br == null) b = RainAlertRules.Bucket.failed(SemDadoMotivo.BALDE_INDISPONIVEL);
                 else {
@@ -227,6 +234,17 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
             projection.put("q50", br.q50() == null ? null : br.q50().hMm());
             projection.put("q80", br.q80() == null ? null : br.q80().hMm());
             projection.put("rule", "chuva prevista de 1 h distribuída por igual nos 6 passos");
+            if (br.backflow() != null) {
+                PointBucketClient.Backflow bf = br.backflow();
+                Map<String, Object> rf = new LinkedHashMap<>();
+                rf.put("fatorAgora", bf.factorNow());
+                rf.put("fatorMinProjecao", bf.factorMinProjection());
+                rf.put("mareAgoraNrM", bf.tideNowNrM());
+                rf.put("soleiraNrM", bf.sillNrM());
+                rf.put("diametroM", bf.diameterM());
+                rf.put("regra", "capacidade x clamp((soleira + D - maré)/D, 0, 1); soleira = fundo ESIG + viés do MDT + Δ 0,821 m");
+                projection.put("refluxo", rf);
+            }
             if (br.cleaning() != null) {
                 PointBucketClient.Cleaning c = br.cleaning();
                 Map<String, Object> lzm = new LinkedHashMap<>();
@@ -352,5 +370,31 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
             long r = Math.floorMod(s, step);
             return r == 0 ? Instant.ofEpochSecond(s) : Instant.ofEpochSecond(s - r + step);
         }
+    }
+
+
+    /**
+     * Maré prevista (m, NR) no fim de cada passo usado pelo balde e nos 6 passos seguintes; null se o refluxo estiver
+     * desligado, o ponto não tiver saída configurada ou faltar maré em algum passo (aí o balde roda sem refluxo).
+     */
+    List<Double> mareDosPassos(String slug, List<PointRain10MinComposer.Slot> slots, int start, int last) {
+        if (!props.getRefluxo().isEnabled() || !props.getRefluxo().getPontos().containsKey(slug)) return null;
+        List<Double> out = new ArrayList<>(last - start + 7);
+        try {
+            for (int k = start; k <= last; k++) {
+                var lv = tide.at(slots.get(k).end());
+                if (lv.isEmpty()) return null;
+                out.add(lv.get().levelM());
+            }
+            Instant t0 = slots.get(last).end();
+            for (int j = 1; j <= 6; j++) {
+                var lv = tide.at(t0.plusSeconds(600L * j));
+                if (lv.isEmpty()) return null;
+                out.add(lv.get().levelM());
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return out;
     }
 }
