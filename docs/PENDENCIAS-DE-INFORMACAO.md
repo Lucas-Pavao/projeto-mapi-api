@@ -49,6 +49,8 @@ prorrogáveis por mais 10 (pedidos 05 e 06).
 | 17 | Atendimentos a alagamento do Corpo de Bombeiros, com hora e endereço | CBMPE, via LAI estadual | 07 | Rótulo com hora (ADR 0019) | alta |
 | 18 | Cópia do dump `tide_db-2026-11-08-pre-recarga` no Drive (ADRs aprovados em 2026-11-08; o dump não foi encontrado no Drive na conferência do mesmo dia) | você | não há | Apagar o volume antigo `postgres_ha_data` e a cópia local | alta |
 | 19 | Decidir se "Imóveis Alagados" da Defesa Civil entra como alagamento (confiança MÉDIA) | você | não há | De 18 para ~49 dias de rótulo (REVISAO-INGESTAO-2026-11, 4.3) | alta |
+| 21 | Ordens de serviço e cronograma de limpeza preventiva de galerias, bocas de lobo e canaletas (2021–2026) nas bacias dos 4 pontos | EMLURB, via LAI | 09 | Taxa de limpeza preventiva (ν) do modelo de estados da galeria (prompt 3) | média |
+| 22 | Visitas de campo às bocas de lobo dos 4 pontos (a cada 2 semanas por 3 meses) | você | não há (`docs/campo/FICHA-BOCAS-DE-LOBO.md`) | Taxa de entupimento medida e tipo das bocas de lobo | média |
 
 ## 3. Pedidos redigidos
 
