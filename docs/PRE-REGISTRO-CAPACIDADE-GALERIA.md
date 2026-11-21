@@ -1,6 +1,6 @@
 # Pré-registro: capacidade da galeria pelo cadastro ESIG
 
-- Data: 2026-11-21 · Prompt 1, tarefa 2 · Status: **proposta para aprovação** (Lucas e orientador). Nada foi calculado sobre os pontos.
+- Data: 2026-11-21 · Prompt 1, tarefa 2 · Status: **aprovado pelo Lucas em 2026-11-21** ("todos aprovados"), antes do cálculo. Resultado em `PARAMETROS-MODELO-FISICO.md`, seção "Capacidade pelo cadastro ESIG".
 - Este método é escrito e congelado **antes** de rodar sobre os pontos. Nenhum dia de alagamento foi aberto para escolher qualquer valor.
 - Base: o que o cadastro tem de fato (`docs/extratos/esig-drenagem/RELATORIO-PREENCHIMENTO.md`). As cotas de montante e jusante estão
   vazias, os trechos não têm diâmetro e CIn e Imbiribeira quase não têm dado hidráulico.

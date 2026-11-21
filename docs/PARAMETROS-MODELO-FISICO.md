@@ -58,6 +58,36 @@ A tabela acima não traz 10 min. Conta direta nas mesmas equações, com t = 10 
 Conferência: as mesmas fórmulas em t = 15 min reproduzem a linha de 15 min da tabela acima (23,4 / 28,0 / 32,0 mm), teste `test_idf_reproduz_a_tabela_de_15_min_do_documento` (projeto-mapi-ai) e `RainAlertRulesTest.capacidadeEmDezMinutosPelaIdfDeSilvaEAraujo` (API).
 Valor usado pelo alerta (ADR 0026) e pelo balde a 10 min (ADR 0027): Silva e Araújo, TR 5 anos, Te = 10 min, **20,9 mm em 10 min (125,4 mm/h)**. TR e Te ficam em configuração (`mapi.alerta.capacity`).
 
+## Capacidade pelo cadastro ESIG (2026-11-21)
+
+Método: `docs/PRE-REGISTRO-CAPACIDADE-GALERIA.md` (aprovado antes do cálculo). Fonte: cadastro de microdrenagem da EMLURB no ESIG,
+`https://esigportal2.recife.pe.gov.br/arcgis/rest/services/Emlurb/BASES_DRENAGEM_RECIFE_MI/MapServer` (Contrato 6016/2012; levantamentos
+de 2018 a 2024 nos pontos), acesso em 2026-11-21; GeoJSON salvos com hash em `docs/extratos/esig-drenagem/`. Fórmulas do HEC-22, 3ª ed.
+(Eq. 7-1 e 4-30). Script: `python3 -I scripts/capacidade-galeria/capacidade.py`; testes: `python3 -I -m unittest discover -s
+scripts/capacidade-galeria` (6 testes). Saída: `scripts/capacidade-galeria/capacidade_por_ponto.csv`.
+
+| Ponto | Cano | Entrada (bocas de lobo) | Capacidade do ponto | Motivo |
+|---|---|---|---|---|
+| AV_RECIFE_IBURA | sem dado | 1 BL (OBJECTID 3603) → 0,093 m³/s (0,056 a 0,139 com L de 0,6 a 1,5 m) | **sem dado** | o único trecho ligado ao nó receptor (CG 31401, tubo 0,6 m, a 17,3 m do ponto baixo) sobe: declividade −0,025. O poço de visita 31398, a 0,7 m do ponto baixo (fundo −0,72 m, tubo de montante 0,6 m), não tem o tubo de saída cadastrado |
+| CIN_UFPE | sem dado | sem dado | **sem dado** | nenhum nó com tubo a 30 m do ponto baixo; nenhuma BL no alcance (o cadastro do CIn não tem campo hidráulico) |
+| AGAMENON_DERBY | sem dado | sem dado | **sem dado** | nó com tubo mais próximo a 81,1 m do ponto baixo; nenhuma BL no alcance |
+| MASCARENHAS_IMBIRIBEIRA | sem dado | sem dado | **sem dado** | nó com tubo mais próximo a 129,0 m; nenhuma BL cadastrada a 300 m |
+
+Comparação (sem rodar alerta nem validação):
+
+- **Nenhum ponto tem capacidade completa pelo cadastro público.** O valor do alerta continua sendo 125,4 mm/h pela IDF (ADR 0026/0027).
+- O único número que sai, a entrada do Ibura, é um **limite superior** da capacidade do ponto (o cano pode limitar mais). Convertido
+  pela área: 35,8 mm/h com a área da regra (c) (10.879 m²) e 1.872 mm/h com a área de 208 m² (snap 10 m; área em revisão). Com a área
+  da regra (c), o limite superior (35,8 mm/h; 21,5 a 53,6 com L de 0,6 a 1,5 m) fica **abaixo** dos 125,4 mm/h da IDF e dentro da
+  faixa `[sem fonte]` desta página (0 a 60 mm/h). Se confirmado, a galeria do Ibura engoliria menos do que o alerta supõe. Isso não é
+  usado em nada até o cano ter dado e a regra da área ser fechada.
+- O resultado do Ibura depende de uma única boca de lobo cadastrada no alcance e de um comprimento de abertura sem fonte (1,0 m).
+
+Limitações: cadastro sem verificação de campo, com diâmetro só nos nós e sem cota de montante/jusante; `Z` do ESIG e MDT diferem
+em −0,10 a +0,15 m (mediana por ponto; `entrada/mdt_nos.csv`); tipo e dimensão das bocas de lobo desconhecidos; **entupimento fora**
+(capacidade com tudo limpo; o entupimento está no modelo de estados, `MODELO-DISPONIBILIDADE-GALERIA.md`). O que destravaria: pedido 06
+(saídas dos poços, declividade de projeto) e a ficha de campo (tipo e dimensão das bocas).
+
 ## Limiar da regra de chuva (baseline "chuva > X")
 
 **Recomendação: X = 55 mm em 1 h** (TR 2 anos, 60 min), com os níveis de sensibilidade 50% (27,5 mm) e 70% (38,5 mm) do mesmo limiar, fixados no manifesto antes da avaliação.

@@ -53,3 +53,17 @@ Opção B, versão `balde-M1a-10min` (`projeto-mapi-ai/mapi_ai/bucket10.py`; `av
 
 - Cadastro da galeria (diâmetro, cota de fundo) para os pontos, que substitua a capacidade pela IDF.
 - Decisão sobre a regra da área de contribuição (Derby).
+
+## Emenda proposta B — capacidade da galeria pelo cadastro ESIG (2026-11-21)
+
+- Status: **proposto** (não aprovado; `mapi.alerta.capacity` não mudou)
+- Base: `docs/PRE-REGISTRO-CAPACIDADE-GALERIA.md` (método aprovado antes do cálculo) e `PARAMETROS-MODELO-FISICO.md`, seção
+  "Capacidade pelo cadastro ESIG".
+
+Resultado. Com o cadastro público, nenhum dos 4 pontos do Recife tem capacidade completa (entrada e cano): o Ibura tem só a entrada
+(0,093 m³/s, limite superior); os outros três não têm nó com tubo a 30 m do ponto baixo nem boca de lobo no alcance.
+
+Proposta. Manter a capacidade pela IDF (125,4 mm/h) como valor do alerta. A condição de reabertura "cadastro da galeria" continua
+aberta e passa a depender de: (1) resposta do pedido 06 (tubo de saída dos poços, declividade de projeto); (2) ficha de campo (tipo e
+dimensão das bocas de lobo). Quando os dois chegarem, o script roda sem mudança de método e a troca de `mapi.alerta.capacity` vai
+para aprovação com o novo número.
