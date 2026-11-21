@@ -1,0 +1,9 @@
+ponto,escopo,n,atendidas,mediana_dias,q25_dias,q75_dias
+AV_RECIFE_IBURA,ponto_uniao,122,53,75,0,149
+AV_RECIFE_IBURA,bairro,1853,368,687,78,
+CIN_UFPE,ponto_uniao,0,0,,,
+CIN_UFPE,bairro,1582,358,226,58,836
+AGAMENON_DERBY,ponto_uniao,3,0,,,
+AGAMENON_DERBY,bairro,1591,1054,28,0,211
+MASCARENHAS_IMBIRIBEIRA,ponto_uniao,0,0,,,
+MASCARENHAS_IMBIRIBEIRA,bairro,4864,1626,149,28,1675

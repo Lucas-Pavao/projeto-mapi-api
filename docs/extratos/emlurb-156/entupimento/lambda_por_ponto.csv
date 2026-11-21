@@ -1,0 +1,17 @@
+ponto,escopo,chamados,anos,chamados_por_ano,bl_esig_150m,chamados_por_bl_por_ano
+AV_RECIFE_IBURA,ponto_150m,64,12,5.33,14,0.381
+AV_RECIFE_IBURA,ponto_uniao,122,18.26,6.68,14,0.477
+AV_RECIFE_IBURA,rua_sensibilidade,152,18.26,8.32,,
+AV_RECIFE_IBURA,bairro,1853,18.26,101.46,,
+CIN_UFPE,ponto_150m,0,12,,1,
+CIN_UFPE,ponto_uniao,0,18.26,,1,
+CIN_UFPE,rua_sensibilidade,0,18.26,,,
+CIN_UFPE,bairro,1582,18.26,86.62,,
+AGAMENON_DERBY,ponto_150m,3,12,0.25,10,0.025
+AGAMENON_DERBY,ponto_uniao,3,18.26,0.16,10,0.016
+AGAMENON_DERBY,rua_sensibilidade,1,18.26,0.05,,
+AGAMENON_DERBY,bairro,1591,18.26,87.11,,
+MASCARENHAS_IMBIRIBEIRA,ponto_150m,0,12,,0,
+MASCARENHAS_IMBIRIBEIRA,ponto_uniao,0,18.26,,0,
+MASCARENHAS_IMBIRIBEIRA,rua_sensibilidade,0,18.26,,,
+MASCARENHAS_IMBIRIBEIRA,bairro,4864,18.26,266.31,,

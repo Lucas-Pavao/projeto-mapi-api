@@ -1,0 +1,5 @@
+ponto,escopo,periodo,chamados,mediana_dias_secos_chamados,frac_chamados_apos_7_dias_secos,dias_base,mediana_dias_secos_base,frac_dias_base_apos_7_dias_secos
+AV_RECIFE_IBURA,bairro,2021-08-31..2026-10-31,623,0,0.013,1815,0,0.03
+CIN_UFPE,bairro,2021-08-31..2026-10-31,575,0,0.037,1887,0,0.044
+AGAMENON_DERBY,bairro,2021-08-31..2026-10-31,433,0,0.021,1886,0,0.038
+MASCARENHAS_IMBIRIBEIRA,bairro,2021-08-31..2026-10-31,1601,0,0.03,1813,0,0.041

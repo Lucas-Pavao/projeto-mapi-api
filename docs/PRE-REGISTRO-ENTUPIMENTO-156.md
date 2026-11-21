@@ -22,7 +22,12 @@ Falha estrutural (abatimento 2/72, 11/72, 27/141; recuperação de canaleta 2/97
 2. **Por logradouro e bairro** (todos os anos, inclusive 2012–2014 e chamados sem coordenada): logradouro normalizado (maiúsculas, sem
    acento, sem prefixo de tipo como AV/R/RUA/TR, espaços simples) igual ao do ponto **e** bairro normalizado igual ao do ponto.
    Logradouro do ponto: Ibura `RECIFE`, Derby `AGAMENON MAGALHAES`, Imbiribeira `MASCARENHAS DE MORAIS`; CIn sem logradouro (fica só a
-   regra 1). Bairro do ponto: o bairro mais frequente entre **todos** os chamados da 156 (qualquer serviço) a até 150 m do ponto.
+   regra 1).
+   **Correção de grafia (2026-11-21, depois da 1ª execução):** a 156 grava `GOVERNADOR AGAMENON MAGALHAES` e
+   `MARECHAL MASCARENHAS DE MORAES` (com E). Os nomes acima não casavam com nenhuma linha; foram trocados pelos da base. É erro de
+   digitação do pré-registro, não escolha pelo resultado (a 1ª execução fica registrada no commit anterior).
+5. **Sensibilidade fora do pré-registro, declarada:** a rua inteira (logradouro igual, qualquer bairro), porque a regra do bairro
+   mais frequente a 150 m pegou o bairro vizinho no Derby (BOA VISTA) e na Imbiribeira (BOA VIAGEM). Bairro do ponto: o bairro mais frequente entre **todos** os chamados da 156 (qualquer serviço) a até 150 m do ponto.
 3. Taxa de casamento reportada: fração dos chamados de drenagem do bairro do ponto que casaram por cada regra.
 4. **Por bairro** (para ter mais eventos): todos os chamados do bairro do ponto.
 
