@@ -100,6 +100,14 @@ class StreamIntegrationTest extends AbstractApiIntegrationTest {
     }
 
     @Test
+    void conexaoNovaRecebeHeartbeatNaHora_semEsperarOAgendado() throws Exception {
+        // sem evento, o SseEmitter não escreve os cabeçalhos e o navegador fica até 25 s em "Conectando…"
+        MvcResult r = open("sse_now", Role.USER, null);
+        assertThat(r.getResponse().getContentAsString()).startsWith("event:heartbeat");
+        assertThat(r.getResponse().getContentType()).startsWith("text/event-stream");
+    }
+
+    @Test
     void heartbeatChegaAosAbertos() throws Exception {
         MvcResult r = open("sse_hb", Role.USER, null);
         ((com.projeto.mapi.service.stream.impl.LiveStreamServiceImpl) org.springframework.test.util.AopTestUtils.getUltimateTargetObject(streamService)).heartbeat();
