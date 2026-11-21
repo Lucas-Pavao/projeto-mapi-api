@@ -1,0 +1,5 @@
+ponto,e_utm,n_utm,elementos_300m,BL_ate_50m,PV_ate_50m,CG_ate_50m,CAN_ate_50m,FC_ate_50m,BL_ate_100m,PV_ate_100m,CG_ate_100m,CAN_ate_100m,FC_ate_100m,BL_ate_300m,PV_ate_300m,CG_ate_300m,CAN_ate_300m,FC_ate_300m,pct_VLTBJUSAN1_preenchido,pct_VLTBMONT1_preenchido,pct_VLHFUNDO_preenchido,pct_cota_fundo_ou_z_menos_hfundo,tubos_jusante_distintos,mais_proximo_dist_m,mais_proximo_tipo,mais_proximo_objectid,mais_proximo_z,bl_mais_proxima_dist_m,levantamento_min,levantamento_max
+AV_RECIFE_IBURA,287648.47,9103268.68,317,3,6,14,0,0,8,9,45,0,0,65,43,202,7,0,70,46,79,77,0.1 0.2 0.3 0.4 0.6 0.8 1 1.4,8.4,PV,31398,1.23,17.0,2018-06-06,2020-03-03
+CIN_UFPE,284972.63,9109074.33,37,0,0,2,0,0,0,0,4,0,0,1,10,26,0,0,0,0,0,0,,22.1,CG,79772,7.563,120.2,,
+AGAMENON_DERBY,291231.88,9109408.63,224,0,0,0,0,0,3,7,4,0,0,46,83,95,0,0,41,29,44,44,0.2 0.3 0.4 0.5 0.6 1,54.5,CG,12639,1.825,71.1,2018-02-21,2024-02-20
+MASCARENHAS_IMBIRIBEIRA,290100.1,9102150.55,51,0,0,0,0,0,0,0,3,0,0,0,0,51,0,0,29,0,51,51,0.3,87.3,CG,83624,2.99599999,,2018-07-13,2018-07-13

@@ -1,0 +1,95 @@
+{
+ "crs": {
+  "properties": {
+   "name": "EPSG:31985"
+  },
+  "type": "name"
+ },
+ "features": [
+  {
+   "geometry": {
+    "coordinates": [
+     291146.49650000036,
+     9109522.3463
+    ],
+    "type": "Point"
+   },
+   "id": 297,
+   "properties": {
+    "BACIA": "Beberibe",
+    "CLASSIFICACAO": "A Céu Aberto",
+    "COD_BACIA": "002",
+    "COD_BACIA_SECUND": "002",
+    "COD_CAD_CANAL": "036.002.002.002.202",
+    "COD_CURSO": "036",
+    "COD_CURSO_RECEPTOR": "002",
+    "COD_JUSANTE": "2",
+    "COD_ORDEM_LOCACIONAL": "02",
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "ESTADO_CONSERVACAO": "Bom",
+    "FOTO1": null,
+    "LARGURA": 13.5,
+    "LAST_EDITED_DATE": null,
+    "LAST_EDITED_USER": null,
+    "NOME": "Canal Derby Tacaruna",
+    "OBJECTID": 297,
+    "OBSERVACOES": null,
+    "ORDEM": 27,
+    "ORIG_FID": 158,
+    "PROFUNDIDADE": 2.3,
+    "REVESTIMENTO": "Revestido",
+    "RIO": "Beberibe",
+    "TEXTO_FOTO1": null,
+    "TIPO_LIMPEZA": "Manual",
+    "TIPO_REVESTIMENTO": "Alvenaria de Pedra",
+    "TIPO_SECAO": "Trapesoidal",
+    "TRECHO": "B"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     291146.49650000036,
+     9109522.3463
+    ],
+    "type": "Point"
+   },
+   "id": 300,
+   "properties": {
+    "BACIA": "Beberibe",
+    "CLASSIFICACAO": "A Céu Aberto",
+    "COD_BACIA": "002",
+    "COD_BACIA_SECUND": "002",
+    "COD_CAD_CANAL": "036.002.002.002.202",
+    "COD_CURSO": "036",
+    "COD_CURSO_RECEPTOR": "002",
+    "COD_JUSANTE": "2",
+    "COD_ORDEM_LOCACIONAL": "02",
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "ESTADO_CONSERVACAO": "Regular",
+    "FOTO1": null,
+    "LARGURA": 13.5,
+    "LAST_EDITED_DATE": null,
+    "LAST_EDITED_USER": null,
+    "NOME": "Canal Derby Tacaruna",
+    "OBJECTID": 300,
+    "OBSERVACOES": "Ocorrem inundações.",
+    "ORDEM": 27,
+    "ORIG_FID": 159,
+    "PROFUNDIDADE": 2.8,
+    "REVESTIMENTO": "Revestido",
+    "RIO": "Beberibe",
+    "TEXTO_FOTO1": null,
+    "TIPO_LIMPEZA": "Manual",
+    "TIPO_REVESTIMENTO": "Placa de Concreto",
+    "TIPO_SECAO": "Trapesoidal",
+    "TRECHO": "C"
+   },
+   "type": "Feature"
+  }
+ ],
+ "type": "FeatureCollection"
+}

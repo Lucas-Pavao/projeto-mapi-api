@@ -34,7 +34,8 @@ prorrogáveis por mais 10 (pedidos 05 e 06).
 | 3 | Relatório técnico do MDT (datum, geoide, precisão) e termo de uso | Governo de PE (PE3D / APAC) | 03 | Publicar a camada de terreno (termo de uso); viés MDT↔SGB só se o refluxo voltar ao escopo | baixa (opcional; refluxo fora do escopo desde 2026-10-11) |
 | 4 | Quantos falsos alarmes por mês a Defesa Civil tolera | Defesa Civil do Recife | 04 | Limiares de Moderado e Alto | média |
 | 5 | Registros de alagamento com data, hora e endereço | Defesa Civil do Recife, via LAI | 05 | Validação com mais casos e com hora | alta |
-| 6 | Cadastro da microdrenagem nos 4 pontos | EMLURB / URB Recife, via LAI | 06 | Capacidade da galeria e soleira com fonte | média |
+| 6 | Cadastro da microdrenagem nos 4 pontos: a base está **publicada** no ESIG (`Emlurb/BASES_DRENAGEM_RECIFE_MI`, Contrato 6016/2012; conferida em 2026-11-21), mas sem cotas de montante/jusante, sem diâmetro nos trechos e vazia no CIn; falta exportação completa com dicionário, declividade, PDDR produtos 6 e 10, bombas da Av. Recife e comportas do Derby–Tacaruna | EMLURB, via LAI | 06 (atualizado em 2026-11-21) | Capacidade da galeria com fonte (prompt 1) e soleira | alta |
+| 20 | Cadastro de drenagem de Jaboatão: vetoriais da Figura 213 do Diagnóstico do PMSB (2023) e plantas as-built no Centro (JABOATAO_CENTRO) | Prefeitura do Jaboatão (e-SIC da Ouvidoria → Secretaria de Infraestrutura), Lei municipal 853/2013 | 08 | Capacidade da galeria em Jaboatão | média |
 | 7 | Termos de uso das demais fontes | ANA, APAC, Cemaden, Open-Meteo, CARTO, Prefeitura | não há | Publicar dados e o site | média |
 | 8 | ~~Credencial do Hidro-WebService da ANA~~ (resolvido em 2026-10-12: coleta ao vivo funcionando) | ANA | não há | Dado da ANA ao vivo | resolvido |
 | 9 | Pluviômetro urbano com hora confiável em 2023–2024 | Cemaden, APAC ou ANA | não há | Um teste com poder | média |
@@ -180,6 +181,24 @@ prorrogáveis por mais 10 (pedidos 05 e 06).
   análise a faixa toda deu a mesma categoria; RESULTADOS §6).
 - **Primeiro passo:** confirmar por telefone ou pelo site da Prefeitura qual órgão guarda o cadastro, ajustar o destinatário
   e o raio, e enviar.
+- **Atualização 2026-11-21:** o cadastro está publicado no ESIG como serviço ArcGIS
+  (`https://esigportal2.recife.pe.gov.br/arcgis/rest/services/Emlurb/BASES_DRENAGEM_RECIFE_MI/MapServer`). Os nós trazem
+  tipo (BL, PV, CG, CAN, FC), cota da tampa (`Z`), profundidade (`VLHFUNDO`) e diâmetro dos tubos (`VLTBMONT*`,
+  `VLTBJUSAN*`, em metros), mas com preenchimento de 0% (CIn) a 79% (Ibura); as cotas de montante e jusante estão vazias
+  na cidade inteira (`docs/extratos/esig-drenagem/RELATORIO-PREENCHIMENTO.md`). O pedido 06 foi reescrito para pedir a
+  exportação completa, o dicionário, a declividade, os produtos 6 e 10 do PDDR e os dados de bombas e comportas, com
+  entrega parcial pelas bacias dos 4 pontos.
+
+### 3.7 Cadastro de drenagem de Jaboatão (pedido 08, LAI municipal)
+
+- **O que falta:** os arquivos vetoriais que geraram o mapa do cadastro de drenagem do Diagnóstico do PMSB de 2023 e as
+  plantas as-built da microdrenagem num quadrado de 600 m em volta de JABOATAO_CENTRO.
+- **Com quem:** Prefeitura do Jaboatão dos Guararapes, e-SIC da Ouvidoria Geral, com encaminhamento à Secretaria de
+  Infraestrutura (Gerência de Drenagem Urbana). Lei municipal 853/2013 e Decreto 63/2018.
+- **Arquivo:** `docs/pedidos/08-lai-jaboatao-cadastro-microdrenagem.md`. Pede só arquivos existentes, nomeados, porque
+  pedido genérico ou que exija consolidar dados pode ser negado.
+- **Por que é necessário:** Jaboatão não está no ESIG do Recife; sem cadastro, a capacidade da galeria no ponto não tem fonte.
+- **Primeiro passo:** conferir no PDF do Diagnóstico o número e o título da figura e o endereço do e-SIC; enviar.
 
 ## 4. Pendências que não são pedidos redigidos
 
