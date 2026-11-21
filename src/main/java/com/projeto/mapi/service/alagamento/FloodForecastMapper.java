@@ -31,14 +31,15 @@ public final class FloodForecastMapper {
     private FloodForecastMapper() {}
 
     /** Contexto do ponto que a IA não conhece (nome, estação da leitura mais nova, chuva medida da última hora). */
-    public record PointContext(long floodPointId, String slug, String name, String rainStation, Double rainStationKm,
+    public record PointContext(long floodPointId, String slug, String name, String rainStation, String rainStationName,
+                               Double rainStationKm,
                                Double rainLastHourMm, Instant evaluatedAt, boolean shadow) {}
 
     /** SEM_DADO montado na própria API (IA fora do ar ou sem resposta). */
     public static AlagamentoPontoDTO unavailable(PointContext c, String reason) {
         String r = REASONS.containsKey(reason) ? reason : "PREVISAO_INDISPONIVEL";
         return new AlagamentoPontoDTO(c.floodPointId(), c.slug(), c.name(), "SEM_DADO", null, r, REASONS.get(r), null,
-                c.rainLastHourMm(), List.of(), null, c.rainStation(), c.rainStationKm(), null, Map.of(), null, null,
+                c.rainLastHourMm(), List.of(), null, c.rainStation(), c.rainStationName(), c.rainStationKm(), null, Map.of(), null, null,
                 c.evaluatedAt(), true, c.shadow(), RULE, AlagamentoPontoDTO.ATTRIBUTION);
     }
 
@@ -67,7 +68,7 @@ public final class FloodForecastMapper {
         return new AlagamentoPontoDTO(c.floodPointId(), c.slug(), c.name(), level,
                 "SEM_DADO".equals(level) ? null : intOrNull(ai, "worst_horizon_hours"), reason,
                 reason == null ? null : REASONS.get(reason), dbl(ai, "h_now_cm"), c.rainLastHourMm(), hs,
-                explanation(ai.path("explanation")), c.rainStation(), c.rainStationKm(), dbl(ai, "latest_reading_age_minutes"),
+                explanation(ai.path("explanation")), c.rainStation(), c.rainStationName(), c.rainStationKm(), dbl(ai, "latest_reading_age_minutes"),
                 mv, text(ai, "code_version"), inst(ai, "issued_at"), c.evaluatedAt(), true, c.shadow(), RULE,
                 AlagamentoPontoDTO.ATTRIBUTION);
     }

@@ -22,6 +22,7 @@ public record AlagamentoPontoDTO(
         List<Horizon> horizons,
         Explanation explanation,
         String rainStation,
+        String rainStationName,
         Double rainStationDistanceKm,
         Double latestReadingAgeMinutes,
         Map<String, String> modelVersions,

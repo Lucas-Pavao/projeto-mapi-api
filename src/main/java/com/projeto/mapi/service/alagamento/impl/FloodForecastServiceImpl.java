@@ -56,8 +56,14 @@ public class FloodForecastServiceImpl implements FloodForecastService {
 
     @Override
     public AlagamentoPontoDTO evaluate(UUID cycleId, Instant now, FloodPoint p, Input in) {
+        String stationName = null;
+        try {
+            stationName = repo.stationName(in.rainStation());
+        } catch (Exception e) {
+            log.warn("Nome da estação {} indisponível: {}", in.rainStation(), e.toString());
+        }
         FloodForecastMapper.PointContext ctx = new FloodForecastMapper.PointContext(p.getId(), p.getSlug(), p.getName(),
-                in.rainStation(), in.rainStationKm(), in.rainLastHourMm(), now, shadow);
+                in.rainStation(), stationName, in.rainStationKm(), in.rainLastHourMm(), now, shadow);
         JsonNode ai = null;
         try {
             RainForecastService.Inputs ri = rainForecast.inputs(p.getId(), p.getSlug(), p.getLatitude(), p.getLongitude());
@@ -101,7 +107,7 @@ public class FloodForecastServiceImpl implements FloodForecastService {
             Double rainHour = ai == null ? null : ai.path(CTX).path("rain_last_hour_mm").isNumber()
                     ? ai.path(CTX).path("rain_last_hour_mm").asDouble() : null;
             FloodForecastMapper.PointContext ctx = new FloodForecastMapper.PointContext(l.floodPointId(), l.slug(), l.name(),
-                    l.rainStation(), l.rainStationKm(), rainHour, l.evaluatedAt(), l.shadow());
+                    l.rainStation(), l.rainStationName(), l.rainStationKm(), rainHour, l.evaluatedAt(), l.shadow());
             out.add(FloodForecastMapper.toDto(ai, ctx));
         }
         return out;

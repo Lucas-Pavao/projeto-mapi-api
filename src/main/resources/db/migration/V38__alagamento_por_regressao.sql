@@ -18,7 +18,7 @@ CREATE TABLE flood_forecast_point (
     bucket_version         VARCHAR(40),
     code_version           VARCHAR(64),                        -- commit da MAPI AI que respondeu
     payload                JSONB        NOT NULL,              -- resposta inteira da IA (horizontes, explicação, decomposição)
-    rain_station           VARCHAR(40),
+    rain_station           VARCHAR(120),                       -- estação canônica da leitura mais nova (station_canonical, V25)
     rain_station_km        DOUBLE PRECISION,
     shadow                 BOOLEAN      NOT NULL
 );

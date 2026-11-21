@@ -26,8 +26,8 @@ class FloodForecastContractTest {
     private static final Instant NOW = Instant.parse("2026-11-20T17:00:00Z");
 
     private FloodForecastMapper.PointContext ctx() {
-        return new FloodForecastMapper.PointContext(5L, "MASCARENHAS_IMBIRIBEIRA", "Av. Mascarenhas de Morais", "260960001A",
-                1.1, 12.4, NOW, true);
+        return new FloodForecastMapper.PointContext(5L, "MASCARENHAS_IMBIRIBEIRA", "Av. Mascarenhas de Morais", "261160609A",
+                "Imbiribeira", 1.1, 12.4, NOW, true);
     }
 
     private JsonNode ia(String estado) throws Exception {
@@ -102,7 +102,7 @@ class FloodForecastContractTest {
     void nomesDosCamposDoContrato() throws Exception {
         JsonNode j = mapper.readTree(mapper.writeValueAsString(FloodForecastMapper.toDto(ia("atencao_3h"), ctx())));
         assertThat(List.of("floodPointId", "slug", "name", "level", "worstHorizonHours", "reason", "reasonText", "hNowCm",
-                "rainLastHourMm", "horizons", "explanation", "rainStation", "rainStationDistanceKm", "latestReadingAgeMinutes",
+                "rainLastHourMm", "horizons", "explanation", "rainStation", "rainStationName", "rainStationDistanceKm", "latestReadingAgeMinutes",
                 "modelVersions", "codeVersion", "issuedAt", "evaluatedAt", "experimental", "shadow", "rule", "attribution"))
                 .allSatisfy(k -> assertThat(j.has(k)).as(k).isTrue());
         assertThat(j.path("horizons").get(0).fieldNames()).toIterable().containsExactlyInAnyOrder("hours", "level", "rainQ50Mm",
@@ -111,5 +111,6 @@ class FloodForecastContractTest {
                 "decomposition");
         assertThat(j.path("explanation").path("sensitivity").fieldNames()).toIterable().contains("minCm", "maxCm", "levelChanges");
         assertThat(j.path("issuedAt").asText()).isEqualTo("2026-11-20T17:00:00Z");
+        assertThat(j.path("rainStationName").asText()).isEqualTo("Imbiribeira");
     }
 }

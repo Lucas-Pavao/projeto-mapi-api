@@ -274,7 +274,7 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
             String status = ts == RainAlertRules.TerrainStatus.OK ? "OK"
                     : ts == RainAlertRules.TerrainStatus.EM_REVISAO ? "EM_REVISAO" : "SEM_TERRENO";
             return floodForecast.evaluate(cycleId, now, p, new FloodForecastService.Input(s10, ft, status, rain60,
-                    newest == null ? null : newest.stationId(), newest == null ? null : newest.km(),
+                    newest == null ? null : newest.canonicalId(), newest == null ? null : newest.km(),
                     props.getCapacity().getTrYears(), props.getCapacity().getTeMinutes()));
         } catch (Exception e) {
             log.error("Alerta por regressão do ponto {}: {}", p.getSlug(), e.toString());
