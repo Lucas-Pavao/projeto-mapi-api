@@ -46,11 +46,24 @@ public final class RainAlertRules {
 
     /** Resultado do balde no ciclo. {@code failure} não nulo = sem lâmina. */
     public record Bucket(Double hNowMm, Integer minutesToHcritQ50, Integer minutesToHcritQ80, Double hProjMaxQ50Mm,
-                         Double hProjMaxQ80Mm, String version, SemDadoMotivo failure) {
+                         Double hProjMaxQ80Mm, String version, SemDadoMotivo failure, Limpeza limpeza) {
+        public Bucket(Double hNowMm, Integer minutesToHcritQ50, Integer minutesToHcritQ80, Double hProjMaxQ50Mm,
+                      Double hProjMaxQ80Mm, String version, SemDadoMotivo failure) {
+            this(hNowMm, minutesToHcritQ50, minutesToHcritQ80, hProjMaxQ50Mm, hProjMaxQ80Mm, version, failure, null);
+        }
+
         public static Bucket failed(SemDadoMotivo m) {
-            return new Bucket(null, null, null, null, null, null, m);
+            return new Bucket(null, null, null, null, null, null, m, null);
         }
     }
+
+    /**
+     * Limpeza recente (docs/MODELO-DISPONIBILIDADE-GALERIA.md, seção 8): probabilidade de a lâmina chegar a h_crit
+     * misturando galeria livre e entupida, com P(entupida) = 1 - exp(-lambda_re · dias desde a última limpeza da 156).
+     * Liga PROVAVEL quando a probabilidade >= {@code probOn}. Nulo = sem dado de limpeza (regra de sempre).
+     */
+    public record Limpeza(Double diasDesdeLimpeza, Double pEntupida, Double probAgora, Double prob60Q50,
+                          Integer minutesToHcritQ50Entupida, double probOn) {}
 
     /**
      * Medida no ciclo: leitura mais nova (das estações a até 5 km que passaram no controle), chuva na duração Te e nos
@@ -152,12 +165,18 @@ public final class RainAlertRules {
         } else if (b.hNowMm() != null && b.hNowMm() >= p.hcritMm()) {
             flood = PointFloodLevel.PROVAVEL;
             floodIn = 0;
+        } else if (b.limpeza() != null && b.limpeza().probAgora() != null && b.limpeza().probAgora() >= b.limpeza().probOn()) {
+            flood = PointFloodLevel.PROVAVEL;
+            floodIn = 0;
         } else if (f.failure() != null || b.hProjMaxQ50Mm() == null) {
             flood = PointFloodLevel.SEM_DADO;
             floodReason = f.failure() != null ? SemDadoMotivo.SEM_PREVISAO : SemDadoMotivo.SEM_PREVISAO;
         } else if (b.minutesToHcritQ50() != null && b.minutesToHcritQ50() <= p.horizonMinutes()) {
             flood = PointFloodLevel.PROVAVEL;
             floodIn = b.minutesToHcritQ50();
+        } else if (b.limpeza() != null && b.limpeza().prob60Q50() != null && b.limpeza().prob60Q50() >= b.limpeza().probOn()) {
+            flood = PointFloodLevel.PROVAVEL;
+            floodIn = b.limpeza().minutesToHcritQ50Entupida();
         } else {
             flood = PointFloodLevel.NAO;
         }

@@ -156,6 +156,29 @@ class RainAlertRulesTest {
     }
 
     @Test
+    void limpezaRecenteDaMenosChanceDeAlagar() {
+        // galeria livre não alaga (40 mm, sem cruzar h_crit); entupida alagaria agora (prob = P(entupida))
+        RainAlertRules.Limpeza recente = new RainAlertRules.Limpeza(3.0, 0.068, 0.068, 0.068, 0, 0.5);
+        RainAlertRules.Limpeza antiga = new RainAlertRules.Limpeza(90.0, 0.878, 0.878, 0.878, 0, 0.5);
+        Bucket livre = new Bucket(40.0, null, null, 120.0, 140.0, "balde-M1a-10min", null, recente);
+        assertThat(decide(fresh(15, 40), prob(0.5), livre, TerrainStatus.OK, Previous.initial()).flood())
+                .isEqualTo(PointFloodLevel.NAO);
+        Bucket velha = new Bucket(40.0, null, null, 120.0, 140.0, "balde-M1a-10min", null, antiga);
+        Decision d = decide(fresh(15, 40), prob(0.5), velha, TerrainStatus.OK, Previous.initial());
+        assertThat(d.flood()).isEqualTo(PointFloodLevel.PROVAVEL);
+        assertThat(d.floodInMinutes()).isZero();
+        // só a projeção da galeria entupida cruza h_crit em 40 min
+        RainAlertRules.Limpeza proj = new RainAlertRules.Limpeza(60.0, 0.75, 0.0, 0.75, 40, 0.5);
+        Decision e = decide(fresh(15, 40), prob(0.5), new Bucket(40.0, null, null, 120.0, 140.0, "v", null, proj),
+                TerrainStatus.OK, Previous.initial());
+        assertThat(e.flood()).isEqualTo(PointFloodLevel.PROVAVEL);
+        assertThat(e.floodInMinutes()).isEqualTo(40);
+        // sem limpeza: regra de sempre
+        assertThat(decide(fresh(15, 40), prob(0.5), new Bucket(40.0, null, null, 120.0, 140.0, "v", null),
+                TerrainStatus.OK, Previous.initial()).flood()).isEqualTo(PointFloodLevel.NAO);
+    }
+
+    @Test
     void histereseMantemAtencaoEntreLDesligaELLiga() {
         Params p = new Params(L_ON, 0.05, 0, 60, 30, 0.2, 60, 15, 5.0, 10.0, 150.0, 60);
         Previous prev = new Previous(RainAlertLevel.ATENCAO, PointFloodLevel.NAO, NOW.minusSeconds(900), NOW.minusSeconds(300),

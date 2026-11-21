@@ -295,6 +295,9 @@ management:
         http.server.requests: true
 
 mapi:
+  # Limpeza recente da drenagem pela Central 156 (docs/MODELO-DISPONIBILIDADE-GALERIA.md, seção 8). Taxas e regras no LimpezaProperties.
+  limpeza:
+    enabled: ${LIMPEZA_ENABLED:true}
   alerta:
     # ADR 0026. Modo sombra ligado: só o Lucas desliga.
     shadow: ${ALERTA_SHADOW:true}

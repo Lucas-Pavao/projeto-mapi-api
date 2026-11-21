@@ -66,6 +66,8 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
     private final AlertaProperties props;
     private final ObjectMapper mapper;
     private final Clock clock;
+    private final com.projeto.mapi.service.limpeza.LimpezaService limpeza;
+    private final com.projeto.mapi.config.LimpezaProperties limpezaProps;
 
     @Override
     public synchronized CycleSummary run(String origin) {
@@ -179,17 +181,25 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
                 for (int k = start; k <= last; k++) rain.add(slots.get(k).mm());
                 List<Double> z = t.volumeCurve().stream().map(c -> c.aboveBottomCm() / 100.0).toList();
                 List<Double> v = t.volumeCurve().stream().map(TerrainResponseDTO.CurvePoint::cumulativeVolumeM3).toList();
-                br = bucket.evaluate(rain, new PointBucketClient.Terrain(p.getSlug(), t.contributingAreaM2(), z, v,
-                                t.streetElevationM() - t.bottomElevationM()), props.getCapacity().getTrYears(),
-                        props.getCapacity().getTeMinutes(), f.failure() == null ? f.q50_1h() : null,
-                        f.failure() == null ? f.q80_1h() : null);
+                PointBucketClient.Terrain bt = new PointBucketClient.Terrain(p.getSlug(), t.contributingAreaM2(), z, v,
+                        t.streetElevationM() - t.bottomElevationM());
+                Double fq50 = f.failure() == null ? f.q50_1h() : null, fq80 = f.failure() == null ? f.q80_1h() : null;
+                // limpeza recente (Central 156): só quando há data da última limpeza e taxa do ponto; senão, a regra de sempre
+                var lz = limpeza.dados(p);
+                br = lz.isPresent()
+                        ? bucket.evaluate(rain, bt, props.getCapacity().getTrYears(), props.getCapacity().getTeMinutes(), fq50, fq80,
+                                lz.get().dias(), lz.get().lambdaRePorDia())
+                        : bucket.evaluate(rain, bt, props.getCapacity().getTrYears(), props.getCapacity().getTeMinutes(), fq50, fq80);
                 if (br != null) aiAt = clock.instant();
                 if (br == null) b = RainAlertRules.Bucket.failed(SemDadoMotivo.BALDE_INDISPONIVEL);
                 else {
                     bucketMs = br.runtimeMs();
+                    PointBucketClient.Cleaning c = br.cleaning();
+                    RainAlertRules.Limpeza lim = c == null ? null : new RainAlertRules.Limpeza(c.daysSinceCleaning(),
+                            c.pClogged(), c.probHcritNow(), c.probHcrit60Q50(), c.minutesToHcritQ50Clogged(), limpezaProps.getProbOn());
                     b = new RainAlertRules.Bucket(br.hNowMm(), br.q50() == null ? null : br.q50().minutesToHcrit(),
                             br.q80() == null ? null : br.q80().minutesToHcrit(), br.q50() == null ? null : br.q50().hMaxMm(),
-                            br.q80() == null ? null : br.q80().hMaxMm(), br.version(), null);
+                            br.q80() == null ? null : br.q80().hMaxMm(), br.version(), null, lim);
                 }
             }
         }
@@ -217,6 +227,19 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
             projection.put("q50", br.q50() == null ? null : br.q50().hMm());
             projection.put("q80", br.q80() == null ? null : br.q80().hMm());
             projection.put("rule", "chuva prevista de 1 h distribuída por igual nos 6 passos");
+            if (br.cleaning() != null) {
+                PointBucketClient.Cleaning c = br.cleaning();
+                Map<String, Object> lzm = new LinkedHashMap<>();
+                lzm.put("diasDesdeLimpeza", c.daysSinceCleaning());
+                lzm.put("lambdaRePorDia", c.lambdaRePerDay());
+                lzm.put("pEntupida", c.pClogged());
+                lzm.put("hNowEntupidaMm", c.hNowCloggedMm());
+                lzm.put("probHcritAgora", c.probHcritNow());
+                lzm.put("probHcrit60minQ50", c.probHcrit60Q50());
+                lzm.put("probOn", limpezaProps.getProbOn());
+                lzm.put("regra", "P(entupida) = 1 - exp(-lambda_re * dias desde a última limpeza da Central 156)");
+                projection.put("limpeza", lzm);
+            }
         }
         List<String> sources = blocks.stream().filter(x -> x.km() <= PointRain10MinComposer.NEAR_KM)
                 .map(PointRain10MinRepository.Block::source).distinct().sorted().toList();
