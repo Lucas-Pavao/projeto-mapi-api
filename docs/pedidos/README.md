@@ -6,7 +6,7 @@ datum altimétrico do MDT do PE3D, sem o qual o MAPi não compara cota da rua co
 
 | Arquivo | Destino | O que pede | Destrava |
 |---|---|---|---|
-| `01-chm-dhn-ficha-f41-recife.md` | Centro de Hidrografia da Marinha (CHM/DHN) | ~~Ficha F-41~~ (obtida em 2026-10-11; `docs/extratos/f41-porto-recife.md`). Resta: autorização para reutilizar as tábuas 2021–2026 | publicar os CSVs de maré derivados |
+| `01-chm-dhn-ficha-f41-recife.md` | Centro de Hidrografia da Marinha (CHM/DHN) e BNDO | ~~Ficha F-41~~ (obtida em 2026-10-11; `docs/extratos/f41-porto-recife.md`). Desde 2026-11-22 também as **constantes harmônicas da estação 30645**. Resta: autorização para reutilizar as tábuas 2021–2026 | publicar os CSVs de maré derivados |
 | `02-ibge-rn-maregrafo-nmm-recife.md` | IBGE — Coordenação de Geodésia | **Opcional desde 2026-10-11**: confirmar que as RN 2603F e 393T do BDG são as da F-41; NMM local no SGB | só confirma Δ = +0,821 m (o item E já veio do BDG) |
 | `03-pe3d-relatorio-tecnico-mdt.md` | Governo de Pernambuco — PE3D | Relatório técnico do LiDAR/MDT 2016: datum vertical, modelo geoidal, precisão, data dos voos | **opcional desde 2026-10-11** (refluxo fora do escopo, ADR 0009 emenda 2): termo de uso para publicar a camada; viés MDT↔SGB se o refluxo voltar |
 | `04-defesa-civil-tolerancia-falso-alarme.md` | Defesa Civil do Recife | Taxa de falso alarme aceitável por ponto/mês para Moderado e Alto; antecedência útil | limiares MEDIUM/HIGH (MODELAGEM-IA, decisão 6) |

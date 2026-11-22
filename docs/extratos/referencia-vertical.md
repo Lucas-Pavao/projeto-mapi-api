@@ -120,3 +120,35 @@ alteram os pixels do Recife; saída em `saida_vies_mdt_2026-11-21.txt`):
 1:1.000 nas RRNN do IBGE anteriores ao REALT 2018 **[a confirmar no pedido 03]**; Cirilo et al. (seção 8) dão erro altimétrico melhor
 que 25 cm no 1:5.000. Consequência: se o MDT usa MAPGEO2010 e as RRNN estão no REALT 2018, parte do viés de ~−0,3 m pode ser
 diferença de modelo geoidal e de realização, não erro do LiDAR. Para GNSS de campo (ponto de controle), usar o hgeoHNOR2020.
+
+## 10. Conferência da RN 2603F e incerteza de Δ (2026-11-22, onda 16, Fase 1.2)
+
+**A ficha não foi trocada.** Fichas baixadas de novo do BDG em 2026-11-22
+(`http://www.bdg.ibge.gov.br/bdg/pdf/relatorio.asp?L1=2603F` e `...L1=3640N`):
+
+| RN | Altitude normal (m) | σ (m) | Última atualização | Local | SHA-256 do PDF (16) |
+|---|---|---|---|---|---|
+| 2603F | **2,7977** | **0,089** | 27/12/2021 | cais do Porto do Recife, "RN 2603-F = EG 8131555" | `f78d16cfa04d72f9` |
+| 3640N | 5,0196 | 0,089 | 30/07/2018 | Recife (outro marco) | `2fcba18a6c4680dc` |
+
+- A cópia de 2026-10-11 (`MAPI/fontes/ibge-bdg/2603F.pdf`, SHA-256 `e703eacc…`) traz os mesmos valores. Os PDFs diferem
+  só no carimbo de data.
+- As duas RRNN têm **o mesmo σ, 0,089 m**: é a sigma absoluta do ajustamento REALT 2018 para a linha de nivelamento, não
+  uma marca da 3640N. Foi isso que fez a pesquisa de 22/11 achar que os valores tinham sido trocados. A altitude da 2603F
+  (2,7977 m) é a que entra em Δ = 3,619 − 2,7977 = **0,821 m**.
+
+**Incerteza registrada:**
+
+| Componente | Valor | Entra em | Fonte |
+|---|---|---|---|
+| σ da altitude da RN 2603F | 0,089 m | Δ | ficha do BDG acima |
+| Nivelamento da DHN (RN até o NR, F-41) | centímetros | Δ | ADR 0009, emenda 1 |
+| Desacordo 393T × 2603F | 0,107 m | faixa de Δ (0,72 a 0,92 m) | ADR 0009, emenda 1 |
+| Variação das médias mensais do nível do mar | **até 25 cm** | **não entra em Δ**: entra na diferença entre a maré da tábua e a maré real (resíduo) e no Z0 de 41 dias de 1997 | nota técnica do IBGE de 11/02/2009, p. 2: "as médias mensais podem alcançar diferenças de 25 cm" (Imbituba, 1957; o texto diz que o efeito é mais pronunciado no Sul e no Sudeste). URL na seção 1 deste extrato; acesso em 2026-11-22 |
+
+- O Δ liga dois planos fixos (o NR da DHN e o datum de Imbituba) pela mesma RN. A oscilação mensal do mar muda o nível da
+  água, não a posição dos planos. Por isso, no refluxo, os 25 cm vão para a folga (maré real − soleira) como incerteza da
+  maré prevista. Não vão para Δ.
+- Uso no código: `AlertaProperties.refluxo.deltaM = 0.821` é o único lugar com o número. A soleira em NR é fundo do ESIG +
+  viés do MDT + Δ, ou seja, cota_SGB = maré_NR − 0,821 m.
+- Auditoria de 2026-11-22 (1,144; 1,14; 1,106; 1,25; +0,250): `docs/extratos/auditoria-conversao-mare.md`.
