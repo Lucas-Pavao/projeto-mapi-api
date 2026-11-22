@@ -57,3 +57,19 @@ Três achados de 22/11/2026 definem o que cabe na tela:
 - Uma avaliação nova, com critério escrito antes, em que o dia de risco vença a climatologia com IC sem o zero.
 - O INMET passar a publicar quantidade de chuva ou hora de emissão na previsão por município.
 - Uma estação chuvosa arquivada mostrar que o texto ou os avisos do INMET acompanham (ou não) os eventos FORTE.
+
+## Emenda 1 (2026-11-22) — saída do ICON Global e quebra de série
+
+- A documentação do Open-Meteo (https://open-meteo.com/en/docs/dwd-api, lida em 2026-11-22) marca o ICON Global, o EU e
+  o D2 como descontinuados em 30/11/2026: "dwd_icon_global, dwd_icon_eu and dwd_icon_d2 will use native grids". A página
+  não diz qual nome usar depois.
+- Conferido na própria API em 2026-11-22:
+  - `dwd_icon_global_native` responde, tem `meta.json` próprio (instante da rodada) e célula centrada em −8,0206; −34,9728,
+    mas o histórico de rodadas só começa em 2026-09-22;
+  - `icon_seamless` responde e tem histórico de rodadas desde 2024-01-19.
+- Decisão: coleta ao vivo com `dwd_icon_global_native`; histórico com `icon_seamless`. Sai o `icon_global` do coletor.
+- Quebra de série: 2026-11-30 registrada em `source_series_break` (V43) para o `best_match` (as 3 entradas do Open-Meteo do
+  rain_v1 vêm dele) e para o `icon_seamless`. Toda avaliação separa o antes e o depois. A conferência semanal do rain_v1
+  (V44, `docs/PRE-REGISTRO-CONFERENCIA-SEMANAL-RAIN.md`) já faz isso.
+- O dia de risco (bloco C) foi avaliado com o `icon_global` até 31/10/2026 e não passou no critério. A avaliação não
+  muda; uma nova teria de usar o `icon_seamless` e respeitar a quebra.

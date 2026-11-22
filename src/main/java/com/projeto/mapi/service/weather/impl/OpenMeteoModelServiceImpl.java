@@ -73,8 +73,8 @@ public class OpenMeteoModelServiceImpl implements OpenMeteoModelService {
     public OpenMeteoModelServiceImpl(OpenMeteoModelClient client, OpenMeteoModelRepository repo, FloodPointRepository points,
                                      IngestionRunRepository runs, RawObservationRepository raws,
                                      IngestionProperties ingestionProps, ObjectMapper mapper, Clock clock, TransactionTemplate tx,
-                                     @Value("${app.open-meteo-models.live:ecmwf_ifs,ecmwf_ifs025,icon_global,best_match}") List<String> liveModels,
-                                     @Value("${app.open-meteo-models.history:ecmwf_ifs025,icon_global,best_match}") List<String> historyModels,
+                                     @Value("${app.open-meteo-models.live:ecmwf_ifs,ecmwf_ifs025,dwd_icon_global_native,best_match}") List<String> liveModels,
+                                     @Value("${app.open-meteo-models.history:ecmwf_ifs025,icon_seamless,best_match}") List<String> historyModels,
                                      @Value("${app.open-meteo-models.pause-ms:2000}") long pauseMs) {
         this.client = client;
         this.repo = repo;

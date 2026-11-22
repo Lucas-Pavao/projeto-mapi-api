@@ -27,6 +27,8 @@ public class OpenMeteoModelClientImpl implements OpenMeteoModelClient {
             "ecmwf_ifs", "ecmwf_ifs",
             "ecmwf_ifs025", "ecmwf_ifs025",
             "icon_global", "dwd_icon",
+            // ICON na grade nativa: o que o DWD mantém depois de 30/11/2026 (https://open-meteo.com/en/docs/dwd-api, 22/11/2026)
+            "dwd_icon_global_native", "dwd_icon_global_native",
             "gfs_seamless", "ncep_gfs013");
 
     private final RestClient forecast;
