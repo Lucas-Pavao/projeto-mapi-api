@@ -15,7 +15,8 @@ public record PublicRiskDTO(
         boolean inTest,
         String meaning) {
 
+    /** {@code municipality}: município do ponto, para a linha do INMET da tela (prompt dos horizontes, D2). */
     public record NearestPoint(String slug, String name, int distanceM, String level, Integer worstHorizonHours,
-                               Instant issuedAt, String reason) {
+                               Instant issuedAt, String reason, String municipality) {
     }
 }

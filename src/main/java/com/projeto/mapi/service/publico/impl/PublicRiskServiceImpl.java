@@ -71,13 +71,14 @@ public class PublicRiskServiceImpl implements PublicRiskService {
         int distanceM = (int) (Math.round(km(lat, lon, p.getLatitude(), p.getLongitude()) * 1000.0 / 50.0) * 50);
         if (inTest) {
             // Modo sombra: o nível não sai para o público; nunca vira "sem alerta".
-            var point = new PublicRiskDTO.NearestPoint(p.getSlug(), p.getName(), distanceM, "SEM_DADO", null, null, "EM_TESTE");
+            var point = new PublicRiskDTO.NearestPoint(p.getSlug(), p.getName(), distanceM, "SEM_DADO", null, null, "EM_TESTE",
+                    p.getMunicipality());
             return new PublicRiskDTO(point, rain.mm(), rain.station(), true, true, RiskMeaning.IN_TEST);
         }
         var a = floodForecast.current().stream().filter(x -> x.slug().equals(p.getSlug())).findFirst().orElse(null);
         String level = a == null ? "SEM_DADO" : a.level();
         var point = new PublicRiskDTO.NearestPoint(p.getSlug(), p.getName(), distanceM, level, a == null ? null : a.worstHorizonHours(),
-                a == null ? null : a.issuedAt(), a == null ? "SEM_CALCULO" : a.reason());
+                a == null ? null : a.issuedAt(), a == null ? "SEM_CALCULO" : a.reason(), p.getMunicipality());
         return new PublicRiskDTO(point, rain.mm(), rain.station(), true, false, RiskMeaning.of(level));
     }
 

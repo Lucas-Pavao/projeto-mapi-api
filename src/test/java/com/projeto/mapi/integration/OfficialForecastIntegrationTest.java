@@ -115,6 +115,11 @@ class OfficialForecastIntegrationTest extends AbstractApiIntegrationTest {
                 .andExpect(jsonPath("$.source").value("INMET"))
                 .andExpect(jsonPath("$.days[0].periods[0].period").value("MANHA"))
                 .andExpect(jsonPath("$.days[0].periods[0].firstSeenAt").exists());
+        when(inmetClient.fetchActiveJson()).thenReturn("{\"hoje\": [], \"futuro\": []}");
+        mockMvc.perform(get("/api/public/avisos-oficiais/Recife"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.source").value("INMET"))
+                .andExpect(jsonPath("$.warnings").isArray());
         mockMvc.perform(get("/api/public/previsao-oficial/Caruaru"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.reason").value("MUNICIPIO_DESCONHECIDO"))

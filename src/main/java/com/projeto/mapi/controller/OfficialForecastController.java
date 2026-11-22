@@ -1,7 +1,9 @@
 package com.projeto.mapi.controller;
 
 import com.projeto.mapi.dto.OfficialForecastDTO;
+import com.projeto.mapi.dto.OfficialWarningsResponseDTO;
 import com.projeto.mapi.service.warning.OfficialForecastService;
+import com.projeto.mapi.service.warning.OfficialWarningService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class OfficialForecastController {
 
     private final OfficialForecastService service;
+    private final OfficialWarningService warnings;
 
     @GetMapping({"/api/previsao-oficial/{municipio}", "/api/public/previsao-oficial/{municipio}"})
     @Operation(summary = "Previsão vigente do INMET para o município, com o instante em que o MAPi a viu",
@@ -33,5 +36,15 @@ public class OfficialForecastController {
             @Parameter(description = "Código IBGE de 7 dígitos (ex.: 2611606) ou nome do município da RMR (ex.: Recife)")
             @PathVariable String municipio) {
         return ResponseEntity.ok(service.current(municipio));
+    }
+
+    @GetMapping("/api/public/avisos-oficiais/{municipio}")
+    @Operation(summary = "Avisos vigentes do INMET para o município (rota pública da Minha rua)",
+            description = "Mesma leitura de /api/warnings/official/active, filtrada pelo município. Informação oficial em "
+                    + "domínio público (ADR 0024). firstSeenAt é proxy posterior à emissão real.")
+    @ApiResponse(responseCode = "200", description = "OK (lista vazia quando não há aviso vigente)")
+    public ResponseEntity<OfficialWarningsResponseDTO> publicWarnings(
+            @Parameter(description = "Código IBGE de 7 dígitos ou nome do município da RMR") @PathVariable String municipio) {
+        return ResponseEntity.ok(warnings.activeWarnings(municipio));
     }
 }
