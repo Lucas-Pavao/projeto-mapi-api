@@ -1,11 +1,15 @@
 {
-  "bloco": "D1",
+  "bloco": "D",
   "repositorio": "projeto-mapi-api",
   "branch": "feat/onda15-horizontes",
   "data": "2026-11-22",
   "rota": "GET /api/horizontes/{slug} (USER; 404 se o ponto não existe)",
   "contrato": {
-    "slug": "string", "name": "string", "municipality": "string", "ibge": "string|null", "generatedAt": "instant",
+    "slug": "string",
+    "name": "string",
+    "municipality": "string",
+    "ibge": "string|null",
+    "generatedAt": "instant",
     "official": "{origin:'INMET', attribution, warnings: OfficialWarningDTO[], warningsReason?: AVISOS_SEM_COLETA|AVISOS_INDISPONIVEIS|MUNICIPIO_DESCONHECIDO, warningsReasonText?, warningsCheckedAt?, forecast: OfficialForecastDTO (só hoje e amanhã)}",
     "dayRisk": "{available:false, origin:'MAPi', version:'day_risk_v0', reason:'NAO_VALIDADO', reasonText, report}",
     "nextHour": "{origin:'MAPi', level?: ALERTA|ATENCAO|SEM_ALERTA|SEM_DADO (nulo se inTest), worstHorizonHours?, experimental, inTest, issuedAt?, ageMinutes?, reason?, reasonText?}"
@@ -16,5 +20,19 @@
     "modo sombra: quem não é ADMIN recebe nextHour.inTest=true e level nulo",
     "sem estado do ponto: level SEM_DADO com motivo, nunca SEM_ALERTA"
   ],
-  "minha_rua": "GET /api/public/previsao-oficial/{municipio} (pública) + o estado do alerta que /api/public/risk já devolve; dia de risco fica fora (só logado, e ausente)"
+  "minha_rua": "GET /api/public/previsao-oficial/{municipio} (pública) + o estado do alerta que /api/public/risk já devolve; dia de risco fica fora (só logado, e ausente)",
+  "D2_front": {
+    "branch": "feat/onda15-horizontes",
+    "componentes": [
+      "features/horizontes/components/HojeBlock.tsx (InmetLine, DayRiskLine, NextHourLine)",
+      "PointHoje (card do ponto, via prop hoje do PointCard e extra do RegressaoCard)",
+      "PanelHoje (painel Agora na RMR, previsão de Recife)",
+      "PublicHoje (Minha rua, rotas públicas)"
+    ],
+    "testes": "HojeBlock.test.tsx: aviso presente e ausente, previsão sem dado, dia de risco não validado (enxuto e Detalhes), três camadas juntas, turnos, axe nos dois modos",
+    "fotos": [
+      "docs/horizontes/hoje-minha-rua-real.jpg",
+      "docs/horizontes/hoje-card-e-painel-mocks.jpg"
+    ]
+  }
 }

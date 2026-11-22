@@ -52,10 +52,12 @@ origem passar a trazer algum (há teste para isso).
 |---|---|---|---|---|
 | 2026-11-22 16:56 | 13h56 | `"13"` | `160b477c2169fca6` | `6111c245270c6e51` |
 | 2026-11-22 17:15 | 14h15 | `"14"` | `676a34e9b0135ff5` | `e8b491df7bd64b7f` |
+| 2026-11-22 17:33 | 14h33 | `"14"` | `6c982917391c7617` | (mudou de novo, ver abaixo) |
 
-Entre as duas consultas, além de `hora`, mudaram a temperatura e o vento de amanhã (23/11: máxima 32 → 33 °C, mínima
-24 → 25 °C, vento E-SE → E-W). Ou seja, a previsão foi atualizada perto das 14h locais, e `hora` mudou junto com o
-relógio. Duas consultas não bastam para separar as duas coisas. Por isso:
+Entre a 1ª e a 2ª consulta, além de `hora`, mudaram a temperatura e o vento da manhã e da tarde de amanhã (23/11:
+máxima 32 → 33 °C, mínima 24 → 25 °C, vento E-SE → E-W). Entre a 2ª e a 3ª, `hora` ficou em "14" e mudou só a noite
+de amanhã (máxima 32 → 33 °C, mínima 24 → 25 °C). Leitura: a previsão é atualizada aos pedaços, perto das 14h locais, e
+`hora` acompanha a hora local da consulta. Por isso:
 
 - `hora` fica **fora** do hash que define uma versão da previsão (senão cada coleta viraria uma "versão nova");
 - a emissão é aproximada por `first_seen_at`: o primeiro instante em que o MAPi viu aquela versão, como nos avisos;
@@ -64,9 +66,11 @@ relógio. Duas consultas não bastam para separar as duas coisas. Por isso:
 
 ## Frequência de mudança
 
-Na primeira tarde, a previsão mudou ao menos uma vez em 19 minutos (acima). A terceira consulta, para fechar a
-comparação em três horários, está registrada no `PROGRESSO.md` (onda 15). A cadência de 3 h foi mantida: ela pega uma
-atualização por turno, e o histórico guarda cada versão como uma linha (nada é sobrescrito).
+Nas três consultas de 22/11 (13h56, 14h15 e 14h33 locais), a previsão de amanhã mudou duas vezes em 37 minutos, aos
+pedaços. Três horários tão próximos não dizem quantas vezes ela muda ao longo do dia inteiro. A cadência de 3 h foi
+mantida: o histórico guarda cada versão vista como uma linha (nada é sobrescrito), e depois de alguns dias a própria
+tabela `official_forecast` mostra a frequência real de mudança. Se as mudanças se concentrarem perto das 14h, a coleta
+pode passar a ter um horário fixo logo depois disso.
 
 ## O que o MAPi faz com isso
 
