@@ -161,6 +161,11 @@ app:
       - "2611606" # Recife
       - "2607901" # Jaboatão dos Guararapes
       - "2609600" # Olinda
+    # Previsão por município (prompt dos horizontes, bloco A): a cada 3 h, um município por vez.
+    forecast-path: /previsao/{ibge}
+    forecast-enabled: ${INMET_FORECAST_ENABLED:true}
+    forecast-fixed-rate-ms: ${INMET_FORECAST_INTERVAL_MS:10800000}
+    forecast-initial-delay-ms: ${INMET_FORECAST_INITIAL_DELAY_MS:90000}
   tide:
     # Maré prevista (extremos TABUAMARE_PE02) em observation, lida pela timeline de Eventos e pelo cartão do mapa
     # (TideObservationSyncTask). Checa a cobertura a cada 6 h; só chama a TabuaMare quando falta.

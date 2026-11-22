@@ -82,6 +82,14 @@ public class AppProperties {
         private long initialDelayMs = 45_000L;
         /** Municípios base (Recife, Jaboatão, Olinda), somados aos municípios dos flood_points ativos. */
         private java.util.List<String> targetGeocodes = java.util.List.of("2611606", "2607901", "2609600");
+        /** Previsão por município (prompt dos horizontes, bloco A; conferida em 2026-11-22). */
+        private String forecastPath = "/previsao/{ibge}";
+        private boolean forecastEnabled = true;
+        /** A cada 3 h: a previsão muda poucas vezes por dia (docs/extratos/inmet-previsao-municipio.md). */
+        private long forecastFixedRateMs = 10_800_000L;
+        private long forecastInitialDelayMs = 90_000L;
+        /** Pausa entre municípios: uma requisição por vez (carga educada). */
+        private long forecastPauseMs = 2_000L;
     }
 
     @Data
