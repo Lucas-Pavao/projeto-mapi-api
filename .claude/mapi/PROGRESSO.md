@@ -459,3 +459,11 @@ front sobre a main. O PR leva as ondas 13, 14 e 15 juntas.
 | GIT-15 | 15 | Git | Opus 5.5 | Imagens `docs/iamgens/` (postas no stage da main em 21/11) | concluido | api @ 54c2d69 | tinham entrado no commit do bloco A; separadas num commit próprio antes do push (branch nunca publicada; backup local `backup/onda15-api-antes-de-separar-imagens`). `MAPi — Telas.html` não estava no stage: ficou fora |
 | 5.12 | 15 | Front | — | Redesenho "Referências" | **parado** | — | pergunta 54: `DESIGN.md` não existe; o item 1 termina num PARE de qualquer forma |
 
+## Onda 16 — previsão de alagamento de ponta a ponta (prompt de 22/11)
+
+Um branch e um PR por fase, nos três repositórios; modo sombra ligado a onda inteira; pontos de parada A a H.
+
+| Id | Onda | Área | Modelo | Tarefa | Status | Branch | Notas |
+|---|---|---|---|---|---|---|---|
+| O16-F0 | 16 | Todas | Opus 5.5 | Estado inicial, sem mudar nada | concluido; **PARE A** | api `onda16/fase0-estado-inicial` | `docs/ONDA16-ESTADO-INICIAL.md`. main api 911d8a2, ia d1b791f, front 374dab0; mvn 576, pytest 130, vitest 588. Os 5 itens novos conferidos: limpeza satura (P = 1,000000 em Mascarenhas e Ibura), mas no ar ainda não age (`drainage_cleaning` vazia); bairro AREIAS do CIn vem de 1 chamado só, e a 156 tem coordenadas-padrão (115 chamados de outros bairros a 482 m do CIn); depressão 0,0 m da Mascarenhas; 2023-02-06 é dia de posicionamento de Ibura, da Defesa Civil e da F1; icon_global no coletor. Alerta do ADR 0026 com Derby e Jaboatão em LEITURA_VELHA |
+
