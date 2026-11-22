@@ -149,6 +149,15 @@ app:
     base-url: ${CEMADEN_BASE_URL:https://resources.cemaden.gov.br}
     uf: ${CEMADEN_UF:PE}
     cache-ttl-ms: ${CEMADEN_CACHE_TTL_MS:300000}
+  # Open-Meteo por modelo (prompt dos horizontes, bloco B): rodada nova conferida a cada hora pelo meta.json do modelo.
+  # Não entra no rain_v1 nem no alerta. icon_global é descontinuado pelo Open-Meteo em 2026-11-30 (falha só ele).
+  open-meteo-models:
+    enabled: ${OPEN_METEO_MODELS_ENABLED:true}
+    live: ecmwf_ifs,ecmwf_ifs025,icon_global,best_match
+    history: ecmwf_ifs025,icon_global,best_match
+    fixed-rate-ms: 3600000
+    initial-delay-ms: 120000
+    pause-ms: 2000
   inmet:
     # Avisos severos do INMET (ADR 0024): consulta a cada 10 min e persiste avisos dos municípios da RMR.
     base-url: ${INMET_BASE_URL:https://apiprevmet3.inmet.gov.br}
@@ -161,6 +170,11 @@ app:
       - "2611606" # Recife
       - "2607901" # Jaboatão dos Guararapes
       - "2609600" # Olinda
+    # Previsão por município (prompt dos horizontes, bloco A): a cada 3 h, um município por vez.
+    forecast-path: /previsao/{ibge}
+    forecast-enabled: ${INMET_FORECAST_ENABLED:true}
+    forecast-fixed-rate-ms: ${INMET_FORECAST_INTERVAL_MS:10800000}
+    forecast-initial-delay-ms: ${INMET_FORECAST_INITIAL_DELAY_MS:90000}
   tide:
     # Maré prevista (extremos TABUAMARE_PE02) em observation, lida pela timeline de Eventos e pelo cartão do mapa
     # (TideObservationSyncTask). Checa a cobertura a cada 6 h; só chama a TabuaMare quando falta.
@@ -295,6 +309,9 @@ management:
         http.server.requests: true
 
 mapi:
+  # Limpeza recente da drenagem pela Central 156 (docs/MODELO-DISPONIBILIDADE-GALERIA.md, seção 8). Taxas e regras no LimpezaProperties.
+  limpeza:
+    enabled: ${LIMPEZA_ENABLED:true}
   alerta:
     # ADR 0026. Modo sombra ligado: só o Lucas desliga.
     shadow: ${ALERTA_SHADOW:true}
@@ -309,6 +326,11 @@ mapi:
       cancel-dry-minutes: 30
       dry-mm: 0.2
       event-gap-minutes: 60
+  alagamento:
+    # Alerta de alagamento por regressão (V38, POST /v1/flood/forecast da IA). Modo sombra até o item 2.3 aprovado e o
+    # aval do orientador: só ADMIN vê a rota e o SSE. Só o Lucas desliga.
+    enabled: ${ALAGAMENTO_ENABLED:true}
+    shadow: ${ALAGAMENTO_SHADOW:true}
   radar:
     # Gravação das imagens do radar da APAC (V33). Volume próprio montado em /data/radar (docker-compose).
     enabled: ${RADAR_COLLECTOR_ENABLED:true}

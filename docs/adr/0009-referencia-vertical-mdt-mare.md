@@ -191,3 +191,32 @@ Eventos de alagamento de **maré em dia sem chuva** no CKAN (chuva 24 h ≈ 0 na
 ## Fontes
 
 Ver `docs/extratos/f41-porto-recife.md` (F-41 e BDG 2603F/393T, acesso em 2026-10-11) e `docs/extratos/referencia-vertical.md` (acessos em 2026-10-10): IBGE, relacao_dvsgb_nr_zh.pdf; IBGE, 10anos.pdf; TabuaMare/DHN `pe02`; IBGE BDG RN 393Y; PSMSL estação 556; Fuchs et al. (2021), IHR; Lins (2018), UFPE; Cirilo et al., ABRHidro.
+
+## Emenda 3 (2026-11-21) — refluxo de maré de volta ao escopo
+
+- Status: **aprovado** pelo Lucas em 2026-11-21 ("vamos considerar refluxo da maré sim"). Reabre a emenda 2.
+- O que entra: a variante M1b do balde (refluxo pela saída da galeria) no alerta por ponto, em **modo sombra** (ADR 0026).
+- Método (código: `projeto-mapi-ai/mapi_ai/bucket10.py`, `fator_refluxo`; API: `AlertaProperties.Refluxo`,
+  `AlertaCycleServiceImpl.mareDosPassos`):
+  - nível lá fora = maré prevista do Porto do Recife no fim de cada passo de 10 min (`TideLevelService`, m sobre o NR), na série e
+    nos 6 passos da projeção;
+  - soleira da saída de cada ponto = **menor fundo de galeria do cadastro ESIG a até 150 m do ponto** (`COTA_FUNDO` ou `Z − VLHFUNDO`;
+    o `Z` do ESIG difere do MDT em −0,10 a +0,15 m, então fica no referencial do MDT); `soleira_NR = soleira + viés + Δ`, com
+    Δ = +0,821 m (emenda 1) e viés = 0 no cenário central (+0,37 m no cenário de viés, `mapi.alerta.refluxo.vies-mdt-m`);
+  - capacidade da galeria multiplicada por `clamp((soleira_NR + D − maré)/D, 0, 1)`: livre com a maré abaixo da soleira, fechada com
+    o tubo submerso. Vale também no estado entupido da limpeza recente.
+- Valores (2026-11-21, posições alinhadas): Ibura soleira −0,72 m (PV 31398, D 0,6 m) → 0,10 m NR; Derby −1,03 m (CG 9878, D 0,4 m) →
+  −0,21 m NR; Imbiribeira 0,638 m (CG 88084, D 0,6 m) → 1,46 m NR; CIn e Jaboatão sem saída (sem refluxo).
+- Limitações, todas declaradas:
+  1. O viés do MDT continua **não medido no terreno nu** (−0,37 m de mediana contra RRNN em chapa, n = 17; `extratos/referencia-vertical.md` §9).
+     Um erro de 0,3 m na soleira muda bastante a fração do tempo com a saída bloqueada.
+  2. A soleira é o fundo de galeria mais baixo **perto do ponto**, não a cota do lançamento no canal, que não está no cadastro público
+     (pedido 06). Ela tende a ficar acima da saída real, o que subestima o refluxo.
+  3. No Ibura e no Derby, a soleira fica abaixo da maré média (1,28 m NR) e a galeria sairia bloqueada quase o tempo todo: ali a
+     drenagem depende de bombas (Av. Recife) e comportas (Canal Derby–Tacaruna), que o balde não modela (pedido 06, item 4). Os dois
+     pontos estão em revisão pela trava da área (ADR 0027, emenda A), então isso não chega ao alerta hoje.
+  4. A carga hidráulica entre a rua e o canal é ignorada (fator linear no diâmetro).
+  5. A maré é a prevista pela tábua, sem resíduo meteorológico (±0,3 m, emenda 1).
+- Desliga com `mapi.alerta.refluxo.enabled=false`. A reprise (`ReprisaEventosIT`) roda sem refluxo, porque confere o balde congelado.
+- Reabre se: o pedido 03 declarar o datum e o geoide do MDT; houver ponto de controle no terreno nu; o pedido 06 trouxer a cota do
+  lançamento no canal e as cotas de operação das bombas e comportas.

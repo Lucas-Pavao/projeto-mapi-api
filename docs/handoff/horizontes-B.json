@@ -1,0 +1,24 @@
+{
+  "bloco": "B",
+  "repositorio": "projeto-mapi-api",
+  "branch": "feat/onda15-horizontes",
+  "data": "2026-11-22",
+  "fonte": "OPEN_METEO_FORECAST",
+  "migracao": "V42__open_meteo_por_modelo.sql",
+  "decisao": "Coluna model acrescentada na tabela da V30 (linhas existentes = best_match, chave igual: o caminho do rain_v1 não muda). As rodadas por modelo vão na tabela nova open_meteo_model_hour, porque a chave da V30 não tem o instante da rodada.",
+  "ao_vivo": {
+    "modelos": ["ecmwf_ifs (9 km)", "ecmwf_ifs025 (o avaliado no bloco C)", "icon_global (descontinuado em 2026-11-30)", "best_match (o atual)"],
+    "cadencia": "a cada hora confere o meta.json; grava só rodada nova; até 48 h à frente; uma requisição por vez, pausa de 2 s",
+    "emissao": "issued_before_utc = last_run_availability_time do meta.json; best_match não tem rodada própria: instante da coleta"
+  },
+  "historico": {
+    "rota": "POST /api/admin/open-meteo/historico?desde=2024-01-15 (ADMIN, em segundo plano, retomável por ponto/modelo/ano)",
+    "produtos": ["previous_day1", "previous_day2", "previous_day3"],
+    "cape": "só best_match (único com cape_previous_dayN)",
+    "850hPa": "não servido no histórico (recusado pela API em 22/11)",
+    "inicio_real": "2024-01-19 (ICON, best_match), 2024-02-03 (ECMWF 0,25°); ECMWF 9 km sem histórico",
+    "emissao": "issued_before_utc = hora - 24N h + 8 h"
+  },
+  "leitura": "GET /api/admin/open-meteo/modelos (linhas por modelo e produto)",
+  "fora": "não entra no rain_v1 nem no alerta de 20 min"
+}

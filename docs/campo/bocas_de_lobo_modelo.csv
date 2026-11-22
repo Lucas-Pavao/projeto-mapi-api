@@ -1,0 +1,2 @@
+id_visita,id_boca,esig_objectid,ponto,data,hora,lat,lon,precisao_gps_m,tipo,n_unidades,largura_m,altura_m,obstrucao_faixa,material,dano,foto,dias_desde_ultima_chuva,limpeza_vista,observacao
+20261201-IBURA,IBU-01,3603,AV_RECIFE_IBURA,2026-12-01,09:15,,,,guia,1,,,25-50,areia;folhas,nenhum,20261201-IBURA_IBU-01_1.jpg,,nao,EXEMPLO - apagar esta linha

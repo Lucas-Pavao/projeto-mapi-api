@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 # MAPi — terreno PE3D: reproduz inventário, mosaico, recortes COG, atributos por ponto e comparação.
 # Uso: tools/terreno/run.sh [etapa ...]   (sem argumentos roda todas)
-# Etapas: altitude inventario vrt cobertura recortes atributos comparar estimativas validar testes cog3857 tiles grade_altitude (whitebox roda sozinho dentro de atributos e validar)
+# Etapas: altitude inventario vrt cobertura recortes atributos comparar estimativas validar testes cog3857 tiles grade_altitude area_regras (whitebox roda sozinho dentro de atributos e validar)
 # Requer: docker, curl. Nunca descompacta os zips (lê por /vsizip). Saídas em ../terreno (fora do git).
 set -euo pipefail
 AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RAIZ="$(cd "$AQUI/../../.." && pwd)"                      # .../MAPI
 DADOS="${DADOS:-$RAIZ/Modelo digital de terreno (RASTER)}"
 OUT="${OUT:-$RAIZ/terreno}"
+# Segunda pasta de folhas (opcional), montada em /dados2. Ex.: DADOS_JABOATAO="$RAIZ/Modelo digital terreno jaboatao "
+# Sem ela, tudo sai byte a byte igual ao de antes. Com ela: folha repetida tem de ser idêntica; vale a de DADOS;
+# a grade do VRT é a de DADOS estendida por pixels inteiros (terreno.py, cmd_lista; docs/TERRENO-PE3D.md §3).
+DADOS_JABOATAO="${DADOS_JABOATAO:-}"
 IMG_TAG="ghcr.io/osgeo/gdal:ubuntu-small-3.10.0"
 IMG_DIGEST="sha256:383e17c221d48031c5ac4fe7500d95adccb05d719a9685542c1e8d2d84ef50e0"
 IMG="ghcr.io/osgeo/gdal@${IMG_DIGEST}"
@@ -23,8 +27,9 @@ checa_disco() {
 }
 mkdir -p "$OUT/recortes"
 checa_disco
+MONTA2=(); [ -z "$DADOS_JABOATAO" ] || MONTA2=(-v "$DADOS_JABOATAO":/dados2:ro)
 dk() { docker run --rm -u "$(id -u):$(id -g)" -e GDAL_IMAGE="$IMG_TAG@$IMG_DIGEST" -e MOTOR="${MOTOR:-whitebox}" \
-  -v "$DADOS":/dados:ro -v "$OUT":/terreno -v "$AQUI":/tools/terreno:ro "$IMG" "$@"; }
+  -v "$DADOS":/dados:ro ${MONTA2[@]+"${MONTA2[@]}"} -v "$OUT":/terreno -v "$AQUI":/tools/terreno:ro "$IMG" "$@"; }
 py() { dk python3 -I /tools/terreno/terreno.py "$@"; }
 
 etapa_altitude() {   # altitudeM atual = elevation do Open-Meteo (MapiServiceImpl.createFloodPoint, linhas 187-193)
@@ -38,8 +43,8 @@ etapa_altitude() {   # altitudeM atual = elevation do Open-Meteo (MapiServiceImp
 }
 etapa_inventario() { py inventario; }
 etapa_vrt() {
-  dk sh -c 'ls /dados/MDT-*.zip | while read z; do b=$(basename "$z" .zip); echo "/vsizip/$z/$b.tif"; done > /terreno/lista_folhas.txt
-    gdalbuildvrt -a_srs EPSG:31985 -srcnodata -9999 -vrtnodata -9999 -input_file_list /terreno/lista_folhas.txt /terreno/mosaico.vrt
+  py lista   # lista_folhas.txt e vrt_grade.txt (vazio sem DADOS_JABOATAO)
+  dk sh -c 'gdalbuildvrt -a_srs EPSG:31985 -srcnodata -9999 -vrtnodata -9999 $(cat /terreno/vrt_grade.txt) -input_file_list /terreno/lista_folhas.txt /terreno/mosaico.vrt
     gdalinfo /terreno/mosaico.vrt > /terreno/mosaico_gdalinfo.txt; gdalinfo --version > /terreno/gdal_version.txt'
   sha256sum "$OUT/mosaico.vrt" | tee "$OUT/mosaico.vrt.sha256"
 }
@@ -74,6 +79,14 @@ etapa_whitebox() {   # baixa o binário oficial (hash fixado) para $OUT/whitebox
 }
 etapa_validar() { etapa_whitebox; py validar; }   # Priority-Flood próprio x Whitebox -> validacao_whitebox.csv/json
 etapa_estimativas() { py estimativas; }
+# area_regras (prompt 2, Parte B, proposta): bacias por raio de snap e regras candidatas; ESIG = pasta com os GeoJSON do
+# cadastro da EMLURB (scripts/capacidade-galeria/baixa_esig.py). Saída: $OUT/area_regras/ (CSV e PNG por ponto).
+etapa_area_regras() {
+  etapa_whitebox
+  local E="${ESIG:-$AQUI/../../docs/extratos/esig-drenagem/geojson}"; [ -d "$E" ] || E="$(mktemp -d)"
+  docker run --rm -u "$(id -u):$(id -g)" -e MOTOR="${MOTOR:-whitebox}" -v "$DADOS":/dados:ro ${MONTA2[@]+"${MONTA2[@]}"} \
+    -v "$OUT":/terreno -v "$AQUI":/tools/terreno:ro -v "$E":/esig:ro "$IMG" python3 -I /tools/terreno/area_regras.py
+}
 
 # Recorte do terreno em EPSG:31985 (xmin ymin xmax ymax). BBOX_MODE=pontos (padrão histórico): bbox dos pontos de
 # cobertura.csv + 2 km. BBOX_MODE=mosaico: extensão inteira do mosaico.vrt (todas as folhas baixadas), para a camada

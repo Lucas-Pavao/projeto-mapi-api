@@ -25,6 +25,7 @@ public class AlertaProperties {
     private Rain rain = new Rain();
     private Capacity capacity = new Capacity();
     private Flood flood = new Flood();
+    private Refluxo refluxo = new Refluxo();
     private Latency latency = new Latency();
 
     @Data
@@ -62,9 +63,46 @@ public class AlertaProperties {
         private int seriesHours = 24;
         /** Precisa de pelo menos 6 h contínuas sem lacuna antes de agora; senão SEM_DADO (SERIE_INCOMPLETA). */
         private int minCompleteHours = 6;
-        /** Pontos com terreno em revisão: SEM_DADO, nunca NAO. Derby: área de 62 m², regra da área pendente. */
-        private List<String> terrainReview = List.of("AGAMENON_DERBY");
+        /**
+         * Pontos com terreno em revisão: SEM_DADO, nunca NAO. Derby e Ibura: trava da área (ADR 0027, emenda A, aprovada
+         * em 2026-11-21): A(20 m)/A(5 m) > 10 (572 e 389), calculada por tools/terreno/trava_area.py. Jaboatão: o ponto
+         * cai em encosta (64,8 m, sem depressão); posição em revisão (docs/TERRENO-PE3D.md §3.1).
+         */
+        private List<String> terrainReview = List.of("AGAMENON_DERBY", "AV_RECIFE_IBURA", "JABOATAO_CENTRO");
         private double coefficientC = 0.86;
+    }
+
+    /**
+     * Refluxo de maré na galeria (variante M1b; ADR 0009, emenda 3, 2026-11-21). A soleira de cada ponto é o menor fundo
+     * de galeria do cadastro ESIG a até 150 m (referencial do MDT); vai ao NR somando Δ (emenda 1) e o viés do MDT.
+     */
+    @Data
+    public static class Refluxo {
+        private boolean enabled = true;
+        /** Desnível NR↔SGB pela RN 2603F (emenda 1): cota_NR = H + Δ. */
+        private double deltaM = 0.821;
+        /** Viés do MDT em relação ao SGB somado a H (0 = central; +0,37 = cenário da mediana MDT − RN em terra). */
+        private double viesMdtM = 0.0;
+        private java.util.Map<String, Saida> pontos = defaults();
+
+        @Data
+        public static class Saida {
+            /** Soleira (fundo do tubo de saída) no referencial do MDT, m. */
+            private double soleiraMdtM;
+            private double diametroM;
+
+            static Saida of(double s, double d) {
+                Saida x = new Saida(); x.soleiraMdtM = s; x.diametroM = d; return x;
+            }
+        }
+
+        private static java.util.Map<String, Saida> defaults() {
+            java.util.Map<String, Saida> m = new java.util.LinkedHashMap<>();
+            m.put("AV_RECIFE_IBURA", Saida.of(-0.72, 0.6));          // PV 31398 (Z − VLHFUNDO)
+            m.put("AGAMENON_DERBY", Saida.of(-1.03, 0.4));           // CG 9878
+            m.put("MASCARENHAS_IMBIRIBEIRA", Saida.of(0.638, 0.6));  // CG 88084
+            return m;
+        }
     }
 
     @Data

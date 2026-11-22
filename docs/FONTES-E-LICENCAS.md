@@ -20,12 +20,13 @@
 | Cemaden | Pluviômetros | Termo de dados não localizado; conteúdo do site sob CC BY-ND 3.0 BR | Não localizada para os dados; citação usual "CEMADEN" (uso acadêmico) | Cláusula "sem derivações" pode alcançar dados transformados | Termo não localizado (ver seção 6) |
 | APAC — histórico pluviométrico (2026-11-08) | Total diário por posto (convencionais desde pelo menos 2016; PCD APAC/CEMADEN desde 2024-02), formulário com exportação XLSX em `dados.apac.pe.gov.br:41120/boletins/historico-pluviometrico/` | Termo não localizado | Não localizada | Não publicar derivado até o termo | Termo não localizado (ver seção 5) |
 | Cemaden — PED (2026-11-09) | Chuva por bloco (10 a 60 min) das PCDs, API `sws.cemaden.gov.br/PED/rest` com token de cadastro; fonte `CEMADEN_PED` (ADR 0021) | Regras da plataforma: citação obrigatória; 12 requisições/min; conta inativa por 1 ano é removida | **Obrigatória**: "DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC" | Cadastro obrigatório; limite de requisições | Licença das séries não localizada (ver seção 6) |
-| Prefeitura do Recife (CKAN) — 156 da Emlurb e Dados Vivos (2026-11-08) | Demandas de drenagem (data, sem hora) e recorte da Sedec com hora (173 registros); investigados, não usados como rótulo | ODbL (portal) | Atribuição à fonte e indicação da ODbL | Share-alike; LGPD (endereços) | https://dados.recife.pe.gov.br/dataset/central-de-atendimento-de-servicos-da-emlurb-156 |
+| Prefeitura do Recife (CKAN) — 156 da Emlurb e Dados Vivos (2026-11-08; 156 baixada por inteiro em 2026-11-21) | Demandas de drenagem (data, sem hora) e recorte da Sedec com hora (173 registros); investigados, não usados como rótulo. Desde 2026-11-21: 15 CSV anuais 2012–2026 da 156 para estimar a taxa de entupimento (prompt 3; `docs/extratos/emlurb-156/`, hashes em `MANIFESTO.csv`) | ODbL (portal) | Atribuição à fonte e indicação da ODbL | Share-alike; LGPD (endereços) | https://dados.recife.pe.gov.br/dataset/central-de-atendimento-de-servicos-da-emlurb-156 |
+| ESIG da Prefeitura do Recife — cadastro de drenagem da EMLURB (2026-11-21) | Elementos da rede (BL, PV, CG), trechos e canais a 300 m dos 4 pontos do Recife, serviços ArcGIS `Emlurb/BASES_DRENAGEM_RECIFE_MI` e `_MA` (prompt 1; `docs/extratos/esig-drenagem/`) | Não declarada no serviço (`copyrightText`: "ABF Engenharia, Serviços e Comércio Ltda"; Contrato 6016/2012) | Citar "Prefeitura do Recife / EMLURB, ESIG, base de drenagem (Contrato 6016/2012)" com data de acesso | Licença de reuso não localizada; não republicar a base inteira até confirmar (pedido 06) | https://esigportal2.recife.pe.gov.br/arcgis/rest/services/Emlurb/BASES_DRENAGEM_RECIFE_MI/MapServer |
 | Open-Meteo | Previsão (forecast), histórico (archive) e marine | CC BY 4.0 para os dados; API gratuita apenas não comercial | Crédito ao Open-Meteo com link para a licença; ECMWF/Copernicus para ERA5 | API gratuita: uso não comercial; limites de chamadas | https://open-meteo.com/en/terms |
 | DHN / Centro de Hidrografia da Marinha | Tábuas das marés (previsão) | Termo não localizado | Não localizada | Não localizada | Termo não localizado (ver seção 8) |
 | TabuaMare (API de terceiros) | Tábuas das marés reorganizadas a partir dos PDFs da DHN | Código do projeto: MIT. Termos da API não localizados | Não localizada; origem dos dados é a DHN | Dados originais são da Marinha | https://github.com/Ddiidev/tabua_mare_convert_pdf2db |
 | CARTO basemaps | Mapa base do front | Termos próprios (última atualização 29/09/2026); chave de API própria | Atribuição a OpenStreetMap e a CARTO | Uso comercial exige plano pago; chave de API própria | https://carto.com/legal/basemap-terms/ |
-| OpenStreetMap | Dados do mapa base (tiles) e geocodificação | ODbL | "OpenStreetMap" com link para a página de copyright | Atribuição visível e indicação da ODbL | https://www.openstreetmap.org/copyright |
+| OpenStreetMap | Dados do mapa base (tiles) e geocodificação; vias em volta dos 5 pontos (Overpass, 2026-11-21, `tools/terreno/vias_osm/`) para a proposta da regra da área | ODbL | "OpenStreetMap" com link para a página de copyright | Atribuição visível e indicação da ODbL | https://www.openstreetmap.org/copyright |
 | Nominatim (OSMF) | Geocodificação de endereços | Política de uso Nominatim | Atribuição ao OpenStreetMap | 1 req/s; User-Agent próprio; cache obrigatório | https://operations.osmfoundation.org/policies/nominatim/ |
 
 ## 1. PE3D — Programa Pernambuco Tridimensional
@@ -106,6 +107,29 @@
 - Dados ERA5 (origem do histórico): licença "Licence to Use Copernicus Products" (https://apps.ecmwf.int/datasets/licences/copernicus/, lida). Para distribuição pública: "Generated using Copernicus Climate Change Service information [Ano]". Para produtos adaptados ou modificados: "Contains modified Copernicus Climate Change Service information [Ano]". Também é preciso informar que "neither the European Commission nor ECMWF is responsible for any use made of the information". Não há restrição de uso não comercial nessa licença. Página do ERA5 no CDS: https://cds.climate.copernicus.eu/datasets/reanalysis-era5-single-levels (licença CC-BY; DOI 10.24381/cds.adbb2d47).
 - Marine: a página de termos de Open-Meteo é a mesma para todas as APIs. Não foi verificada separadamente a licença de dados marinhos de origem.
 - Restrição principal: o uso da API gratuita é restrito a fins não comerciais. Um site público do MAPi sem assinatura nem publicidade se enquadra no uso não comercial; se houver assinatura ou publicidade, é preciso plano pago.
+
+### 7.1 Open-Meteo por modelo e histórico de rodadas (2026-11-22)
+
+- Modelos de origem: ECMWF IFS (9 km e 0,25°; dados abertos do ECMWF), DWD ICON Global (descontinuado pelo
+  Open-Meteo em 30/11/2026) e NOAA GFS (dentro do `best_match` e do CAPE do histórico). Citação na tela e nos
+  relatórios: "Open-Meteo (ECMWF/DWD/NOAA), CC BY 4.0".
+- Histórico de rodadas: `previous-runs-api.open-meteo.com` (página lida em 22/11/2026). `<var>_previous_dayN` é o
+  valor previsto N × 24 h antes da hora válida. Arquivo desde jan/2024, com cobertura menor para alguns modelos. A
+  página oferece licença não comercial, comercial e auto-hospedada. A frase de atribuição continua a confirmar (item 7
+  das pendências).
+- Instante da rodada: `api.open-meteo.com/data/<modelo>/static/meta.json` (`last_run_initialisation_time`,
+  `last_run_availability_time`).
+
+## 7.2 INMET — avisos e previsão por município
+
+- Órgão: Instituto Nacional de Meteorologia (INMET), federal.
+- Avisos: `apiprevmet3.inmet.gov.br/avisos/ativos` (ADR 0024). Previsão por município:
+  `apiprevmet3.inmet.gov.br/previsao/{ibge}` (conferida em 22/11/2026, `docs/extratos/inmet-previsao-municipio.md`).
+- Termo de uso: o feed oficial `/avisos/rss` declara `public domain` e permite reproduzir com citação da fonte, com
+  isenção de responsabilidade sobre conteúdo de terceiros (texto citado no ADR 0024). A rota de previsão não publica
+  termo próprio. Usamos o mesmo e citamos "INMET — Instituto Nacional de Meteorologia".
+- Limites: nenhum publicado. Coleta educada: uma requisição por vez, a cada 3 h (previsão) e 10 min (avisos).
+- Exibição: sempre como "INMET", separada da previsão do MAPi (ADR 0029).
 
 ## 8. DHN / Centro de Hidrografia da Marinha — tábuas das marés
 

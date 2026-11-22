@@ -36,14 +36,6 @@ public class PontoController {
     private final FloodPointAdminService adminService;
     private final PredictionQueryService predictionQueryService;
 
-    @GetMapping("/risk-summary")
-    @PreAuthorize("hasAuthority('USER')")
-    @Operation(summary = "Contagem de pontos ativos por nível de risco (última previsão de cada ponto)")
-    @ApiResponse(responseCode = "200", description = "OK")
-    public ResponseEntity<RiskSummaryDTO> riskSummary() {
-        return ResponseEntity.ok(predictionQueryService.riskSummary());
-    }
-
     @GetMapping("/station-suggestions")
     @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Estações a até radiusM de uma coordenada, para o cadastro de pontos (ADMIN)")
@@ -66,19 +58,5 @@ public class PontoController {
     public ResponseEntity<FloodPointResponseDTO> patch(@PathVariable String slug,
                                                        @Valid @RequestBody FloodPointPatchDTO patch) {
         return ResponseEntity.ok(adminService.patch(slug, patch));
-    }
-
-    @GetMapping("/{slug}/predictions")
-    @PreAuthorize("hasAuthority('USER')")
-    @Operation(summary = "Série de previsões do ponto (de flood_predictions), sem gravar nada",
-            description = "Ordenada por issuedAt. Janela máxima de 7 dias.")
-    @ApiResponse(responseCode = "200", description = "OK")
-    @ApiResponse(responseCode = "400", description = "Janela inválida ou maior que 7 dias")
-    @ApiResponse(responseCode = "404", description = "Ponto inexistente")
-    public ResponseEntity<PredictionSeriesDTO> predictions(
-            @PathVariable String slug,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to) {
-        return ResponseEntity.ok(predictionQueryService.series(slug, from, to));
     }
 }

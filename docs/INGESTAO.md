@@ -259,3 +259,22 @@ DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC.
   `TideObservationSyncTask` carrega o ano seguinte quando a janela de 45 dias passa de 31/12. 2027 carregado em
   2026-11-17 (1.410 extremos).
 
+## Horizontes: previsão do INMET e Open-Meteo por modelo (2026-11-22, ADR 0029)
+
+- **`INMET_PREVISAO` (V41).** `GET apiprevmet3.inmet.gov.br/previsao/{ibge}` a cada 3 h, para Recife, Jaboatão,
+  Olinda e os municípios dos pontos ativos, um por vez, com pausa de 2 s. Fuso declarado `America/Sao_Paulo` (datas
+  civis de Brasília = Recife). O corpo inteiro vai para `raw_observation` com SHA-256, só quando muda. Cada versão da
+  previsão (município, data, período, hash do conteúdo) é uma linha em `official_forecast`, com `first_seen_at` e
+  `last_seen_at`. O campo `hora` da origem e os ícones ficam fora do hash: `hora` acompanha a hora da consulta. Sem
+  quantidade de chuva na origem. Idade máxima no alarme de fonte velha: 12 h. Detalhes em
+  `docs/extratos/inmet-previsao-municipio.md`.
+- **`OPEN_METEO_FORECAST` por modelo (V42).** A tabela da V30 ganhou a coluna `model` (`best_match` nas linhas
+  existentes, chave igual). As rodadas por modelo vão em `open_meteo_model_hour`:
+  - ao vivo: a cada hora, o `meta.json` de cada modelo diz se há rodada nova. Se houver, grava até 48 h à frente para os
+    pontos ativos. `issued_before_utc` = `last_run_availability_time`. Modelos: `ecmwf_ifs` (9 km), `ecmwf_ifs025`,
+    `icon_global` (descontinuado em 30/11/2026) e `best_match` (sem rodada própria: instante da coleta);
+  - histórico: `POST /api/admin/open-meteo/historico?desde=2024-01-15`, em segundo plano e retomável por
+    ponto/modelo/ano. Grava `previous_day1..3` com `issued_before_utc` = hora − 24N h + 8 h. O arquivo começa em
+    19/01/2024 (ICON, `best_match`) e 03/02/2024 (ECMWF 0,25°). O ECMWF de 9 km não tem histórico, e 850 hPa não é servido.
+  - Nada disso entra no `rain_v1` nem no alerta de 20 min.
+

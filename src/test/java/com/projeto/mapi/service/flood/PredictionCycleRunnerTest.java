@@ -27,9 +27,9 @@ class PredictionCycleRunnerTest {
         assertThat(runner.triggerAfterCycle("ana")).isTrue();
 
         assertThat(fila).hasSize(1);
-        verify(mapiService, times(0)).refreshPredictionsForActivePoints();
+        verify(mapiService, times(0)).refreshRainForecastsForActivePoints();
         fila.get(0).run();
-        verify(mapiService).refreshPredictionsForActivePoints();
+        verify(mapiService).refreshRainForecastsForActivePoints();
     }
 
     @Test
@@ -46,7 +46,7 @@ class PredictionCycleRunnerTest {
     @Test
     void falhaNaRodadaLiberaOProximoDisparo() {
         List<Runnable> fila = new ArrayList<>();
-        when(mapiService.refreshPredictionsForActivePoints()).thenThrow(new IllegalStateException("boom"));
+        when(mapiService.refreshRainForecastsForActivePoints()).thenThrow(new IllegalStateException("boom"));
         PredictionCycleRunner runner = new PredictionCycleRunner(mapiService, fila::add);
 
         runner.triggerAfterCycle("ana");

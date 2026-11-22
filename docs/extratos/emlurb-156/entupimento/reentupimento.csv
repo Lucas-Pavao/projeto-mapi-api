@@ -1,0 +1,13 @@
+ponto,escopo,limpezas,reentupimentos,dias_expostos,lambda_re_por_dia,media_dias_ate_reentupir,mediana_km_dias,mediana_intervalo_entre_limpezas_dias,p_reentupido_30d_km,p_reentupido_60d_km,p_reentupido_90d_km,p_reentupido_180d_km,p_reentupido_365d_km,p_reentupido_30d_exp,p_reentupido_60d_exp,p_reentupido_90d_exp,p_reentupido_180d_exp,p_reentupido_365d_exp
+AV_RECIFE_IBURA,ponto_uniao,53,53,2268,0.02337,42.8,31,60,0.491,0.717,0.849,0.981,1.0,0.504,0.754,0.878,0.985,1.0
+AV_RECIFE_IBURA,rua_sensibilidade,83,83,2272,0.03653,27.4,17,22,0.699,0.904,0.964,1.0,1.0,0.666,0.888,0.963,0.999,1.0
+AV_RECIFE_IBURA,bairro,368,368,2203,0.16704,6.0,4,14,1.0,1.0,1.0,1.0,1.0,0.993,1.0,1.0,1.0,1.0
+CIN_UFPE,ponto_uniao,0,0,0,,,,,,,,,,,,,,
+CIN_UFPE,rua_sensibilidade,0,0,0,,,,,,,,,,,,,,
+CIN_UFPE,bairro,358,358,1974,0.18136,5.5,5,14,1.0,1.0,1.0,1.0,1.0,0.996,1.0,1.0,1.0,1.0
+AGAMENON_DERBY,ponto_uniao,35,35,3569,0.00981,102.0,36,64,0.429,0.6,0.714,0.771,0.971,0.255,0.445,0.586,0.829,0.972
+AGAMENON_DERBY,rua_sensibilidade,195,195,4170,0.04676,21.4,12,14,0.744,0.928,0.954,1.0,1.0,0.754,0.94,0.985,1.0,1.0
+AGAMENON_DERBY,bairro,1054,1054,4850,0.21732,4.6,3,6,0.998,1.0,1.0,1.0,1.0,0.999,1.0,1.0,1.0,1.0
+MASCARENHAS_IMBIRIBEIRA,ponto_uniao,130,130,3903,0.03331,30.0,20,26,0.654,0.846,0.954,1.0,1.0,0.632,0.864,0.95,0.998,1.0
+MASCARENHAS_IMBIRIBEIRA,rua_sensibilidade,114,114,4317,0.02641,37.9,21,26,0.64,0.772,0.886,0.991,1.0,0.547,0.795,0.907,0.991,1.0
+MASCARENHAS_IMBIRIBEIRA,bairro,652,652,2609,0.2499,4.0,2,13,0.992,1.0,1.0,1.0,1.0,0.999,1.0,1.0,1.0,1.0

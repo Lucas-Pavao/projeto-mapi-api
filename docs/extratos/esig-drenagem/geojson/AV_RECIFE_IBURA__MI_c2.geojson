@@ -1,0 +1,403 @@
+{
+ "crs": {
+  "properties": {
+   "name": "EPSG:31985"
+  },
+  "type": "name"
+ },
+ "features": [
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      287366.9275000002,
+      9103347.368
+     ],
+     [
+      287370.2401999999,
+      9103336.5419
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 86153,
+   "properties": {
+    "COMPRIMENTO_K2": 0.01132159,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "DB2GSE.SdeLength(SHAPE)": 11.321590988019308,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 86153,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 11.32
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      287367.4056000002,
+      9103347.5143
+     ],
+     [
+      287370.71829999983,
+      9103336.6882
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 86154,
+   "properties": {
+    "COMPRIMENTO_K2": 0.01132159,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "DB2GSE.SdeLength(SHAPE)": 11.321590988019308,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 86154,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 11.32
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      287408.1673999997,
+      9103359.0208
+     ],
+     [
+      287410.8490000004,
+      9103348.0214
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 86155,
+   "properties": {
+    "COMPRIMENTO_K2": 0.01132156,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "DB2GSE.SdeLength(SHAPE)": 11.321562565299898,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 86155,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 11.32
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      287408.65309999976,
+      9103359.1392
+     ],
+     [
+      287411.3348000003,
+      9103348.1398
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 86156,
+   "properties": {
+    "COMPRIMENTO_K2": 0.01132158,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "DB2GSE.SdeLength(SHAPE)": 11.321586251493207,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 86156,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 11.32
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      287427.5823999997,
+      9103361.9105
+     ],
+     [
+      287428.9974999996,
+      9103350.6777
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 86157,
+   "properties": {
+    "COMPRIMENTO_K2": 0.01132158,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "DB2GSE.SdeLength(SHAPE)": 11.321585748030175,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 86157,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 11.32
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      287428.0784999998,
+      9103361.973
+     ],
+     [
+      287429.49349999987,
+      9103350.7402
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 86158,
+   "properties": {
+    "COMPRIMENTO_K2": 0.01132157,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "DB2GSE.SdeLength(SHAPE)": 11.321573249332443,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 86158,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 11.32
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      287446.6534000002,
+      9103363.8731
+     ],
+     [
+      287448.5356999999,
+      9103352.7091
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 86159,
+   "properties": {
+    "COMPRIMENTO_K2": 0.01132157,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "DB2GSE.SdeLength(SHAPE)": 11.321570089435475,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 86159,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 11.32
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      287447.1464999998,
+      9103363.9562
+     ],
+     [
+      287449.0286999997,
+      9103352.7922
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 86160,
+   "properties": {
+    "COMPRIMENTO_K2": 0.01132155,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "DB2GSE.SdeLength(SHAPE)": 11.321553464079036,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 86160,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 11.32
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      287454.8624,
+      9103364.7807
+     ],
+     [
+      287456.5091000004,
+      9103353.5795
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 86161,
+   "properties": {
+    "COMPRIMENTO_K2": 0.01132159,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "DB2GSE.SdeLength(SHAPE)": 11.321594513583323,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 86161,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 11.32
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      287455.3570999997,
+      9103364.8534
+     ],
+     [
+      287457.00380000006,
+      9103353.6522
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 86162,
+   "properties": {
+    "COMPRIMENTO_K2": 0.01132159,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "DB2GSE.SdeLength(SHAPE)": 11.321594513583323,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 86162,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 11.32
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      287488.37150000036,
+      9103368.793
+     ],
+     [
+      287490.24480000045,
+      9103357.6275
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 86163,
+   "properties": {
+    "COMPRIMENTO_K2": 0.01132155,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "DB2GSE.SdeLength(SHAPE)": 11.32155656877622,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 86163,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 11.32
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      287488.8646,
+      9103368.8757
+     ],
+     [
+      287490.73790000007,
+      9103357.7102
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 86164,
+   "properties": {
+    "COMPRIMENTO_K2": 0.01132155,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "DB2GSE.SdeLength(SHAPE)": 11.32155656877622,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 86164,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 11.32
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      287515.23869999964,
+      9103371.8319
+     ],
+     [
+      287516.6098999996,
+      9103360.5937
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 86165,
+   "properties": {
+    "COMPRIMENTO_K2": 0.01132154,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "DB2GSE.SdeLength(SHAPE)": 11.32154268110137,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 86165,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 11.32
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      287515.73500000034,
+      9103371.8925
+     ],
+     [
+      287517.1062000003,
+      9103360.6542
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 86166,
+   "properties": {
+    "COMPRIMENTO_K2": 0.01132164,
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "DB2GSE.SdeLength(SHAPE)": 11.321641944965403,
+    "LAST_EDITED_DATE": 1793044983000,
+    "LAST_EDITED_USER": "ESI2",
+    "OBJECTID": 86166,
+    "REDE_TIPO": "Canaleta",
+    "VLCOMPRIM": 11.32
+   },
+   "type": "Feature"
+  }
+ ],
+ "type": "FeatureCollection"
+}

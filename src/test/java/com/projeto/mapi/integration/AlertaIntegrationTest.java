@@ -49,13 +49,16 @@ class AlertaIntegrationTest extends AbstractTimescaleIntegrationTest {
     @MockitoBean PointBucketClient bucketClient;
     @MockitoBean TerrainQueryService terrain;
     @MockitoBean OpenMeteoForecastClient openMeteo;
+    @MockitoBean com.projeto.mapi.service.alagamento.FloodForecastClient floodClient;
+    @MockitoBean com.projeto.mapi.service.alagamento.AiHealthClient aiHealth;
+    @org.springframework.beans.factory.annotation.Autowired com.projeto.mapi.controller.AlagamentoController alagamento;
 
     final Instant lastBlock = Instant.ofEpochSecond(Instant.now().getEpochSecond() / 600 * 600);
     UUID live;
 
     @BeforeEach
     void setUp() {
-        for (String t : List.of("alert_transition", "alert_point_cycle", "alert_point_state", "live_qc_drop")) jdbc.update("DELETE FROM " + t);
+        for (String t : List.of("flood_forecast_point", "alert_transition", "alert_point_cycle", "alert_point_state", "live_qc_drop")) jdbc.update("DELETE FROM " + t);
         jdbc.update("DELETE FROM alert_cycle");
         jdbc.update("DELETE FROM rain_forecast");
         jdbc.update("DELETE FROM station_alias");
@@ -168,6 +171,29 @@ class AlertaIntegrationTest extends AbstractTimescaleIntegrationTest {
         assertThat(ok.rainReasonText()).isNotBlank();
         assertThat(ok.pointFlood()).isEqualTo("SEM_DADO");
         assertThat(ok.floodReason()).isEqualTo("SEM_TERRENO");
+
+        // alerta por regressão (V38): o ciclo manda o estado do terreno de cada ponto; IA sem resposta = SEM_DADO com motivo
+        @SuppressWarnings("unchecked")
+        org.mockito.ArgumentCaptor<List<Double>> serie = org.mockito.ArgumentCaptor.forClass(List.class);
+        org.mockito.Mockito.verify(floodClient).forecast(anyDouble(), anyDouble(), anyList(), anyList(), serie.capture(),
+                org.mockito.ArgumentMatchers.isNull(), org.mockito.ArgumentMatchers.eq("SEM_TERRENO"), anyDouble(), anyDouble());
+        // trecho contínuo desde a última lacuna, com pelo menos 6 h: sem nenhum null (ausente nunca vira zero nem vai ao balde)
+        assertThat(serie.getValue()).hasSizeGreaterThanOrEqualTo(36).doesNotContainNull();
+        org.mockito.Mockito.verify(floodClient).forecast(anyDouble(), anyDouble(), anyList(), anyList(), anyList(),
+                org.mockito.ArgumentMatchers.isNull(), org.mockito.ArgumentMatchers.eq("EM_REVISAO"), anyDouble(), anyDouble());
+        List<com.projeto.mapi.dto.AlagamentoPontoDTO> fl = alagamento.current(admin()).getBody();
+        assertThat(fl).extracting(com.projeto.mapi.dto.AlagamentoPontoDTO::slug).contains("AL_OK", "AL_REVISAO");
+        assertThat(fl).allSatisfy(f -> {
+            assertThat(f.level()).isEqualTo("SEM_DADO");
+            assertThat(f.reason()).isEqualTo("PREVISAO_INDISPONIVEL");
+            assertThat(f.shadow()).isTrue();
+        });
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM flood_forecast_point", Long.class)).isEqualTo(2L);
+        com.projeto.mapi.dto.AlagamentoStatusDTO st = alagamento.status().getBody();
+        assertThat(st.aiReachable()).isFalse();
+        assertThat(st.lastCycleAt()).isNotNull();
+        assertThat(st.byLevel()).containsEntry("SEM_DADO", 2);
+        assertThat(st.semDadoByReason()).containsEntry("PREVISAO_INDISPONIVEL", 2);
     }
 
     @Test

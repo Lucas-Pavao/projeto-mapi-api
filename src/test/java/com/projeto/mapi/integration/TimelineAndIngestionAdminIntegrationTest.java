@@ -88,9 +88,7 @@ class TimelineAndIngestionAdminIntegrationTest extends AbstractApiIntegrationTes
                 .andExpect(jsonPath("$.rain.length()").value(2))
                 .andExpect(jsonPath("$.river[0].points[0].v").value(3.0))
                 .andExpect(jsonPath("$.tide.harbor").value("pe02"))
-                .andExpect(jsonPath("$.risk[0].slug").value("p-tl"))
-                .andExpect(jsonPath("$.risk[0].items.length()").value(1))
-                .andExpect(jsonPath("$.risk[0].items[0].riskLevel").value("MEDIUM"))
+                .andExpect(jsonPath("$.risk").doesNotExist()) // o nível dos pontos saiu da linha do tempo (GET /api/alagamento/historico)
                 .andExpect(jsonPath("$.floodEvents.length()").value(1))
                 .andExpect(jsonPath("$.floodEvents[0].severity").value("HIGH"));
     }
@@ -135,9 +133,6 @@ class TimelineAndIngestionAdminIntegrationTest extends AbstractApiIntegrationTes
             for (var series : tree.get("rain")) {
                 for (var pt : series.get("points")) assertThat(Instant.parse(pt.get("t").asText())).isBeforeOrEqualTo(now);
             }
-            for (var risk : tree.get("risk")) {
-                for (var it : risk.get("items")) assertThat(Instant.parse(it.get("issuedAt").asText())).isBeforeOrEqualTo(now);
-            }
             assertThat(body).doesNotContain("33.0");
         } finally {
             jdbc.update("DELETE FROM observation WHERE run_id = ?", run);
@@ -151,7 +146,7 @@ class TimelineAndIngestionAdminIntegrationTest extends AbstractApiIntegrationTes
         mockMvc.perform(as(get("/api/events/timeline?from=" + now.plus(10, ChronoUnit.HOURS) + "&to=" + now.plus(73, ChronoUnit.HOURS)), t))
                 .andExpect(status().isBadRequest());
         mockMvc.perform(as(get("/api/events/timeline?from=" + now.plus(5, ChronoUnit.HOURS) + "&to=" + now.plus(71, ChronoUnit.HOURS)), t))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.rain.length()").value(0)).andExpect(jsonPath("$.risk[0].items.length()").value(0));
+                .andExpect(status().isOk()).andExpect(jsonPath("$.rain.length()").value(0)).andExpect(jsonPath("$.risk").doesNotExist());
         mockMvc.perform(as(get("/api/events/timeline?from=" + now.minus(2, ChronoUnit.HOURS) + "&to=" + now.plus(71, ChronoUnit.HOURS)), t))
                 .andExpect(status().isBadRequest());
     }

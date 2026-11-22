@@ -1,0 +1,21 @@
+{
+  "bloco": "A",
+  "repositorio": "projeto-mapi-api",
+  "branch": "feat/onda15-horizontes",
+  "data": "2026-11-22",
+  "fonte": "INMET_PREVISAO",
+  "migracao": "V41__previsao_oficial_inmet.sql",
+  "rota_externa": "https://apiprevmet3.inmet.gov.br/previsao/{ibge} (User-Agent de navegador, sem chave)",
+  "achados": {
+    "quantidade_de_chuva": "nenhuma (sem mm, sem probabilidade); só texto 'resumo' e ícone",
+    "hora_de_emissao": "nenhuma; o campo 'hora' acompanha a hora local da consulta e fica fora do hash da versão",
+    "dias": "5; turnos manhã/tarde/noite nos 2 primeiros, período DIA nos 3 seguintes",
+    "mudanca": "a previsão de 23/11 mudou entre 16:56 e 17:15 UTC de 22/11"
+  },
+  "coleta": "a cada 3 h, Recife, Jaboatão, Olinda + municípios dos pontos ativos, um por vez, pausa de 2 s",
+  "tabela": "official_forecast: uma linha por versão vista (ibge, data, período, entry_hash), first_seen_at e last_seen_at",
+  "rotas": ["GET /api/previsao-oficial/{municipio} (login)", "GET /api/public/previsao-oficial/{municipio} (Minha rua)"],
+  "contrato": "OfficialForecastDTO: source='INMET', sourceLabel, attribution, note, ibge, municipality, lastCollectedAt, ageMinutes, stale, reason (SEM_PREVISAO|FONTE_VELHA|MUNICIPIO_DESCONHECIDO), reasonText, days[{date, periods[{period, summary, iconCode, tempMax, tempMin, humidityMax, humidityMin, windDir, windIntensity, firstSeenAt, lastSeenAt}]}]",
+  "consulta_A3": "docs/extratos/sql/inmet-previsao-x-chuva-medida.sql",
+  "extrato_A1": "docs/extratos/inmet-previsao-municipio.md"
+}

@@ -285,10 +285,7 @@ public class LocationAnalysisServiceImpl implements LocationAnalysisService {
                 .orElse(null);
         if (p == null) return null;
         double km = Math.round(GeoUtils.calculateDistance(lat, lon, p.getLatitude(), p.getLongitude()) * 100.0) / 100.0;
-        FloodPredictionResponseDTO last = predictions.findLatest(p.getId(), p.getLatitude(), p.getLongitude()).orElse(null);
-        if (last == null || last.riskLevel() == null) return new LocationAnalysisDTO.NearestPoint(p.getSlug(), p.getName(), km, "UNKNOWN", null, null);
-        return new LocationAnalysisDTO.NearestPoint(p.getSlug(), p.getName(), km, last.riskLevel().name(),
-                last.floodProbability(), last.degradationReason() == null ? null : last.degradationReason().name());
+        return new LocationAnalysisDTO.NearestPoint(p.getSlug(), p.getName(), km);
     }
 
     /**

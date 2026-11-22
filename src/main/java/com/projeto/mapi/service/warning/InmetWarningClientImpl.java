@@ -40,4 +40,28 @@ public class InmetWarningClientImpl implements InmetWarningClient {
             throw new SourceUnavailableException("Falha ao consultar avisos do INMET: " + e.getMessage(), e);
         }
     }
+
+    @Override
+    @CircuitBreaker(name = "inmet")
+    @Retry(name = "inmet")
+    public String fetchForecastJson(String ibge) {
+        AppProperties.Inmet cfg = props.getInmet();
+        if (ibge == null || !ibge.matches("\\d{7}")) {
+            throw new IllegalArgumentException("Código IBGE inválido: " + ibge);
+        }
+        try {
+            String body = restFactory
+                    .client("inmet", cfg.getBaseUrl(), Map.of(HttpHeaders.USER_AGENT, cfg.getUserAgent()))
+                    .get()
+                    .uri(cfg.getForecastPath(), ibge)
+                    .retrieve()
+                    .body(String.class);
+            if (body == null || body.isBlank()) {
+                throw new SourceUnavailableException("INMET retornou corpo vazio na previsão de " + ibge);
+            }
+            return body;
+        } catch (RestClientException e) {
+            throw new SourceUnavailableException("Falha ao consultar a previsão do INMET: " + e.getMessage(), e);
+        }
+    }
 }

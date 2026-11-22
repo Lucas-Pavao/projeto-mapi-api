@@ -1,0 +1,10 @@
+# Conferência dos 4 pontos antigos (2026-11-21): SHA-256 das linhas sem JABOATAO_CENTRO
+# antes = /home/lucas/Documents/Projetos/MAPI/terreno (terrain_run 2, 48 folhas); depois = /home/lucas/Documents/Projetos/MAPI/terreno/com-jaboatao (88 folhas, DADOS_JABOATAO)
+ponto_terreno.csv arquivo_antes 114ddd32679176010c45b514842b00b8a755671e4f6edbba8be2b78483fbb405
+ponto_terreno.csv arquivo_depois 8b3b01309d0265a9302f4e67316b4d11477efaf1513be96e49a8a9c9460a2a18
+ponto_terreno.csv sem_jaboatao_antes aa3143b299f95032a0f976d03b4bcf20cdaa60057a64f96092ab2b27dd3ab525
+ponto_terreno.csv sem_jaboatao_depois aa3143b299f95032a0f976d03b4bcf20cdaa60057a64f96092ab2b27dd3ab525
+curva_cota_volume.csv arquivo_antes 91c6945e4b81d005d396f351031b9e7fe0557256783594a4a250a613bd599bcd
+curva_cota_volume.csv arquivo_depois e7785ff8974063613e2f0339ccd9b63bd3238e729ff6f3e64d69a46197190ad7
+curva_cota_volume.csv sem_jaboatao_antes 91c6945e4b81d005d396f351031b9e7fe0557256783594a4a250a613bd599bcd
+curva_cota_volume.csv sem_jaboatao_depois 91c6945e4b81d005d396f351031b9e7fe0557256783594a4a250a613bd599bcd

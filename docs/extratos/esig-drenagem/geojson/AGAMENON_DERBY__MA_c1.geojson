@@ -1,0 +1,108 @@
+{
+ "crs": {
+  "properties": {
+   "name": "EPSG:31985"
+  },
+  "type": "name"
+ },
+ "features": [
+  {
+   "geometry": {
+    "coordinates": [
+     [
+      291146.49650000036,
+      9109522.3463
+     ],
+     [
+      291145.74340000004,
+      9109521.2983
+     ],
+     [
+      291117.1286000004,
+      9109483.6348
+     ],
+     [
+      291081.4495000001,
+      9109430.255
+     ],
+     [
+      291071.13069999963,
+      9109412.1574
+     ],
+     [
+      291003.8345999997,
+      9109317.3502
+     ],
+     [
+      290883.4693999998,
+      9109151.1962
+     ],
+     [
+      290870.99459999986,
+      9109129.0558
+     ],
+     [
+      290850.4335000003,
+      9109080.8763
+     ],
+     [
+      290842.5061999997,
+      9109024.9393
+     ],
+     [
+      290840.5292999996,
+      9108933.7142
+     ],
+     [
+      290841.3236999996,
+      9108781.7784
+     ],
+     [
+      290843.2851999998,
+      9108696.8946
+     ],
+     [
+      290884.0376000004,
+      9108339.2532
+     ]
+    ],
+    "type": "LineString"
+   },
+   "id": 158,
+   "properties": {
+    "BACIA": "Beberibe",
+    "CLASSIFICACAO": "A Céu Aberto",
+    "COD_BACIA": "002",
+    "COD_BACIA_SECUND": "002",
+    "COD_CAD_CANAL": "036.002.002.002.202",
+    "COD_CURSO": "036",
+    "COD_CURSO_RECEPTOR": "002",
+    "COD_JUSANTE": "2",
+    "COD_ORDEM_LOCACIONAL": "02",
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "DB2GSE.SdeLength(SHAPE)": 1277.4024854164372,
+    "ESTADO_CONSERVACAO": "Bom",
+    "FOTO1": "ok",
+    "LARGURA": 13.5,
+    "LAST_EDITED_DATE": 1793043304000,
+    "LAST_EDITED_USER": "ESI2",
+    "NOME": "Canal Derby Tacaruna",
+    "OBJECTID": 158,
+    "OBSERVACOES": null,
+    "ORDEM": 27,
+    "PROFUNDIDADE": 2.3,
+    "REVESTIMENTO": "Revestido",
+    "RIO": "Beberibe",
+    "TEXTO_FOTO1": null,
+    "TIPO_LIMPEZA": "Manual",
+    "TIPO_REVESTIMENTO": "Alvenaria de Pedra",
+    "TIPO_SECAO": "Trapesoidal",
+    "TRECHO": "B",
+    "VLCOMPRIM": 1277.4
+   },
+   "type": "Feature"
+  }
+ ],
+ "type": "FeatureCollection"
+}

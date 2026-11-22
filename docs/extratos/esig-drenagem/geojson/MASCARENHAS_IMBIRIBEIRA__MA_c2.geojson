@@ -1,0 +1,10 @@
+{
+ "crs": {
+  "properties": {
+   "name": "EPSG:31985"
+  },
+  "type": "name"
+ },
+ "features": [],
+ "type": "FeatureCollection"
+}

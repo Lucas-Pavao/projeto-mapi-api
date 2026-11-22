@@ -44,9 +44,8 @@ public record LocationAnalysisDTO(
                             List<String> reasons, String role, double lat, double lon) {
     }
 
-    public record NearestPoint(String slug, String name, double distanceKm,
-                               @Schema(description = "LOW | MEDIUM | HIGH | UNKNOWN") String riskLevel,
-                               Double probability, String degradationReason) {
+    /** Ponto crítico mais próximo: só nome e distância (o alerta por regressão existe só nos pontos; nível no card do ponto). */
+    public record NearestPoint(String slug, String name, double distanceKm) {
     }
 
     public record Tide(Double levelM, Boolean rising, String harbor, String verticalReference,

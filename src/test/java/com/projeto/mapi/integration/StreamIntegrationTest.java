@@ -1,10 +1,6 @@
 package com.projeto.mapi.integration;
 
 import com.projeto.mapi.dto.AlertDTO;
-import com.projeto.mapi.dto.ModelValidationStatus;
-import com.projeto.mapi.dto.PredictionSummaryDTO;
-import com.projeto.mapi.dto.RiskLevel;
-import com.projeto.mapi.dto.RiskSummaryDTO;
 import com.projeto.mapi.dto.SensorReadingEventDTO;
 import com.projeto.mapi.model.Role;
 import com.projeto.mapi.service.alert.AlertCreatedEvent;
@@ -71,17 +67,13 @@ class StreamIntegrationTest extends AbstractApiIntegrationTest {
     }
 
     @Test
-    void fimDeCicloPublicaPredictionERiskSummary() throws Exception {
-        when(predictionQuery.latestPerActivePoint()).thenReturn(List.of(new PredictionSummaryDTO("p-x", RiskLevel.UNKNOWN,
-                null, Instant.now(), null, null, null, null, null, ModelValidationStatus.NOT_VALIDATED, null, null, null, null, null)));
-        when(predictionQuery.riskSummary()).thenReturn(new RiskSummaryDTO(0, 0, 0, 1, Instant.now()));
+    void fimDeCicloNaoPublicaMaisPredictionNemRiskSummary() throws Exception {
+        // o classificador de alagamento saiu em 21/11/2026: o fim do ciclo de coleta não publica mais a previsão antiga
         MvcResult r = open("sse_cycle", Role.USER, null);
 
         publisher.publishEvent(new PredictionCycleCompletedEvent("teste", Instant.now()));
 
-        assertThat(r.getResponse().getContentAsString())
-                .contains("event:prediction").contains("\"slug\":\"p-x\"").contains("\"riskLevel\":\"UNKNOWN\"")
-                .contains("event:risk-summary").contains("\"UNKNOWN\":1");
+        assertThat(r.getResponse().getContentAsString()).doesNotContain("event:prediction").doesNotContain("event:risk-summary");
     }
 
     @Test
@@ -105,6 +97,14 @@ class StreamIntegrationTest extends AbstractApiIntegrationTest {
         MvcResult op = open("sse_replay_o", Role.OPERADOR, "0");
         assertThat(user.getResponse().getContentAsString()).contains("S-REPLAY").doesNotContain("event:alert");
         assertThat(op.getResponse().getContentAsString()).contains("S-REPLAY").contains("event:alert");
+    }
+
+    @Test
+    void conexaoNovaRecebeHeartbeatNaHora_semEsperarOAgendado() throws Exception {
+        // sem evento, o SseEmitter não escreve os cabeçalhos e o navegador fica até 25 s em "Conectando…"
+        MvcResult r = open("sse_now", Role.USER, null);
+        assertThat(r.getResponse().getContentAsString()).startsWith("event:heartbeat");
+        assertThat(r.getResponse().getContentType()).startsWith("text/event-stream");
     }
 
     @Test

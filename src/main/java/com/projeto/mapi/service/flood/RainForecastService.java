@@ -28,6 +28,15 @@ public interface RainForecastService {
                         com.projeto.mapi.service.alerta.SemDadoMotivo.IA_INDISPONIVEL));
     }
 
+    /** Leituras de 10 min das últimas 6 h (estações a até 40 km) e horas do Open-Meteo, as mesmas que o rain_v1 recebe. */
+    record Inputs(List<com.projeto.mapi.repository.analise.RainForecastRepository.Reading> readings,
+                  List<com.projeto.mapi.repository.analise.RainForecastRepository.OmHour> openMeteo) {}
+
+    /** Entradas da chuva prevista para o alerta por regressão (POST /v1/flood/forecast). Vazias se não houver leitura. */
+    default Inputs inputs(long floodPointId, String slug, double lat, double lon) {
+        return new Inputs(List.of(), List.of());
+    }
+
     /** Última previsão gravada de cada ponto. Leitura pura. */
     List<RainForecastDTO> latest();
 

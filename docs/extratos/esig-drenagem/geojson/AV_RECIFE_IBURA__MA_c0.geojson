@@ -1,0 +1,137 @@
+{
+ "crs": {
+  "properties": {
+   "name": "EPSG:31985"
+  },
+  "type": "name"
+ },
+ "features": [
+  {
+   "geometry": {
+    "coordinates": [
+     287631.3130999999,
+     9103268.6439
+    ],
+    "type": "Point"
+   },
+   "id": 63,
+   "properties": {
+    "BACIA": "Tejipió",
+    "CLASSIFICACAO": "A Céu Aberto",
+    "COD_BACIA": "007",
+    "COD_BACIA_SECUND": "110",
+    "COD_CAD_CANAL": "106.007.110.110.101",
+    "COD_CURSO": "106",
+    "COD_CURSO_RECEPTOR": "110",
+    "COD_JUSANTE": "1",
+    "COD_ORDEM_LOCACIONAL": "01",
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "ESTADO_CONSERVACAO": "Bom",
+    "FOTO1": null,
+    "LARGURA": 2.3,
+    "LAST_EDITED_DATE": null,
+    "LAST_EDITED_USER": null,
+    "NOME": "Canal Cabeceira do Aeroporto / Av. Revife",
+    "OBJECTID": 63,
+    "OBSERVACOES": null,
+    "ORDEM": 98,
+    "ORIG_FID": 32,
+    "PROFUNDIDADE": 1.6,
+    "REVESTIMENTO": "Revestido",
+    "RIO": "Moxotó",
+    "TEXTO_FOTO1": null,
+    "TIPO_LIMPEZA": "Manual",
+    "TIPO_REVESTIMENTO": "Placa de Concreto",
+    "TIPO_SECAO": "Retangular",
+    "TRECHO": "B"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     287578.68099999987,
+     9103002.4567
+    ],
+    "type": "Point"
+   },
+   "id": 537,
+   "properties": {
+    "BACIA": "Tejipió",
+    "CLASSIFICACAO": "A Céu Aberto",
+    "COD_BACIA": "007",
+    "COD_BACIA_SECUND": "110",
+    "COD_CAD_CANAL": "106.007.110.110.101",
+    "COD_CURSO": "106",
+    "COD_CURSO_RECEPTOR": "110",
+    "COD_JUSANTE": "1",
+    "COD_ORDEM_LOCACIONAL": "01",
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "ESTADO_CONSERVACAO": "Regular",
+    "FOTO1": null,
+    "LARGURA": 1,
+    "LAST_EDITED_DATE": null,
+    "LAST_EDITED_USER": null,
+    "NOME": "Canal Cabeceira do Aeroporto / Av. Revife",
+    "OBJECTID": 537,
+    "OBSERVACOES": "Parte do trecho encontra-se coberta.",
+    "ORDEM": 98,
+    "ORIG_FID": 324,
+    "PROFUNDIDADE": null,
+    "REVESTIMENTO": "Revestido",
+    "RIO": "Moxotó",
+    "TEXTO_FOTO1": null,
+    "TIPO_LIMPEZA": null,
+    "TIPO_REVESTIMENTO": "Placa de Concreto",
+    "TIPO_SECAO": "Retangular",
+    "TRECHO": "A"
+   },
+   "type": "Feature"
+  },
+  {
+   "geometry": {
+    "coordinates": [
+     287631.3130999999,
+     9103268.6439
+    ],
+    "type": "Point"
+   },
+   "id": 538,
+   "properties": {
+    "BACIA": "Tejipió",
+    "CLASSIFICACAO": "A Céu Aberto",
+    "COD_BACIA": "007",
+    "COD_BACIA_SECUND": "110",
+    "COD_CAD_CANAL": "106.007.110.110.101",
+    "COD_CURSO": "106",
+    "COD_CURSO_RECEPTOR": "110",
+    "COD_JUSANTE": "1",
+    "COD_ORDEM_LOCACIONAL": "01",
+    "CREATED_DATE": null,
+    "CREATED_USER": null,
+    "ESTADO_CONSERVACAO": "Regular",
+    "FOTO1": null,
+    "LARGURA": 1,
+    "LAST_EDITED_DATE": null,
+    "LAST_EDITED_USER": null,
+    "NOME": "Canal Cabeceira do Aeroporto / Av. Revife",
+    "OBJECTID": 538,
+    "OBSERVACOES": "Parte do trecho encontra-se coberta.",
+    "ORDEM": 98,
+    "ORIG_FID": 324,
+    "PROFUNDIDADE": null,
+    "REVESTIMENTO": "Revestido",
+    "RIO": "Moxotó",
+    "TEXTO_FOTO1": null,
+    "TIPO_LIMPEZA": null,
+    "TIPO_REVESTIMENTO": "Placa de Concreto",
+    "TIPO_SECAO": "Retangular",
+    "TRECHO": "A"
+   },
+   "type": "Feature"
+  }
+ ],
+ "type": "FeatureCollection"
+}

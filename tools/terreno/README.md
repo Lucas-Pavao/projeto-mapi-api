@@ -12,6 +12,11 @@ tools/terreno/run.sh            # todas as etapas, incluindo validar e testes; o
 - Lê os zips por `/vsizip` (nunca descompacta). Entrada: `../Modelo digital de terreno (RASTER)/`
   (variável `DADOS`). Saída: `../terreno/` (variável `OUT`), fora do git. Num git worktree o caminho
   relativo muda: defina `DADOS` e `OUT` explicitamente.
+- Segunda pasta de folhas (opcional): `DADOS_JABOATAO=<pasta>` monta a pasta em `/dados2`. Folha repetida tem de ser idêntica e
+  vale a de `DADOS`; a grade do VRT é a de `DADOS` estendida por pixels inteiros. Sem a variável, tudo sai byte a byte igual.
+  Detalhes e conferência dos hashes: `docs/TERRENO-PE3D.md` §3.1.
+- `run.sh area_regras` (proposta da regra da área, `docs/PROPOSTA-REGRA-AREA-CONTRIBUICAO.md`): bacias por raio de snap e regras
+  candidatas, com PNG por ponto. Usa `vias_osm/` (OSM, ODbL, baixado em 2026-11-21 com hash) e os GeoJSON do ESIG (`ESIG=<pasta>`).
 - Antes de cada etapa confere o disco: aborta com menos de 1,5 GB livres em `/home` ou se a
   saída passar de 1 GB.
 - Etapas: `altitude inventario vrt cobertura recortes atributos comparar estimativas validar testes`

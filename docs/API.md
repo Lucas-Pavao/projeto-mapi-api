@@ -160,6 +160,19 @@ DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC. Em modo sombra (`mapi.alerta.shado
 
 SSE (`/api/stream`): `alert-state` (um por ponto e ciclo) e `alert-transition`, só para ADMIN em modo sombra.
 
+### 2.12 Horizontes e previsão oficial (novo, ADR 0029)
+
+| Método | Rota | Papel | O que devolve |
+|---|---|---|---|
+| GET | `/api/horizontes/{slug}` | USER | `official` (INMET: avisos e previsão de hoje e amanhã), `dayRisk` (MAPi; hoje `available: false`, `NAO_VALIDADO`) e `nextHour` (alerta por ponto; `inTest` em modo sombra para quem não é ADMIN), sem combinar |
+| GET | `/api/previsao-oficial/{municipio}` | USER | previsão vigente do INMET (`OfficialForecastDTO`): dias, períodos, `firstSeenAt`/`lastSeenAt`, `reason` quando falta |
+| GET | `/api/public/previsao-oficial/{municipio}` | público | o mesmo, para a Minha rua |
+| GET | `/api/public/avisos-oficiais/{municipio}` | público | avisos vigentes do INMET do município (mesmo contrato de `/api/warnings/official/active`) |
+| POST | `/api/admin/open-meteo/historico?desde=` | ADMIN | inicia a carga do histórico de rodadas (202) |
+| GET | `/api/admin/open-meteo/modelos` | ADMIN | linhas por modelo e produto, hora mais nova e última publicação |
+
+`GET /api/public/risk` ganhou `nearestPoint.municipality` (só adição).
+
 ## 3. Contratos que importam para a dissertação
 
 ### 2.10 Análise de local (novo)

@@ -29,9 +29,16 @@ app:
   apac:
     enabled: false
     initial-delay-ms: 86400000
+  open-meteo-models:
+    enabled: false
+    initial-delay-ms: 86400000
+    pause-ms: 0
   inmet:
     enabled: false
     initial-delay-ms: 86400000
+    forecast-enabled: false
+    forecast-initial-delay-ms: 86400000
+    forecast-pause-ms: 0
   tide:
     # TideObservationSyncTask chamaria a TabuaMare de verdade: nos testes o primeiro ciclo só ocorre depois de 1 dia.
     observation-sync-initial-delay-ms: 86400000

@@ -17,6 +17,7 @@ from osgeo import gdal, osr
 
 gdal.UseExceptions()
 DADOS = "/dados"
+DADOS2 = "/dados2"   # segunda pasta, opcional (run.sh: DADOS_JABOATAO)
 OUT = "/terreno"
 TOOLS = "/tools/terreno"
 VRT = f"{OUT}/mosaico.vrt"
@@ -61,7 +62,71 @@ def le_pontos():
 
 
 def zips():
-    return sorted(glob.glob(f"{DADOS}/MDT-*.zip"))
+    """Folhas da pasta principal (/dados) mais as da segunda pasta (/dados2, opcional: DADOS_JABOATAO no run.sh)
+    que não existem na principal. Folha com o mesmo nome nas duas pastas é lida só de /dados (cmd_lista confere
+    que os zips são idênticos byte a byte)."""
+    base = sorted(glob.glob(f"{DADOS}/MDT-*.zip"))
+    nomes = {os.path.basename(z) for z in base}
+    extra = [z for z in sorted(glob.glob(f"{DADOS2}/MDT-*.zip")) if os.path.basename(z) not in nomes]
+    return base + extra
+
+
+def zip_da_folha(folha):
+    return next(z for z in zips() if os.path.basename(z)[:-4] == folha)
+
+
+def sha256_arquivo(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for bloco in iter(lambda: f.read(1 << 20), b""):
+            h.update(bloco)
+    return h.hexdigest()
+
+
+# ---------------------------------------------------------------- lista de folhas e grade do VRT
+def cmd_lista():
+    """Escreve lista_folhas.txt e vrt_grade.txt (argumentos extras do gdalbuildvrt).
+
+    Sem /dados2: a lista é a de sempre (só /dados, em ordem alfabética) e vrt_grade.txt fica vazio, então o VRT é
+    byte a byte o mesmo de antes. Com /dados2: (1) folhas repetidas nas duas pastas têm de ser idênticas (SHA-256),
+    senão aborta; (2) as folhas só de /dados2 entram ANTES das de /dados, porque no VRT a fonte listada depois pinta
+    por cima: onde as duas cobrem, vale o pixel da pasta principal; (3) a grade (origem e pixel) é a do VRT só com
+    /dados, estendida por um número inteiro de pixels até cobrir as folhas novas (-te/-tr). Assim os pixels da área
+    antiga não mudam de posição nem de valor."""
+    base = sorted(glob.glob(f"{DADOS}/MDT-*.zip"))
+    nomes = {os.path.basename(z): z for z in base}
+    extra, repetidas = [], []
+    for z in sorted(glob.glob(f"{DADOS2}/MDT-*.zip")):
+        b = os.path.basename(z)
+        if b in nomes:
+            if sha256_arquivo(z) != sha256_arquivo(nomes[b]):
+                raise SystemExit(f"ABORTA: {b} existe nas duas pastas com conteúdo diferente")
+            repetidas.append(b)
+        else:
+            extra.append(z)
+    tif = lambda z: f"/vsizip/{z}/{os.path.basename(z)[:-4]}.tif"
+    with open(f"{OUT}/lista_folhas.txt", "w") as f:
+        for z in extra + base:
+            f.write(tif(z) + "\n")
+    grade = ""
+    if extra:
+        opts = gdal.BuildVRTOptions(outputSRS="EPSG:31985", srcNodata=ND, VRTNodata=ND)
+        vb = gdal.BuildVRT("/vsimem/base.vrt", [tif(z) for z in base], options=opts)
+        g = vb.GetGeoTransform(); bx1 = g[0] + vb.RasterXSize * g[1]; by0 = g[3] + vb.RasterYSize * g[5]
+        vb = None; gdal.Unlink("/vsimem/base.vrt")
+        xs0, xs1, ys0, ys1 = [g[0]], [bx1], [by0], [g[3]]
+        for z in extra:
+            d = gdal.Open(tif(z)); t = d.GetGeoTransform()
+            xs0.append(t[0]); xs1.append(t[0] + d.RasterXSize * t[1]); ys1.append(t[3]); ys0.append(t[3] + d.RasterYSize * t[5])
+        px, py = g[1], -g[5]
+        kx0 = math.ceil((g[0] - min(xs0)) / px); kx1 = math.ceil((max(xs1) - g[0]) / px)
+        ky1 = math.ceil((max(ys1) - g[3]) / py); ky0 = math.ceil((g[3] - min(ys0)) / py)
+        te = (g[0] - kx0 * px, g[3] - ky0 * py, g[0] + kx1 * px, g[3] + ky1 * py)
+        grade = "-te %.9f %.9f %.9f %.9f -tr %.15f %.15f" % (*te, px, py)
+    with open(f"{OUT}/vrt_grade.txt", "w") as f:
+        f.write(grade)
+    print(f"folhas: {len(base)} de /dados + {len(extra)} só de /dados2 ({len(repetidas)} repetidas e idênticas, lidas de /dados)")
+    print("grade:", grade or "a de sempre (só /dados)")
 
 
 def inner_tif(z):
@@ -512,6 +577,8 @@ def cmd_atributos():
     for r in rows:
         for k in r:
             if k not in cols: cols.append(k)
+    # observacao sempre por último, mesmo sem ponto sem terreno: o cabeçalho não muda quando um ponto ganha terreno
+    cols = [k for k in cols if k != "observacao"] + ["observacao"]
     write_csv(f"{OUT}/ponto_terreno.csv", rows, cols)
     write_csv(f"{OUT}/curva_cota_volume.csv", curvas, ["slug", "cota_m", "altura_acima_fundo_m", "area_superficie_m2", "volume_acumulado_m3", "m3_por_cm"])
     vrt_sha = hashlib.sha256(open(VRT, "rb").read()).hexdigest()
@@ -668,7 +735,7 @@ def cmd_estimativas():
     folhas_amostra = sorted({c["folha_origem"].split(";")[0] for c in cob if c["folha_origem"]})
     amostra = []
     for f in folhas_amostra:
-        z = f"{DADOS}/{f}.zip"
+        z = zip_da_folha(f)
         dst = "/vsimem/amostra.tif"
         gdal.Translate(dst, f"/vsizip/{z}/{inner_tif(z)}", format="COG",
                        creationOptions=["COMPRESS=DEFLATE", "PREDICTOR=3"], outputSRS="EPSG:31985")
@@ -705,5 +772,5 @@ def cmd_estimativas():
 
 
 if __name__ == "__main__":
-    {"inventario": cmd_inventario, "cobertura": cmd_cobertura, "atributos": cmd_atributos,
+    {"lista": cmd_lista, "inventario": cmd_inventario, "cobertura": cmd_cobertura, "atributos": cmd_atributos,
      "comparar": cmd_comparar, "validar": cmd_validar, "estimativas": cmd_estimativas}[sys.argv[1]]()

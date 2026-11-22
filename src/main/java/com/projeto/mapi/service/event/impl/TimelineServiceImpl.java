@@ -93,13 +93,6 @@ public class TimelineServiceImpl implements TimelineService {
         List<TimePoint> tidePoints = TideInterpolation.sample(extremes, from, to, STEP).stream()
                 .map(s -> new TimePoint(s.t(), s.v())).toList();
 
-        List<TimelineDTO.RiskSeries> risk = new ArrayList<>();
-        for (FloodPoint p : points) {
-            List<PredictionSummaryDTO> items = (from.isBefore(dataTo) ? history.findSeries(p.getId(), from, dataTo) : List.<com.projeto.mapi.dto.FloodPredictionResponseDTO>of()).stream()
-                    .map(r -> summaryMapper.toSummary(r, p.getSlug())).toList();
-            risk.add(new TimelineDTO.RiskSeries(p.getSlug(), items));
-        }
-
         Set<Long> ids = new LinkedHashSet<>();
         points.forEach(p -> ids.add(p.getId()));
         List<TimelineDTO.TimelineFloodEvent> events = eventRepository
@@ -110,7 +103,7 @@ public class TimelineServiceImpl implements TimelineService {
                 .toList();
 
         return new TimelineDTO(from, to, (int) STEP.toMinutes(), rain,
-                new TimelineDTO.TideSeries(HARBOR, tidePoints), river, risk, events);
+                new TimelineDTO.TideSeries(HARBOR, tidePoints), river, events);
     }
 
     private List<StationSeries> hourlyRain(Instant from, Instant to, Set<String> only) {
