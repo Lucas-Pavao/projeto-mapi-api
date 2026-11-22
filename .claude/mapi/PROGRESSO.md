@@ -9,6 +9,7 @@
 ## Decisões tomadas (não reabrir sem motivo novo)
 | Data | Decisão | ADR | Quem decidiu |
 |---|---|---|---|
+| 2026-11-22 | Onda 16, ponto A: (1) a carga da Central 156 no banco espera a emenda da limpeza aprovada; (2) o casamento por coordenada da 156 ignora coordenadas-padrão (regra escrita antes de rodar, Fase 1); (3) 2023-02-06 sai da validação de Ibura (dia de posicionamento; continua só para calibrar, como dia da Defesa Civil) | — | Lucas |
 | 2026-11-17 | Maré do ponto crítico (`tideHeight`/`tideSource` da resposta do ponto) passa a vir dos extremos com a reserva harmônica (regra V36), como a análise de local; a tábua de maré e as features do modelo ficam como estão | — | Lucas |
 | 2026-11-16 | Linha de chuva forte = 25,15 mm/h (corte FORTE de `docs/EVENTOS-DE-CHUVA.md`), não 25 do prompt | número com origem rastreável | 0017 | Claude (autonomia da revisão) |
 | 2026-11-16 | `pctTxt` com 1 casa sempre (0,9% · 1,6% · 24,4% · 31,0%) | os exemplos do prompt usam 1 casa acima de 10%; `sim.js` arredondava e a tela mostrava 24% e 24,4% juntos | — | Claude |
@@ -458,4 +459,12 @@ front sobre a main. O PR leva as ondas 13, 14 e 15 juntas.
 | E2E-15 | 15 | Operação | Opus 5.5 | Stack no Docker com as 3 branches | concluido | — | dump antes das migrações: `MAPI/snapshots/mapi_db-2026-11-22-pre-v39.dump` (628 MB, SHA-256 `7346900d…`); V39–V42 aplicadas; ciclo do alerta por regressão ao vivo: CIN e Mascarenhas SEM_ALERTA 0 cm, Ibura/Derby/Jaboatão SEM_DADO TERRENO_EM_REVISAO; INMET 27 entradas; Open-Meteo gravando rodadas com publicação do `meta.json`; `/health` da IA com o commit |
 | GIT-15 | 15 | Git | Opus 5.5 | Imagens `docs/iamgens/` (postas no stage da main em 21/11) | concluido | api @ 54c2d69 | tinham entrado no commit do bloco A; separadas num commit próprio antes do push (branch nunca publicada; backup local `backup/onda15-api-antes-de-separar-imagens`). `MAPi — Telas.html` não estava no stage: ficou fora |
 | 5.12 | 15 | Front | — | Redesenho "Referências" | **parado** | — | pergunta 54: `DESIGN.md` não existe; o item 1 termina num PARE de qualquer forma |
+
+## Onda 16 — previsão de alagamento de ponta a ponta (prompt de 22/11)
+
+Um branch e um PR por fase, nos três repositórios; modo sombra ligado a onda inteira; pontos de parada A a H.
+
+| Id | Onda | Área | Modelo | Tarefa | Status | Branch | Notas |
+|---|---|---|---|---|---|---|---|
+| O16-F0 | 16 | Todas | Opus 5.5 | Estado inicial, sem mudar nada | concluido; PARE A aprovado (22/11) | api `onda16/fase0-estado-inicial` | `docs/ONDA16-ESTADO-INICIAL.md`. main api 911d8a2, ia d1b791f, front 374dab0; mvn 576, pytest 130, vitest 588. Os 5 itens novos conferidos: limpeza satura (P = 1,000000 em Mascarenhas e Ibura), mas no ar ainda não age (`drainage_cleaning` vazia); bairro AREIAS do CIn vem de 1 chamado só, e a 156 tem coordenadas-padrão (115 chamados de outros bairros a 482 m do CIn); depressão 0,0 m da Mascarenhas; 2023-02-06 é dia de posicionamento de Ibura, da Defesa Civil e da F1; icon_global no coletor. Alerta do ADR 0026 com Derby e Jaboatão em LEITURA_VELHA |
 
