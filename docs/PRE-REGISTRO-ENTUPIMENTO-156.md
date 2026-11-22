@@ -60,3 +60,63 @@ navegador). A frequência programada fica no pedido 09. Na falta dela, a frequê
 item 3.3 (intervalo entre limpezas ATENDIDA), e a forma da curva é conferida com a literatura: o leito de sedimento estabiliza em alguns
 meses (Post et al., 2016, via Rietveld et al., 2020, p. 549) e limpar a cada 2 meses retira ~3 vezes mais massa que 1 vez por ano
 (Langeveld et al., 2016, mesma página).
+
+## Emenda 1 (2026-11-22, onda 16, Fase 1) — PROPOSTA, espera o ok do ponto B
+
+Escrita antes de rodar qualquer conta nova. Os números que já se conhecem (λ_re, últimas limpezas, medianas de atendimento) vêm
+do relatório da onda 14 (`docs/extratos/emlurb-156/entupimento/RESULTADOS.md`). Nenhuma regra abaixo foi escolhida para mudar
+o alerta de um jeito ou de outro.
+
+### Por que
+
+- **A limpeza satura.** A última limpeza conhecida a 150 m é de 2023-08-31 (Mascarenhas), 2023-08-30 (Ibura) e 2024-07-05
+  (Derby). A base vai até 2026-06-19. Com `π_E(t) = 1 − exp(−λ_re·t)`, Mascarenhas e Ibura dão π_E = 1,000000 e Derby 0,9998.
+  Esses pontos eram limpos a cada ~2 meses (mediana do intervalo entre limpezas: 60 dias em Ibura). Quase 3 anos sem limpeza
+  registrada indica falta de registro, não falta de limpeza.
+- **O bairro do CIn está errado.** A regra "bairro mais frequente entre os chamados a ≤ 150 m" pegou **um único** chamado,
+  gravado pela 156 como AREIAS (Praça Jornalista Aníbal Fernandes, que fica na Cidade Universitária).
+- **A 156 tem coordenadas-padrão.** Um mesmo ponto a 482 m do CIn junta 115 chamados de Beberibe, Dois Unidos e Casa Amarela.
+  As três coordenadas mais repetidas da cidade juntam 2.771, 2.398 e 1.879 chamados. Um chamado numa coordenada-padrão não diz
+  onde a boca de lobo está.
+
+### Regras propostas
+
+**E1. Coordenada-padrão sai do casamento por coordenada.** Uma coordenada (arredondada a 5 casas, ~1 m) com **20 ou mais**
+chamados (qualquer serviço, todos os anos), e em que o bairro mais frequente tem **menos de 50%** deles, é coordenada-padrão.
+Chamados nela saem do casamento por coordenada (regra 1 da seção 2). Continuam valendo pelo casamento por logradouro e bairro
+(regra 2). O relatório traz quantas coordenadas e quantos chamados caem nessa regra, na cidade e perto de cada ponto.
+
+**E2. Bairro do ponto pelo polígono oficial.** O bairro do ponto passa a ser o do polígono de bairros da Prefeitura do Recife
+que contém o ponto (camada oficial de bairros; ESIG ou portal de dados abertos, licença e data de acesso registradas). Sai a
+regra do bairro mais frequente. Pontos fora do Recife (Jaboatão) ficam sem bairro até haver camada oficial do município.
+
+**E3. Quando a limpeza conhecida vale.** Para cada ponto com taxa própria (≥ 10 limpezas, desvio 4):
+- `fim_cobertura` = a última `DATA_DEMANDA` da base (hoje 2026-06-19);
+- `N_p` = percentil 95 dos intervalos entre limpezas ATENDIDA consecutivas no mesmo casamento do ponto;
+- a última limpeza conhecida **vale** se `fim_cobertura − última_limpeza ≤ N_p`. Se não vale, a limpeza é **desconhecida**;
+- depois da cobertura, a limpeza também é **desconhecida** quando a data de referência passa de `fim_cobertura + N_p`. A base
+  anual é semanal, mas os Dados Vivos estão parados desde 2025-01-23.
+
+**E4. Limpeza desconhecida usa o regime permanente**, já previsto na seção 4 e nunca implementado. É um processo de
+renovação alternado: livre por um tempo médio `1/λ_re` (da limpeza ao próximo chamado) e entupida por um tempo médio `D_E`
+(do chamado à limpeza). Assim:
+
+`π_E = D_E / (1/λ_re + D_E)`
+
+`D_E` é a média restrita a 365 dias da curva de Kaplan–Meier do tempo de atendimento do ponto (`atendimento_km.csv`). Com
+menos de 10 atendimentos no ponto, usa o do bairro. A média, e não a mediana: a mediana de Derby é 0 dia (24 de 29 atendidos
+no mesmo dia, provável fechamento administrativo) e apagaria o estado entupido.
+
+**E5. Onde entra e quando.**
+- Na IA, `mapi_ai/entupimento.py` devolve `pi_E`, `regime` (`TEMPO_DESDE_LIMPEZA` ou `PERMANENTE`) e o motivo.
+- Na api, `LimpezaService` aplica E3 e E4 e grava o regime no ciclo.
+- A carga da 156 no banco (`POST /api/admin/limpeza/ingestao`) só roda depois desta emenda aprovada (decisão do ponto A).
+- E1 e E2 refazem o casamento, λ_re e o bairro de todos os pontos. Os valores novos vão para `parametros_156.json` e para
+  `LimpezaProperties`, com o antes e o depois no relatório.
+
+### O que esta emenda não resolve
+
+- **Capacidade da galeria entupida.** `f_entupida = 0` (galeria fechada) continua `[sem fonte]`. No regime permanente, π_E
+  passa a ser um número intermediário, e com f = 0 o estado entupido enche o balde com pouca chuva. O valor de f é da Fase 4
+  (capacidade efetiva, com fonte ou como faixa).
+- **"Chamado" é entupimento percebido**, então λ_re continua sendo um limite inferior.
