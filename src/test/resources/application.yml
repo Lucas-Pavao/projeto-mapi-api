@@ -53,6 +53,8 @@ mapi:
   # Previsão de chuva: chamaria a IA e o Open-Meteo de verdade no ciclo; os testes ligam onde precisam.
   rain-forecast:
     enabled: false
+    check:
+      enabled: false
   terrain:
     # TerrainStartupLoader carregaria ../terreno de verdade (existe quando os testes rodam do checkout principal).
     load-on-startup: false

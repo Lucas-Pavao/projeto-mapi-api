@@ -272,9 +272,16 @@ DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC.
   existentes, chave igual). As rodadas por modelo vão em `open_meteo_model_hour`:
   - ao vivo: a cada hora, o `meta.json` de cada modelo diz se há rodada nova. Se houver, grava até 48 h à frente para os
     pontos ativos. `issued_before_utc` = `last_run_availability_time`. Modelos: `ecmwf_ifs` (9 km), `ecmwf_ifs025`,
-    `icon_global` (descontinuado em 30/11/2026) e `best_match` (sem rodada própria: instante da coleta);
+    `dwd_icon_global_native` (ICON na grade nativa; o `icon_global` sai em 30/11/2026, ADR 0029 emenda 1) e `best_match`
+    (sem rodada própria: instante da coleta);
   - histórico: `POST /api/admin/open-meteo/historico?desde=2024-01-15`, em segundo plano e retomável por
-    ponto/modelo/ano. Grava `previous_day1..3` com `issued_before_utc` = hora − 24N h + 8 h. O arquivo começa em
+    ponto/modelo/ano (modelos do histórico: `ecmwf_ifs025`, `icon_seamless`, `best_match`). Grava `previous_day1..3` com
+    `issued_before_utc` = hora − 24N h + 8 h. O arquivo começa em
     19/01/2024 (ICON, `best_match`) e 03/02/2024 (ECMWF 0,25°). O ECMWF de 9 km não tem histórico, e 850 hPa não é servido.
   - Nada disso entra no `rain_v1` nem no alerta de 20 min.
+- **Quebras de série (V43).** `source_series_break` guarda cada mudança por dentro de uma fonte (modelo, grade, obra), com
+  fonte e data de acesso. Hoje: 2026-11-30 no `best_match` (afeta o rain_v1) e no `icon_seamless`.
+- **Conferência semanal do rain_v1 (V44).** Toda segunda, `rain_forecast_check` recebe o ganho do rain_v1 sobre a
+  persistência na semana e no acumulado de cada trecho. `PIORA` no trecho abre o alerta de sistema `MODEL_CHECK`. Regra:
+  `docs/PRE-REGISTRO-CONFERENCIA-SEMANAL-RAIN.md`.
 
