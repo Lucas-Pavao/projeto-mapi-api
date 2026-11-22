@@ -44,20 +44,32 @@ public class LimpezaProperties {
         /** Taxa de reentupimento por dia (limpeza ATENDIDA -> próximo chamado a 150 m). Nulo = sem dado. */
         private Double lambdaRePorDia;
         private int limpezas;
+        /** E3: percentil 95 dos intervalos entre limpezas do ponto (dias). Nulo = sem dado. */
+        private Integer intervaloP95Dias;
+        /** E4: média restrita a 365 dias do tempo do chamado à limpeza (Kaplan–Meier), dias. Nulo = sem dado. */
+        private Double diasEntupidaMedia;
 
-        static Ponto of(String logradouro, String bairro, Double lambda, int limpezas) {
+        static Ponto of(String logradouro, String bairro, Double lambda, int limpezas, Integer p95, Double de) {
             Ponto p = new Ponto();
             p.logradouro = logradouro; p.bairro = bairro; p.lambdaRePorDia = lambda; p.limpezas = limpezas;
+            p.intervaloP95Dias = p95; p.diasEntupidaMedia = de;
             return p;
         }
     }
 
+    /** Fim da cobertura da base quando a tabela de cobertura (V46) está vazia: a última data de demanda conhecida. */
+    private java.time.LocalDate fimCoberturaPadrao = java.time.LocalDate.of(2026, 6, 19);
+
+    /**
+     * Valores de docs/extratos/emlurb-156/entupimento/parametros.json (emenda 1, 2026-11-22: coordenadas-padrão fora do casamento
+     * por coordenada, bairro do polígono oficial da Prefeitura). Antes: Ibura IPSEP 0,02337/53; Derby BOA VISTA 0,00981/35; CIn AREIAS.
+     */
     private static Map<String, Ponto> defaults() {
         Map<String, Ponto> m = new LinkedHashMap<>();
-        m.put("AV_RECIFE_IBURA", Ponto.of("RECIFE", "IPSEP", 0.02337, 53));
-        m.put("AGAMENON_DERBY", Ponto.of("GOVERNADOR AGAMENON MAGALHAES", "BOA VISTA", 0.00981, 35));
-        m.put("MASCARENHAS_IMBIRIBEIRA", Ponto.of("MARECHAL MASCARENHAS DE MORAES", "IMBIRIBEIRA", 0.03331, 130));
-        m.put("CIN_UFPE", Ponto.of(null, "AREIAS", null, 0));
+        m.put("AV_RECIFE_IBURA", Ponto.of("RECIFE", "IBURA", 0.01038, 19, 1648, 75.9));
+        m.put("AGAMENON_DERBY", Ponto.of("GOVERNADOR AGAMENON MAGALHAES", "DERBY", 0.01068, 40, 445, 59.0));
+        m.put("MASCARENHAS_IMBIRIBEIRA", Ponto.of("MARECHAL MASCARENHAS DE MORAES", "IMBIRIBEIRA", 0.03331, 130, 221, 44.2));
+        m.put("CIN_UFPE", Ponto.of(null, "CIDADE UNIVERSITARIA", null, 0, null, 185.5));
         return m;
     }
 }

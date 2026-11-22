@@ -1,0 +1,874 @@
+[
+ {
+  "lat": -8.06527,
+  "lon": -34.89692,
+  "chamados": 2771,
+  "bairros": 12,
+  "bairro_mais_frequente": "SANTO AMARO",
+  "fracao": 0.337
+ },
+ {
+  "lat": -8.05315,
+  "lon": -34.94595,
+  "chamados": 2398,
+  "bairros": 18,
+  "bairro_mais_frequente": "IPUTINGA",
+  "fracao": 0.15
+ },
+ {
+  "lat": -8.04982,
+  "lon": -34.87395,
+  "chamados": 1879,
+  "bairros": 18,
+  "bairro_mais_frequente": "MACAXEIRA",
+  "fracao": 0.296
+ },
+ {
+  "lat": -8.08563,
+  "lon": -34.93175,
+  "chamados": 1764,
+  "bairros": 13,
+  "bairro_mais_frequente": "IPSEP",
+  "fracao": 0.324
+ },
+ {
+  "lat": -8.05407,
+  "lon": -34.87085,
+  "chamados": 1598,
+  "bairros": 43,
+  "bairro_mais_frequente": "SANTO ANTONIO",
+  "fracao": 0.277
+ },
+ {
+  "lat": -8.02799,
+  "lon": -34.90296,
+  "chamados": 1129,
+  "bairros": 17,
+  "bairro_mais_frequente": "SANTO AMARO",
+  "fracao": 0.225
+ },
+ {
+  "lat": -8.05709,
+  "lon": -34.90906,
+  "chamados": 821,
+  "bairros": 7,
+  "bairro_mais_frequente": "CAXANGA",
+  "fracao": 0.306
+ },
+ {
+  "lat": -7.99888,
+  "lon": -34.92404,
+  "chamados": 648,
+  "bairros": 5,
+  "bairro_mais_frequente": "BREJO DE BEBERIBE",
+  "fracao": 0.349
+ },
+ {
+  "lat": -8.06108,
+  "lon": -34.9049,
+  "chamados": 644,
+  "bairros": 10,
+  "bairro_mais_frequente": "TORROES",
+  "fracao": 0.3
+ },
+ {
+  "lat": -8.0145,
+  "lon": -34.88018,
+  "chamados": 471,
+  "bairros": 11,
+  "bairro_mais_frequente": "MADALENA",
+  "fracao": 0.403
+ },
+ {
+  "lat": -8.03942,
+  "lon": -34.88102,
+  "chamados": 467,
+  "bairros": 68,
+  "bairro_mais_frequente": "CAMPO GRANDE",
+  "fracao": 0.113
+ },
+ {
+  "lat": -8.08375,
+  "lon": -34.9256,
+  "chamados": 440,
+  "bairros": 6,
+  "bairro_mais_frequente": "AREIAS",
+  "fracao": 0.232
+ },
+ {
+  "lat": -8.08415,
+  "lon": -34.93098,
+  "chamados": 415,
+  "bairros": 11,
+  "bairro_mais_frequente": "BARRO",
+  "fracao": 0.193
+ },
+ {
+  "lat": -8.00082,
+  "lon": -34.93841,
+  "chamados": 368,
+  "bairros": 11,
+  "bairro_mais_frequente": "GUABIRABA",
+  "fracao": 0.296
+ },
+ {
+  "lat": -8.02893,
+  "lon": -34.94296,
+  "chamados": 359,
+  "bairros": 7,
+  "bairro_mais_frequente": "GUABIRABA",
+  "fracao": 0.326
+ },
+ {
+  "lat": -8.07357,
+  "lon": -34.92341,
+  "chamados": 253,
+  "bairros": 7,
+  "bairro_mais_frequente": "SAN MARTIN",
+  "fracao": 0.462
+ },
+ {
+  "lat": -8.07747,
+  "lon": -34.90708,
+  "chamados": 237,
+  "bairros": 7,
+  "bairro_mais_frequente": "AFOGADOS",
+  "fracao": 0.384
+ },
+ {
+  "lat": -8.05463,
+  "lon": -34.88948,
+  "chamados": 235,
+  "bairros": 5,
+  "bairro_mais_frequente": "SANTO AMARO",
+  "fracao": 0.485
+ },
+ {
+  "lat": -8.04361,
+  "lon": -34.96086,
+  "chamados": 229,
+  "bairros": 5,
+  "bairro_mais_frequente": "TOTO",
+  "fracao": 0.445
+ },
+ {
+  "lat": -8.05317,
+  "lon": -34.89668,
+  "chamados": 155,
+  "bairros": 3,
+  "bairro_mais_frequente": "SANTO ANTONIO",
+  "fracao": 0.471
+ },
+ {
+  "lat": -8.05136,
+  "lon": -34.8968,
+  "chamados": 149,
+  "bairros": 5,
+  "bairro_mais_frequente": "AFLITOS",
+  "fracao": 0.369
+ },
+ {
+  "lat": -8.07946,
+  "lon": -34.90423,
+  "chamados": 136,
+  "bairros": 10,
+  "bairro_mais_frequente": "AFOGADOS",
+  "fracao": 0.287
+ },
+ {
+  "lat": -8.0833,
+  "lon": -34.9698,
+  "chamados": 131,
+  "bairros": 9,
+  "bairro_mais_frequente": "BREJO DA GUABIRABA",
+  "fracao": 0.313
+ },
+ {
+  "lat": -8.08586,
+  "lon": -34.95404,
+  "chamados": 116,
+  "bairros": 6,
+  "bairro_mais_frequente": "SANCHO",
+  "fracao": 0.328
+ },
+ {
+  "lat": -8.13182,
+  "lon": -34.93479,
+  "chamados": 116,
+  "bairros": 8,
+  "bairro_mais_frequente": "BREJO DA GUABIRABA",
+  "fracao": 0.336
+ },
+ {
+  "lat": -8.02138,
+  "lon": -34.90535,
+  "chamados": 110,
+  "bairros": 7,
+  "bairro_mais_frequente": "MANGABEIRA",
+  "fracao": 0.355
+ },
+ {
+  "lat": -8.03478,
+  "lon": -34.89707,
+  "chamados": 107,
+  "bairros": 5,
+  "bairro_mais_frequente": "ROSARINHO",
+  "fracao": 0.486
+ },
+ {
+  "lat": -8.05248,
+  "lon": -34.89982,
+  "chamados": 105,
+  "bairros": 3,
+  "bairro_mais_frequente": "GRACAS",
+  "fracao": 0.381
+ },
+ {
+  "lat": -8.05256,
+  "lon": -34.92399,
+  "chamados": 102,
+  "bairros": 8,
+  "bairro_mais_frequente": "BEBERIBE",
+  "fracao": 0.275
+ },
+ {
+  "lat": -8.02949,
+  "lon": -34.90403,
+  "chamados": 102,
+  "bairros": 3,
+  "bairro_mais_frequente": "PARNAMIRIM",
+  "fracao": 0.363
+ },
+ {
+  "lat": -8.06071,
+  "lon": -34.88958,
+  "chamados": 90,
+  "bairros": 3,
+  "bairro_mais_frequente": "ILHA DO LEITE",
+  "fracao": 0.489
+ },
+ {
+  "lat": -8.04789,
+  "lon": -34.91206,
+  "chamados": 87,
+  "bairros": 3,
+  "bairro_mais_frequente": "SANTO AMARO",
+  "fracao": 0.425
+ },
+ {
+  "lat": -8.04126,
+  "lon": -34.88585,
+  "chamados": 80,
+  "bairros": 13,
+  "bairro_mais_frequente": "CASA AMARELA",
+  "fracao": 0.375
+ },
+ {
+  "lat": -8.08584,
+  "lon": -34.88393,
+  "chamados": 79,
+  "bairros": 4,
+  "bairro_mais_frequente": "BOA VISTA",
+  "fracao": 0.456
+ },
+ {
+  "lat": -8.04594,
+  "lon": -34.95651,
+  "chamados": 79,
+  "bairros": 6,
+  "bairro_mais_frequente": "VARZEA",
+  "fracao": 0.342
+ },
+ {
+  "lat": -8.06856,
+  "lon": -34.99089,
+  "chamados": 76,
+  "bairros": 3,
+  "bairro_mais_frequente": "IMBIRIBEIRA",
+  "fracao": 0.461
+ },
+ {
+  "lat": -7.99023,
+  "lon": -34.92983,
+  "chamados": 75,
+  "bairros": 8,
+  "bairro_mais_frequente": "SANTO ANTONIO",
+  "fracao": 0.493
+ },
+ {
+  "lat": -8.0238,
+  "lon": -34.87649,
+  "chamados": 73,
+  "bairros": 7,
+  "bairro_mais_frequente": "SAO JOSE",
+  "fracao": 0.342
+ },
+ {
+  "lat": -8.0543,
+  "lon": -34.87242,
+  "chamados": 73,
+  "bairros": 34,
+  "bairro_mais_frequente": "BOA VIAGEM",
+  "fracao": 0.096
+ },
+ {
+  "lat": -8.03853,
+  "lon": -34.8808,
+  "chamados": 71,
+  "bairros": 8,
+  "bairro_mais_frequente": "CAMPO GRANDE",
+  "fracao": 0.225
+ },
+ {
+  "lat": -8.10113,
+  "lon": -34.91659,
+  "chamados": 70,
+  "bairros": 6,
+  "bairro_mais_frequente": "IBURA",
+  "fracao": 0.271
+ },
+ {
+  "lat": -8.04643,
+  "lon": -34.88914,
+  "chamados": 70,
+  "bairros": 3,
+  "bairro_mais_frequente": "JARDIM SAO PAULO",
+  "fracao": 0.471
+ },
+ {
+  "lat": -8.04985,
+  "lon": -34.8743,
+  "chamados": 70,
+  "bairros": 11,
+  "bairro_mais_frequente": "CASA AMARELA",
+  "fracao": 0.271
+ },
+ {
+  "lat": -8.0624,
+  "lon": -34.88104,
+  "chamados": 68,
+  "bairros": 12,
+  "bairro_mais_frequente": "BOA VISTA",
+  "fracao": 0.397
+ },
+ {
+  "lat": -8.03957,
+  "lon": -34.87977,
+  "chamados": 68,
+  "bairros": 6,
+  "bairro_mais_frequente": "CAMPO GRANDE",
+  "fracao": 0.426
+ },
+ {
+  "lat": -8.04015,
+  "lon": -34.88103,
+  "chamados": 65,
+  "bairros": 23,
+  "bairro_mais_frequente": "CAMPO GRANDE",
+  "fracao": 0.138
+ },
+ {
+  "lat": -8.13944,
+  "lon": -34.92879,
+  "chamados": 61,
+  "bairros": 4,
+  "bairro_mais_frequente": "PEIXINHOS",
+  "fracao": 0.361
+ },
+ {
+  "lat": -8.03968,
+  "lon": -34.87753,
+  "chamados": 57,
+  "bairros": 8,
+  "bairro_mais_frequente": "DERBY",
+  "fracao": 0.386
+ },
+ {
+  "lat": -8.04975,
+  "lon": -34.89942,
+  "chamados": 56,
+  "bairros": 4,
+  "bairro_mais_frequente": "BREJO DE BEBERIBE",
+  "fracao": 0.393
+ },
+ {
+  "lat": -8.08146,
+  "lon": -34.92222,
+  "chamados": 55,
+  "bairros": 5,
+  "bairro_mais_frequente": "AFOGADOS",
+  "fracao": 0.473
+ },
+ {
+  "lat": -8.0639,
+  "lon": -34.93527,
+  "chamados": 54,
+  "bairros": 3,
+  "bairro_mais_frequente": "TORROES",
+  "fracao": 0.481
+ },
+ {
+  "lat": -8.06278,
+  "lon": -34.89527,
+  "chamados": 54,
+  "bairros": 3,
+  "bairro_mais_frequente": "BOA VISTA",
+  "fracao": 0.481
+ },
+ {
+  "lat": -8.01968,
+  "lon": -34.89459,
+  "chamados": 53,
+  "bairros": 6,
+  "bairro_mais_frequente": "FUNDAO",
+  "fracao": 0.491
+ },
+ {
+  "lat": -8.01046,
+  "lon": -34.92213,
+  "chamados": 53,
+  "bairros": 3,
+  "bairro_mais_frequente": "VASCO DA GAMA",
+  "fracao": 0.491
+ },
+ {
+  "lat": -7.97049,
+  "lon": -34.91819,
+  "chamados": 51,
+  "bairros": 8,
+  "bairro_mais_frequente": "BOA VISTA",
+  "fracao": 0.255
+ },
+ {
+  "lat": -8.04793,
+  "lon": -34.91236,
+  "chamados": 51,
+  "bairros": 3,
+  "bairro_mais_frequente": "MADALENA",
+  "fracao": 0.49
+ },
+ {
+  "lat": -8.01654,
+  "lon": -34.91566,
+  "chamados": 50,
+  "bairros": 3,
+  "bairro_mais_frequente": "ALTO JOSE BONIFACIO",
+  "fracao": 0.48
+ },
+ {
+  "lat": -8.09108,
+  "lon": -34.93878,
+  "chamados": 47,
+  "bairros": 8,
+  "bairro_mais_frequente": "BARRO",
+  "fracao": 0.447
+ },
+ {
+  "lat": -8.02327,
+  "lon": -34.90105,
+  "chamados": 47,
+  "bairros": 3,
+  "bairro_mais_frequente": "BOMBA DO HEMETERIO",
+  "fracao": 0.468
+ },
+ {
+  "lat": -7.99225,
+  "lon": -34.92722,
+  "chamados": 46,
+  "bairros": 4,
+  "bairro_mais_frequente": "PINA",
+  "fracao": 0.457
+ },
+ {
+  "lat": -8.0772,
+  "lon": -34.92318,
+  "chamados": 46,
+  "bairros": 5,
+  "bairro_mais_frequente": "JIQUIA",
+  "fracao": 0.37
+ },
+ {
+  "lat": -8.02048,
+  "lon": -34.90363,
+  "chamados": 45,
+  "bairros": 3,
+  "bairro_mais_frequente": "ALTO SANTA TEREZINHA",
+  "fracao": 0.489
+ },
+ {
+  "lat": -8.04363,
+  "lon": -34.88893,
+  "chamados": 44,
+  "bairros": 7,
+  "bairro_mais_frequente": "VARZEA",
+  "fracao": 0.386
+ },
+ {
+  "lat": -8.02132,
+  "lon": -34.91748,
+  "chamados": 43,
+  "bairros": 3,
+  "bairro_mais_frequente": "CASA AMARELA",
+  "fracao": 0.442
+ },
+ {
+  "lat": -8.03698,
+  "lon": -34.89807,
+  "chamados": 43,
+  "bairros": 5,
+  "bairro_mais_frequente": "ENCRUZILHADA",
+  "fracao": 0.395
+ },
+ {
+  "lat": -8.03042,
+  "lon": -34.9099,
+  "chamados": 43,
+  "bairros": 3,
+  "bairro_mais_frequente": "CASA AMARELA",
+  "fracao": 0.442
+ },
+ {
+  "lat": -8.02869,
+  "lon": -34.93906,
+  "chamados": 42,
+  "bairros": 4,
+  "bairro_mais_frequente": "IPUTINGA",
+  "fracao": 0.452
+ },
+ {
+  "lat": -8.11225,
+  "lon": -34.95553,
+  "chamados": 41,
+  "bairros": 4,
+  "bairro_mais_frequente": "IBURA",
+  "fracao": 0.415
+ },
+ {
+  "lat": -8.11338,
+  "lon": -34.95489,
+  "chamados": 39,
+  "bairros": 3,
+  "bairro_mais_frequente": "ESTANCIA",
+  "fracao": 0.436
+ },
+ {
+  "lat": -8.03722,
+  "lon": -34.89103,
+  "chamados": 38,
+  "bairros": 6,
+  "bairro_mais_frequente": "BEBERIBE",
+  "fracao": 0.474
+ },
+ {
+  "lat": -8.07424,
+  "lon": -34.90295,
+  "chamados": 38,
+  "bairros": 6,
+  "bairro_mais_frequente": "VARZEA",
+  "fracao": 0.342
+ },
+ {
+  "lat": -8.02198,
+  "lon": -34.88167,
+  "chamados": 38,
+  "bairros": 4,
+  "bairro_mais_frequente": "CAMPINA DO BARRETO",
+  "fracao": 0.474
+ },
+ {
+  "lat": -8.03717,
+  "lon": -34.89095,
+  "chamados": 38,
+  "bairros": 7,
+  "bairro_mais_frequente": "AGUA FRIA",
+  "fracao": 0.263
+ },
+ {
+  "lat": -8.01979,
+  "lon": -34.92812,
+  "chamados": 37,
+  "bairros": 4,
+  "bairro_mais_frequente": "ALTO DO MANDU",
+  "fracao": 0.486
+ },
+ {
+  "lat": -8.0042,
+  "lon": -34.91196,
+  "chamados": 37,
+  "bairros": 3,
+  "bairro_mais_frequente": "DOIS UNIDOS",
+  "fracao": 0.432
+ },
+ {
+  "lat": -7.9706,
+  "lon": -34.91764,
+  "chamados": 35,
+  "bairros": 6,
+  "bairro_mais_frequente": "BOA VISTA",
+  "fracao": 0.371
+ },
+ {
+  "lat": -8.08424,
+  "lon": -34.96764,
+  "chamados": 35,
+  "bairros": 3,
+  "bairro_mais_frequente": "COQUEIRAL",
+  "fracao": 0.429
+ },
+ {
+  "lat": -8.11029,
+  "lon": -34.95616,
+  "chamados": 34,
+  "bairros": 3,
+  "bairro_mais_frequente": "DOIS UNIDOS",
+  "fracao": 0.441
+ },
+ {
+  "lat": -8.05019,
+  "lon": -34.89666,
+  "chamados": 33,
+  "bairros": 5,
+  "bairro_mais_frequente": "AFLITOS",
+  "fracao": 0.424
+ },
+ {
+  "lat": -8.12374,
+  "lon": -34.94944,
+  "chamados": 33,
+  "bairros": 3,
+  "bairro_mais_frequente": "DOIS UNIDOS",
+  "fracao": 0.455
+ },
+ {
+  "lat": -8.03714,
+  "lon": -34.95242,
+  "chamados": 33,
+  "bairros": 8,
+  "bairro_mais_frequente": "PASSARINHO",
+  "fracao": 0.364
+ },
+ {
+  "lat": -8.01484,
+  "lon": -34.89007,
+  "chamados": 33,
+  "bairros": 7,
+  "bairro_mais_frequente": "BEBERIBE",
+  "fracao": 0.394
+ },
+ {
+  "lat": -8.05079,
+  "lon": -34.88673,
+  "chamados": 32,
+  "bairros": 4,
+  "bairro_mais_frequente": "COHAB",
+  "fracao": 0.406
+ },
+ {
+  "lat": -8.11284,
+  "lon": -34.95433,
+  "chamados": 32,
+  "bairros": 5,
+  "bairro_mais_frequente": "ESTANCIA",
+  "fracao": 0.344
+ },
+ {
+  "lat": -7.98863,
+  "lon": -34.93248,
+  "chamados": 32,
+  "bairros": 5,
+  "bairro_mais_frequente": "BREJO DA GUABIRABA",
+  "fracao": 0.281
+ },
+ {
+  "lat": -8.1279,
+  "lon": -34.95523,
+  "chamados": 32,
+  "bairros": 4,
+  "bairro_mais_frequente": "COHAB",
+  "fracao": 0.469
+ },
+ {
+  "lat": -8.01215,
+  "lon": -34.91338,
+  "chamados": 31,
+  "bairros": 7,
+  "bairro_mais_frequente": "AGUA FRIA",
+  "fracao": 0.355
+ },
+ {
+  "lat": -8.12919,
+  "lon": -34.95501,
+  "chamados": 31,
+  "bairros": 5,
+  "bairro_mais_frequente": "COHAB",
+  "fracao": 0.484
+ },
+ {
+  "lat": -8.0695,
+  "lon": -34.94874,
+  "chamados": 30,
+  "bairros": 12,
+  "bairro_mais_frequente": "CORDEIRO",
+  "fracao": 0.167
+ },
+ {
+  "lat": -8.1138,
+  "lon": -34.95548,
+  "chamados": 29,
+  "bairros": 3,
+  "bairro_mais_frequente": "ESTANCIA",
+  "fracao": 0.483
+ },
+ {
+  "lat": -8.00255,
+  "lon": -34.93804,
+  "chamados": 29,
+  "bairros": 6,
+  "bairro_mais_frequente": "DOIS IRMAOS",
+  "fracao": 0.276
+ },
+ {
+  "lat": -8.05831,
+  "lon": -34.95673,
+  "chamados": 27,
+  "bairros": 5,
+  "bairro_mais_frequente": "IPUTINGA",
+  "fracao": 0.444
+ },
+ {
+  "lat": -8.01684,
+  "lon": -34.91365,
+  "chamados": 27,
+  "bairros": 3,
+  "bairro_mais_frequente": "ALTO JOSE BONIFACIO",
+  "fracao": 0.407
+ },
+ {
+  "lat": -8.01853,
+  "lon": -34.92988,
+  "chamados": 27,
+  "bairros": 3,
+  "bairro_mais_frequente": "APIPUCOS",
+  "fracao": 0.333
+ },
+ {
+  "lat": -8.05919,
+  "lon": -34.93362,
+  "chamados": 27,
+  "bairros": 7,
+  "bairro_mais_frequente": "NOVA DESCOBERTA",
+  "fracao": 0.333
+ },
+ {
+  "lat": -8.0347,
+  "lon": -34.89596,
+  "chamados": 26,
+  "bairros": 12,
+  "bairro_mais_frequente": "MACAXEIRA",
+  "fracao": 0.231
+ },
+ {
+  "lat": -8.0004,
+  "lon": -34.92308,
+  "chamados": 26,
+  "bairros": 3,
+  "bairro_mais_frequente": "NOVA DESCOBERTA",
+  "fracao": 0.462
+ },
+ {
+  "lat": -7.99021,
+  "lon": -34.92856,
+  "chamados": 26,
+  "bairros": 4,
+  "bairro_mais_frequente": "IPUTINGA",
+  "fracao": 0.385
+ },
+ {
+  "lat": -8.02942,
+  "lon": -34.92432,
+  "chamados": 26,
+  "bairros": 3,
+  "bairro_mais_frequente": "MONTEIRO",
+  "fracao": 0.385
+ },
+ {
+  "lat": -8.03675,
+  "lon": -34.89989,
+  "chamados": 25,
+  "bairros": 3,
+  "bairro_mais_frequente": "ROSARINHO",
+  "fracao": 0.48
+ },
+ {
+  "lat": -8.02319,
+  "lon": -34.8939,
+  "chamados": 25,
+  "bairros": 3,
+  "bairro_mais_frequente": "MACAXEIRA",
+  "fracao": 0.48
+ },
+ {
+  "lat": -8.01732,
+  "lon": -34.88775,
+  "chamados": 24,
+  "bairros": 3,
+  "bairro_mais_frequente": "FUNDAO",
+  "fracao": 0.417
+ },
+ {
+  "lat": -8.04452,
+  "lon": -34.91822,
+  "chamados": 23,
+  "bairros": 3,
+  "bairro_mais_frequente": "CORDEIRO",
+  "fracao": 0.435
+ },
+ {
+  "lat": -8.05993,
+  "lon": -34.89709,
+  "chamados": 22,
+  "bairros": 3,
+  "bairro_mais_frequente": "BOA VISTA",
+  "fracao": 0.455
+ },
+ {
+  "lat": -8.02978,
+  "lon": -34.92319,
+  "chamados": 22,
+  "bairros": 3,
+  "bairro_mais_frequente": "MONTEIRO",
+  "fracao": 0.455
+ },
+ {
+  "lat": -8.06271,
+  "lon": -34.91207,
+  "chamados": 22,
+  "bairros": 5,
+  "bairro_mais_frequente": "TORROES",
+  "fracao": 0.409
+ },
+ {
+  "lat": -8.05303,
+  "lon": -34.9461,
+  "chamados": 21,
+  "bairros": 7,
+  "bairro_mais_frequente": "BARRO",
+  "fracao": 0.238
+ },
+ {
+  "lat": -8.07453,
+  "lon": -34.90366,
+  "chamados": 21,
+  "bairros": 4,
+  "bairro_mais_frequente": "TORROES",
+  "fracao": 0.381
+ },
+ {
+  "lat": -8.07664,
+  "lon": -34.97866,
+  "chamados": 21,
+  "bairros": 6,
+  "bairro_mais_frequente": "ESTANCIA",
+  "fracao": 0.476
+ }
+]

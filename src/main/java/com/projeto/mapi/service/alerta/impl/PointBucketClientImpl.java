@@ -38,7 +38,8 @@ public class PointBucketClientImpl implements PointBucketClient {
                      @JsonProperty("forecast_1h_q80_mm") Double q80,
                      @JsonProperty("days_since_cleaning") Double days, @JsonProperty("lambda_re_per_day") Double lambda,
                      @JsonProperty("tide_nr_m") List<Double> tide, @JsonProperty("outlet_sill_nr_m") Double sill,
-                     @JsonProperty("outlet_diameter_m") Double diameter) {}
+                     @JsonProperty("outlet_diameter_m") Double diameter, @JsonProperty("clog_regime") String clogRegime,
+                     @JsonProperty("mean_clogged_days") Double meanCloggedDays) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     record AiBackflow(@JsonProperty("fator_agora") double now, @JsonProperty("fator_min_projecao") double minProj,
@@ -46,7 +47,8 @@ public class PointBucketClientImpl implements PointBucketClient {
                       @JsonProperty("diametro_m") double diameter) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    record AiCleaning(@JsonProperty("dias_desde_limpeza") double days, @JsonProperty("lambda_re_por_dia") double lambda,
+    record AiCleaning(@JsonProperty("regime") String regime, @JsonProperty("dias_desde_limpeza") Double days,
+                      @JsonProperty("lambda_re_por_dia") double lambda,
                       @JsonProperty("p_entupida") double pClogged, @JsonProperty("h_now_entupida_mm") double hNow,
                       @JsonProperty("prob_hcrit_agora") Double probNow, @JsonProperty("prob_hcrit_60min_q50") Double prob60,
                       @JsonProperty("projection_entupida") Map<String, AiProj> projection) {}
@@ -63,21 +65,23 @@ public class PointBucketClientImpl implements PointBucketClient {
     @Override
     public Result evaluate(List<Double> rain10min, Terrain t, double trYears, double teMinutes, Double q50Mm, Double q80Mm,
                            Extras x) {
-        Double daysSinceCleaning = x == null ? null : x.daysSinceCleaning();
-        Double lambdaRePerDay = x == null ? null : x.lambdaRePerDay();
+        boolean cleaning = x != null && x.hasCleaning();
+        Double daysSinceCleaning = cleaning ? x.daysSinceCleaning() : null;
+        Double lambdaRePerDay = cleaning ? x.lambdaRePerDay() : null;
         List<Double> tide = x == null ? null : x.tideNrM();
         try {
             AiResponse r = restClient.post().uri("/v1/bucket/point10").contentType(MediaType.APPLICATION_JSON)
                     .body(new AiRequest(rain10min, new AiPoint(t.slug(), t.areaM2(), t.zCurveM(), t.vCurveM3(), t.streetRelM()),
                             trYears, teMinutes, q50Mm, q80Mm, daysSinceCleaning, lambdaRePerDay, tide,
-                            tide == null ? null : x.outletSillNrM(), tide == null ? null : x.outletDiameterM()))
+                            tide == null ? null : x.outletSillNrM(), tide == null ? null : x.outletDiameterM(),
+                            cleaning ? x.clogRegime() : null, cleaning ? x.meanCloggedDays() : null))
                     .retrieve().body(AiResponse.class);
             if (r == null) return null;
             Cleaning c = null;
             if (r.limpeza() != null) {
                 AiProj pq = r.limpeza().projection() == null ? null : r.limpeza().projection().get("q50");
                 c = new Cleaning(r.limpeza().days(), r.limpeza().lambda(), r.limpeza().pClogged(), r.limpeza().hNow(),
-                        r.limpeza().probNow(), r.limpeza().prob60(), pq == null ? null : pq.minutes());
+                        r.limpeza().probNow(), r.limpeza().prob60(), pq == null ? null : pq.minutes(), r.limpeza().regime());
             }
             Backflow bf = r.refluxo() == null ? null : new Backflow(r.refluxo().now(), r.refluxo().minProj(),
                     r.refluxo().tideNow(), r.refluxo().sill(), r.refluxo().diameter());
