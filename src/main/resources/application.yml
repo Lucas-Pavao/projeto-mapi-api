@@ -149,6 +149,15 @@ app:
     base-url: ${CEMADEN_BASE_URL:https://resources.cemaden.gov.br}
     uf: ${CEMADEN_UF:PE}
     cache-ttl-ms: ${CEMADEN_CACHE_TTL_MS:300000}
+  # Open-Meteo por modelo (prompt dos horizontes, bloco B): rodada nova conferida a cada hora pelo meta.json do modelo.
+  # Não entra no rain_v1 nem no alerta. icon_global é descontinuado pelo Open-Meteo em 2026-11-30 (falha só ele).
+  open-meteo-models:
+    enabled: ${OPEN_METEO_MODELS_ENABLED:true}
+    live: ecmwf_ifs,ecmwf_ifs025,icon_global,best_match
+    history: ecmwf_ifs025,icon_global,best_match
+    fixed-rate-ms: 3600000
+    initial-delay-ms: 120000
+    pause-ms: 2000
   inmet:
     # Avisos severos do INMET (ADR 0024): consulta a cada 10 min e persiste avisos dos municípios da RMR.
     base-url: ${INMET_BASE_URL:https://apiprevmet3.inmet.gov.br}
