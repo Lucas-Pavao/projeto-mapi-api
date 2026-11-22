@@ -108,6 +108,29 @@
 - Marine: a página de termos de Open-Meteo é a mesma para todas as APIs. Não foi verificada separadamente a licença de dados marinhos de origem.
 - Restrição principal: o uso da API gratuita é restrito a fins não comerciais. Um site público do MAPi sem assinatura nem publicidade se enquadra no uso não comercial; se houver assinatura ou publicidade, é preciso plano pago.
 
+### 7.1 Open-Meteo por modelo e histórico de rodadas (2026-11-22)
+
+- Modelos de origem: ECMWF IFS (9 km e 0,25°; dados abertos do ECMWF), DWD ICON Global (descontinuado pelo
+  Open-Meteo em 30/11/2026) e NOAA GFS (dentro do `best_match` e do CAPE do histórico). Citação na tela e nos
+  relatórios: "Open-Meteo (ECMWF/DWD/NOAA), CC BY 4.0".
+- Histórico de rodadas: `previous-runs-api.open-meteo.com` (página lida em 22/11/2026). `<var>_previous_dayN` é o
+  valor previsto N × 24 h antes da hora válida. Arquivo desde jan/2024, com cobertura menor para alguns modelos. A
+  página oferece licença não comercial, comercial e auto-hospedada. A frase de atribuição continua a confirmar (item 7
+  das pendências).
+- Instante da rodada: `api.open-meteo.com/data/<modelo>/static/meta.json` (`last_run_initialisation_time`,
+  `last_run_availability_time`).
+
+## 7.2 INMET — avisos e previsão por município
+
+- Órgão: Instituto Nacional de Meteorologia (INMET), federal.
+- Avisos: `apiprevmet3.inmet.gov.br/avisos/ativos` (ADR 0024). Previsão por município:
+  `apiprevmet3.inmet.gov.br/previsao/{ibge}` (conferida em 22/11/2026, `docs/extratos/inmet-previsao-municipio.md`).
+- Termo de uso: o feed oficial `/avisos/rss` declara `public domain` e permite reproduzir com citação da fonte, com
+  isenção de responsabilidade sobre conteúdo de terceiros (texto citado no ADR 0024). A rota de previsão não publica
+  termo próprio. Usamos o mesmo e citamos "INMET — Instituto Nacional de Meteorologia".
+- Limites: nenhum publicado. Coleta educada: uma requisição por vez, a cada 3 h (previsão) e 10 min (avisos).
+- Exibição: sempre como "INMET", separada da previsão do MAPi (ADR 0029).
+
 ## 8. DHN / Centro de Hidrografia da Marinha — tábuas das marés
 
 - Órgão: Diretoria de Hidrografia e Navegação (DHN), por meio do Centro de Hidrografia da Marinha (CHM).
