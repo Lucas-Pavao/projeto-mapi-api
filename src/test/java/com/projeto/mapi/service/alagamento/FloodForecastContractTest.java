@@ -47,7 +47,9 @@ class FloodForecastContractTest {
             "sem_dado_chuva_ausente,      SEM_DADO,   -, CHUVA_AUSENTE",
             "sem_dado_previsao_fora,      SEM_DADO,   -, PREVISAO_INDISPONIVEL",
             "sem_dado_sem_terreno,        SEM_DADO,   -, SEM_TERRENO",
-            "sem_dado_terreno_em_revisao, SEM_DADO,   -, TERRENO_EM_REVISAO"})
+            "sem_dado_terreno_em_revisao, SEM_DADO,   -, TERRENO_EM_REVISAO",
+            "alerta_mare_3h,              ALERTA,     3, -",
+            "sem_dado_mare_ausente,       SEM_DADO,   -, MARE_AUSENTE"})
     void dezEstados(String estado, String level, Integer worst, String reason) throws Exception {
         AlagamentoPontoDTO d = FloodForecastMapper.toDto(ia(estado), ctx());
         assertThat(d.level()).isEqualTo(level);
@@ -76,6 +78,38 @@ class FloodForecastContractTest {
             assertThat(d.sources()).contains("CEMADEN_PED");
             assertThat(d.hNowCm()).isNotNull();
         }
+    }
+
+    @Test
+    void mareDoHorizonteEntraComoFatorComContribuicao() throws Exception {
+        AlagamentoPontoDTO d = FloodForecastMapper.toDto(ia("alerta_mare_3h"), ctx());
+        AlagamentoPontoDTO.Refluxo r = d.explanation().factors().refluxo();
+        assertThat(r.status()).isEqualTo("OK");
+        assertThat(r.appliedToLevel()).isTrue();
+        assertThat(r.reductionNowPct()).isZero();
+        assertThat(r.periods()).singleElement().satisfies(p -> {
+            assertThat(p.from()).isEqualTo(Instant.parse("2026-11-20T18:00:00Z"));
+            assertThat(p.meanReductionPct()).isEqualTo(100.0);
+        });
+        assertThat(r.servedDeltaCm()).isGreaterThan(15.0);
+        assertThat(r.deltaSheetCm().get("q50")).containsEntry("1", 0.0);
+        assertThat(r.biasScenario().mdtBiasM()).isEqualTo(-0.369);
+        assertThat(r.biasScenario().level()).isEqualTo("SEM_ALERTA");   // só sensibilidade: o nível é o do central
+        assertThat(r.text()).contains("15h00").contains("18h00");
+        AlagamentoPontoDTO.Limpeza l = d.explanation().factors().limpeza();
+        assertThat(l.mode()).isEqualTo("INFO");
+        assertThat(l.appliedToLevel()).isFalse();
+        assertThat(l.regime()).isEqualTo("PERMANENTE");
+        assertThat(l.pClogged()).isBetween(0.5, 0.7);
+        assertThat(l.text()).contains("não muda o nível");
+        assertThat(d.explanation().decomposition()).filteredOn(s -> "previsto".equals(s.kind()))
+                .anySatisfy(s -> assertThat(s.outflowFactor()).isZero()).allSatisfy(s -> assertThat(s.tideNrM()).isNotNull());
+    }
+
+    @Test
+    void mareAusenteComRefluxoNoNivelViraSemDadoComMotivo() throws Exception {
+        AlagamentoPontoDTO d = FloodForecastMapper.toDto(ia("sem_dado_mare_ausente"), ctx());
+        assertThat(d.reasonText()).contains("maré");
     }
 
     @Test

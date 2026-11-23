@@ -209,6 +209,9 @@
     "inflow_m3_h": 0.0,
     "outflow_m3_h": 0.0,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 0.0,
     "sheet_cm": 0.0
    },
@@ -220,6 +223,9 @@
     "inflow_m3_h": 0.0,
     "outflow_m3_h": 0.0,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 0.0,
     "sheet_cm": 0.0
    },
@@ -231,6 +237,9 @@
     "inflow_m3_h": 0.0,
     "outflow_m3_h": 0.0,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 0.0,
     "sheet_cm": 0.0
    },
@@ -242,6 +251,9 @@
     "inflow_m3_h": 0.0,
     "outflow_m3_h": 0.0,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 0.0,
     "sheet_cm": 0.0
    },
@@ -253,6 +265,9 @@
     "inflow_m3_h": 0.0,
     "outflow_m3_h": 0.0,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 0.0,
     "sheet_cm": 0.0
    },
@@ -264,6 +279,9 @@
     "inflow_m3_h": 0.0,
     "outflow_m3_h": 0.0,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 0.0,
     "sheet_cm": 0.0
    },
@@ -275,6 +293,9 @@
     "inflow_m3_h": 774.0,
     "outflow_m3_h": 774.0,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 0.0,
     "sheet_cm": 0.0
    },
@@ -286,6 +307,9 @@
     "inflow_m3_h": 774.0,
     "outflow_m3_h": 774.0,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 0.0,
     "sheet_cm": 0.0
    },
@@ -297,6 +321,9 @@
     "inflow_m3_h": 774.0,
     "outflow_m3_h": 774.0,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 0.0,
     "sheet_cm": 0.0
    },
@@ -308,6 +335,9 @@
     "inflow_m3_h": 774.0,
     "outflow_m3_h": 774.0,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 0.0,
     "sheet_cm": 0.0
    },
@@ -319,6 +349,9 @@
     "inflow_m3_h": 774.0,
     "outflow_m3_h": 774.0,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 0.0,
     "sheet_cm": 0.0
    },
@@ -330,6 +363,9 @@
     "inflow_m3_h": 774.0,
     "outflow_m3_h": 774.0,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 0.0,
     "sheet_cm": 0.0
    },
@@ -341,6 +377,9 @@
     "inflow_m3_h": 774.0,
     "outflow_m3_h": 774.0,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 0.0,
     "sheet_cm": 0.0
    },
@@ -352,6 +391,9 @@
     "inflow_m3_h": 774.0,
     "outflow_m3_h": 774.0,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 0.0,
     "sheet_cm": 0.0
    },
@@ -363,6 +405,9 @@
     "inflow_m3_h": 774.0,
     "outflow_m3_h": 774.0,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 0.0,
     "sheet_cm": 0.0
    },
@@ -374,6 +419,9 @@
     "inflow_m3_h": 774.0,
     "outflow_m3_h": 774.0,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 0.0,
     "sheet_cm": 0.0
    },
@@ -385,6 +433,9 @@
     "inflow_m3_h": 774.0,
     "outflow_m3_h": 774.0,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 0.0,
     "sheet_cm": 0.0
    },
@@ -396,6 +447,9 @@
     "inflow_m3_h": 774.0,
     "outflow_m3_h": 774.0,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 0.0,
     "sheet_cm": 0.0
    },
@@ -407,6 +461,9 @@
     "inflow_m3_h": 2446.987,
     "outflow_m3_h": 2156.836,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 48.358,
     "sheet_cm": 0.0
    },
@@ -418,6 +475,9 @@
     "inflow_m3_h": 2446.987,
     "outflow_m3_h": 2156.836,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 96.717,
     "sheet_cm": 0.0
    },
@@ -429,6 +489,9 @@
     "inflow_m3_h": 2446.987,
     "outflow_m3_h": 2156.836,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 145.075,
     "sheet_cm": 0.0
    },
@@ -440,6 +503,9 @@
     "inflow_m3_h": 2446.987,
     "outflow_m3_h": 2156.836,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 193.434,
     "sheet_cm": 0.0
    },
@@ -451,6 +517,9 @@
     "inflow_m3_h": 2446.987,
     "outflow_m3_h": 2156.836,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 241.792,
     "sheet_cm": 0.0
    },
@@ -462,6 +531,9 @@
     "inflow_m3_h": 2446.987,
     "outflow_m3_h": 2156.836,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 290.15,
     "sheet_cm": 0.0
    },
@@ -473,6 +545,9 @@
     "inflow_m3_h": 2446.987,
     "outflow_m3_h": 2156.836,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 338.509,
     "sheet_cm": 1.28
    },
@@ -484,6 +559,9 @@
     "inflow_m3_h": 2446.987,
     "outflow_m3_h": 2156.836,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 386.867,
     "sheet_cm": 2.9
    },
@@ -495,6 +573,9 @@
     "inflow_m3_h": 2446.987,
     "outflow_m3_h": 2156.836,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 435.226,
     "sheet_cm": 4.51
    },
@@ -506,6 +587,9 @@
     "inflow_m3_h": 2446.987,
     "outflow_m3_h": 2156.836,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 483.584,
     "sheet_cm": 6.12
    },
@@ -517,6 +601,9 @@
     "inflow_m3_h": 2446.987,
     "outflow_m3_h": 2156.836,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 531.942,
     "sheet_cm": 7.73
    },
@@ -528,6 +615,9 @@
     "inflow_m3_h": 2446.987,
     "outflow_m3_h": 2156.836,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 580.301,
     "sheet_cm": 9.34
    },
@@ -539,6 +629,9 @@
     "inflow_m3_h": 2446.987,
     "outflow_m3_h": 2156.836,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 628.659,
     "sheet_cm": 10.96
    },
@@ -550,6 +643,9 @@
     "inflow_m3_h": 2446.987,
     "outflow_m3_h": 2156.836,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 677.018,
     "sheet_cm": 12.57
    },
@@ -561,6 +657,9 @@
     "inflow_m3_h": 2446.987,
     "outflow_m3_h": 2156.836,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 725.376,
     "sheet_cm": 14.18
    },
@@ -572,6 +671,9 @@
     "inflow_m3_h": 2446.987,
     "outflow_m3_h": 2156.836,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 773.734,
     "sheet_cm": 15.79
    },
@@ -583,6 +685,9 @@
     "inflow_m3_h": 2446.987,
     "outflow_m3_h": 2156.836,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 822.093,
     "sheet_cm": 17.4
    },
@@ -594,6 +699,9 @@
     "inflow_m3_h": 2446.987,
     "outflow_m3_h": 2156.836,
     "capacity_m3_h": 2156.836,
+    "capacity_step_m3_h": 2156.836,
+    "outflow_factor": 1.0,
+    "tide_nr_m": 0.9,
     "volume_m3": 870.451,
     "sheet_cm": 19.02
    }
@@ -604,6 +712,125 @@
    "h_now_cm": 0.0,
    "steps_measured": 144,
    "n_fora_da_curva": 0
+  },
+  "factors": {
+   "refluxo": {
+    "mode": "NIVEL",
+    "status": "OK",
+    "applied_to_level": true,
+    "reason": null,
+    "reason_detail": null,
+    "sill_mdt_m": 0.638,
+    "diameter_m": 0.6,
+    "delta_m": 0.821,
+    "mdt_bias_m": 0.0,
+    "sill_nr_m": 1.459,
+    "tide_now_nr_m": 0.9,
+    "tide_max_horizon_nr_m": 0.9,
+    "reduction_now_pct": 0.0,
+    "periods": [],
+    "delta_sheet_cm": {
+     "q50": {
+      "1": 0.0,
+      "3": 0.0,
+      "6": 0.0
+     },
+     "q95": {
+      "1": 0.0,
+      "3": 0.0,
+      "6": 0.0
+     }
+    },
+    "sheet_with_tide_cm": {
+     "q50": {
+      "1": 4.0,
+      "3": 7.0,
+      "6": 8.0
+     },
+     "q95": {
+      "1": 10.0,
+      "3": 19.0,
+      "6": 21.0
+     }
+    },
+    "sheet_without_tide_cm": {
+     "q50": {
+      "1": 4.0,
+      "3": 7.0,
+      "6": 8.0
+     },
+     "q95": {
+      "1": 10.0,
+      "3": 19.0,
+      "6": 21.0
+     }
+    },
+    "served_delta_cm": 0.0,
+    "rule": "capacidade x clamp((soleira_NR + D - maré_NR)/D, 0, 1)",
+    "bias_scenario": {
+     "mdt_bias_m": -0.369,
+     "sill_nr_m": 1.828,
+     "sheet_cm": {
+      "q50": {
+       "1": 4.0,
+       "3": 7.0,
+       "6": 8.0
+      },
+      "q95": {
+       "1": 10.0,
+       "3": 19.0,
+       "6": 21.0
+      }
+     },
+     "level": "ATENCAO",
+     "worst_horizon_hours": 3,
+     "note": "cenário de viés do MDT (MDT - RN = -0,369 m em terra): só sensibilidade, não decide"
+    },
+    "text": "a maré fica abaixo da saída da galeria nas próximas 6 h"
+   },
+   "limpeza": {
+    "mode": "INFO",
+    "status": "OK",
+    "applied_to_level": false,
+    "reason": null,
+    "reason_detail": null,
+    "regime": "PERMANENTE",
+    "days_since_cleaning": null,
+    "mean_clogged_days": 44.2,
+    "lambda_re_per_day": 0.03331,
+    "p_clogged": 0.5955,
+    "f_clogged": 0.0,
+    "prob_on": 0.5,
+    "sheet_clogged_cm": {
+     "q50": {
+      "1": 127.5,
+      "3": 190.0,
+      "6": 190.0
+     },
+     "q95": {
+      "1": 133.5,
+      "3": 190.0,
+      "6": 190.0
+     }
+    },
+    "prob_hcrit": {
+     "q50": {
+      "1": 0.5955,
+      "3": 0.5955,
+      "6": 0.5955
+     },
+     "q95": {
+      "1": 0.5955,
+      "3": 1.0,
+      "6": 1.0
+     }
+    },
+    "mixture_level": "ALERTA",
+    "mixture_worst_horizon_hours": 1,
+    "f_clogged_source": "sem fonte (faixa 0 a 0,5); por isso o padrão é INFO (ADR 0030)",
+    "text": "chance de a galeria estar entupida: 60% (limpeza desconhecida, regime permanente); se estiver, a lâmina do cenário servido chegaria a 190,0 cm em 3 h (não muda o nível: a capacidade da galeria entupida não tem fonte)"
+   },
+   "rule": "refluxo: capacidade x clamp((soleira_NR + D - maré_NR)/D, 0, 1), soleira_NR = soleira_MDT - viés_MDT + Δ (ADR 0009 emenda 3); limpeza: P(lâmina >= 15 cm) = (1 - p_E)·1[livre] + p_E·1[entupida] (docs/PRE-REGISTRO-ENTUPIMENTO-156.md)"
   }
  },
  "sources": [

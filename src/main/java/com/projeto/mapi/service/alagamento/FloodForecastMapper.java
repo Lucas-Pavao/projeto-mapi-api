@@ -23,7 +23,8 @@ public final class FloodForecastMapper {
             "PREVISAO_INDISPONIVEL", "previsão de chuva (rain_v1) fora do ar",
             "SEM_TERRENO", "sem terreno do ponto",
             "TERRENO_EM_REVISAO", "terreno do ponto em revisão",
-            "SERIE_INCOMPLETA", "série de chuva de 10 min com lacuna");
+            "SERIE_INCOMPLETA", "série de chuva de 10 min com lacuna",
+            "MARE_AUSENTE", "sem maré prevista para algum passo (refluxo ligado no nível)");
 
     public static final String RULE = "ALERTA se a lâmina provável (q50) chega a 15 cm; ATENÇÃO se só a pessimista (q95) chega. "
             + "Experimental.";
@@ -84,10 +85,50 @@ public final class FloodForecastMapper {
         List<AlagamentoPontoDTO.Step> steps = new ArrayList<>();
         for (JsonNode d : e.path("decomposition")) {
             steps.add(new AlagamentoPontoDTO.Step(inst(d, "t"), d.path("minutes_from_now").asInt(), text(d, "kind"), dbl(d, "rain_mm"),
-                    dbl(d, "inflow_m3_h"), dbl(d, "outflow_m3_h"), dbl(d, "volume_m3"), dbl(d, "sheet_cm")));
+                    dbl(d, "inflow_m3_h"), dbl(d, "outflow_m3_h"), dbl(d, "volume_m3"), dbl(d, "sheet_cm"), dbl(d, "tide_nr_m"),
+                    dbl(d, "outflow_factor")));
         }
         return new AlagamentoPontoDTO.Explanation(text(e, "served_scenario"), intOrNull(e, "served_horizon_hours"), shap,
-                dbl(cf, "extra_mm"), text(cf, "text"), sens, steps, dbl(e, "capacity_m3_h"));
+                dbl(cf, "extra_mm"), text(cf, "text"), sens, steps, dbl(e, "capacity_m3_h"), factors(e.path("factors")));
+    }
+
+    /** Fatores do alerta único (ADR 0030); nulo nas respostas de antes. */
+    static AlagamentoPontoDTO.Factors factors(JsonNode f) {
+        if (f == null || !f.isObject()) return null;
+        JsonNode r = f.path("refluxo"), l = f.path("limpeza");
+        AlagamentoPontoDTO.Refluxo rf = null;
+        if (r.isObject()) {
+            List<AlagamentoPontoDTO.TidePeriod> per = new ArrayList<>();
+            for (JsonNode x : r.path("periods")) {
+                per.add(new AlagamentoPontoDTO.TidePeriod(inst(x, "from"), inst(x, "to"), dbl(x, "mean_reduction_pct"),
+                        dbl(x, "max_reduction_pct")));
+            }
+            JsonNode b = r.path("bias_scenario");
+            AlagamentoPontoDTO.BiasScenario bs = b.isObject() ? new AlagamentoPontoDTO.BiasScenario(dbl(b, "mdt_bias_m"),
+                    dbl(b, "sill_nr_m"), text(b, "level"), intOrNull(b, "worst_horizon_hours"), grid(b.path("sheet_cm"))) : null;
+            rf = new AlagamentoPontoDTO.Refluxo(text(r, "mode"), text(r, "status"), r.path("applied_to_level").asBoolean(false),
+                    text(r, "reason"), text(r, "text"), dbl(r, "sill_nr_m"), dbl(r, "tide_now_nr_m"), dbl(r, "tide_max_horizon_nr_m"),
+                    dbl(r, "reduction_now_pct"), per, dbl(r, "served_delta_cm"), grid(r.path("delta_sheet_cm")), bs);
+        }
+        AlagamentoPontoDTO.Limpeza lz = null;
+        if (l.isObject()) {
+            lz = new AlagamentoPontoDTO.Limpeza(text(l, "mode"), text(l, "status"), l.path("applied_to_level").asBoolean(false),
+                    text(l, "reason"), text(l, "text"), text(l, "regime"), dbl(l, "days_since_cleaning"), dbl(l, "p_clogged"),
+                    dbl(l, "f_clogged"), text(l, "mixture_level"), grid(l.path("sheet_clogged_cm")), grid(l.path("prob_hcrit")));
+        }
+        return rf == null && lz == null ? null : new AlagamentoPontoDTO.Factors(rf, lz);
+    }
+
+    /** {"q50": {"1": 2.3, ...}, "q95": {...}} -> mapa; vazio se faltar. */
+    private static Map<String, Map<String, Double>> grid(JsonNode g) {
+        Map<String, Map<String, Double>> out = new LinkedHashMap<>();
+        if (g == null || !g.isObject()) return out;
+        g.fields().forEachRemaining(e -> {
+            Map<String, Double> m = new LinkedHashMap<>();
+            e.getValue().fields().forEachRemaining(x -> m.put(x.getKey(), x.getValue().isNumber() ? x.getValue().asDouble() : null));
+            out.put(e.getKey(), m);
+        });
+        return out;
     }
 
     private static List<String> strings(JsonNode a) {

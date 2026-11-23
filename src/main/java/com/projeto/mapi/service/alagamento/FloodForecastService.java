@@ -12,7 +12,14 @@ public interface FloodForecastService {
 
     /** Entrada que o ciclo já tem: série medida, terreno e a estação da leitura mais nova. */
     record Input(List<Double> rain10min, FloodForecastClient.Terrain terrain, String terrainStatus, Double rainLastHourMm,
-                 String rainStation, Double rainStationKm, double trYears, double teMinutes) {}
+                 String rainStation, Double rainStationKm, double trYears, double teMinutes,
+                 FloodForecastClient.Factors factors) {
+        public Input(List<Double> rain10min, FloodForecastClient.Terrain terrain, String terrainStatus, Double rainLastHourMm,
+                     String rainStation, Double rainStationKm, double trYears, double teMinutes) {
+            this(rain10min, terrain, terrainStatus, rainLastHourMm, rainStation, rainStationKm, trYears, teMinutes,
+                    FloodForecastClient.Factors.NONE);
+        }
+    }
 
     /** Avalia, grava e devolve o estado do ponto. Nunca lança por falha da IA: vira SEM_DADO com motivo. */
     AlagamentoPontoDTO evaluate(UUID cycleId, Instant now, FloodPoint p, Input in);

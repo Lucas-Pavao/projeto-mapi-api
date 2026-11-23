@@ -73,7 +73,8 @@ public class FloodForecastServiceImpl implements FloodForecastService {
         try {
             RainForecastService.Inputs ri = rainForecast.inputs(p.getId(), p.getSlug(), p.getLatitude(), p.getLongitude());
             ai = client.forecast(p.getLatitude(), p.getLongitude(), ri.readings(), ri.openMeteo(), in.rain10min(), in.terrain(),
-                    in.terrainStatus(), in.trYears(), in.teMinutes());
+                    in.terrainStatus(), in.trYears(), in.teMinutes(),
+                    in.factors() == null ? FloodForecastClient.Factors.NONE : in.factors());
         } catch (Exception e) {
             log.warn("Alerta por regressão do ponto {}: entradas indisponíveis: {}", p.getSlug(), e.toString());
         }
@@ -89,10 +90,16 @@ public class FloodForecastServiceImpl implements FloodForecastService {
                 payload.put("level", "SEM_DADO");
                 payload.put("reason", dto.reason());
             }
+            JsonNode fx = payload.path("explanation").path("factors");
+            JsonNode rf = fx.path("refluxo"), lz = fx.path("limpeza");
             repo.insert(new FloodForecastRepository.Row(cycleId, p.getId(), now, dto.issuedAt(), dto.level(),
                     dto.worstHorizonHours(), dto.reason(), dto.hNowCm(), dto.modelVersions().get("flood"),
                     dto.modelVersions().get("rain"), dto.modelVersions().get("bucket"), dto.codeVersion(),
-                    mapper.writeValueAsString(payload), in.rainStation(), in.rainStationKm(), shadow));
+                    mapper.writeValueAsString(payload), in.rainStation(), in.rainStationKm(), shadow,
+                    in.factors() == null ? null : in.factors().refluxoMode(), in.factors() == null ? null : in.factors().limpezaMode(),
+                    rf.path("served_delta_cm").isNumber() ? rf.path("served_delta_cm").asDouble() : null,
+                    lz.path("p_clogged").isNumber() ? lz.path("p_clogged").asDouble() : null,
+                    rf.path("bias_scenario").path("level").isTextual() ? rf.path("bias_scenario").path("level").asText() : null));
         } catch (Exception e) {
             log.error("Alerta por regressão do ponto {}: falha ao gravar: {}", p.getSlug(), e.toString());
         }

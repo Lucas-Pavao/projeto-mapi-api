@@ -33,6 +33,10 @@ public class LimpezaProperties {
     private int minLimpezas = 10;
     /** Capacidade da galeria entupida, fração da de projeto ([sem fonte]; 0 = fechada). */
     private double fEntupida = 0.0;
+    /**
+     * Modo da limpeza no alerta único (ADR 0030): OFF, INFO (padrão: só a contribuição, porque f_E não tem fonte) ou NIVEL.
+     */
+    private String modoNoAlerta = "INFO";
 
     private Map<String, Ponto> pontos = defaults();
 

@@ -35,6 +35,11 @@ public class FloodForecastClientImpl implements FloodForecastClient {
 
     static Map<String, Object> body(double lat, double lon, List<Reading> readings, List<OmHour> openMeteo, List<Double> rain10min,
                                     Terrain t, String terrainStatus, double trYears, double teMinutes) {
+        return body(lat, lon, readings, openMeteo, rain10min, t, terrainStatus, trYears, teMinutes, Factors.NONE);
+    }
+
+    static Map<String, Object> body(double lat, double lon, List<Reading> readings, List<OmHour> openMeteo, List<Double> rain10min,
+                                    Terrain t, String terrainStatus, double trYears, double teMinutes, Factors f) {
         Map<String, Object> b = new LinkedHashMap<>();
         b.put("latitude", lat);
         b.put("longitude", lon);
@@ -70,15 +75,33 @@ public class FloodForecastClientImpl implements FloodForecastClient {
         b.put("terrain_status", terrainStatus);
         b.put("tr_anos", trYears);
         b.put("te_min", teMinutes);
+        if (f != null && !"OFF".equals(f.refluxoMode())) {
+            b.put("refluxo_mode", f.refluxoMode());
+            b.put("tide_nr_m", f.tideNrM());
+            b.put("outlet_sill_mdt_m", f.sillMdtM());
+            b.put("outlet_diameter_m", f.diameterM());
+            b.put("delta_m", f.deltaM());
+            b.put("mdt_bias_m", f.mdtBiasM());
+            b.put("mdt_bias_scenario_m", f.mdtBiasScenarioM());
+        }
+        if (f != null && !"OFF".equals(f.limpezaMode())) {
+            b.put("limpeza_mode", f.limpezaMode());
+            b.put("days_since_cleaning", f.daysSinceCleaning());
+            b.put("lambda_re_per_day", f.lambdaRePerDay());
+            b.put("clog_regime", f.clogRegime());
+            b.put("mean_clogged_days", f.meanCloggedDays());
+            b.put("f_clogged", f.fClogged());
+            b.put("clog_prob_on", f.probOn());
+        }
         return b;
     }
 
     @Override
     public JsonNode forecast(double lat, double lon, List<Reading> readings, List<OmHour> openMeteo, List<Double> rain10min,
-                             Terrain terrain, String terrainStatus, double trYears, double teMinutes) {
+                             Terrain terrain, String terrainStatus, double trYears, double teMinutes, Factors factors) {
         try {
             return restClient.post().uri("/v1/flood/forecast").contentType(MediaType.APPLICATION_JSON)
-                    .body(body(lat, lon, readings, openMeteo, rain10min, terrain, terrainStatus, trYears, teMinutes))
+                    .body(body(lat, lon, readings, openMeteo, rain10min, terrain, terrainStatus, trYears, teMinutes, factors))
                     .retrieve().body(JsonNode.class);
         } catch (Exception e) {
             log.warn("Alerta por regressão indisponível ({}): {}", terrain == null ? "sem terreno" : terrain.slug(), e.toString());
