@@ -147,3 +147,13 @@ contribuições, continua no `payload`.
 - Faixa de capacidade da galeria com fonte (Fase 4): a limpeza pode passar a `NIVEL`.
 - Medida do viés do MDT na saída da galeria ou constantes harmônicas do CHM (pedido 01): muda o cenário central.
 - Validação de 2027 mostrar que o refluxo piora o POD ou o FAR contra o mesmo alerta sem refluxo.
+
+## Emenda 1 (2026-11-23, Fase 3): modo do refluxo por ponto
+
+Com o terreno da Fase 3, Ibura entrou no alerta. A soleira da saída de Ibura (PV 31398) fica em 0,10 m NR, abaixo do nível
+médio do mar: em 5 anos de tábua, a saída fica reduzida 99,5% do tempo e fechada 81,3%, e o balde com a chuva medida dá
+494 eventos ≥ 15 cm em 5,17 anos (`projeto-mapi-ai/reports/fatores/fatores_5anos.json`). Sem comporta e bomba, que não estão
+no modelo, a galeria viveria cheia de água do mar; o número descreve o modelo, não a rua. Decisão: cada saída pode ter o
+próprio modo (`mapi.alerta.refluxo.pontos.<slug>.modo`); Ibura fica em `INFO` (a tela mostra a maré, o nível não muda).
+Mascarenhas (soleira 1,459 m NR) segue em `NIVEL`. Reabre quando o cadastro da EMLURB (pedido 06) disser se há comporta ou
+bomba na saída de Ibura.

@@ -110,15 +110,24 @@ public class AlertaProperties {
             /** Soleira (fundo do tubo de saída) no referencial do MDT, m. */
             private double soleiraMdtM;
             private double diametroM;
+            /** Modo do refluxo neste ponto (OFF, INFO, NIVEL); nulo = o modo geral. */
+            private String modo;
 
             static Saida of(double s, double d) {
                 Saida x = new Saida(); x.soleiraMdtM = s; x.diametroM = d; return x;
+            }
+
+            static Saida of(double s, double d, String modo) {
+                Saida x = of(s, d); x.modo = modo; return x;
             }
         }
 
         private static java.util.Map<String, Saida> defaults() {
             java.util.Map<String, Saida> m = new java.util.LinkedHashMap<>();
-            m.put("AV_RECIFE_IBURA", Saida.of(-0.72, 0.6));          // PV 31398 (Z − VLHFUNDO)
+            // PV 31398 (Z − VLHFUNDO). INFO (onda 16, Fase 3): soleira 0,10 m NR, abaixo do nível médio do mar; a saída fica
+            // fechada 81% do tempo em 5 anos de tábua. Sem comporta e bomba (não modeladas) a galeria viveria cheia de água do
+            // mar: o fator mostra a contribuição, mas não muda o nível (projeto-mapi-ai/reports/fatores/RELATORIO.md).
+            m.put("AV_RECIFE_IBURA", Saida.of(-0.72, 0.6, "INFO"));
             m.put("AGAMENON_DERBY", Saida.of(-1.03, 0.4));           // CG 9878
             m.put("MASCARENHAS_IMBIRIBEIRA", Saida.of(0.638, 0.6));  // CG 88084
             return m;

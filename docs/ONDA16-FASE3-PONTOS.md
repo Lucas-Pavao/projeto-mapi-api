@@ -114,6 +114,8 @@ status por `projeto-mapi-ai/scripts/terreno_bucket10.py`.
   `reports/fatores/RELATORIO.md`, seção "Atualização da Fase 3").
 - Consequência a acompanhar: com o terreno certo, a maré passa a decidir a lâmina de Mascarenhas (185 eventos ≥ 15 cm em
   5,17 anos de chuva medida no cenário central; 17 no cenário de viés). Isso é frequência na física, não acerto.
+- Ibura: a soleira da saída (0,10 m NR) fica abaixo do nível médio do mar; com o refluxo no nível, seriam 494 eventos em
+  5,17 anos (saída fechada 81% do tempo). Refluxo de Ibura passa a `INFO` (ADR 0030, emenda 1): comporta e bomba não modeladas.
 
 ## 7. Data de quebra da Mascarenhas (obras)
 
