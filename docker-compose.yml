@@ -86,6 +86,8 @@ services:
       # Atributos de terreno por ponto (ADR 0008): POST /api/admin/terrain/runs lê ponto_terreno.csv,
       # ponto_terreno.meta.json e curva_cota_volume.csv deste diretório (saída de tools/terreno/run.sh).
       - MAPI_TERRAIN_DIR=/terreno
+      # Open-Meteo por modelo: carga do histórico na subida, uma vez (onda 16, Fase 7.7); padrão desligado
+      - MAPI_OPEN_METEO_HISTORY_LOAD=${MAPI_OPEN_METEO_HISTORY_LOAD:-false}
       # GET /api/model/evaluation serve o resultado congelado da avaliação F1 (confere o SHA-256 a cada leitura).
       - MAPI_MODEL_EVALUATION_PATH=/data/avaliacao-f1/resultado_etapa2.json
     ports:

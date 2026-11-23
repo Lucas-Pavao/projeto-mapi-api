@@ -25,6 +25,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /** Grupo 5: GET /api/stream (ADR 0012). */
+// o limite padrão passou de 3 para 10 (onda 16, Fase 7.7); aqui fica em 3 para conferir o 429 da quarta aba
+@org.springframework.test.context.TestPropertySource(properties = "mapi.stream.max-connections-per-user=3")
 class StreamIntegrationTest extends AbstractApiIntegrationTest {
 
     @Autowired ApplicationEventPublisher publisher;

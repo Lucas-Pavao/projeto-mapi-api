@@ -25,8 +25,7 @@ import java.time.Instant;
 public class PointRainController {
 
     private final PointRainCandidatesService candidates;
-    private final com.projeto.mapi.repository.analise.PointRainRepository repo;
-    private final java.time.Clock clock;
+    private final com.projeto.mapi.service.analise.PointMeasuredRainService measuredRain;
 
     @GetMapping("/{slug}/rain-candidates")
     @Operation(summary = "Estações candidatas à chuva do ponto numa hora, com o papel de cada uma",
@@ -51,7 +50,6 @@ public class PointRainController {
     @ApiResponse(responseCode = "200", description = "OK")
     @ApiResponse(responseCode = "404", description = "Ponto sem série medida")
     public ResponseEntity<com.projeto.mapi.dto.PointMeasuredRainDTO> measured(@PathVariable String slug) {
-        return repo.latestAccum(slug, com.projeto.mapi.service.analise.PointRainService.RULE_VERSION, clock.instant())
-                .map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return measuredRain.latest(slug).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 }

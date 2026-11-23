@@ -29,7 +29,11 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 public class LiveStreamServiceImpl implements LiveStreamService {
 
-    static final int MAX_CONNECTIONS_PER_USER = 3;
+    /** Padrão antigo (até a onda 16): 3. A quarta aba recebia 429 (onda 16, Fase 7.7). */
+    static final int MAX_CONNECTIONS_PER_USER = 10;
+    /** Conexões ao vivo por usuário; configurável ({@code mapi.stream.max-connections-per-user}). */
+    @org.springframework.beans.factory.annotation.Value("${mapi.stream.max-connections-per-user:" + MAX_CONNECTIONS_PER_USER + "}")
+    private int maxConnectionsPerUser = MAX_CONNECTIONS_PER_USER;
     static final long EMITTER_TIMEOUT_MS = 30 * 60 * 1000L;
     static final int BUFFER_SIZE = 200;
 
@@ -59,8 +63,8 @@ public class LiveStreamServiceImpl implements LiveStreamService {
         Subscriber sub = new Subscriber(username, receivesAlerts, admin, emitter);
         synchronized (subscribers) {
             long open = subscribers.stream().filter(s -> s.username().equals(username)).count();
-            if (open >= MAX_CONNECTIONS_PER_USER) {
-                throw new TooManyRequestsException("Limite de " + MAX_CONNECTIONS_PER_USER + " conexões por usuário", 30);
+            if (open >= maxConnectionsPerUser) {
+                throw new TooManyRequestsException("Limite de " + maxConnectionsPerUser + " conexões por usuário", 30);
             }
             subscribers.add(sub);
         }
