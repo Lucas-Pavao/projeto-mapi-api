@@ -1,0 +1,5 @@
+slug,via_nome,arquivo_osm,fonte_do_lugar
+AV_RECIFE_IBURA,Avenida Recife,AV_RECIFE_IBURA.json,"Av. Recife / Entrada do Ibura (CTTU); docs/ALINHAMENTO-PONTOS.md"
+AGAMENON_DERBY,Agamenon,AGAMENON_DERBY.json,"Av. Gov. Agamenon Magalhães, sentido Olinda (docs/ALINHAMENTO-PONTOS.md)"
+MASCARENHAS_IMBIRIBEIRA,Mascarenhas,MASCARENHAS_IMBIRIBEIRA.json,"Av. Mal. Mascarenhas de Moraes entre os nº 2557 e 2857 (CTTU); docs/ALINHAMENTO-PONTOS.md"
+JABOATAO_CENTRO,Lucena,jaboatao_lugar/barao_lucena_duas_unas.json,"Av. Barão de Lucena, margem do Rio Duas Unas (docs/ONDA16-FASE3-PONTOS.md)"

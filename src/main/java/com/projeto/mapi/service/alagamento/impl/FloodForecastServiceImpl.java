@@ -34,11 +34,14 @@ public class FloodForecastServiceImpl implements FloodForecastService {
     private final boolean enabled;
     private final boolean shadow;
     private final java.time.Clock clock;
+    private final com.projeto.mapi.config.ObrasProperties obras;
 
     public FloodForecastServiceImpl(FloodForecastClient client, RainForecastService rainForecast, FloodForecastRepository repo,
                                     ObjectMapper mapper, com.projeto.mapi.service.alagamento.AiHealthClient health,
                                     @Value("${mapi.alagamento.enabled:true}") boolean enabled,
-                                    @Value("${mapi.alagamento.shadow:true}") boolean shadow, java.time.Clock clock) {
+                                    @Value("${mapi.alagamento.shadow:true}") boolean shadow, java.time.Clock clock,
+                                    com.projeto.mapi.config.ObrasProperties obras) {
+        this.obras = obras;
         this.client = client;
         this.rainForecast = rainForecast;
         this.repo = repo;
@@ -86,6 +89,7 @@ public class FloodForecastServiceImpl implements FloodForecastService {
             c.put("rain_station", in.rainStation());
             c.put("rain_station_km", in.rainStationKm());
             c.put("series_steps", in.rain10min() == null ? 0 : in.rain10min().size());
+            c.put("obra_periodo", obras.periodo(p.getSlug(), now));   // onda 16, Fase 3.4: validação nunca mistura antes e depois
             if (ai == null) {
                 payload.put("level", "SEM_DADO");
                 payload.put("reason", dto.reason());

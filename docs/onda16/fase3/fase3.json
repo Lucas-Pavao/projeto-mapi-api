@@ -1,0 +1,539 @@
+{
+ "parametros": {
+  "dd_min_m": 0.02,
+  "janela_m": 2000,
+  "motor": "whitebox"
+ },
+ "mascarenhas": {
+  "ponto": {
+   "lat": -8.107178,
+   "lon": -34.911237,
+   "cota_pixel_m": 3.072,
+   "cota_rua_m": 3.074,
+   "profundidade_depressao_m": 0.0,
+   "profundidade_max_raio5m": 0.0,
+   "dist_eixo_avenida_m": 24.0
+  },
+  "exutorio_snap10": {
+   "dist_m": 9.5,
+   "cota_m": 2.948,
+   "profundidade_depressao_m": 0.0,
+   "area_m2": 713,
+   "ilustr_lamina_mm": 43.0
+  },
+  "a_jusante_do_exutorio": {
+   "comprimento_m": 15.7,
+   "celulas": 15,
+   "cota_inicio_m": 2.948,
+   "cota_fim_m": 2.358,
+   "termina_em": "depressao",
+   "fim_dist_ponto_m": 19.7,
+   "fim_dist_eixo_avenida_m": 7.7,
+   "fim_profundidade_m": 0.023
+  },
+  "depressoes_200m": [
+   {
+    "id": 372,
+    "celulas": 2,
+    "area_m2": 2.0,
+    "profundidade_max_m": 0.06,
+    "volume_m3": 0.08,
+    "fundo_cota_m": 2.32,
+    "transbordo_cota_m": 2.38,
+    "fundo_dist_ponto_m": 59.7,
+    "fundo_dist_eixo_avenida_m": 6.3,
+    "toca_avenida_6m": true,
+    "fundo_lat_lon": [
+     -8.107537,
+     -34.911641
+    ]
+   },
+   {
+    "id": 1,
+    "celulas": 9243,
+    "area_m2": 9242.9,
+    "profundidade_max_m": 0.62,
+    "volume_m3": 1774.79,
+    "fundo_cota_m": 1.76,
+    "transbordo_cota_m": 2.38,
+    "fundo_dist_ponto_m": 74.9,
+    "fundo_dist_eixo_avenida_m": 2.9,
+    "toca_avenida_6m": true,
+    "fundo_lat_lon": [
+     -8.106571,
+     -34.911537
+    ]
+   },
+   {
+    "id": 436,
+    "celulas": 4,
+    "area_m2": 4.0,
+    "profundidade_max_m": 0.12,
+    "volume_m3": 0.29,
+    "fundo_cota_m": 2.28,
+    "transbordo_cota_m": 2.4,
+    "fundo_dist_ponto_m": 81.5,
+    "fundo_dist_eixo_avenida_m": 5.9,
+    "toca_avenida_6m": true,
+    "fundo_lat_lon": [
+     -8.1078,
+     -34.911634
+    ]
+   },
+   {
+    "id": 454,
+    "celulas": 3,
+    "area_m2": 3.0,
+    "profundidade_max_m": 0.09,
+    "volume_m3": 0.17,
+    "fundo_cota_m": 2.31,
+    "transbordo_cota_m": 2.4,
+    "fundo_dist_ponto_m": 87.6,
+    "fundo_dist_eixo_avenida_m": 6.9,
+    "toca_avenida_6m": true,
+    "fundo_lat_lon": [
+     -8.107854,
+     -34.911652
+    ]
+   },
+   {
+    "id": 486,
+    "celulas": 17,
+    "area_m2": 17.0,
+    "profundidade_max_m": 0.06,
+    "volume_m3": 0.65,
+    "fundo_cota_m": 2.32,
+    "transbordo_cota_m": 2.38,
+    "fundo_dist_ponto_m": 97.1,
+    "fundo_dist_eixo_avenida_m": 4.3,
+    "toca_avenida_6m": true,
+    "fundo_lat_lon": [
+     -8.10799,
+     -34.911571
+    ]
+   },
+   {
+    "id": 500,
+    "celulas": 3,
+    "area_m2": 3.0,
+    "profundidade_max_m": 0.03,
+    "volume_m3": 0.08,
+    "fundo_cota_m": 2.42,
+    "transbordo_cota_m": 2.45,
+    "fundo_dist_ponto_m": 105.7,
+    "fundo_dist_eixo_avenida_m": 7.0,
+    "toca_avenida_6m": true,
+    "fundo_lat_lon": [
+     -8.108026,
+     -34.91168
+    ]
+   },
+   {
+    "id": 514,
+    "celulas": 20,
+    "area_m2": 20.0,
+    "profundidade_max_m": 0.195,
+    "volume_m3": 1.3,
+    "fundo_cota_m": 2.2,
+    "transbordo_cota_m": 2.395,
+    "fundo_dist_ponto_m": 109.0,
+    "fundo_dist_eixo_avenida_m": 4.1,
+    "toca_avenida_6m": true,
+    "fundo_lat_lon": [
+     -8.108098,
+     -34.91159
+    ]
+   },
+   {
+    "id": 525,
+    "celulas": 4,
+    "area_m2": 4.0,
+    "profundidade_max_m": 0.06,
+    "volume_m3": 0.14,
+    "fundo_cota_m": 2.34,
+    "transbordo_cota_m": 2.4,
+    "fundo_dist_ponto_m": 114.4,
+    "fundo_dist_eixo_avenida_m": 2.3,
+    "toca_avenida_6m": true,
+    "fundo_lat_lon": [
+     -8.108125,
+     -34.911653
+    ]
+   },
+   {
+    "id": 537,
+    "celulas": 16,
+    "area_m2": 16.0,
+    "profundidade_max_m": 0.115,
+    "volume_m3": 0.91,
+    "fundo_cota_m": 2.28,
+    "transbordo_cota_m": 2.395,
+    "fundo_dist_ponto_m": 119.0,
+    "fundo_dist_eixo_avenida_m": 3.8,
+    "toca_avenida_6m": true,
+    "fundo_lat_lon": [
+     -8.108189,
+     -34.911608
+    ]
+   },
+   {
+    "id": 545,
+    "celulas": 3,
+    "area_m2": 3.0,
+    "profundidade_max_m": 0.06,
+    "volume_m3": 0.12,
+    "fundo_cota_m": 2.4,
+    "transbordo_cota_m": 2.46,
+    "fundo_dist_ponto_m": 120.1,
+    "fundo_dist_eixo_avenida_m": 4.5,
+    "toca_avenida_6m": true,
+    "fundo_lat_lon": [
+     -8.10817,
+     -34.911681
+    ]
+   },
+   {
+    "id": 530,
+    "celulas": 35,
+    "area_m2": 35.0,
+    "profundidade_max_m": 0.12,
+    "volume_m3": 2.09,
+    "fundo_cota_m": 2.27,
+    "transbordo_cota_m": 2.39,
+    "fundo_dist_ponto_m": 125.9,
+    "fundo_dist_eixo_avenida_m": 3.1,
+    "toca_avenida_6m": true,
+    "fundo_lat_lon": [
+     -8.108142,
+     -34.911844
+    ]
+   },
+   {
+    "id": 573,
+    "celulas": 8,
+    "area_m2": 8.0,
+    "profundidade_max_m": 0.12,
+    "volume_m3": 0.46,
+    "fundo_cota_m": 2.3,
+    "transbordo_cota_m": 2.42,
+    "fundo_dist_ponto_m": 126.1,
+    "fundo_dist_eixo_avenida_m": 4.4,
+    "toca_avenida_6m": true,
+    "fundo_lat_lon": [
+     -8.108224,
+     -34.91169
+    ]
+   },
+   {
+    "id": 592,
+    "celulas": 3,
+    "area_m2": 3.0,
+    "profundidade_max_m": 0.054,
+    "volume_m3": 0.1,
+    "fundo_cota_m": 2.39,
+    "transbordo_cota_m": 2.444,
+    "fundo_dist_ponto_m": 134.9,
+    "fundo_dist_eixo_avenida_m": 1.7,
+    "toca_avenida_6m": true,
+    "fundo_lat_lon": [
+     -8.108315,
+     -34.911681
+    ]
+   },
+   {
+    "id": 593,
+    "celulas": 5,
+    "area_m2": 5.0,
+    "profundidade_max_m": 0.114,
+    "volume_m3": 0.4,
+    "fundo_cota_m": 2.33,
+    "transbordo_cota_m": 2.444,
+    "fundo_dist_ponto_m": 135.8,
+    "fundo_dist_eixo_avenida_m": 1.6,
+    "toca_avenida_6m": true,
+    "fundo_lat_lon": [
+     -8.108333,
+     -34.911654
+    ]
+   },
+   {
+    "id": 588,
+    "celulas": 2,
+    "area_m2": 2.0,
+    "profundidade_max_m": 0.04,
+    "volume_m3": 0.06,
+    "fundo_cota_m": 2.39,
+    "transbordo_cota_m": 2.43,
+    "fundo_dist_ponto_m": 141.1,
+    "fundo_dist_eixo_avenida_m": 1.0,
+    "toca_avenida_6m": true,
+    "fundo_lat_lon": [
+     -8.108296,
+     -34.911854
+    ]
+   }
+  ],
+  "n_depressoes_200m": 471,
+  "perfil_avenida": {
+   "n": 404,
+   "cota_min_m": 1.98,
+   "cota_max_m": 2.555
+  },
+  "proposta_ponto_baixo": {
+   "depressao_id": 372,
+   "lat_lon": [
+    -8.107537,
+    -34.911641
+   ],
+   "dist_ponto_m": 59.7,
+   "cota_rua_m": 2.405,
+   "snap10": {
+    "area_m2": 56,
+    "exutorio_dist_m": 9.2,
+    "exutorio_cota_m": 2.31,
+    "ilustr_lamina_mm": 0.0,
+    "ilustr_passa_topo_curva": false
+   }
+  },
+  "proposta_ponto_na_avenida": {
+   "lat_lon": [
+    -8.107134,
+    -34.911454
+   ],
+   "deslocamento_m": 24.4,
+   "cota_m": 2.183,
+   "cota_rua_m": 2.18,
+   "profundidade_depressao_m": 0.197,
+   "dentro_da_depressao_id": 1,
+   "snap5": {
+    "area_m2": 38900,
+    "exutorio_dist_m": 4.8,
+    "exutorio_cota_m": 2.12,
+    "ilustr_lamina_mm": 380.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "snap10": {
+    "area_m2": 38988,
+    "exutorio_dist_m": 9.4,
+    "exutorio_cota_m": 2.07,
+    "ilustr_lamina_mm": 377.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "snap20": {
+    "area_m2": 40159,
+    "exutorio_dist_m": 19.4,
+    "exutorio_cota_m": 2.115,
+    "ilustr_lamina_mm": 371.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "regra_c": {
+    "area_m2": 40159,
+    "exutorio_dist_m": 19.4,
+    "exutorio_cota_m": 2.115,
+    "ilustr_lamina_mm": 371.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "regra_a_razao_20_5": 1.0
+  },
+  "maior_depressao_200m": {
+   "id": 1,
+   "celulas": 9243,
+   "area_m2": 9242.9,
+   "profundidade_max_m": 0.62,
+   "volume_m3": 1774.79,
+   "fundo_cota_m": 1.76,
+   "transbordo_cota_m": 2.38,
+   "fundo_dist_ponto_m": 74.9,
+   "fundo_dist_eixo_avenida_m": 2.9,
+   "toca_avenida_6m": true,
+   "fundo_lat_lon": [
+    -8.106571,
+    -34.911537
+   ]
+  }
+ },
+ "jaboatao": {
+  "cruzamento_avenida_rio_lat_lon": [
+   -8.111886,
+   -35.013838
+  ],
+  "regra_200m_do_cruzamento": {
+   "criterio": "maior profundidade de depressão na avenida",
+   "lat_lon": [
+    -8.112036,
+    -35.015607
+   ],
+   "cota_m": 43.31,
+   "cota_rua_m": 43.47,
+   "profundidade_depressao_m": 0.277,
+   "dist_cruzamento_m": 195.7,
+   "dist_eixo_rio_m": 215.3,
+   "posicao_atual": [
+    -8.10652,
+    -35.01321
+   ],
+   "dist_posicao_atual_m": 664.9,
+   "cota_posicao_atual_m": 64.8,
+   "snap5": {
+    "area_m2": 23226,
+    "exutorio_dist_m": 4.1,
+    "exutorio_cota_m": 43.415,
+    "ilustr_lamina_mm": 410.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "snap10": {
+    "area_m2": 23384,
+    "exutorio_dist_m": 9.1,
+    "exutorio_cota_m": 43.405,
+    "ilustr_lamina_mm": 402.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "snap20": {
+    "area_m2": 24585,
+    "exutorio_dist_m": 19.2,
+    "exutorio_cota_m": 43.479,
+    "ilustr_lamina_mm": 354.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "regra_c": {
+    "area_m2": 24585,
+    "exutorio_dist_m": 19.2,
+    "exutorio_cota_m": 43.479,
+    "ilustr_lamina_mm": 354.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "regra_a_razao_20_5": 1.1,
+   "trava_a_passa": true
+  },
+  "regra_margem_50m_do_rio": {
+   "criterio": "maior profundidade de depressão na avenida",
+   "lat_lon": [
+    -8.111854,
+    -35.013919
+   ],
+   "cota_m": 41.49,
+   "cota_rua_m": 41.61,
+   "profundidade_depressao_m": 0.13,
+   "dist_cruzamento_m": 9.6,
+   "dist_eixo_rio_m": 28.1,
+   "posicao_atual": [
+    -8.10652,
+    -35.01321
+   ],
+   "dist_posicao_atual_m": 595.2,
+   "cota_posicao_atual_m": 64.8,
+   "snap5": {
+    "area_m2": 2976,
+    "exutorio_dist_m": 5.0,
+    "exutorio_cota_m": 41.577,
+    "ilustr_lamina_mm": 128.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "snap10": {
+    "area_m2": 3038,
+    "exutorio_dist_m": 9.4,
+    "exutorio_cota_m": 41.579,
+    "ilustr_lamina_mm": 117.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "snap20": {
+    "area_m2": 3308,
+    "exutorio_dist_m": 19.7,
+    "exutorio_cota_m": 40.95,
+    "ilustr_lamina_mm": 36.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "regra_c": {
+    "area_m2": 3088,
+    "exutorio_dist_m": 11.2,
+    "exutorio_cota_m": 41.564,
+    "ilustr_lamina_mm": 111.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "regra_a_razao_20_5": 1.1,
+   "trava_a_passa": true
+  }
+ },
+ "projecao_na_via": {
+  "AV_RECIFE_IBURA": {
+   "via": "Avenida Recife",
+   "lat_lon": [
+    -8.107984,
+    -34.927161
+   ],
+   "deslocamento_m": 0.0,
+   "cota_m": 1.319,
+   "cota_rua_m": 1.31,
+   "profundidade_depressao_m": 0.207,
+   "snap5": {
+    "area_m2": 102,
+    "exutorio_dist_m": 4.3,
+    "exutorio_cota_m": 1.22,
+    "ilustr_lamina_mm": 5.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "snap10": {
+    "area_m2": 207,
+    "exutorio_dist_m": 9.9,
+    "exutorio_cota_m": 1.2,
+    "ilustr_lamina_mm": 0.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "snap20": {
+    "area_m2": 11354,
+    "exutorio_dist_m": 19.9,
+    "exutorio_cota_m": 1.103,
+    "ilustr_lamina_mm": 0.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "regra_c": {
+    "area_m2": 1146,
+    "exutorio_dist_m": 19.1,
+    "exutorio_cota_m": 1.197,
+    "ilustr_lamina_mm": 302.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "regra_a_razao_20_5": 111.3
+  },
+  "AGAMENON_DERBY": {
+   "via": "Agamenon",
+   "lat_lon": [
+    -8.054324,
+    -34.896875
+   ],
+   "deslocamento_m": 0.0,
+   "cota_m": 2.45,
+   "cota_rua_m": 2.43,
+   "profundidade_depressao_m": 0.0,
+   "snap5": {
+    "area_m2": 26,
+    "exutorio_dist_m": 4.9,
+    "exutorio_cota_m": 2.276,
+    "ilustr_lamina_mm": 0.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "snap10": {
+    "area_m2": 74,
+    "exutorio_dist_m": 9.7,
+    "exutorio_cota_m": 2.01,
+    "ilustr_lamina_mm": 0.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "snap20": {
+    "area_m2": 10790,
+    "exutorio_dist_m": 19.7,
+    "exutorio_cota_m": 1.405,
+    "ilustr_lamina_mm": 0.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "regra_c": {
+    "area_m2": 10765,
+    "exutorio_dist_m": 19.3,
+    "exutorio_cota_m": 1.202,
+    "ilustr_lamina_mm": 0.0,
+    "ilustr_passa_topo_curva": false
+   },
+   "regra_a_razao_20_5": 415.0
+  }
+ }
+}

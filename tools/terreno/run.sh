@@ -88,6 +88,14 @@ etapa_area_regras() {
     -v "$OUT":/terreno -v "$AQUI":/tools/terreno:ro -v "$E":/esig:ro "$IMG" python3 -I /tools/terreno/area_regras.py
 }
 
+# onda16_fase3 (onda 16, Fase 3; diagnóstico): ponto baixo de Mascarenhas e posição nova de Jaboatão pelo lugar das fontes.
+# Precisa do mosaico com as folhas de Jaboatão (DADOS_JABOATAO) e do whitebox/. Saída: $OUT/onda16_fase3/.
+etapa_onda16_fase3() {
+  etapa_whitebox
+  docker run --rm -u "$(id -u):$(id -g)" -e MOTOR="${MOTOR:-whitebox}" -v "$DADOS":/dados:ro ${MONTA2[@]+"${MONTA2[@]}"} \
+    -v "$OUT":/terreno -v "$AQUI":/tools/terreno:ro "$IMG" python3 -I /tools/terreno/onda16_fase3.py
+}
+
 # Recorte do terreno em EPSG:31985 (xmin ymin xmax ymax). BBOX_MODE=pontos (padrão histórico): bbox dos pontos de
 # cobertura.csv + 2 km. BBOX_MODE=mosaico: extensão inteira do mosaico.vrt (todas as folhas baixadas), para a camada
 # cobrir o Recife todo e não só a faixa em volta dos pontos.
