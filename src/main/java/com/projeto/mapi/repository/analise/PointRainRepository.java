@@ -223,4 +223,26 @@ public class PointRainRepository {
                 (rs, i) -> rs.getObject(1, OffsetDateTime.class), pointId, ruleVersion).stream()
                 .filter(java.util.Objects::nonNull).map(OffsetDateTime::toInstant).findFirst();
     }
+
+    /** Linha mais nova de point_rain_accum_v do ponto na regra, até {@code to} (onda 16, Fase 7.3). */
+    public java.util.Optional<com.projeto.mapi.dto.PointMeasuredRainDTO> latestAccum(String slug, String ruleVersion, Instant to) {
+        var rows = jdbc.query("""
+                SELECT slug, hour_end_utc, rain_1h_mm, rain_3h_mm, rain_6h_mm, rain_24h_mm, rain_3h_n, rain_6h_n, rain_24h_n,
+                       source, station_id, station_distance_m
+                FROM point_rain_accum_v
+                WHERE slug = ? AND rule_version = ? AND hour_end_utc <= ?
+                ORDER BY hour_end_utc DESC LIMIT 1""",
+                (rs, i) -> new com.projeto.mapi.dto.PointMeasuredRainDTO(rs.getString(1),
+                        rs.getObject(2, java.time.OffsetDateTime.class).toInstant(), rs.getObject(3, Double.class),
+                        rs.getObject(4, Double.class), rs.getObject(5, Double.class), rs.getObject(6, Double.class),
+                        toInt(rs.getObject(7, Long.class)), toInt(rs.getObject(8, Long.class)), toInt(rs.getObject(9, Long.class)),
+                        rs.getString(10), rs.getString(11), rs.getObject(12, Double.class), ruleVersion,
+                        com.projeto.mapi.dto.PointMeasuredRainDTO.RULE, "DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC"),
+                slug, ruleVersion, java.sql.Timestamp.from(to));
+        return rows.stream().findFirst();
+    }
+
+    private static Integer toInt(Long v) {
+        return v == null ? null : v.intValue();
+    }
 }
