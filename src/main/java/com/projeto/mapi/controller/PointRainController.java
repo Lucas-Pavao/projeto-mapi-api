@@ -25,6 +25,7 @@ import java.time.Instant;
 public class PointRainController {
 
     private final PointRainCandidatesService candidates;
+    private final com.projeto.mapi.service.analise.PointMeasuredRainService measuredRain;
 
     @GetMapping("/{slug}/rain-candidates")
     @Operation(summary = "Estações candidatas à chuva do ponto numa hora, com o papel de cada uma",
@@ -39,5 +40,16 @@ public class PointRainController {
             @Parameter(description = "Fim da hora, ISO-8601 UTC, hora cheia") @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant at) {
         return ResponseEntity.ok(candidates.candidates(slug, at));
+    }
+
+    @GetMapping("/{slug}/chuva-medida")
+    @Operation(summary = "Chuva medida acumulada no ponto: 1, 3, 6 e 24 h na última hora fechada (onda 16, Fase 7.3)",
+            description = "Hora do ponto = maior valor entre as estações válidas a até 5 km (ADR 0022, chuva-ponto-v4). "
+                    + "Acumulado com qualquer hora sem valor é nulo, nunca zero; n3h/n6h/n24h = horas com valor. "
+                    + "Ponto sem série responde 404. DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC.")
+    @ApiResponse(responseCode = "200", description = "OK")
+    @ApiResponse(responseCode = "404", description = "Ponto sem série medida")
+    public ResponseEntity<com.projeto.mapi.dto.PointMeasuredRainDTO> measured(@PathVariable String slug) {
+        return measuredRain.latest(slug).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 }

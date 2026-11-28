@@ -6,7 +6,8 @@
 > originou esta tarefa, a lei municipal permite negar pedido genérico ou que exija consolidar ou produzir dado novo
 > (o Decreto 63/2018 não foi lido por inteiro aqui; [conferir o artigo antes de citar no pedido]). Por isso o texto pede
 > **só arquivos que já existem**, nomeados, sem pedir tabulação nem análise. Ponto de interesse: JABOATAO_CENTRO
-> (lat −8,106520, lon −35,013210; `tools/terreno/pontos_criticos.csv`).
+> (lat −8,111854, lon −35,013919; `tools/terreno/pontos_criticos.csv`). **Atualizado em 2026-11-23 (onda 16, Fase 3):** o ponto
+> passou para a Av. Barão de Lucena na margem do Rio Duas Unas (`docs/ONDA16-FASE3-PONTOS.md`); antes era −8,106520, −35,013210.
 
 Prezados,
 
@@ -17,8 +18,8 @@ Sou [nome completo], mestrando(a) em [programa], [instituição]. Desenvolvo um 
 1. **Arquivos vetoriais do cadastro de drenagem do PMSB.** O Diagnóstico do Plano Municipal de Saneamento Básico do Jaboatão dos Guararapes (2023) traz a Figura 213, "Mapa do cadastro de drenagem" [conferir número e título da figura no PDF do diagnóstico]. Solicito os arquivos de origem que geraram esse mapa, no formato em que existirem (Shapefile, GeoPackage, DWG ou DXF), com as tabelas de atributos que os acompanham.
 
 2. **Plantas as-built da microdrenagem** (galerias, bocas de lobo, poços de visita e lançamentos no Rio Duas Unas) dentro do polígono abaixo, no formato em que existirem (DWG, DXF ou PDF de projeto):
-   - centro: lat −8,106520, lon −35,013210 (SIRGAS 2000);
-   - polígono: quadrado de 600 m de lado centrado nesse ponto, aproximadamente entre lat −8,10381 e −8,10923 e lon −35,01048 e −35,01594.
+   - centro: lat −8,111854, lon −35,013919 (SIRGAS 2000; Av. Barão de Lucena, junto à ponte sobre o Rio Duas Unas);
+   - polígono: quadrado de 600 m de lado centrado nesse ponto, aproximadamente entre lat −8,10916 e −8,11455 e lon −35,01120 e −35,01664.
 
 Se algum desses arquivos não existir, peço apenas a informação de que não existe, para eu não repetir o pedido.
 

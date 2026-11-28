@@ -161,6 +161,9 @@ app:
     fixed-rate-ms: 3600000
     initial-delay-ms: 120000
     pause-ms: 2000
+    # onda 16, Fase 7.7: carga do histórico na subida (desligada; ligar uma vez com MAPI_OPEN_METEO_HISTORY_LOAD=true)
+    history-load-on-startup: ${MAPI_OPEN_METEO_HISTORY_LOAD:false}
+    history-from: ${MAPI_OPEN_METEO_HISTORY_FROM:2024-01-15}
   inmet:
     # Avisos severos do INMET (ADR 0024): consulta a cada 10 min e persiste avisos dos municípios da RMR.
     base-url: ${INMET_BASE_URL:https://apiprevmet3.inmet.gov.br}
