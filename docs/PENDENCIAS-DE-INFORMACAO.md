@@ -1,6 +1,6 @@
 # O que ainda depende de buscar informação fora do repositório
 
-- Data: 2026-10-11 · Tarefa: F5-ARQ-02 · Autor: Arquiteto (nível Máximo) · Para: Lucas
+- Data: 2026-10-11 (atualizado em 2026-11-28, onda 16) · Tarefa: F5-ARQ-02 · Autor: Arquiteto (nível Máximo) · Para: Lucas
 - Fontes: `docs/pedidos/*.md`, `.claude/mapi/PROGRESSO.md` ("Bloqueios abertos" e pergunta 31), `docs/FONTES-E-LICENCAS.md`
   ("Pendências"), `docs/PRONTIDAO-ACADEMICA.md` §5.2, ADRs 0008 e 0009, `docs/PRE-REGISTRO-AVALIACAO.md` §10,
   `docs/INTERPRETACAO-F1.md` §4 e §6.
@@ -47,10 +47,15 @@ prorrogáveis por mais 10 (pedidos 05 e 06).
 | 15 | Qual modelo de reanálise o Open-Meteo usou em cada período | documentação do Open-Meteo | não há | Uma ameaça à validade citada no texto | média |
 | 16 | Cadastro na Plataforma de Entrega de Dados (PED) do Cemaden, para o token da API histórica de 10 min | você (cadastro em sws.cemaden.gov.br) | não há | Estação a até 5 km de cada ponto (ADR 0018); o download do mapa interativo tem captcha e não deve ser automatizado | alta |
 | 17 | Atendimentos a alagamento do Corpo de Bombeiros, com hora e endereço | CBMPE, via LAI estadual | 07 | Rótulo com hora (ADR 0019) | alta |
-| 18 | Cópia do dump `tide_db-2026-11-08-pre-recarga` no Drive (ADRs aprovados em 2026-11-08; o dump não foi encontrado no Drive na conferência do mesmo dia) | você | não há | Apagar o volume antigo `postgres_ha_data` e a cópia local | alta |
+| 18 | Cópia do dump `tide_db-2026-11-08-pre-recarga` no Drive. **Urgente desde 2026-11-28:** o volume `postgres_ha_data` foi apagado nesse dia (pedido de limpeza do disco), conferindo só o dump local (SHA-256 e `pg_restore --list` ok); na busca no Drive do mesmo dia o dump **não estava lá** (só `mapi-backup-2026-10-11.tar`). Hoje o `tide_db` de 08/11 existe só em `MAPI/snapshots/tide_db-2026-11-08-pre-recarga.dump` (102 MB, com o `.sha256` ao lado) | você | não há | Ter uma segunda cópia do banco antigo; **não apagar o dump local** antes disso | **alta (urgente)** |
 | 19 | Decidir se "Imóveis Alagados" da Defesa Civil entra como alagamento (confiança MÉDIA) | você | não há | De 18 para ~49 dias de rótulo (REVISAO-INGESTAO-2026-11, 4.3) | alta |
 | 21 | Ordens de serviço e cronograma de limpeza preventiva de galerias, bocas de lobo e canaletas (2021–2026) nas bacias dos 4 pontos | EMLURB, via LAI | 09 | Taxa de limpeza preventiva (ν) do modelo de estados da galeria (prompt 3) | média |
 | 22 | Visitas de campo às bocas de lobo dos 4 pontos (a cada 2 semanas por 3 meses) | você | não há (`docs/campo/FICHA-BOCAS-DE-LOBO.md`) | Taxa de entupimento medida e tipo das bocas de lobo | média |
+| 23 | Legenda do radar da APAC em dBZ (cor → refletividade) ou o produto em grade; limiares 200/230/330 do Duas Unas; fuso do campo `Data-hora` | APAC | 10 (não enviado) | Radar na previsão (ADR 0033); limiares do rio só na tela até confirmar | média |
+| 24 | Constantes harmônicas da estação 30645 (Porto do Recife) | CHM/BNDO (Marinha) | 01 (atualizado em 2026-11-22; não enviado) | Maré calculada localmente com `utide` | média |
+| 25 | Cadastro no PDA da NOAA para o Enterprise Rainfall Rate (`ABI-L2-FLDK-RRQPE-AWIPS`), que substituiu o RRQPE público em 02/11/2026 | você (cadastro na NOAA) | não há | Coletor ao vivo do satélite, se o rain_v2 mostrar que ajuda (ADR 0033) | baixa até o resultado do rain_v2 |
+| 26 | Aval do orientador: índice caixa branca com rótulo real (ADR 0031), κ calibrado da capacidade (ADR 0032) e os números [fechar] do pré-registro da validação de 2027 | você e o orientador | não há | Validação de 2027 e congelamento antes de 15/03/2027 | alta |
+| 27 | Desativar a conta de teste `claude-testes` (ADMIN, criada em 2026-11-28 para os testes ao vivo) quando não precisar mais | você | não há | Segurança | média |
 
 ## 3. Pedidos redigidos
 
