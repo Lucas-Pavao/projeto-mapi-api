@@ -1,6 +1,6 @@
 # 0026 — Alerta por ponto como produto principal
 
-- Status: proposto (implementado em modo sombra)
+- Status: proposto (implementado em modo sombra); **o nível foi substituído pelo ADR 0030** (emenda 1)
 - Data: 2026-11-17
 - Decisores: Claude (autor), Lucas
 - Tarefa: ALERTA-E1 (prompt do alerta de chuva forte com 20 min de antecedência)
@@ -57,3 +57,11 @@ Opção B. O produto principal é um alerta por ponto com três níveis, guardad
 
 - Antecedência na simulação do dado como chega de 5 min ou menos (Etapa 2.3).
 - Rótulo real de alagamento por ponto com precisão horária, que permita validar o nível do ponto.
+
+## Emenda 1 (2026-11-28) — deixa de gravar nível (onda 16)
+
+Desde a Fase 2 da onda 16 (ADR 0030, alerta único por ponto) o nível mostrado, validado e gravado vem só de
+`POST /v1/flood/forecast`. O ciclo deste ADR continua rodando para medir a latência da estação ao SSE e para a conferência da
+chuva forte, mas **não grava nível** (`point_flood = DESLIGADO`, V47; reversível por `mapi.alerta.ponto-balde.enabled`), o SSE
+`alert-state` parou e o `useAlertaPontos` do front foi removido. O refluxo de maré e a limpeza, que só existiam aqui, passaram
+para o alerta único como fatores por ponto, com a contribuição de cada um na resposta.

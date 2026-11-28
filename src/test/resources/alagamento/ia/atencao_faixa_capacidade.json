@@ -179,8 +179,14 @@
      ]
     }
    ],
-   "heaviest": "capacidade",
-   "text": "com 106,1 mm em 1 h a lâmina fica em 15,1 cm; o que mais mexe nela é a capacidade da galeria (de 0,0 a 190,0 cm com ±20%)"
+   "heaviest": null,
+   "tied": [
+    "capacidade",
+    "C",
+    "area"
+   ],
+   "reaches_threshold": true,
+   "text": "com 106,1 mm em 1 h a lâmina fica em 15,1 cm; capacidade da galeria, coeficiente de escoamento C e área contribuinte mexem quase igual nela (de 0,0 a 190,0 cm com ±20%)"
   },
   "sensitivity": {
    "horizon_hours": 1,

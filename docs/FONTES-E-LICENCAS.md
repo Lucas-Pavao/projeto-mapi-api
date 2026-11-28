@@ -26,6 +26,7 @@
 | DHN / Centro de Hidrografia da Marinha | Tábuas das marés (previsão) | Termo não localizado | Não localizada | Não localizada | Termo não localizado (ver seção 8) |
 | TabuaMare (API de terceiros) | Tábuas das marés reorganizadas a partir dos PDFs da DHN | Código do projeto: MIT. Termos da API não localizados | Não localizada; origem dos dados é a DHN | Dados originais são da Marinha | https://github.com/Ddiidev/tabua_mare_convert_pdf2db |
 | CARTO basemaps | Mapa base do front | Termos próprios (última atualização 29/09/2026); chave de API própria | Atribuição a OpenStreetMap e a CARTO | Uso comercial exige plano pago; chave de API própria | https://carto.com/legal/basemap-terms/ |
+| NOAA (NODD na AWS) — GOES-16/19 ABI L2 RRQPE (2026-11-28) | Taxa de chuva por satélite em 3 caixas sobre o mar, só para comparar o rain_v2 (ADR 0033); produto aposentado em 02/11/2026 | Uso livre ("can be used as desired"); NOAA pede atribuição e proíbe insinuar endosso | "NOAA GOES 16, 17, 18 & 19 was accessed on DATE from https://registry.opendata.aws/noaa-goes" | Dado derivado não pode ser apresentado como original da NOAA | https://registry.opendata.aws/noaa-goes/ |
 | OpenStreetMap | Dados do mapa base (tiles) e geocodificação; vias em volta dos 5 pontos (Overpass, 2026-11-21, `tools/terreno/vias_osm/`) para a proposta da regra da área | ODbL | "OpenStreetMap" com link para a página de copyright | Atribuição visível e indicação da ODbL | https://www.openstreetmap.org/copyright |
 | Nominatim (OSMF) | Geocodificação de endereços | Política de uso Nominatim | Atribuição ao OpenStreetMap | 1 req/s; User-Agent próprio; cache obrigatório | https://operations.osmfoundation.org/policies/nominatim/ |
 
@@ -195,6 +196,37 @@
   - Lote: "limit your requests to a single thread" e "limited to 1 machine only, no distributed scripts".
   - Atribuição: "Clearly display attribution as suitable for your medium."
   - Uso intenso: a política indica instalar instância própria. O descumprimento pode levar à retirada do acesso ("you might have your access withdrawn").
+
+## 12. Fontes novas da onda 16 (2026-11-22 a 28)
+
+### 12.1 NOAA GOES-16 e GOES-19, ABI L2 RRQPE (taxa de chuva por satélite)
+
+- Uso: caixas sobre o mar a leste do Recife para o rain_v2, só comparação (ADR 0033). Histórico de 31/08/2021 a 31/10/2026
+  lido por faixa de bytes do bucket público (`noaa-goes16`, `noaa-goes19`, prefixo `ABI-L2-RRQPEF/`); nada guardado além do
+  CSV das caixas (`projeto-mapi-ai/data/satelite/rrqpe_caixas.csv.gz`).
+- Licença (https://registry.opendata.aws/noaa-goes/, acesso em 2026-11-28): os dados da NOAA distribuídos pelo NODD "are
+  open to the public and can be used as desired"; a NOAA pede atribuição dos dados sem alteração e proíbe insinuar endosso
+  ou afiliação; dado modificado não pode ser apresentado como original. As caixas são dado derivado: citar como derivado.
+- Citação pedida: "NOAA Geostationary Operational Environmental Satellites (GOES) 16, 17, 18 & 19 was accessed on
+  2026-11-28 from https://registry.opendata.aws/noaa-goes."
+- O produto foi aposentado pela NOAA a partir de 02/11/2026 (aviso da NESDIS de 01/09/2026,
+  https://www.nesdis.noaa.gov/news/retirement-of-goes-r-rainfall-ratequantitative-precipitation-estimation-grrqpe). O
+  substituto sai pelo PDA, com cadastro (pendência 25).
+
+### 12.2 ESIG do Recife: ImageServers do radar e serviços listados no prompt
+
+- Só metadados lidos em 2026-11-23 (`docs/extratos/esig-inventario/inventario.json`); nenhuma imagem do radar foi guardada
+  nem usada. Termo de uso do radar da APAC republicado no ESIG: pendência 7 e pergunta ao pedido 10.
+
+### 12.3 Literatura técnica usada como valor (onda 16)
+
+| Fonte | Para quê | Onde |
+|---|---|---|
+| Manual de drenagem de Suzano, Tab. 10 (p. 36) e Tab. 8 (p. 31) | fatores de redução de boca de lobo; n de Manning | ADR 0032 |
+| Silva et al. (2020), Revista DAE 225, p. 156 | 20 cm de sedimento; Manning | ADR 0032 |
+| Romano, Patterson e Candès (2019), arXiv:1905.03222 | método do CQR (não é dado) | `docs/PRE-REGISTRO-CQR-RAIN-V1.md` |
+| InterpretML (`interpret-core` 0.7.3) | EBM do índice caixa branca (biblioteca, não dado) | ADR 0031 |
+
 
 ## Texto de atribuição consolidado
 

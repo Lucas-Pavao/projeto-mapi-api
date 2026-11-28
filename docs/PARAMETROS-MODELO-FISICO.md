@@ -93,6 +93,24 @@ em −0,10 a +0,15 m (mediana por ponto; `entrada/mdt_nos.csv`); tipo e dimensã
 (capacidade com tudo limpo; o entupimento está no modelo de estados, `MODELO-DISPONIBILIDADE-GALERIA.md`). O que destravaria: pedido 06
 (saídas dos poços, declividade de projeto) e a ficha de campo (tipo e dimensão das bocas).
 
+## Onda 16 (2026-11-22 a 28): o que mudou no balde do alerta
+
+Resumo; detalhes nos ADRs 0030 e 0032 e nos pré-registros citados.
+
+| Parâmetro | Antes | Agora | Fonte |
+|---|---|---|---|
+| Capacidade da galeria | IDF TR 5, Te 10 min (125,4 mm/h), igual em todos os pontos | **faixa por ponto**: Ibura 0,08 a 0,33 m³/s; Mascarenhas 0,14 a 0,26 m³/s (só cano); CIn e Jaboatão pela IDF com TR de 2 a 10 anos (sem cadastro no alcance). ALERTA com Q_max e ATENÇÃO com Q_min | ADR 0032; `docs/PRE-REGISTRO-CAPACIDADE-EFETIVA.md`; fatores de redução: manual de drenagem de Suzano, Tab. 10, p. 36; Manning n 0,013 a 0,015: Suzano, Tab. 8, p. 31, e Silva et al. (2020), Revista DAE 225, p. 156 |
+| Obstrução por sedimento | `[sem fonte]` | 20 cm de sedimento no cano (ponta baixa da faixa). O "−40% de vazão" atribuído à Revista DAE 225 **não está no artigo**; −40% é só a área de 20 cm num tubo de 0,6 m | Silva et al. (2020), Revista DAE 225, p. 156 |
+| Distribuição da chuva prevista no prazo | por igual | pelo pico de 10 min previsto (rain_v1p); venceu o bloco alternado (MAE 1,69 × 1,87 mm) | `docs/PRE-REGISTRO-PERFIL-CHUVA.md` |
+| Refluxo de maré | fora do nível | fator por passo de 10 min com a maré prevista do prazo (fração da saída livre, linear entre a soleira e o topo do tubo); no nível em Mascarenhas (soleira 0,638 m no MDT + Δ 0,821 m = 1,459 m NR); só informa em Ibura (soleira 0,10 m NR, abaixo do mar médio); não se aplica em CIn e Jaboatão (sem saída cadastrada). Cenário de viés do MDT −0,369 m sempre junto, só como sensibilidade | ADR 0030; ADR 0009 (Δ = 0,821 m; RN 2603F, 2,7977 m, σ 0,089 m, conferida em 22/11) |
+| Limpeza (Central 156) | tempo desde a última limpeza (saturava em ponto sem limpeza recente) | regime permanente quando a última limpeza conhecida é velha por falta de dado (Derby π_E 0,387; Mascarenhas 0,596); Ibura ainda satura pela regra; **só informa** (capacidade da galeria entupida sem fonte) | `docs/PRE-REGISTRO-ENTUPIMENTO-156.md`, emenda 1 |
+| Sensibilidade na tela | texto com mínimo e máximo | tornado: cada parâmetro a ±20%, um por vez, na chuva que leva a lâmina a 15 cm | `docs/ONDA16-FASE8-TELAS.md` |
+
+**Tabela mestre do relatório "Parâmetros Hidráulicos do Modelo MAPi"** (áreas de 5,5 a 10 ha, galerias, Q_cap, H_max,
+η_limpeza, η_maré por ponto): suposição de engenharia, com coordenadas que não são as dos pontos atuais. Não entra como valor
+em nenhum lugar; pode entrar só como faixa de sensibilidade marcada "prior sem medição" (regra 2 do prompt de 22/11). A
+tabela de η_maré dele usou o zero hidrográfico antigo (1,144 m) e não serve.
+
 ## Limiar da regra de chuva (baseline "chuva > X")
 
 **Recomendação: X = 55 mm em 1 h** (TR 2 anos, 60 min), com os níveis de sensibilidade 50% (27,5 mm) e 70% (38,5 mm) do mesmo limiar, fixados no manifesto antes da avaliação.
@@ -114,8 +132,8 @@ Ressalvas que devem constar na dissertação:
 
 | Parâmetro | Valor central | Faixa de sensibilidade proposta | Justificativa |
 |---|---|---|---|
-| Capacidade da galeria por ponto (vazão, m³/s ou mm/h equivalente) | `[sem fonte]` | De 0 a chuva de projeto TR 5 (60 mm/h, linha 8), em passos de 20%; mais um caso com galeria totalmente obstruída | O cadastro existe na Prefeitura (PDDR, 2016) mas sem diâmetro e declividade, e não é público [E5]. O PDDR reconhece subdimensionamento e obstrução [E6]. A faixa parte do teto teórico (projeto) até zero (lixo e assoreamento) |
-| Soleira da galeria no canal (`outletSillElevation`) | `[sem fonte]` | Cota da rua menos 0,5 a 3,0 m, em passos de 0,5 m (soleira abaixo da rua); mais o desnível NR↔MDT do ADR 0009 (±0,3 m) | Nenhum cadastro público traz cotas de fundo. ~20% da rede tem cota de fundo (vídeo inspeção), dado não divulgado [E5]. A faixa é um gradiente físico plausível para galeria que descarrega em canal de planície; sem validação |
+| Capacidade da galeria por ponto (vazão, m³/s ou mm/h equivalente) | `[sem fonte]` em 2026-10-11; **em 2026-11-28, faixa com fonte em Ibura e Mascarenhas** (seção "Onda 16") | De 0 a chuva de projeto TR 5 (60 mm/h, linha 8), em passos de 20%; mais um caso com galeria totalmente obstruída | O cadastro existe na Prefeitura (PDDR, 2016) mas sem diâmetro e declividade, e não é público [E5]. O PDDR reconhece subdimensionamento e obstrução [E6]. A faixa parte do teto teórico (projeto) até zero (lixo e assoreamento) |
+| Soleira da galeria no canal (`outletSillElevation`) | `[sem fonte]` em 2026-10-11; **em 2026-11-21, cadastro ESIG em Mascarenhas e Ibura** (seção "Onda 16") | Cota da rua menos 0,5 a 3,0 m, em passos de 0,5 m (soleira abaixo da rua); mais o desnível NR↔MDT do ADR 0009 (±0,3 m) | Nenhum cadastro público traz cotas de fundo. ~20% da rede tem cota de fundo (vídeo inspeção), dado não divulgado [E5]. A faixa é um gradiente físico plausível para galeria que descarrega em canal de planície; sem validação |
 | Área contribuinte por ponto | MDT do PE3D (ADR 0008/0009), em validação | ±30% sobre a área derivada | Fonte é o terreno, não a literatura. A rede enterrada redireciona fluxo e a área efetiva pode diferir da topográfica |
 | Curva cota-volume da depressão | Derivada do MDT | ±30% no volume por cm | Idem; ignora cavidades de menos de 1 m (resolução) e edificações |
 | Taxa de infiltração (Horton/Green-Ampt) | não usada (CN) | Não varrer | Com CN, a infiltração está embutida. Em área com C ≥ 0,70 o termo é de segunda ordem; solos do Recife não foram classificados em grupo hidrológico `[sem fonte]` (a ANA usou grupo implícito no CN 90,64) |
