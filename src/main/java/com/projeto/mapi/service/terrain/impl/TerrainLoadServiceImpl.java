@@ -162,6 +162,10 @@ public class TerrainLoadServiceImpl implements TerrainLoadService {
         putBool(d, "basinAdjacentToNoData", r, "bacia_adjacente_a_nodata");
         Double snapDist = num(r, "snap_dist_m");
         if (snapDist != null) d.put("snapDistanceM", snapDist);
+        String regra = text(r, "regra_exutorio");   // onda 16, Fase 3: "snap 10 m" ou "via citada (<nome>)"
+        if (regra != null) d.put("outletRule", regra);
+        Double dd5 = num(r, "profundidade_depressao_max_raio5m");
+        if (dd5 != null) d.put("depressionDepthMaxWithin5mM", dd5);
         try {
             return mapper.writeValueAsString(d);
         } catch (IOException e) {

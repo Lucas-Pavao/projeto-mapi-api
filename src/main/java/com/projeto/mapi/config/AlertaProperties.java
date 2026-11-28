@@ -74,11 +74,12 @@ public class AlertaProperties {
         /** Precisa de pelo menos 6 h contínuas sem lacuna antes de agora; senão SEM_DADO (SERIE_INCOMPLETA). */
         private int minCompleteHours = 6;
         /**
-         * Pontos com terreno em revisão: SEM_DADO, nunca NAO. Derby e Ibura: trava da área (ADR 0027, emenda A, aprovada
-         * em 2026-11-21): A(20 m)/A(5 m) > 10 (572 e 389), calculada por tools/terreno/trava_area.py. Jaboatão: o ponto
-         * cai em encosta (64,8 m, sem depressão); posição em revisão (docs/TERRENO-PE3D.md §3.1).
+         * Pontos com terreno em revisão: SEM_DADO, nunca NAO. Onda 16, Fase 3 (docs/ONDA16-FASE3-PONTOS.md): Ibura sai pela
+         * regra da via citada (R2) e tem depressão no ponto (R3); Jaboatão sai com a posição nova (Av. Barão de Lucena na
+         * margem do Duas Unas). Derby fica: o fundo da bacia está no canal da Agamenon, 2,51 m abaixo da rua, acima do topo
+         * da curva cota-volume (R3b), e o balde não calcula lâmina ali. Antes: Derby, Ibura e Jaboatão.
          */
-        private List<String> terrainReview = List.of("AGAMENON_DERBY", "AV_RECIFE_IBURA", "JABOATAO_CENTRO");
+        private List<String> terrainReview = List.of("AGAMENON_DERBY");
         private double coefficientC = 0.86;
     }
 
@@ -109,15 +110,24 @@ public class AlertaProperties {
             /** Soleira (fundo do tubo de saída) no referencial do MDT, m. */
             private double soleiraMdtM;
             private double diametroM;
+            /** Modo do refluxo neste ponto (OFF, INFO, NIVEL); nulo = o modo geral. */
+            private String modo;
 
             static Saida of(double s, double d) {
                 Saida x = new Saida(); x.soleiraMdtM = s; x.diametroM = d; return x;
+            }
+
+            static Saida of(double s, double d, String modo) {
+                Saida x = of(s, d); x.modo = modo; return x;
             }
         }
 
         private static java.util.Map<String, Saida> defaults() {
             java.util.Map<String, Saida> m = new java.util.LinkedHashMap<>();
-            m.put("AV_RECIFE_IBURA", Saida.of(-0.72, 0.6));          // PV 31398 (Z − VLHFUNDO)
+            // PV 31398 (Z − VLHFUNDO). INFO (onda 16, Fase 3): soleira 0,10 m NR, abaixo do nível médio do mar; a saída fica
+            // fechada 81% do tempo em 5 anos de tábua. Sem comporta e bomba (não modeladas) a galeria viveria cheia de água do
+            // mar: o fator mostra a contribuição, mas não muda o nível (projeto-mapi-ai/reports/fatores/RELATORIO.md).
+            m.put("AV_RECIFE_IBURA", Saida.of(-0.72, 0.6, "INFO"));
             m.put("AGAMENON_DERBY", Saida.of(-1.03, 0.4));           // CG 9878
             m.put("MASCARENHAS_IMBIRIBEIRA", Saida.of(0.638, 0.6));  // CG 88084
             return m;

@@ -37,7 +37,42 @@ PARAMS = dict(
     vizinhanca="D8 (8 vizinhos)",
     motor_hidrologia="WhiteboxTools v2.4.0: FillDepressions (exato) para a profundidade; FillDepressions --fix_flats -> D8Pointer -> D8FlowAccumulation (cells) para a área. MOTOR=proprio usa Priority-Flood + D8 próprios (sem download)",
     regra_snap="pixel de maior acumulação a <= 10 m do ponto (centros de pixel, só válidos); empate: menor distância, depois menor (linha, coluna)",
+    # onda 16, Fase 3 (regra R2, docs/ONDA16-FASE3-PONTOS.md): pontos de exutorio_por_via.csv usam o pixel de maior
+    # acumulação a <= via_raio_m do ponto, só entre pixels a <= via_meia_largura_m do eixo da via citada (OSM, cópia com hash)
+    via_raio_m=20,
+    via_meia_largura_m=6,
 )
+
+
+def _le_exutorio_via():
+    f = f"{TOOLS}/exutorio_por_via.csv"
+    if not os.path.exists(f):
+        return {}
+    with open(f, encoding="utf-8") as h:
+        return {r["slug"]: r for r in csv.DictReader(h)}
+
+
+def _linhas_osm(arquivo, nome):
+    t = osr.CoordinateTransformation(srs4326(), srs31985())
+    out = []
+    for e in json.load(open(f"{TOOLS}/vias_osm/{arquivo}", encoding="utf-8"))["elements"]:
+        tg = e.get("tags", {})
+        if e.get("type") == "way" and tg.get("highway") and nome in (tg.get("name") or ""):
+            out.append([t.TransformPoint(g["lon"], g["lat"])[:2] for g in e["geometry"]])
+    return out
+
+
+def _dist_eixo(XX, YY, linhas):
+    d = np.full(XX.shape, np.inf)
+    for ln in linhas:
+        for (x0, y0), (x1, y1) in zip(ln[:-1], ln[1:]):
+            dx, dy = x1 - x0, y1 - y0
+            L2 = dx * dx + dy * dy
+            if L2 == 0:
+                continue
+            u = np.clip(((XX - x0) * dx + (YY - y0) * dy) / L2, 0, 1)
+            d = np.minimum(d, np.hypot(XX - (x0 + u * dx), YY - (y0 + u * dy)))
+    return d
 
 
 def srs31985():
@@ -492,6 +527,7 @@ def le_janela(b, gt, p, Wm, Hm):
 
 
 def cmd_atributos():
+    EXUTORIO_VIA = _le_exutorio_via()
     ds, gt = vrt_info(); b = ds.GetRasterBand(1)
     Wm, Hm = ds.RasterXSize, ds.RasterYSize
     wkt = srs31985().ExportToWkt()
@@ -535,6 +571,18 @@ def cmd_atributos():
         # área contribuinte: regra de snap = pixel de maior acumulação a <= raio_snap_acumulacao_m (ver maximo_no_raio)
         apx = gt[1] * abs(gt[5])
         amax, ei, ej = maximo_no_raio(acc, valido, dist, PARAMS["raio_snap_acumulacao_m"], pl, pc)
+        r["regra_exutorio"] = "snap 10 m"
+        via = EXUTORIO_VIA.get(p["slug"])
+        if via:   # onda 16, Fase 3 (regra R2): a água que alaga a rua citada chega pela própria rua
+            de = _dist_eixo(XX, YY, _linhas_osm(via["arquivo_osm"], via["via_nome"]))
+            a_ = np.where((dist <= PARAMS["via_raio_m"]) & (de <= PARAMS["via_meia_largura_m"]) & valido, acc, -1)
+            if a_.max() >= 0:
+                cand = np.argwhere(a_ == a_.max())
+                k = min(range(len(cand)), key=lambda q: (dist[cand[q][0], cand[q][1]], cand[q][0], cand[q][1]))
+                amax, ei, ej = int(a_.max()), int(cand[k][0]), int(cand[k][1])
+                r["regra_exutorio"] = f"via citada ({via['via_nome']})"
+            else:
+                r["regra_exutorio"] = f"snap 10 m (nenhum pixel da via citada {via['via_nome']} a 20 m)"
         r["area_contribuinte_m2"] = int(round(amax * apx))
         r["area_contribuinte_pixel_do_ponto_m2"] = int(round(acc[pl, pc] * apx))
         for rs in PARAMS["raios_snap_sensibilidade_m"]:
@@ -592,6 +640,9 @@ def cmd_atributos():
                       whitebox=(open(f"{OUT}/whitebox/versao.txt").read().strip() if os.path.exists(f"{OUT}/whitebox/versao.txt") else None),
                       whitebox_sha256_binario=(open(f"{OUT}/whitebox/binario.sha256").read().split()[0] if os.path.exists(f"{OUT}/whitebox/binario.sha256") else None),
                       motor_hidrologia=os.environ.get("MOTOR", "whitebox")),
+        exutorio_por_via=dict(linhas=list(_le_exutorio_via().values()),
+                              sha256=(hashlib.sha256(open(f"{TOOLS}/exutorio_por_via.csv", "rb").read()).hexdigest()
+                                      if os.path.exists(f"{TOOLS}/exutorio_por_via.csv") else None)),
         folhas=[r["folha"] for r in csv.DictReader(open(f"{OUT}/inventario.csv", encoding="utf-8"))],
         colunas=cols,
         definicoes=dict(

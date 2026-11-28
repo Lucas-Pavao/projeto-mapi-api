@@ -153,6 +153,8 @@ class AlertaUnicoIntegrationTest extends AbstractTimescaleIntegrationTest {
         // ponto sem saída cadastrada: vai o modo sem maré (a IA devolve NAO_SE_APLICA), nunca maré inventada
         assertThat(semSaida.tideNrM()).isNull();
 
+        assertThat(jdbc.queryForList("SELECT DISTINCT payload->'api_context'->>'obra_periodo' FROM flood_forecast_point", String.class))
+                .containsOnly("SEM_OBRA");
         assertThat(jdbc.queryForList("SELECT refluxo_mode || '|' || limpeza_mode || '|' || refluxo_delta_cm || '|' || bias_scenario_level "
                 + "FROM flood_forecast_point", String.class)).containsOnly("NIVEL|INFO|7.5|SEM_ALERTA");
 

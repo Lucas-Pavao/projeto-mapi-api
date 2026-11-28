@@ -347,6 +347,12 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
         }
     }
 
+    /** Modo do refluxo no ponto: OFF com o fator desligado; senão o do ponto, ou o geral se o ponto não tiver. */
+    public static String refluxoModo(AlertaProperties.Refluxo rf, AlertaProperties.Refluxo.Saida saida) {
+        if (!rf.isEnabled()) return "OFF";
+        return saida != null && saida.getModo() != null ? saida.getModo() : rf.getModo();
+    }
+
     /** Passos de 10 min das próximas 6 h que levam maré ao alerta único (ADR 0030). */
     static final int HORIZON_STEPS = 36;
 
@@ -356,8 +362,8 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
      */
     FloodForecastClient.Factors factors(FloodPoint p, Instant firstEnd, int n) {
         AlertaProperties.Refluxo rf = props.getRefluxo();
-        String rMode = rf.isEnabled() ? rf.getModo() : "OFF";
         AlertaProperties.Refluxo.Saida saida = rf.getPontos().get(p.getSlug());
+        String rMode = refluxoModo(rf, saida);
         List<Double> mare = null;
         if (!"OFF".equals(rMode) && saida != null && firstEnd != null && n > 0) {
             try {
