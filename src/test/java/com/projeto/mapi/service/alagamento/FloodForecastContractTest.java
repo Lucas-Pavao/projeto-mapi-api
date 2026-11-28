@@ -124,6 +124,28 @@ class FloodForecastContractTest {
     }
 
     @Test
+    void tornadoEBaseDoShapParaATela() throws Exception {
+        AlagamentoPontoDTO.Explanation e = FloodForecastMapper.toDto(ia("alerta_1h"), ctx()).explanation();
+        AlagamentoPontoDTO.Tornado t = e.tornado();
+        assertThat(t.deltaPct()).isEqualTo(20);
+        assertThat(t.bars()).hasSize(4);
+        assertThat(t.bars().get(0).swingCm()).isGreaterThanOrEqualTo(t.bars().get(3).swingCm());
+        assertThat(t.heaviest()).isEqualTo(t.bars().get(0).parameter());
+        assertThat(t.text()).contains("±20%");
+        JsonNode shap = ia("alerta_1h").path("explanation").path("shap");   // waterfall: outros = previsão - base - top 3
+        assertThat(e.shapBaseMm()).isEqualTo(shap.path("base_mm").asDouble());
+        assertThat(e.shapPredictionMm()).isEqualTo(shap.path("raw_prediction_mm").asDouble());
+        assertThat(FloodForecastMapper.toDto(ia("sem_dado_chuva_ausente"), ctx()).explanation()).isNull();
+    }
+
+    @Test
+    void respostaAntigaSemTornadoContinuaValendo() throws Exception {
+        JsonNode antiga = ia("atencao_3h");
+        ((com.fasterxml.jackson.databind.node.ObjectNode) antiga.path("explanation")).remove("tornado");
+        assertThat(FloodForecastMapper.toDto(antiga, ctx()).explanation().tornado()).isNull();
+    }
+
+    @Test
     void mareAusenteComRefluxoNoNivelViraSemDadoComMotivo() throws Exception {
         AlagamentoPontoDTO d = FloodForecastMapper.toDto(ia("sem_dado_mare_ausente"), ctx());
         assertThat(d.reasonText()).contains("maré");
@@ -161,7 +183,9 @@ class FloodForecastContractTest {
                 "rainQ95Mm", "sheetQ50Cm", "sheetQ95Cm", "validUntil", "sheetQ50CmQmin", "sheetQ95CmQmax", "peak10Q50Mm",
                 "peak10Q95Mm");
         assertThat(j.path("explanation").fieldNames()).toIterable().contains("shapTop3", "counterfactualMm", "sensitivity",
-                "decomposition");
+                "decomposition", "shapBaseMm", "shapPredictionMm", "tornado");
+        assertThat(j.path("explanation").path("tornado").path("bars").get(0).fieldNames()).toIterable()
+                .containsExactlyInAnyOrder("parameter", "label", "minus20Cm", "plus20Cm", "swingCm");
         assertThat(j.path("explanation").path("sensitivity").fieldNames()).toIterable().contains("minCm", "maxCm", "levelChanges");
         assertThat(j.path("issuedAt").asText()).isEqualTo("2026-11-20T17:00:00Z");
         assertThat(j.path("rainStationName").asText()).isEqualTo("Imbiribeira");

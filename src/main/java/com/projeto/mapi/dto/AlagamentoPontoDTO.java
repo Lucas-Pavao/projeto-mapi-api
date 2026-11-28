@@ -50,7 +50,17 @@ public record AlagamentoPontoDTO(
     public record Explanation(String servedScenario, Integer servedHorizonHours, List<ShapItem> shapTop3,
                               Double counterfactualMm, String counterfactualText, Sensitivity sensitivity,
                               List<Step> decomposition, Double capacityM3H, Factors factors, Capacity capacity,
-                              String servedCapacity, String profileMethod) {}
+                              String servedCapacity, String profileMethod, Double shapBaseMm, Double shapPredictionMm,
+                              Tornado tornado) {}
+
+    /**
+     * Tornado do balde (onda 16, Fase 8.5): lâmina em 1 h com cada parâmetro a -20% e a +20%, um por vez, na chuva que levaria a
+     * lâmina a 15 cm (rain1hMm). Barras ordenadas pela amplitude; heaviest nulo quando nenhum parâmetro muda a lâmina.
+     */
+    public record Tornado(Integer deltaPct, Double rain1hMm, Double centralCm, String heaviest, String text, List<TornadoBar> bars) {}
+
+    /** Uma barra do tornado: lâmina com o parâmetro a -20% e a +20%. */
+    public record TornadoBar(String parameter, String label, Double minus20Cm, Double plus20Cm, Double swingCm) {}
 
     /** Capacidade efetiva da galeria como faixa (onda 16, 4.1): base (ESIG ou projeto), Q em m³/s e i equivalente em mm/h. */
     public record Capacity(String base, Double qMinM3s, Double qMaxM3s, Double iEqMinMmH, Double iEqMaxMmH, Double kappa) {}

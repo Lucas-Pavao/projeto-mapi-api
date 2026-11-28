@@ -89,9 +89,23 @@ public final class FloodForecastMapper {
                     dbl(d, "inflow_m3_h"), dbl(d, "outflow_m3_h"), dbl(d, "volume_m3"), dbl(d, "sheet_cm"), dbl(d, "tide_nr_m"),
                     dbl(d, "outflow_factor")));
         }
+        JsonNode sh = e.path("shap");
         return new AlagamentoPontoDTO.Explanation(text(e, "served_scenario"), intOrNull(e, "served_horizon_hours"), shap,
                 dbl(cf, "extra_mm"), text(cf, "text"), sens, steps, dbl(e, "capacity_m3_h"), factors(e.path("factors")),
-                capacity(e.path("capacity")), text(e, "served_capacity"), text(e.path("profile"), "method"));
+                capacity(e.path("capacity")), text(e, "served_capacity"), text(e.path("profile"), "method"),
+                dbl(sh, "base_mm"), dbl(sh, "raw_prediction_mm"), tornado(e.path("tornado")));
+    }
+
+    /** Tornado do balde (Fase 8.5); nulo nas respostas de antes. */
+    static AlagamentoPontoDTO.Tornado tornado(JsonNode t) {
+        if (t == null || !t.isObject()) return null;
+        List<AlagamentoPontoDTO.TornadoBar> bars = new ArrayList<>();
+        for (JsonNode b : t.path("bars")) {
+            bars.add(new AlagamentoPontoDTO.TornadoBar(text(b, "parameter"), text(b, "label"), dbl(b, "minus20_cm"),
+                    dbl(b, "plus20_cm"), dbl(b, "swing_cm")));
+        }
+        return new AlagamentoPontoDTO.Tornado(intOrNull(t, "delta_pct"), dbl(t, "rain_1h_mm"), dbl(t, "central_cm"),
+                text(t, "heaviest"), text(t, "text"), bars);
     }
 
     static AlagamentoPontoDTO.Capacity capacity(JsonNode c) {

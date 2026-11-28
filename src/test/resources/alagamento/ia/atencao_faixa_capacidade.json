@@ -94,31 +94,31 @@
    "horizon_hours": 1,
    "quantile": "q95",
    "base_mm": 1.736,
-   "raw_prediction_mm": 0.0018,
-   "sum_check_mm": 0.0018,
+   "raw_prediction_mm": 0.0066,
+   "sum_check_mm": 0.0066,
    "top": [
     {
      "feature": "r5_15_mean_60",
      "label": "chuva média nas estações a 5–15 km na última hora: 0,0 mm",
      "value": 0.0,
      "unit": "mm",
-     "contribution_mm": -0.454,
-     "text": "chuva média nas estações a 5–15 km na última hora: 0,0 mm (−0,5 mm na previsão)"
+     "contribution_mm": -0.434,
+     "text": "chuva média nas estações a 5–15 km na última hora: 0,0 mm (−0,4 mm na previsão)"
     },
     {
      "feature": "r5_15_frac_wet_60",
      "label": "estações a 5–15 km com chuva na última hora: 0%",
      "value": 0.0,
      "unit": "%",
-     "contribution_mm": -0.261,
-     "text": "estações a 5–15 km com chuva na última hora: 0% (−0,3 mm na previsão)"
+     "contribution_mm": -0.25,
+     "text": "estações a 5–15 km com chuva na última hora: 0% (−0,2 mm na previsão)"
     },
     {
      "feature": "p_10",
      "label": "chuva no ponto (até 5 km) nos últimos 10 min: 0,0 mm",
      "value": 0.0,
      "unit": "mm",
-     "contribution_mm": -0.223,
+     "contribution_mm": -0.221,
      "text": "chuva no ponto (até 5 km) nos últimos 10 min: 0,0 mm (−0,2 mm na previsão)"
     }
    ]
@@ -128,6 +128,59 @@
    "reached": true,
    "base_rain_1h_mm": 3.0,
    "text": "mais 103,1 mm de chuva na próxima hora, além dos 3,0 mm previstos (q50), levariam a lâmina a 15 cm"
+  },
+  "tornado": {
+   "delta_pct": 20,
+   "rain_1h_mm": 106.11,
+   "central_cm": 15.1,
+   "bars": [
+    {
+     "parameter": "capacidade",
+     "label": "capacidade da galeria",
+     "minus20_cm": 190.0,
+     "plus20_cm": 0.0,
+     "swing_cm": 190.0,
+     "values": [
+      0.4,
+      0.6
+     ]
+    },
+    {
+     "parameter": "C",
+     "label": "coeficiente de escoamento C",
+     "minus20_cm": 0.0,
+     "plus20_cm": 190.0,
+     "swing_cm": 190.0,
+     "values": [
+      0.688,
+      1.0
+     ]
+    },
+    {
+     "parameter": "area",
+     "label": "área contribuinte",
+     "minus20_cm": 0.0,
+     "plus20_cm": 190.0,
+     "swing_cm": 190.0,
+     "values": [
+      16000.0,
+      24000.0
+     ]
+    },
+    {
+     "parameter": "curva",
+     "label": "volume da depressão (curva cota-volume)",
+     "minus20_cm": 21.4,
+     "plus20_cm": 10.9,
+     "swing_cm": 10.5,
+     "values": [
+      0.8,
+      1.2
+     ]
+    }
+   ],
+   "heaviest": "capacidade",
+   "text": "com 106,1 mm em 1 h a lâmina fica em 15,1 cm; o que mais mexe nela é a capacidade da galeria (de 0,0 a 190,0 cm com ±20%)"
   },
   "sensitivity": {
    "horizon_hours": 1,
@@ -686,6 +739,9 @@
   "L_max_60",
   "L_min_since_onset",
   "N_min_since_onset",
+  "O_frac_wet_60",
+  "O_max_30",
+  "O_max_60",
   "O_min_since_onset",
   "S_frac_wet_60",
   "S_max_30",
@@ -693,10 +749,7 @@
   "S_min_since_onset",
   "om_1h",
   "om_3h",
-  "om_6h",
-  "r15_40_frac_wet_60",
-  "r15_40_max_60",
-  "r15_40_mean_60"
+  "om_6h"
  ],
  "latest_reading_utc": "2026-11-20T17:00:00Z",
  "latest_reading_age_minutes": 0.0,
