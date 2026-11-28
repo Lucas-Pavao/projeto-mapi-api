@@ -58,7 +58,8 @@ public final class FloodForecastMapper {
         List<AlagamentoPontoDTO.Horizon> hs = new ArrayList<>();
         for (JsonNode h : ai.path("horizons")) {
             hs.add(new AlagamentoPontoDTO.Horizon(h.path("hours").asInt(), text(h, "level"), dbl(h, "rain_q50_mm"),
-                    dbl(h, "rain_q95_mm"), dbl(h, "sheet_q50_cm"), dbl(h, "sheet_q95_cm"), inst(h, "valid_until")));
+                    dbl(h, "rain_q95_mm"), dbl(h, "sheet_q50_cm"), dbl(h, "sheet_q95_cm"), inst(h, "valid_until"),
+                    dbl(h, "sheet_q50_cm_qmin"), dbl(h, "sheet_q95_cm_qmax"), dbl(h, "peak10_q50_mm"), dbl(h, "peak10_q95_mm")));
         }
         Map<String, String> mv = new LinkedHashMap<>();
         JsonNode m = ai.path("model_versions");
@@ -89,7 +90,14 @@ public final class FloodForecastMapper {
                     dbl(d, "outflow_factor")));
         }
         return new AlagamentoPontoDTO.Explanation(text(e, "served_scenario"), intOrNull(e, "served_horizon_hours"), shap,
-                dbl(cf, "extra_mm"), text(cf, "text"), sens, steps, dbl(e, "capacity_m3_h"), factors(e.path("factors")));
+                dbl(cf, "extra_mm"), text(cf, "text"), sens, steps, dbl(e, "capacity_m3_h"), factors(e.path("factors")),
+                capacity(e.path("capacity")), text(e, "served_capacity"), text(e.path("profile"), "method"));
+    }
+
+    static AlagamentoPontoDTO.Capacity capacity(JsonNode c) {
+        if (c == null || !c.isObject()) return null;
+        return new AlagamentoPontoDTO.Capacity(text(c, "base"), dbl(c, "q_min_m3s"), dbl(c, "q_max_m3s"), dbl(c, "i_eq_min_mm_h"),
+                dbl(c, "i_eq_max_mm_h"), dbl(c, "kappa_calibrado"));
     }
 
     /** Fatores do alerta único (ADR 0030); nulo nas respostas de antes. */

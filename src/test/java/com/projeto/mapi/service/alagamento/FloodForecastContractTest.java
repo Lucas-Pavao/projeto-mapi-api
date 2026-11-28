@@ -49,7 +49,8 @@ class FloodForecastContractTest {
             "sem_dado_sem_terreno,        SEM_DADO,   -, SEM_TERRENO",
             "sem_dado_terreno_em_revisao, SEM_DADO,   -, TERRENO_EM_REVISAO",
             "alerta_mare_3h,              ALERTA,     3, -",
-            "sem_dado_mare_ausente,       SEM_DADO,   -, MARE_AUSENTE"})
+            "sem_dado_mare_ausente,       SEM_DADO,   -, MARE_AUSENTE",
+            "atencao_faixa_capacidade,    ATENCAO,    1, -"})
     void dezEstados(String estado, String level, Integer worst, String reason) throws Exception {
         AlagamentoPontoDTO d = FloodForecastMapper.toDto(ia(estado), ctx());
         assertThat(d.level()).isEqualTo(level);
@@ -73,7 +74,7 @@ class FloodForecastContractTest {
             assertThat(d.explanation().decomposition()).isNotEmpty();
             assertThat(d.explanation().sensitivity()).isNotNull();
             assertThat(d.modelVersions()).containsEntry("rain", "rain_v1").containsEntry("bucket", "balde-M1a-10min")
-                    .containsEntry("flood", "flood_reg_v1");
+                    .containsEntry("flood", "flood_reg_v2");
             assertThat(d.codeVersion()).hasSize(40);
             assertThat(d.sources()).contains("CEMADEN_PED");
             assertThat(d.hNowCm()).isNotNull();
@@ -104,6 +105,22 @@ class FloodForecastContractTest {
         assertThat(l.text()).contains("não muda o nível");
         assertThat(d.explanation().decomposition()).filteredOn(s -> "previsto".equals(s.kind()))
                 .anySatisfy(s -> assertThat(s.outflowFactor()).isZero()).allSatisfy(s -> assertThat(s.tideNrM()).isNotNull());
+    }
+
+    @Test
+    void capacidadeEmFaixaComAsDuasPontasDaLamina() throws Exception {
+        AlagamentoPontoDTO d = FloodForecastMapper.toDto(ia("atencao_faixa_capacidade"), ctx());
+        AlagamentoPontoDTO.Capacity c = d.explanation().capacity();
+        assertThat(c.qMinM3s()).isEqualTo(0.004);
+        assertThat(c.qMaxM3s()).isEqualTo(0.5);
+        assertThat(c.base()).contains("ESIG");
+        assertThat(d.explanation().servedCapacity()).isEqualTo("q_min");
+        AlagamentoPontoDTO.Horizon h1 = d.horizons().get(0);
+        assertThat(h1.sheetQ50Cm()).isLessThan(15.0);                 // q50 com Q_max
+        assertThat(h1.sheetQ95Cm()).isGreaterThanOrEqualTo(15.0);     // q95 com Q_min
+        assertThat(h1.sheetQ50CmQmin()).isNotNull();
+        assertThat(h1.sheetQ95CmQmax()).isNotNull();
+        assertThat(d.explanation().profileMethod()).contains("por igual");
     }
 
     @Test
@@ -141,7 +158,8 @@ class FloodForecastContractTest {
                 "modelVersions", "sources", "missingInputs", "codeVersion", "issuedAt", "evaluatedAt", "experimental", "shadow", "rule", "attribution"))
                 .allSatisfy(k -> assertThat(j.has(k)).as(k).isTrue());
         assertThat(j.path("horizons").get(0).fieldNames()).toIterable().containsExactlyInAnyOrder("hours", "level", "rainQ50Mm",
-                "rainQ95Mm", "sheetQ50Cm", "sheetQ95Cm", "validUntil");
+                "rainQ95Mm", "sheetQ50Cm", "sheetQ95Cm", "validUntil", "sheetQ50CmQmin", "sheetQ95CmQmax", "peak10Q50Mm",
+                "peak10Q95Mm");
         assertThat(j.path("explanation").fieldNames()).toIterable().contains("shapTop3", "counterfactualMm", "sensitivity",
                 "decomposition");
         assertThat(j.path("explanation").path("sensitivity").fieldNames()).toIterable().contains("minCm", "maxCm", "levelChanges");

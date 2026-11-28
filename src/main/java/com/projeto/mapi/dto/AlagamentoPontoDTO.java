@@ -38,13 +38,22 @@ public record AlagamentoPontoDTO(
 
     public static final String ATTRIBUTION = "DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC";
 
+    /**
+     * Um prazo. sheetQ50Cm é a lâmina do cenário provável com a capacidade máxima da faixa (decide o ALERTA) e sheetQ95Cm a do
+     * pessimista com a mínima (decide a ATENÇÃO); as outras duas pontas vêm em sheetQ50CmQmin e sheetQ95CmQmax (onda 16, 4.1).
+     * peak10*: pico de 10 min previsto (rain_v1p), limitado ao acumulado; nulo sem o modelo do pico.
+     */
     public record Horizon(int hours, String level, Double rainQ50Mm, Double rainQ95Mm, Double sheetQ50Cm, Double sheetQ95Cm,
-                          Instant validUntil) {}
+                          Instant validUntil, Double sheetQ50CmQmin, Double sheetQ95CmQmax, Double peak10Q50Mm, Double peak10Q95Mm) {}
 
     /** Por que este nível, em linguagem física. */
     public record Explanation(String servedScenario, Integer servedHorizonHours, List<ShapItem> shapTop3,
                               Double counterfactualMm, String counterfactualText, Sensitivity sensitivity,
-                              List<Step> decomposition, Double capacityM3H, Factors factors) {}
+                              List<Step> decomposition, Double capacityM3H, Factors factors, Capacity capacity,
+                              String servedCapacity, String profileMethod) {}
+
+    /** Capacidade efetiva da galeria como faixa (onda 16, 4.1): base (ESIG ou projeto), Q em m³/s e i equivalente em mm/h. */
+    public record Capacity(String base, Double qMinM3s, Double qMaxM3s, Double iEqMinMmH, Double iEqMaxMmH, Double kappa) {}
 
     /** Fatores por ponto do alerta único (ADR 0030): maré e limpeza, com a contribuição de cada um. */
     public record Factors(Refluxo refluxo, Limpeza limpeza) {}
