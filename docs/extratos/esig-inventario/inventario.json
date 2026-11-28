@@ -1,0 +1,6302 @@
+{
+ "consultado_em_utc": "2026-11-23T07:22:24Z",
+ "base": "https://esigportal2.recife.pe.gov.br/arcgis/rest/services",
+ "pasta_PainelChuvas": [
+  [
+   "PainelChuvas/MD_APAC",
+   "ImageServer"
+  ]
+ ],
+ "pasta_APAC": [],
+ "pasta_CEMADEN": [],
+ "pasta_COP": [
+  [
+   "COP/Abrigos_Ativos",
+   "FeatureServer"
+  ],
+  [
+   "COP/Abrigos_Ativos",
+   "MapServer"
+  ],
+  [
+   "COP/BASE_SENSORES_PLUVIOMETRICOS_RECIFE",
+   "MapServer"
+  ]
+ ],
+ "pasta_INMET": [],
+ "pasta_CTTU": [
+  [
+   "CTTU/BASE_SINISTROS_COMV_CTTU_CONSULTA",
+   "FeatureServer"
+  ],
+  [
+   "CTTU/BASE_SINISTROS_COMV_CTTU_CONSULTA",
+   "MapServer"
+  ],
+  [
+   "CTTU/BASES_CICLOVIAS_ROTAS_MALHA",
+   "MapServer"
+  ],
+  [
+   "CTTU/GGET_CTTU",
+   "MapServer"
+  ]
+ ],
+ "servicos": [
+  {
+   "servico": "pgdbesig_esi2_MD_APAC_v2",
+   "tipo": "ImageServer",
+   "descricao": "pgdbesig_esi2_MD_APAC_v2",
+   "extensao": {
+    "xmin": -37.723615710699995,
+    "ymin": -10.430154911449996,
+    "xmax": -33.1768559947,
+    "ymax": -5.93477101145,
+    "spatialReference": {
+     "wkid": 4326,
+     "latestWkid": 4326
+    }
+   },
+   "resolucao": [
+    0.006421976999999995,
+    0.006421976999999995
+   ],
+   "bandas": 4,
+   "tipo_pixel": "U8",
+   "tempo": {
+    "startTimeField": "datahora",
+    "endTimeField": "DATAHORA",
+    "timeExtent": [
+     1795053900000,
+     1795103100000
+    ],
+    "timeReference": null,
+    "defaultTimeInterval": 20,
+    "defaultTimeIntervalUnits": "esriTimeUnitsMinutes"
+   },
+   "capacidades": "Image,Metadata,Catalog,Mensuration",
+   "multidimensional": false,
+   "campos": [
+    "objectid",
+    "name",
+    "category",
+    "shape",
+    "datahora",
+    "uf",
+    "municipio",
+    "fonte"
+   ],
+   "erro": null,
+   "itens_catalogo": 31,
+   "faixa_datahora": {
+    "min": 1795399500000,
+    "max": 1795417500000
+   },
+   "exemplo_atributos_catalogo": [
+    {
+     "objectid": 8273434,
+     "name": "pgdbesig.esi2.APAC_20261123_070500",
+     "category": 1,
+     "datahora": 1795417500000,
+     "uf": "PE",
+     "municipio": "RECIFE",
+     "fonte": "APAC"
+    },
+    {
+     "objectid": 8273435,
+     "name": "pgdbesig.esi2.APAC_20261123_065500",
+     "category": 1,
+     "datahora": 1795416900000,
+     "uf": "PE",
+     "municipio": "RECIFE",
+     "fonte": "APAC"
+    }
+   ],
+   "keyProperties": {
+    "BandDefinitionKeyword": "NONE",
+    "_docversion_": 10,
+    "DataType": "Generic",
+    "HighCellSize": 0.006421977,
+    "BandProperties": [],
+    "LowCellSize": 0.006421977,
+    "MaxCellSize": 0.06421977000000001
+   }
+  },
+  {
+   "servico": "pgdbesig_esi2_MD_DECEA",
+   "tipo": "ImageServer",
+   "descricao": "pgdbesig_esi2_MD_DECEA",
+   "extensao": {
+    "xmin": -39.38988749999993,
+    "ymin": -13.122229999999945,
+    "xmax": -32.08413749999994,
+    "ymax": -5.932729999999935,
+    "spatialReference": {
+     "wkid": 4326,
+     "latestWkid": 4326
+    }
+   },
+   "resolucao": [
+    7.305749999999989,
+    7.1895000000000095
+   ],
+   "bandas": 4,
+   "tipo_pixel": "U8",
+   "tempo": null,
+   "capacidades": "Image,Metadata,Pixels,Mensuration,Catalog",
+   "multidimensional": false,
+   "campos": [
+    "objectid",
+    "name",
+    "category",
+    "datahora",
+    "uf",
+    "municipio",
+    "fonte",
+    "shape"
+   ],
+   "erro": null,
+   "itens_catalogo": 0,
+   "faixa_datahora": {
+    "min": null,
+    "max": null
+   },
+   "exemplo_atributos_catalogo": [],
+   "keyProperties": {
+    "BandDefinitionKeyword": "NONE",
+    "_docversion_": 10,
+    "DataType": "Generic",
+    "HighCellSize": 0.009585999999999999,
+    "BandProperties": [],
+    "LowCellSize": 0.009585999999999999,
+    "MaxCellSize": 0.09586000000000001
+   }
+  },
+  {
+   "servico": "DADOS_CTTU",
+   "tipo": "MapServer",
+   "descricao": "",
+   "tempo": null,
+   "camadas": [
+    {
+     "id": 0,
+     "nome": "Pessoas Sinistros 17 - 22",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Número_do_Boletim",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "VIA_ONDE_OCORREU_O_SINISTRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "Faixa_Etária_Processada",
+       "tipo": "String"
+      },
+      {
+       "nome": "Sexo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Data",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Ano",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Vítima",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Nome",
+       "tipo": "String"
+      },
+      {
+       "nome": "Idade",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Endereço",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bairro",
+       "tipo": "String"
+      },
+      {
+       "nome": "Cidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "UF",
+       "tipo": "String"
+      },
+      {
+       "nome": "RG",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ocupação",
+       "tipo": "String"
+      },
+      {
+       "nome": "Grau_de_Instrução",
+       "tipo": "String"
+      },
+      {
+       "nome": "Gravidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "A_vítima____",
+       "tipo": "String"
+      },
+      {
+       "nome": "Encaminhado_ao_Hospital_",
+       "tipo": "String"
+      },
+      {
+       "nome": "Samu_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bombeiros_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Outros_",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 12413,
+     "faixa_Data": [
+      "2017-01-01",
+      "2022-12-31"
+     ]
+    },
+    {
+     "id": 1,
+     "nome": "PessoasSinistros1722_OptimizedHotSpotAnalysis",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "SOURCE_ID",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "Número_do_Boletim",
+       "tipo": "Double"
+      },
+      {
+       "nome": "GiZScore",
+       "tipo": "Double"
+      },
+      {
+       "nome": "GiPValue",
+       "tipo": "Double"
+      },
+      {
+       "nome": "NNeighbors",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "Gi_Bin",
+       "tipo": "Integer"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 12400
+    },
+    {
+     "id": 2,
+     "nome": "Pessoas Sinistros 2022",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Número_do_Boletim",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "VIA_ONDE_OCORREU_O_SINISTRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "Faixa_Etária_Processada",
+       "tipo": "String"
+      },
+      {
+       "nome": "Sexo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Data",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Ano",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Vítima",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Nome",
+       "tipo": "String"
+      },
+      {
+       "nome": "Idade",
+       "tipo": "String"
+      },
+      {
+       "nome": "Endereço",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bairro",
+       "tipo": "String"
+      },
+      {
+       "nome": "Cidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "UF",
+       "tipo": "String"
+      },
+      {
+       "nome": "RG",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ocupação",
+       "tipo": "String"
+      },
+      {
+       "nome": "Grau_de_Instrução",
+       "tipo": "String"
+      },
+      {
+       "nome": "Gravidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "A_vítima____",
+       "tipo": "String"
+      },
+      {
+       "nome": "Encaminhado_ao_Hospital_",
+       "tipo": "String"
+      },
+      {
+       "nome": "Samu_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bombeiros_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Outros_",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 2168,
+     "faixa_Data": [
+      "2022-01-01",
+      "2022-12-31"
+     ]
+    },
+    {
+     "id": 3,
+     "nome": "PessoasSinistros2022_OptimizedHotSpotAnalysis",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "SOURCE_ID",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "Número_do_Boletim",
+       "tipo": "Double"
+      },
+      {
+       "nome": "GiZScore",
+       "tipo": "Double"
+      },
+      {
+       "nome": "GiPValue",
+       "tipo": "Double"
+      },
+      {
+       "nome": "NNeighbors",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "Gi_Bin",
+       "tipo": "Integer"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 2168
+    },
+    {
+     "id": 4,
+     "nome": "Pontos Sinistros com Vitimas Feridas 2022",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Boletim",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "numero",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Período_do_dia",
+       "tipo": "String"
+      },
+      {
+       "nome": "Dia_da_semana",
+       "tipo": "String"
+      },
+      {
+       "nome": "Data",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Mês_processado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ano_Processado",
+       "tipo": "Double"
+      },
+      {
+       "nome": "AV___Rua",
+       "tipo": "String"
+      },
+      {
+       "nome": "Número",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bairro",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ponto_de_referência",
+       "tipo": "String"
+      },
+      {
+       "nome": "Cruzamento___Esquina",
+       "tipo": "String"
+      },
+      {
+       "nome": "Sentido_da_Via",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ocorrência",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Chegada_do_Agente_ao_Local",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Liberação_da_Via",
+       "tipo": "String"
+      },
+      {
+       "nome": "Termino_da_Ocorrência",
+       "tipo": "Date"
+      },
+      {
+       "nome": "N__de_Feridos",
+       "tipo": "Double"
+      },
+      {
+       "nome": "N__de_Mortos",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Natureza",
+       "tipo": "String"
+      },
+      {
+       "nome": "Acidente_Verificado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tempo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Semáforo",
+       "tipo": "String"
+      },
+      {
+       "nome": "SINALIZAÇÃO",
+       "tipo": "String"
+      },
+      {
+       "nome": "CONDIÇÕES_DA_VIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "CONSERVAÇÃO_DA_VIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ponto_de_Controle",
+       "tipo": "String"
+      },
+      {
+       "nome": "PLACAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "VELOCIDADE_MAX_DA_VIA__km_h_",
+       "tipo": "String"
+      },
+      {
+       "nome": "MÃO_DE_DIREÇÃO",
+       "tipo": "String"
+      },
+      {
+       "nome": "DIVISÃO_DA_VIA",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 1806,
+     "faixa_Data": [
+      "2022-01-01",
+      "2022-12-31"
+     ]
+    },
+    {
+     "id": 5,
+     "nome": "300m Analise Sinistros com Vitimas Feridas 2022",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "SOURCE_ID",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "numero",
+       "tipo": "Double"
+      },
+      {
+       "nome": "GiZScore",
+       "tipo": "Double"
+      },
+      {
+       "nome": "GiPValue",
+       "tipo": "Double"
+      },
+      {
+       "nome": "NNeighbors",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "Gi_Bin",
+       "tipo": "Integer"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 1806
+    },
+    {
+     "id": 6,
+     "nome": "Pontos Sinistroscom  Vitimas Feridas 17 a 22",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Número_do_Boletim",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "VIA_ONDE_OCORREU_O_SINISTRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "Faixa_Etária_Processada",
+       "tipo": "String"
+      },
+      {
+       "nome": "Sexo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Data",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Ano",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Vítima",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Nome",
+       "tipo": "String"
+      },
+      {
+       "nome": "Idade",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Endereço",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bairro",
+       "tipo": "String"
+      },
+      {
+       "nome": "Cidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "UF",
+       "tipo": "String"
+      },
+      {
+       "nome": "RG",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ocupação",
+       "tipo": "String"
+      },
+      {
+       "nome": "Grau_de_Instrução",
+       "tipo": "String"
+      },
+      {
+       "nome": "Gravidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "A_vítima____",
+       "tipo": "String"
+      },
+      {
+       "nome": "Encaminhado_ao_Hospital_",
+       "tipo": "String"
+      },
+      {
+       "nome": "Samu_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bombeiros_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Outros_",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 12413,
+     "faixa_Data": [
+      "2017-01-01",
+      "2022-12-31"
+     ]
+    },
+    {
+     "id": 7,
+     "nome": "300m Analise Sinistros com Vitimas Feridas 17-22",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "SOURCE_ID",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "Número_do_Boletim",
+       "tipo": "Double"
+      },
+      {
+       "nome": "GiZScore",
+       "tipo": "Double"
+      },
+      {
+       "nome": "GiPValue",
+       "tipo": "Double"
+      },
+      {
+       "nome": "NNeighbors",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "Gi_Bin",
+       "tipo": "Integer"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 12400
+    },
+    {
+     "id": 8,
+     "nome": "Vitimas feridas de sinistros de transito 22",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Número_do_Boletim",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "VIA_ONDE_OCORREU_O_SINISTRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "Faixa_Etária_Processada",
+       "tipo": "String"
+      },
+      {
+       "nome": "Sexo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Data",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Ano",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Vítima",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Nome",
+       "tipo": "String"
+      },
+      {
+       "nome": "Idade",
+       "tipo": "String"
+      },
+      {
+       "nome": "Endereço",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bairro",
+       "tipo": "String"
+      },
+      {
+       "nome": "Cidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "UF",
+       "tipo": "String"
+      },
+      {
+       "nome": "RG",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ocupação",
+       "tipo": "String"
+      },
+      {
+       "nome": "Grau_de_Instrução",
+       "tipo": "String"
+      },
+      {
+       "nome": "Gravidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "A_vítima____",
+       "tipo": "String"
+      },
+      {
+       "nome": "Encaminhado_ao_Hospital_",
+       "tipo": "String"
+      },
+      {
+       "nome": "Samu_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bombeiros_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Outros_",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 2168,
+     "faixa_Data": [
+      "2022-01-01",
+      "2022-12-31"
+     ]
+    },
+    {
+     "id": 9,
+     "nome": "Sinistros com vitimas feridas 2022",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Boletim",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Período_do_dia",
+       "tipo": "String"
+      },
+      {
+       "nome": "Dia_da_semana",
+       "tipo": "String"
+      },
+      {
+       "nome": "Data",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Mês_processado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ano_Processado",
+       "tipo": "Double"
+      },
+      {
+       "nome": "AV___Rua",
+       "tipo": "String"
+      },
+      {
+       "nome": "Número",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bairro",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ponto_de_referência",
+       "tipo": "String"
+      },
+      {
+       "nome": "Cruzamento___Esquina",
+       "tipo": "String"
+      },
+      {
+       "nome": "Sentido_da_Via",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ocorrência",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Chegada_do_Agente_ao_Local",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Liberação_da_Via",
+       "tipo": "String"
+      },
+      {
+       "nome": "Termino_da_Ocorrência",
+       "tipo": "Date"
+      },
+      {
+       "nome": "N__de_Feridos",
+       "tipo": "Double"
+      },
+      {
+       "nome": "N__de_Mortos",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Natureza",
+       "tipo": "String"
+      },
+      {
+       "nome": "Acidente_Verificado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tempo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Semáforo",
+       "tipo": "String"
+      },
+      {
+       "nome": "SINALIZAÇÃO",
+       "tipo": "String"
+      },
+      {
+       "nome": "CONDIÇÕES_DA_VIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "CONSERVAÇÃO_DA_VIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ponto_de_Controle",
+       "tipo": "String"
+      },
+      {
+       "nome": "PLACAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "VELOCIDADE_MAX_DA_VIA__km_h_",
+       "tipo": "String"
+      },
+      {
+       "nome": "MÃO_DE_DIREÇÃO",
+       "tipo": "String"
+      },
+      {
+       "nome": "DIVISÃO_DA_VIA",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 1806,
+     "faixa_Data": [
+      "2022-01-01",
+      "2022-12-31"
+     ]
+    },
+    {
+     "id": 10,
+     "nome": "Analise Sinistros Fatais em 2022 Raio de 300m",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "SOURCE_ID",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "N__de_Mortos",
+       "tipo": "Double"
+      },
+      {
+       "nome": "GiZScore",
+       "tipo": "Double"
+      },
+      {
+       "nome": "GiPValue",
+       "tipo": "Double"
+      },
+      {
+       "nome": "NNeighbors",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "Gi_Bin",
+       "tipo": "Integer"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 1712
+    },
+    {
+     "id": 11,
+     "nome": "Urbanismo Tático 17 a 22",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "LATITUDE",
+       "tipo": "Double"
+      },
+      {
+       "nome": "LONGITUDE",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ITEM",
+       "tipo": "Double"
+      },
+      {
+       "nome": "RUAS_ENVOLVIDAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "BAIRRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "M_",
+       "tipo": "Double"
+      },
+      {
+       "nome": "INAUGURAÇÃO",
+       "tipo": "Date"
+      },
+      {
+       "nome": "F8",
+       "tipo": "String"
+      },
+      {
+       "nome": "F9",
+       "tipo": "String"
+      },
+      {
+       "nome": "F10",
+       "tipo": "String"
+      },
+      {
+       "nome": "F11",
+       "tipo": "String"
+      },
+      {
+       "nome": "F12",
+       "tipo": "Double"
+      },
+      {
+       "nome": "F13",
+       "tipo": "Double"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 988,
+     "faixa_INAUGURAÇÃO": [
+      "2019-09-01",
+      "2022-12-01"
+     ]
+    },
+    {
+     "id": 12,
+     "nome": "Urbanismo Tático 22",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "LATITUDE",
+       "tipo": "Double"
+      },
+      {
+       "nome": "LONGITUDE",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ITEM",
+       "tipo": "Double"
+      },
+      {
+       "nome": "RUAS_ENVOLVIDAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "BAIRRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "M_",
+       "tipo": "Double"
+      },
+      {
+       "nome": "INAUGURAÇÃO",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 8
+    },
+    {
+     "id": 13,
+     "nome": "Redesenhos 23",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "RUAS_ENVOLVIDAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "BAIRRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "RPA",
+       "tipo": "Double"
+      },
+      {
+       "nome": "MÊS_INAUGURAÇÃO",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ANO_INAUGURAÇÃO",
+       "tipo": "Double"
+      },
+      {
+       "nome": "DATA_INÍCIO_OBRA",
+       "tipo": "String"
+      },
+      {
+       "nome": "DATA_CONCLUSÃO_OBRA",
+       "tipo": "Date"
+      },
+      {
+       "nome": "M_",
+       "tipo": "Double"
+      },
+      {
+       "nome": "CATEGORIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "ORIGEM_DO_PROJETO",
+       "tipo": "String"
+      },
+      {
+       "nome": "CUSTO_DE_IMPLANTAÇÃO__R__",
+       "tipo": "String"
+      },
+      {
+       "nome": "COORDENADAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "STREET_VIEW",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_PARA_PROJETO",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_DE_PESQUISAS__ANTES_",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_DE_PESQUISAS__DEPOIS_",
+       "tipo": "Double"
+      },
+      {
+       "nome": "LINK_DE_IMAGENS__ANTES_",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_DE_IMAGENS__DEPOIS_",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 17,
+     "faixa_DATA_CONCLUSÃO_OBRA": [
+      "2023-06-10",
+      "2023-06-10"
+     ]
+    },
+    {
+     "id": 14,
+     "nome": "Redesenhos 22",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "RUAS_ENVOLVIDAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "BAIRRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "RPA",
+       "tipo": "Double"
+      },
+      {
+       "nome": "MÊS_INAUGURAÇÃO",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ANO_INAUGURAÇÃO",
+       "tipo": "Double"
+      },
+      {
+       "nome": "DATA_INÍCIO_OBRA",
+       "tipo": "String"
+      },
+      {
+       "nome": "DATA_CONCLUSÃO_OBRA",
+       "tipo": "String"
+      },
+      {
+       "nome": "M_",
+       "tipo": "Double"
+      },
+      {
+       "nome": "CATEGORIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "ORIGEM_DO_PROJETO",
+       "tipo": "String"
+      },
+      {
+       "nome": "CUSTO_DE_IMPLANTAÇÃO__R__",
+       "tipo": "Double"
+      },
+      {
+       "nome": "COORDENADAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "STREET_VIEW",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_PARA_PROJETO",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_DE_PESQUISAS__ANTES_",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_DE_PESQUISAS__DEPOIS_",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_DE_IMAGENS__ANTES_",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_DE_IMAGENS__DEPOIS_",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 17,
+     "faixa_MÊS_INAUGURAÇÃO": [
+      "2022-02-01",
+      "2022-12-01"
+     ]
+    },
+    {
+     "id": 15,
+     "nome": "Redesenhos 21",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "RUAS_ENVOLVIDAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "BAIRRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "RPA",
+       "tipo": "Double"
+      },
+      {
+       "nome": "MÊS_INAUGURAÇÃO",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ANO_INAUGURAÇÃO",
+       "tipo": "Double"
+      },
+      {
+       "nome": "DATA_INÍCIO_OBRA",
+       "tipo": "Double"
+      },
+      {
+       "nome": "DATA_CONCLUSÃO_OBRA",
+       "tipo": "Double"
+      },
+      {
+       "nome": "M_",
+       "tipo": "Double"
+      },
+      {
+       "nome": "CATEGORIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "ORIGEM_DO_PROJETO",
+       "tipo": "String"
+      },
+      {
+       "nome": "CUSTO_DE_IMPLANTAÇÃO__R__",
+       "tipo": "Double"
+      },
+      {
+       "nome": "COORDENADAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "STREET_VIEW",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_PARA_PROJETO",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_DE_PESQUISAS__ANTES_",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_DE_PESQUISAS__DEPOIS_",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_DE_IMAGENS__ANTES_",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_DE_IMAGENS__DEPOIS_",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 17,
+     "faixa_MÊS_INAUGURAÇÃO": [
+      "2021-03-11",
+      "2021-12-01"
+     ]
+    },
+    {
+     "id": 16,
+     "nome": "Redesenhos 20",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "RUAS_ENVOLVIDAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "BAIRRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "RPA",
+       "tipo": "Double"
+      },
+      {
+       "nome": "MÊS_INAUGURAÇÃO",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ANO_INAUGURAÇÃO",
+       "tipo": "Double"
+      },
+      {
+       "nome": "DATA_INÍCIO_OBRA",
+       "tipo": "Double"
+      },
+      {
+       "nome": "DATA_CONCLUSÃO_OBRA",
+       "tipo": "Double"
+      },
+      {
+       "nome": "M_",
+       "tipo": "Double"
+      },
+      {
+       "nome": "CATEGORIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "ORIGEM_DO_PROJETO",
+       "tipo": "String"
+      },
+      {
+       "nome": "CUSTO_DE_IMPLANTAÇÃO__R__",
+       "tipo": "Double"
+      },
+      {
+       "nome": "COORDENADAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "STREET_VIEW",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_PARA_PROJETO",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_DE_PESQUISAS__ANTES_",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_DE_PESQUISAS__DEPOIS_",
+       "tipo": "Double"
+      },
+      {
+       "nome": "LINK_DE_IMAGENS__ANTES_",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_DE_IMAGENS__DEPOIS_",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 17,
+     "faixa_MÊS_INAUGURAÇÃO": [
+      "2020-01-21",
+      "2020-12-19"
+     ]
+    },
+    {
+     "id": 17,
+     "nome": "Redesenhos 19",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "RUAS_ENVOLVIDAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "BAIRRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "RPA",
+       "tipo": "Double"
+      },
+      {
+       "nome": "MÊS_INAUGURAÇÃO",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ANO_INAUGURAÇÃO",
+       "tipo": "Double"
+      },
+      {
+       "nome": "DATA_INÍCIO_OBRA",
+       "tipo": "Double"
+      },
+      {
+       "nome": "DATA_CONCLUSÃO_OBRA",
+       "tipo": "Double"
+      },
+      {
+       "nome": "M_",
+       "tipo": "Double"
+      },
+      {
+       "nome": "CATEGORIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "ORIGEM_DO_PROJETO",
+       "tipo": "String"
+      },
+      {
+       "nome": "CUSTO_DE_IMPLANTAÇÃO__R__",
+       "tipo": "Double"
+      },
+      {
+       "nome": "COORDENADAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "STREET_VIEW",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_PARA_PROJETO",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_DE_PESQUISAS__ANTES_",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_DE_PESQUISAS__DEPOIS_",
+       "tipo": "Double"
+      },
+      {
+       "nome": "LINK_DE_IMAGENS__ANTES_",
+       "tipo": "Double"
+      },
+      {
+       "nome": "LINK_DE_IMAGENS__DEPOIS_",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 6,
+     "faixa_MÊS_INAUGURAÇÃO": [
+      "2019-09-01",
+      "2019-11-30"
+     ]
+    },
+    {
+     "id": 18,
+     "nome": "Redesenhos 19-22",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "RUAS_ENVOLVIDAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "BAIRRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "RPA",
+       "tipo": "Double"
+      },
+      {
+       "nome": "MÊS_INAUGURAÇÃO",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ANO_INAUGURAÇÃO",
+       "tipo": "Double"
+      },
+      {
+       "nome": "DATA_INÍCIO_OBRA",
+       "tipo": "Double"
+      },
+      {
+       "nome": "DATA_CONCLUSÃO_OBRA",
+       "tipo": "Double"
+      },
+      {
+       "nome": "M_",
+       "tipo": "Double"
+      },
+      {
+       "nome": "CATEGORIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "ORIGEM_DO_PROJETO",
+       "tipo": "String"
+      },
+      {
+       "nome": "CUSTO_DE_IMPLANTAÇÃO__R__",
+       "tipo": "Double"
+      },
+      {
+       "nome": "COORDENADAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "STREET_VIEW",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_PARA_PROJETO",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_DE_PESQUISAS__ANTES_",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_DE_PESQUISAS__DEPOIS_",
+       "tipo": "Double"
+      },
+      {
+       "nome": "LINK_DE_IMAGENS__ANTES_",
+       "tipo": "Double"
+      },
+      {
+       "nome": "LINK_DE_IMAGENS__DEPOIS_",
+       "tipo": "String"
+      },
+      {
+       "nome": "F21",
+       "tipo": "String"
+      },
+      {
+       "nome": "F22",
+       "tipo": "String"
+      },
+      {
+       "nome": "F23",
+       "tipo": "String"
+      },
+      {
+       "nome": "F24",
+       "tipo": "String"
+      },
+      {
+       "nome": "F25",
+       "tipo": "String"
+      },
+      {
+       "nome": "F26",
+       "tipo": "String"
+      },
+      {
+       "nome": "F27",
+       "tipo": "String"
+      },
+      {
+       "nome": "F28",
+       "tipo": "String"
+      },
+      {
+       "nome": "F29",
+       "tipo": "String"
+      },
+      {
+       "nome": "F30",
+       "tipo": "String"
+      },
+      {
+       "nome": "F31",
+       "tipo": "String"
+      },
+      {
+       "nome": "F32",
+       "tipo": "String"
+      },
+      {
+       "nome": "F33",
+       "tipo": "String"
+      },
+      {
+       "nome": "F34",
+       "tipo": "String"
+      },
+      {
+       "nome": "F35",
+       "tipo": "String"
+      },
+      {
+       "nome": "F36",
+       "tipo": "String"
+      },
+      {
+       "nome": "F37",
+       "tipo": "String"
+      },
+      {
+       "nome": "F38",
+       "tipo": "String"
+      },
+      {
+       "nome": "F39",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 990,
+     "faixa_MÊS_INAUGURAÇÃO": [
+      "1900-01-01",
+      "2022-12-01"
+     ]
+    },
+    {
+     "id": 19,
+     "nome": "Postes a retirar (Centro)",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Link",
+       "tipo": "String"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Local",
+       "tipo": "String"
+      },
+      {
+       "nome": "Etapa",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Bloco",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Quantidade",
+       "tipo": "Double"
+      },
+      {
+       "nome": "F8",
+       "tipo": "String"
+      },
+      {
+       "nome": "F9",
+       "tipo": "String"
+      },
+      {
+       "nome": "F10",
+       "tipo": "String"
+      },
+      {
+       "nome": "F11",
+       "tipo": "String"
+      },
+      {
+       "nome": "F12",
+       "tipo": "String"
+      },
+      {
+       "nome": "F13",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 11
+    },
+    {
+     "id": 20,
+     "nome": "Tinindo 2023",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "EMPRESA_VENCEDORA",
+       "tipo": "String"
+      },
+      {
+       "nome": "GESTOR",
+       "tipo": "String"
+      },
+      {
+       "nome": "RPA",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Latitude1",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude1",
+       "tipo": "Double"
+      },
+      {
+       "nome": "RUA",
+       "tipo": "String"
+      },
+      {
+       "nome": "BAIRRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "LOMBADA",
+       "tipo": "String"
+      },
+      {
+       "nome": "ORDEM_DE_SERVIÇO_LIBERADA_PELO_",
+       "tipo": "String"
+      },
+      {
+       "nome": "LICITADAS_E_EM_ANDAMENTO",
+       "tipo": "String"
+      },
+      {
+       "nome": "LICITADAS_E_CONCLUÍDAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 77
+    },
+    {
+     "id": 21,
+     "nome": "Solicitações",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Id",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "Endereço",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bairro",
+       "tipo": "String"
+      },
+      {
+       "nome": "RPA",
+       "tipo": "String"
+      },
+      {
+       "nome": "StatusProj",
+       "tipo": "String"
+      },
+      {
+       "nome": "Categoria",
+       "tipo": "String"
+      },
+      {
+       "nome": "InicioProj",
+       "tipo": "Date"
+      },
+      {
+       "nome": "FimProj",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Projetista",
+       "tipo": "String"
+      },
+      {
+       "nome": "PrazoProj",
+       "tipo": "String"
+      },
+      {
+       "nome": "Link",
+       "tipo": "String"
+      },
+      {
+       "nome": "SinD",
+       "tipo": "Date"
+      },
+      {
+       "nome": "SinR",
+       "tipo": "Date"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 1,
+     "faixa_InicioProj": "sem estatística"
+    },
+    {
+     "id": 22,
+     "nome": "Manutenção de vias",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Id",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "Endereço",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bairro",
+       "tipo": "String"
+      },
+      {
+       "nome": "RPA",
+       "tipo": "String"
+      },
+      {
+       "nome": "StatusProj",
+       "tipo": "String"
+      },
+      {
+       "nome": "Categoria",
+       "tipo": "String"
+      },
+      {
+       "nome": "InicioProj",
+       "tipo": "Date"
+      },
+      {
+       "nome": "FimProj",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Projetista",
+       "tipo": "String"
+      },
+      {
+       "nome": "PrazoProj",
+       "tipo": "Date"
+      },
+      {
+       "nome": "LINK",
+       "tipo": "String"
+      },
+      {
+       "nome": "SinD",
+       "tipo": "Date"
+      },
+      {
+       "nome": "SinR",
+       "tipo": "Date"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 4,
+     "faixa_InicioProj": "sem estatística"
+    },
+    {
+     "id": 23,
+     "nome": "Vias Recapeadas 2023",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Id",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "Inicio",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Término",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Status",
+       "tipo": "String"
+      },
+      {
+       "nome": "Sinali",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK",
+       "tipo": "String"
+      },
+      {
+       "nome": "DataSinali",
+       "tipo": "String"
+      },
+      {
+       "nome": "NOME",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 72,
+     "faixa_Inicio": "sem estatística"
+    },
+    {
+     "id": 24,
+     "nome": "Projetos Viarios Desenvolvidos",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "STATUS",
+       "tipo": "String"
+      },
+      {
+       "nome": "PROJETISTA",
+       "tipo": "String"
+      },
+      {
+       "nome": "LINK_PROJETO",
+       "tipo": "Double"
+      },
+      {
+       "nome": "RPA",
+       "tipo": "String"
+      },
+      {
+       "nome": "BAIRRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "LOGRADOURO",
+       "tipo": "String"
+      },
+      {
+       "nome": "CATEGORIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "PRIORIDADE",
+       "tipo": "String"
+      },
+      {
+       "nome": "STATUS1",
+       "tipo": "String"
+      },
+      {
+       "nome": "INÍCIO_REAL",
+       "tipo": "Date"
+      },
+      {
+       "nome": "PRAZO__DIAS_",
+       "tipo": "Double"
+      },
+      {
+       "nome": "TERMINO_PREVISTO",
+       "tipo": "Date"
+      },
+      {
+       "nome": "TÉRMINO_REAL",
+       "tipo": "String"
+      },
+      {
+       "nome": "DATA_DE_ENTRADA",
+       "tipo": "Date"
+      },
+      {
+       "nome": "TÉRMINO_REAL_1",
+       "tipo": "Date"
+      },
+      {
+       "nome": "DURAÇÃO__DIAS_",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Fotos",
+       "tipo": "Raster"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 151,
+     "faixa_INÍCIO_REAL": [
+      "2022-06-28",
+      "2023-07-13"
+     ]
+    },
+    {
+     "id": 25,
+     "nome": "VitimasFeridas2022_Buffer3",
+     "geometria": "esriGeometryPolygon",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Shape_Length",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Shape_Area",
+       "tipo": "Double"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 1
+    },
+    {
+     "id": 26,
+     "nome": "RPA",
+     "geometria": "esriGeometryPolygon",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "RPA",
+       "tipo": "Integer"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 6
+    },
+    {
+     "id": 27,
+     "nome": "Pedestres Feridos em 2022",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Número_do_Boletim",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "VIA_ONDE_OCORREU_O_SINISTRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "Faixa_Etária_Processada",
+       "tipo": "String"
+      },
+      {
+       "nome": "Sexo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Data",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Ano",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Vítima",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Nome",
+       "tipo": "String"
+      },
+      {
+       "nome": "Idade",
+       "tipo": "String"
+      },
+      {
+       "nome": "Endereço",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bairro",
+       "tipo": "String"
+      },
+      {
+       "nome": "Cidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "UF",
+       "tipo": "String"
+      },
+      {
+       "nome": "RG",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ocupação",
+       "tipo": "String"
+      },
+      {
+       "nome": "Grau_de_Instrução",
+       "tipo": "String"
+      },
+      {
+       "nome": "Gravidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "A_vítima____",
+       "tipo": "String"
+      },
+      {
+       "nome": "Encaminhado_ao_Hospital_",
+       "tipo": "String"
+      },
+      {
+       "nome": "Samu_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bombeiros_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Outros_",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 193,
+     "faixa_Data": [
+      "2022-01-04",
+      "2022-12-30"
+     ]
+    },
+    {
+     "id": 28,
+     "nome": "Vitimas Feridas a Noite ou Madrugada em 22",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Boletim",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Período_do_dia",
+       "tipo": "String"
+      },
+      {
+       "nome": "Dia_da_semana",
+       "tipo": "String"
+      },
+      {
+       "nome": "Data",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Mês_processado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ano_Processado",
+       "tipo": "Double"
+      },
+      {
+       "nome": "AV___Rua",
+       "tipo": "String"
+      },
+      {
+       "nome": "Número",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bairro",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ponto_de_referência",
+       "tipo": "String"
+      },
+      {
+       "nome": "Cruzamento___Esquina",
+       "tipo": "String"
+      },
+      {
+       "nome": "Sentido_da_Via",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ocorrência",
+       "tipo": "String"
+      },
+      {
+       "nome": "Chegada_do_Agente_ao_Local",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Liberação_da_Via",
+       "tipo": "String"
+      },
+      {
+       "nome": "Termino_da_Ocorrência",
+       "tipo": "Date"
+      },
+      {
+       "nome": "N__de_Feridos",
+       "tipo": "Double"
+      },
+      {
+       "nome": "N__de_Mortos",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Natureza",
+       "tipo": "String"
+      },
+      {
+       "nome": "Acidente_Verificado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tempo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Semáforo",
+       "tipo": "String"
+      },
+      {
+       "nome": "SINALIZAÇÃO",
+       "tipo": "String"
+      },
+      {
+       "nome": "CONDIÇÕES_DA_VIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "CONSERVAÇÃO_DA_VIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ponto_de_Controle",
+       "tipo": "String"
+      },
+      {
+       "nome": "PLACAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "VELOCIDADE_MAX_DA_VIA__km_h_",
+       "tipo": "String"
+      },
+      {
+       "nome": "MÃO_DE_DIREÇÃO",
+       "tipo": "String"
+      },
+      {
+       "nome": "DIVISÃO_DA_VIA",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 461,
+     "faixa_Data": [
+      "2022-01-01",
+      "2022-12-31"
+     ]
+    },
+    {
+     "id": 29,
+     "nome": "Vitimas Feridas a Noite ou Madrugada 2017 a 22",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Boletim",
+       "tipo": "String"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Período_do_dia",
+       "tipo": "String"
+      },
+      {
+       "nome": "Dia_da_semana",
+       "tipo": "String"
+      },
+      {
+       "nome": "Data",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Mês_processado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ano_Processado",
+       "tipo": "Double"
+      },
+      {
+       "nome": "AV___Rua",
+       "tipo": "String"
+      },
+      {
+       "nome": "Número",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bairro",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ponto_de_referência",
+       "tipo": "String"
+      },
+      {
+       "nome": "Cruzamento___Esquina",
+       "tipo": "String"
+      },
+      {
+       "nome": "Sentido_da_Via",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ocorrência",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Chegada_do_Agente_ao_Local",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Liberação_da_Via",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Termino_da_Ocorrência",
+       "tipo": "Date"
+      },
+      {
+       "nome": "N__de_Feridos",
+       "tipo": "String"
+      },
+      {
+       "nome": "N__de_Mortos",
+       "tipo": "String"
+      },
+      {
+       "nome": "Natureza",
+       "tipo": "String"
+      },
+      {
+       "nome": "Acidente_Verificado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tempo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Semáforo",
+       "tipo": "String"
+      },
+      {
+       "nome": "SINALIZAÇÃO",
+       "tipo": "String"
+      },
+      {
+       "nome": "CONDIÇÕES_DA_VIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "CONSERVAÇÃO_DA_VIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ponto_de_Controle",
+       "tipo": "String"
+      },
+      {
+       "nome": "PLACAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "VELOCIDADE_MAX_DA_VIA__km_h_",
+       "tipo": "String"
+      },
+      {
+       "nome": "MÃO_DE_DIREÇÃO",
+       "tipo": "String"
+      },
+      {
+       "nome": "DIVISÃO_DA_VIA",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 2880,
+     "faixa_Data": [
+      "2017-01-01",
+      "2022-12-31"
+     ]
+    },
+    {
+     "id": 30,
+     "nome": "Pedestres Feridos 2017 a 2022",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Número_do_Boletim",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "VIA_ONDE_OCORREU_O_SINISTRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "Faixa_Etária_Processada",
+       "tipo": "String"
+      },
+      {
+       "nome": "Sexo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Data",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Ano",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Vítima",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Nome",
+       "tipo": "String"
+      },
+      {
+       "nome": "Idade",
+       "tipo": "String"
+      },
+      {
+       "nome": "Endereço",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bairro",
+       "tipo": "String"
+      },
+      {
+       "nome": "Cidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "UF",
+       "tipo": "String"
+      },
+      {
+       "nome": "RG",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ocupação",
+       "tipo": "String"
+      },
+      {
+       "nome": "Grau_de_Instrução",
+       "tipo": "String"
+      },
+      {
+       "nome": "Gravidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "A_vítima____",
+       "tipo": "String"
+      },
+      {
+       "nome": "Encaminhado_ao_Hospital_",
+       "tipo": "String"
+      },
+      {
+       "nome": "Samu_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bombeiros_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Outros_",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 1054,
+     "faixa_Data": [
+      "2017-01-02",
+      "2022-12-30"
+     ]
+    },
+    {
+     "id": 31,
+     "nome": "Motociclistas Feridos 2022",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Número_do_Boletim",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "VIA_ONDE_OCORREU_O_SINISTRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "Faixa_Etária_Processada",
+       "tipo": "String"
+      },
+      {
+       "nome": "Sexo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Data",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Ano",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Vítima",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Nome",
+       "tipo": "String"
+      },
+      {
+       "nome": "Idade",
+       "tipo": "String"
+      },
+      {
+       "nome": "Endereço",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bairro",
+       "tipo": "String"
+      },
+      {
+       "nome": "Cidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "UF",
+       "tipo": "String"
+      },
+      {
+       "nome": "RG",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ocupação",
+       "tipo": "String"
+      },
+      {
+       "nome": "Grau_de_Instrução",
+       "tipo": "String"
+      },
+      {
+       "nome": "Gravidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "A_vítima____",
+       "tipo": "String"
+      },
+      {
+       "nome": "Encaminhado_ao_Hospital_",
+       "tipo": "String"
+      },
+      {
+       "nome": "Samu_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bombeiros_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Outros_",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 1548,
+     "faixa_Data": [
+      "2022-01-01",
+      "2022-12-31"
+     ]
+    },
+    {
+     "id": 32,
+     "nome": "Motociclistas Feridos 2017 a 2022",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Número_do_Boletim",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "VIA_ONDE_OCORREU_O_SINISTRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "Faixa_Etária_Processada",
+       "tipo": "String"
+      },
+      {
+       "nome": "Sexo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Data",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Ano",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Vítima",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Nome",
+       "tipo": "String"
+      },
+      {
+       "nome": "Idade",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Endereço",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bairro",
+       "tipo": "String"
+      },
+      {
+       "nome": "Cidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "UF",
+       "tipo": "String"
+      },
+      {
+       "nome": "RG",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ocupação",
+       "tipo": "String"
+      },
+      {
+       "nome": "Grau_de_Instrução",
+       "tipo": "String"
+      },
+      {
+       "nome": "Gravidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "A_vítima____",
+       "tipo": "String"
+      },
+      {
+       "nome": "Encaminhado_ao_Hospital_",
+       "tipo": "String"
+      },
+      {
+       "nome": "Samu_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bombeiros_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Outros_",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 6315,
+     "faixa_Data": [
+      "2017-01-01",
+      "2022-12-31"
+     ]
+    },
+    {
+     "id": 33,
+     "nome": "Ciclistas Feridos 2022",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Número_do_Boletim",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "VIA_ONDE_OCORREU_O_SINISTRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "Faixa_Etária_Processada",
+       "tipo": "String"
+      },
+      {
+       "nome": "Sexo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Data",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Ano",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Vítima",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Nome",
+       "tipo": "String"
+      },
+      {
+       "nome": "Idade",
+       "tipo": "String"
+      },
+      {
+       "nome": "Endereço",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bairro",
+       "tipo": "String"
+      },
+      {
+       "nome": "Cidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "UF",
+       "tipo": "String"
+      },
+      {
+       "nome": "RG",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ocupação",
+       "tipo": "String"
+      },
+      {
+       "nome": "Grau_de_Instrução",
+       "tipo": "String"
+      },
+      {
+       "nome": "Gravidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "A_vítima____",
+       "tipo": "String"
+      },
+      {
+       "nome": "Encaminhado_ao_Hospital_",
+       "tipo": "String"
+      },
+      {
+       "nome": "Samu_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bombeiros_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Outros_",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 124,
+     "faixa_Data": [
+      "2022-01-04",
+      "2022-12-28"
+     ]
+    },
+    {
+     "id": 34,
+     "nome": "Ciclistas Feridos 2017 a 2022",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Número_do_Boletim",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "VIA_ONDE_OCORREU_O_SINISTRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo_de_vítima_processado_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "Faixa_Etária_Processada",
+       "tipo": "String"
+      },
+      {
+       "nome": "Sexo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Data",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Ano",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Vítima",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Nome",
+       "tipo": "String"
+      },
+      {
+       "nome": "Idade",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Endereço",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bairro",
+       "tipo": "String"
+      },
+      {
+       "nome": "Cidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "UF",
+       "tipo": "String"
+      },
+      {
+       "nome": "RG",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ocupação",
+       "tipo": "String"
+      },
+      {
+       "nome": "Grau_de_Instrução",
+       "tipo": "String"
+      },
+      {
+       "nome": "Gravidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "A_vítima____",
+       "tipo": "String"
+      },
+      {
+       "nome": "Encaminhado_ao_Hospital_",
+       "tipo": "String"
+      },
+      {
+       "nome": "Samu_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bombeiros_VT_n__",
+       "tipo": "String"
+      },
+      {
+       "nome": "Outros_",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 596,
+     "faixa_Data": [
+      "2017-01-03",
+      "2022-12-28"
+     ]
+    },
+    {
+     "id": 35,
+     "nome": "Vitimas Feridas 2017 a 2022",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Boletim",
+       "tipo": "String"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Período_do_dia",
+       "tipo": "String"
+      },
+      {
+       "nome": "Dia_da_semana",
+       "tipo": "String"
+      },
+      {
+       "nome": "Data",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Mês_processado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ano_Processado",
+       "tipo": "Double"
+      },
+      {
+       "nome": "AV___Rua",
+       "tipo": "String"
+      },
+      {
+       "nome": "Número",
+       "tipo": "String"
+      },
+      {
+       "nome": "Bairro",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ponto_de_referência",
+       "tipo": "String"
+      },
+      {
+       "nome": "Cruzamento___Esquina",
+       "tipo": "String"
+      },
+      {
+       "nome": "Sentido_da_Via",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ocorrência",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Chegada_do_Agente_ao_Local",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Liberação_da_Via",
+       "tipo": "Date"
+      },
+      {
+       "nome": "Termino_da_Ocorrência",
+       "tipo": "Date"
+      },
+      {
+       "nome": "N__de_Feridos",
+       "tipo": "String"
+      },
+      {
+       "nome": "N__de_Mortos",
+       "tipo": "String"
+      },
+      {
+       "nome": "Natureza",
+       "tipo": "String"
+      },
+      {
+       "nome": "Acidente_Verificado",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tempo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Semáforo",
+       "tipo": "String"
+      },
+      {
+       "nome": "SINALIZAÇÃO",
+       "tipo": "String"
+      },
+      {
+       "nome": "CONDIÇÕES_DA_VIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "CONSERVAÇÃO_DA_VIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "Ponto_de_Controle",
+       "tipo": "String"
+      },
+      {
+       "nome": "PLACAS",
+       "tipo": "String"
+      },
+      {
+       "nome": "VELOCIDADE_MAX_DA_VIA__km_h_",
+       "tipo": "String"
+      },
+      {
+       "nome": "MÃO_DE_DIREÇÃO",
+       "tipo": "String"
+      },
+      {
+       "nome": "DIVISÃO_DA_VIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "NEAR_FID",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "NEAR_DIST",
+       "tipo": "Double"
+      },
+      {
+       "nome": "NEAR_X",
+       "tipo": "Double"
+      },
+      {
+       "nome": "NEAR_Y",
+       "tipo": "Double"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 10481,
+     "faixa_Data": [
+      "2017-01-01",
+      "2022-12-31"
+     ]
+    },
+    {
+     "id": 36,
+     "nome": "Sinistros Fatais 2017 a 2022",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Data_do_acidente",
+       "tipo": "Date"
+      },
+      {
+       "nome": "número_identificador_do_aviso",
+       "tipo": "Double"
+      },
+      {
+       "nome": "municipio_do_fato",
+       "tipo": "String"
+      },
+      {
+       "nome": "bairro_do_fato",
+       "tipo": "String"
+      },
+      {
+       "nome": "nome_do_logradouro",
+       "tipo": "String"
+      },
+      {
+       "nome": "NOME_DO_LOGRADOURO_PROCESSADO",
+       "tipo": "String"
+      },
+      {
+       "nome": "numero_do_logradouro_do_fato",
+       "tipo": "Double"
+      },
+      {
+       "nome": "NUMERO_DO_LOGRADOURO_DO_FATO_PR",
+       "tipo": "String"
+      },
+      {
+       "nome": "LOGRADOURO_2_PROCESSADO",
+       "tipo": "String"
+      },
+      {
+       "nome": "COMPLEMENTO_LOGRADOURO_PROCESSA",
+       "tipo": "String"
+      },
+      {
+       "nome": "complemento_logradouro",
+       "tipo": "String"
+      },
+      {
+       "nome": "local_genérico",
+       "tipo": "String"
+      },
+      {
+       "nome": "tipo_logradouro",
+       "tipo": "String"
+      },
+      {
+       "nome": "sexo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Natureza_Jurídica",
+       "tipo": "String"
+      },
+      {
+       "nome": "intencionalidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "Nome",
+       "tipo": "String"
+      },
+      {
+       "nome": "mãe",
+       "tipo": "String"
+      },
+      {
+       "nome": "data_provável_da_morte__dd_mm_a",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ano",
+       "tipo": "Double"
+      },
+      {
+       "nome": "periodo_dia",
+       "tipo": "String"
+      },
+      {
+       "nome": "dia_da_semana",
+       "tipo": "Double"
+      },
+      {
+       "nome": "dia_SEMANA",
+       "tipo": "String"
+      },
+      {
+       "nome": "mes_NOME",
+       "tipo": "String"
+      },
+      {
+       "nome": "Dia_do_mês",
+       "tipo": "String"
+      },
+      {
+       "nome": "objeto_utilizado_na_vitima",
+       "tipo": "String"
+      },
+      {
+       "nome": "Motivação_do_Crime",
+       "tipo": "String"
+      },
+      {
+       "nome": "idade_APARENTE_NOME",
+       "tipo": "String"
+      },
+      {
+       "nome": "idade_exata",
+       "tipo": "Double"
+      },
+      {
+       "nome": "FAIXA_ETÁRIA_PROCESSADA",
+       "tipo": "String"
+      },
+      {
+       "nome": "Observação",
+       "tipo": "String"
+      },
+      {
+       "nome": "Veiculo_Instrumento",
+       "tipo": "String"
+      },
+      {
+       "nome": "TIPO_DE_USUÁRIO_PROCESSADO",
+       "tipo": "String"
+      },
+      {
+       "nome": "Situação_Vitima",
+       "tipo": "String"
+      },
+      {
+       "nome": "Meio_Transporte_Vítima_PROCESSA",
+       "tipo": "String"
+      },
+      {
+       "nome": "Meio_Transporte_Vítima",
+       "tipo": "String"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "F39",
+       "tipo": "String"
+      },
+      {
+       "nome": "F40",
+       "tipo": "String"
+      },
+      {
+       "nome": "F41",
+       "tipo": "String"
+      },
+      {
+       "nome": "F42",
+       "tipo": "String"
+      },
+      {
+       "nome": "F43",
+       "tipo": "String"
+      },
+      {
+       "nome": "F44",
+       "tipo": "String"
+      },
+      {
+       "nome": "F45",
+       "tipo": "String"
+      },
+      {
+       "nome": "F46",
+       "tipo": "String"
+      },
+      {
+       "nome": "F47",
+       "tipo": "String"
+      },
+      {
+       "nome": "F48",
+       "tipo": "String"
+      },
+      {
+       "nome": "F49",
+       "tipo": "String"
+      },
+      {
+       "nome": "F50",
+       "tipo": "String"
+      },
+      {
+       "nome": "F51",
+       "tipo": "String"
+      },
+      {
+       "nome": "F52",
+       "tipo": "String"
+      },
+      {
+       "nome": "F53",
+       "tipo": "String"
+      },
+      {
+       "nome": "F54",
+       "tipo": "String"
+      },
+      {
+       "nome": "F55",
+       "tipo": "String"
+      },
+      {
+       "nome": "F56",
+       "tipo": "String"
+      },
+      {
+       "nome": "F57",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 675,
+     "faixa_Data_do_acidente": [
+      "2017-01-03",
+      "2022-12-24"
+     ]
+    },
+    {
+     "id": 37,
+     "nome": "Sinistros Fatais 2022",
+     "geometria": "esriGeometryPoint",
+     "campos": [
+      {
+       "nome": "OBJECTID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Data_do_acidente",
+       "tipo": "String"
+      },
+      {
+       "nome": "número_identificador_do_aviso",
+       "tipo": "Double"
+      },
+      {
+       "nome": "municipio_do_fato",
+       "tipo": "String"
+      },
+      {
+       "nome": "bairro_do_fato",
+       "tipo": "String"
+      },
+      {
+       "nome": "nome_do_logradouro",
+       "tipo": "String"
+      },
+      {
+       "nome": "NOME_DO_LOGRADOURO_PROCESSADO",
+       "tipo": "String"
+      },
+      {
+       "nome": "numero_do_logradouro_do_fato",
+       "tipo": "String"
+      },
+      {
+       "nome": "NUMERO_DO_LOGRADOURO_DO_FATO_PR",
+       "tipo": "String"
+      },
+      {
+       "nome": "LOGRADOURO_2_PROCESSADO",
+       "tipo": "String"
+      },
+      {
+       "nome": "COMPLEMENTO_LOGRADOURO_PROCESSA",
+       "tipo": "String"
+      },
+      {
+       "nome": "complemento_logradouro",
+       "tipo": "String"
+      },
+      {
+       "nome": "local_genérico",
+       "tipo": "String"
+      },
+      {
+       "nome": "tipo_logradouro",
+       "tipo": "String"
+      },
+      {
+       "nome": "sexo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Natureza_Jurídica",
+       "tipo": "String"
+      },
+      {
+       "nome": "intencionalidade",
+       "tipo": "String"
+      },
+      {
+       "nome": "Nome",
+       "tipo": "String"
+      },
+      {
+       "nome": "mãe",
+       "tipo": "String"
+      },
+      {
+       "nome": "data_provável_da_morte__dd_mm_a",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ano",
+       "tipo": "Double"
+      },
+      {
+       "nome": "periodo_dia",
+       "tipo": "String"
+      },
+      {
+       "nome": "dia_da_semana",
+       "tipo": "Double"
+      },
+      {
+       "nome": "dia_SEMANA",
+       "tipo": "String"
+      },
+      {
+       "nome": "mes_NOME",
+       "tipo": "String"
+      },
+      {
+       "nome": "Dia_do_mês",
+       "tipo": "Double"
+      },
+      {
+       "nome": "objeto_utilizado_na_vitima",
+       "tipo": "String"
+      },
+      {
+       "nome": "Motivação_do_Crime",
+       "tipo": "String"
+      },
+      {
+       "nome": "idade_APARENTE_NOME",
+       "tipo": "String"
+      },
+      {
+       "nome": "idade_exata",
+       "tipo": "Double"
+      },
+      {
+       "nome": "FAIXA_ETÁRIA_PROCESSADA",
+       "tipo": "String"
+      },
+      {
+       "nome": "Observação",
+       "tipo": "String"
+      },
+      {
+       "nome": "Veiculo_Instrumento",
+       "tipo": "String"
+      },
+      {
+       "nome": "TIPO_DE_USUÁRIO_PROCESSADO",
+       "tipo": "String"
+      },
+      {
+       "nome": "Situação_Vitima",
+       "tipo": "String"
+      },
+      {
+       "nome": "Meio_Transporte_Vítima_PROCESSA",
+       "tipo": "String"
+      },
+      {
+       "nome": "Meio_Transporte_Vítima",
+       "tipo": "String"
+      },
+      {
+       "nome": "Latitude",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Longitude",
+       "tipo": "Double"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 101,
+     "faixa_data_provável_da_morte__dd_mm_a": [
+      "2021-12-28",
+      "2022-12-27"
+     ]
+    },
+    {
+     "id": 38,
+     "nome": "Lotes e Logradouros",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "CLOGRACODI",
+       "tipo": "Double"
+      },
+      {
+       "nome": "NLOGRACONC",
+       "tipo": "String"
+      },
+      {
+       "nome": "NLGPAVOFIC",
+       "tipo": "String"
+      },
+      {
+       "nome": "NLGPAVRESU",
+       "tipo": "String"
+      },
+      {
+       "nome": "FLGPAVINDP",
+       "tipo": "String"
+      },
+      {
+       "nome": "INDPAV",
+       "tipo": "String"
+      },
+      {
+       "nome": "CT",
+       "tipo": "String"
+      },
+      {
+       "nome": "NMPERIMETR",
+       "tipo": "String"
+      },
+      {
+       "nome": "NMTPVIA",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 9904
+    },
+    {
+     "id": 39,
+     "nome": "RPA",
+     "geometria": "esriGeometryPolygon",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "RPA",
+       "tipo": "Integer"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 6
+    },
+    {
+     "id": 40,
+     "nome": "Bairros",
+     "geometria": "esriGeometryPolygon",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "CBAIRRCODI",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "VBAIRROID",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "EBAIRRNOME",
+       "tipo": "String"
+      },
+      {
+       "nome": "CRPAAACODI",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "CMICROCODI",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "TBAIRRULAT",
+       "tipo": "Date"
+      },
+      {
+       "nome": "CEMPRECODI",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "AUSUACMATR",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "EBAIRRNO_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "EBAIRRLINK",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 94,
+     "faixa_TBAIRRULAT": "sem estatística"
+    },
+    {
+     "id": 41,
+     "nome": "FaixaAzulManu",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Id",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "NomeVia",
+       "tipo": "String"
+      },
+      {
+       "nome": "ManuHori",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ManuVert",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ManuPot",
+       "tipo": "Date"
+      },
+      {
+       "nome": "LINK",
+       "tipo": "String"
+      },
+      {
+       "nome": "OBS",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 8,
+     "faixa_ManuHori": "sem estatística"
+    },
+    {
+     "id": 42,
+     "nome": "FaixaExclusiva",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "id",
+       "tipo": "String"
+      },
+      {
+       "nome": "Nome",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 6
+    },
+    {
+     "id": 43,
+     "nome": "FaixaAzul",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Nome",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 14
+    }
+   ],
+   "erro": null
+  },
+  {
+   "servico": "Cttu_Análise_Vias_Recife",
+   "tipo": "MapServer",
+   "descricao": "",
+   "tempo": null,
+   "camadas": [
+    {
+     "id": 0,
+     "nome": "Transito_Rapido",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Name",
+       "tipo": "String"
+      },
+      {
+       "nome": "descriptio",
+       "tipo": "String"
+      },
+      {
+       "nome": "timestamp",
+       "tipo": "String"
+      },
+      {
+       "nome": "begin",
+       "tipo": "String"
+      },
+      {
+       "nome": "end",
+       "tipo": "String"
+      },
+      {
+       "nome": "altitudeMo",
+       "tipo": "String"
+      },
+      {
+       "nome": "tessellate",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "extrude",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "visibility",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "drawOrder",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "icon",
+       "tipo": "String"
+      },
+      {
+       "nome": "layer",
+       "tipo": "String"
+      },
+      {
+       "nome": "path",
+       "tipo": "String"
+      },
+      {
+       "nome": "Metragem",
+       "tipo": "Double"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 14
+    },
+    {
+     "id": 1,
+     "nome": "Coletora_Principal",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Name",
+       "tipo": "String"
+      },
+      {
+       "nome": "descriptio",
+       "tipo": "String"
+      },
+      {
+       "nome": "timestamp",
+       "tipo": "String"
+      },
+      {
+       "nome": "begin",
+       "tipo": "String"
+      },
+      {
+       "nome": "end",
+       "tipo": "String"
+      },
+      {
+       "nome": "altitudeMo",
+       "tipo": "String"
+      },
+      {
+       "nome": "tessellate",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "extrude",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "visibility",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "drawOrder",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "icon",
+       "tipo": "String"
+      },
+      {
+       "nome": "layer",
+       "tipo": "String"
+      },
+      {
+       "nome": "path",
+       "tipo": "String"
+      },
+      {
+       "nome": "Metragem",
+       "tipo": "Double"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 1626
+    },
+    {
+     "id": 2,
+     "nome": "Coletora_Secundaria",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Name",
+       "tipo": "String"
+      },
+      {
+       "nome": "descriptio",
+       "tipo": "String"
+      },
+      {
+       "nome": "timestamp",
+       "tipo": "String"
+      },
+      {
+       "nome": "begin",
+       "tipo": "String"
+      },
+      {
+       "nome": "end",
+       "tipo": "String"
+      },
+      {
+       "nome": "altitudeMo",
+       "tipo": "String"
+      },
+      {
+       "nome": "tessellate",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "extrude",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "visibility",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "drawOrder",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "icon",
+       "tipo": "String"
+      },
+      {
+       "nome": "layer",
+       "tipo": "String"
+      },
+      {
+       "nome": "path",
+       "tipo": "String"
+      },
+      {
+       "nome": "Metragem",
+       "tipo": "Double"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 1797
+    },
+    {
+     "id": 3,
+     "nome": "Arterial_Secundaria",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Name",
+       "tipo": "String"
+      },
+      {
+       "nome": "descriptio",
+       "tipo": "String"
+      },
+      {
+       "nome": "timestamp",
+       "tipo": "String"
+      },
+      {
+       "nome": "begin",
+       "tipo": "String"
+      },
+      {
+       "nome": "end",
+       "tipo": "String"
+      },
+      {
+       "nome": "altitudeMo",
+       "tipo": "String"
+      },
+      {
+       "nome": "tessellate",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "extrude",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "visibility",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "drawOrder",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "icon",
+       "tipo": "String"
+      },
+      {
+       "nome": "layer",
+       "tipo": "String"
+      },
+      {
+       "nome": "path",
+       "tipo": "String"
+      },
+      {
+       "nome": "Metragem",
+       "tipo": "Double"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 1233
+    },
+    {
+     "id": 4,
+     "nome": "Arterial_Principal",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Name",
+       "tipo": "String"
+      },
+      {
+       "nome": "descriptio",
+       "tipo": "String"
+      },
+      {
+       "nome": "timestamp",
+       "tipo": "String"
+      },
+      {
+       "nome": "begin",
+       "tipo": "String"
+      },
+      {
+       "nome": "end",
+       "tipo": "String"
+      },
+      {
+       "nome": "altitudeMo",
+       "tipo": "String"
+      },
+      {
+       "nome": "tessellate",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "extrude",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "visibility",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "drawOrder",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "icon",
+       "tipo": "String"
+      },
+      {
+       "nome": "layer",
+       "tipo": "String"
+      },
+      {
+       "nome": "path",
+       "tipo": "String"
+      },
+      {
+       "nome": "Metragem",
+       "tipo": "Double"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 2129
+    },
+    {
+     "id": 5,
+     "nome": "Perimetrais",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "CLOGRACODI",
+       "tipo": "Double"
+      },
+      {
+       "nome": "NLOGRACONC",
+       "tipo": "String"
+      },
+      {
+       "nome": "NLGPAVOFIC",
+       "tipo": "String"
+      },
+      {
+       "nome": "NLGPAVRESU",
+       "tipo": "String"
+      },
+      {
+       "nome": "FLGPAVINDP",
+       "tipo": "String"
+      },
+      {
+       "nome": "INDPAV",
+       "tipo": "String"
+      },
+      {
+       "nome": "CT",
+       "tipo": "String"
+      },
+      {
+       "nome": "NMPERIMETR",
+       "tipo": "String"
+      },
+      {
+       "nome": "NMTPVIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "Metragem",
+       "tipo": "Double"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 30
+    },
+    {
+     "id": 6,
+     "nome": "FaixaAzul",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Nome",
+       "tipo": "String"
+      },
+      {
+       "nome": "Tipo",
+       "tipo": "String"
+      },
+      {
+       "nome": "Metragem",
+       "tipo": "Double"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 14
+    },
+    {
+     "id": 7,
+     "nome": "PREVISTA Manutenção",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Manut22_09",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Manut22_10",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_11",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_12",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_13",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_14",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_15",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_16",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_17",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_18",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaManut",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "ListaMan_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_2",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_3",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ListaMan_4",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_5",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_6",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_7",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_8",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_9",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_10",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_11",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ListaMa_12",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMa_13",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMa_14",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_15",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 11,
+     "faixa_ListaMan_3": "sem estatística"
+    },
+    {
+     "id": 8,
+     "nome": "MARÇO Manutenção",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Manut22_09",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Manut22_10",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_11",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_12",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_13",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_14",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_15",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_16",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_17",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_18",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaManut",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "ListaMan_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_2",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_3",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ListaMan_4",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_5",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_6",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_7",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_8",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_9",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_10",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_11",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ListaMa_12",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMa_13",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMa_14",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_15",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 6,
+     "faixa_ListaMan_3": "sem estatística"
+    },
+    {
+     "id": 9,
+     "nome": "FEVEREIRO Manutenção",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Manut22_09",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Manut22_10",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_11",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_12",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_13",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_14",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_15",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_16",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_17",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_18",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaManut",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "ListaMan_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_2",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_3",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ListaMan_4",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_5",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_6",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_7",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_8",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_9",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_10",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_11",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ListaMa_12",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMa_13",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMa_14",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_15",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 21,
+     "faixa_ListaMan_3": "sem estatística"
+    },
+    {
+     "id": 10,
+     "nome": "JANEIRO Manutenção",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Manut22_09",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Manut22_10",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_11",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_12",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_13",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_14",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_15",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_16",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_17",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_18",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaManut",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "ListaMan_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_2",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_3",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ListaMan_4",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_5",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_6",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_7",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_8",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_9",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_10",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_11",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ListaMa_12",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMa_13",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMa_14",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_15",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 27,
+     "faixa_ListaMan_3": "sem estatística"
+    },
+    {
+     "id": 11,
+     "nome": "DEZEMBRO Manutenção",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Manut22_09",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Manut22_10",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_11",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_12",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_13",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_14",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_15",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_16",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_17",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_18",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaManut",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "ListaMan_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_2",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_3",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ListaMan_4",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_5",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_6",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_7",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_8",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_9",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_10",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_11",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ListaMa_12",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMa_13",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMa_14",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_15",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 29,
+     "faixa_ListaMan_3": "sem estatística"
+    },
+    {
+     "id": 12,
+     "nome": "NOVEMBRO Manutenção",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Manut22_09",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Manut22_10",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_11",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_12",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_13",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_14",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_15",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_16",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_17",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_18",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaManut",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "ListaMan_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_2",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_3",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ListaMan_4",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_5",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_6",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_7",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_8",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_9",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_10",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_11",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ListaMa_12",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMa_13",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMa_14",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_15",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 34,
+     "faixa_ListaMan_3": "sem estatística"
+    },
+    {
+     "id": 13,
+     "nome": "OUTUBRO Manutenção",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Manut22_09",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Manut22_10",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_11",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_12",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_13",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_14",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_15",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_16",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_17",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_18",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaManut",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "ListaMan_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_2",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_3",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ListaMan_4",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_5",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_6",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_7",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_8",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_9",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_10",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_11",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ListaMa_12",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMa_13",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMa_14",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_15",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 46,
+     "faixa_ListaMan_3": "sem estatística"
+    },
+    {
+     "id": 14,
+     "nome": "SETEMBRO Manutenção",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Manut22_09",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Manut22_10",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_11",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_12",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_13",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_14",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_15",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_16",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_17",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_18",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaManut",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "ListaMan_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_2",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_3",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ListaMan_4",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_5",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_6",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_7",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_8",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMan_9",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_10",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_11",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ListaMa_12",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMa_13",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaMa_14",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaMa_15",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 17,
+     "faixa_ListaMan_3": "sem estatística"
+    },
+    {
+     "id": 15,
+     "nome": "GERAL Manutenção",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "Manut22_09_2025_temp.FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Manut22_09_2025_temp.Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Manut22_09_2025_temp.CLOGRACODI",
+       "tipo": "Double"
+      },
+      {
+       "nome": "Manut22_09_2025_temp.NLOGRACONC",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_09_2025_temp.NLGPAVOFIC",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_09_2025_temp.NLGPAVRESU",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_09_2025_temp.FLGPAVINDP",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_09_2025_temp.INDPAV",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_09_2025_temp.CT",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_09_2025_temp.NMPERIMETR",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_09_2025_temp.NMTPVIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "Manut22_09_2025_temp.Metragem",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaManutenção2025.OID",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "ListaManutenção2025.CATEGORIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaManutenção2025.INCLUÍ",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaManutenção2025.ENCERRAMEN",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ListaManutenção2025.RPA",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaManutenção2025.TPVIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaManutenção2025.LOGRADOURO",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaManutenção2025.BAIRRO",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaManutenção2025.TRECHO",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaManutenção2025.EXTENSÃO",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaManutenção2025.CUSTO_PREV",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaManutenção2025.ENTREGA_DE",
+       "tipo": "Date"
+      },
+      {
+       "nome": "ListaManutenção2025.EXECUÇÃO",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaManutenção2025.INICIO_REA",
+       "tipo": "String"
+      },
+      {
+       "nome": "ListaManutenção2025.TERMINO_RE",
+       "tipo": "Double"
+      },
+      {
+       "nome": "ListaManutenção2025.CUSTO_REAL",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 191,
+     "faixa_ListaManutenção2025.ENCERRAMEN": "sem estatística"
+    },
+    {
+     "id": 16,
+     "nome": "Classificacao_Vias_Hierarquica",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "Name",
+       "tipo": "String"
+      },
+      {
+       "nome": "descriptio",
+       "tipo": "String"
+      },
+      {
+       "nome": "timestamp",
+       "tipo": "String"
+      },
+      {
+       "nome": "begin",
+       "tipo": "String"
+      },
+      {
+       "nome": "end",
+       "tipo": "String"
+      },
+      {
+       "nome": "altitudeMo",
+       "tipo": "String"
+      },
+      {
+       "nome": "tessellate",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "extrude",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "visibility",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "drawOrder",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "icon",
+       "tipo": "String"
+      },
+      {
+       "nome": "layer",
+       "tipo": "String"
+      },
+      {
+       "nome": "path",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 6799
+    },
+    {
+     "id": 17,
+     "nome": "TrechoLogradouros",
+     "geometria": "esriGeometryPolyline",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "CLOGRACODI",
+       "tipo": "Double"
+      },
+      {
+       "nome": "NLOGRACONC",
+       "tipo": "String"
+      },
+      {
+       "nome": "NLGPAVOFIC",
+       "tipo": "String"
+      },
+      {
+       "nome": "NLGPAVRESU",
+       "tipo": "String"
+      },
+      {
+       "nome": "FLGPAVINDP",
+       "tipo": "String"
+      },
+      {
+       "nome": "INDPAV",
+       "tipo": "String"
+      },
+      {
+       "nome": "CT",
+       "tipo": "String"
+      },
+      {
+       "nome": "NMPERIMETR",
+       "tipo": "String"
+      },
+      {
+       "nome": "NMTPVIA",
+       "tipo": "String"
+      },
+      {
+       "nome": "Metragem",
+       "tipo": "Double"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 9904
+    },
+    {
+     "id": 18,
+     "nome": "Bairros",
+     "geometria": "esriGeometryPolygon",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "CBAIRRCODI",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "VBAIRROID",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "EBAIRRNOME",
+       "tipo": "String"
+      },
+      {
+       "nome": "CRPAAACODI",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "CMICROCODI",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "TBAIRRULAT",
+       "tipo": "Date"
+      },
+      {
+       "nome": "CEMPRECODI",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "AUSUACMATR",
+       "tipo": "Integer"
+      },
+      {
+       "nome": "EBAIRRNO_1",
+       "tipo": "String"
+      },
+      {
+       "nome": "EBAIRRLINK",
+       "tipo": "String"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 94,
+     "faixa_TBAIRRULAT": "sem estatística"
+    },
+    {
+     "id": 19,
+     "nome": "RPA",
+     "geometria": "esriGeometryPolygon",
+     "campos": [
+      {
+       "nome": "FID",
+       "tipo": "OID"
+      },
+      {
+       "nome": "Shape",
+       "tipo": "Geometry"
+      },
+      {
+       "nome": "RPA",
+       "tipo": "Integer"
+      }
+     ],
+     "tempo": null,
+     "maxRecordCount": 2000,
+     "registros": 6
+    }
+   ],
+   "erro": null
+  },
+  {
+   "servico": "COP/BASES_ESTACAOMETEOROLOGICA_CONSULTA",
+   "tipo": "MapServer",
+   "descricao": "",
+   "tempo": null,
+   "camadas": [],
+   "erro": null
+  },
+  {
+   "servico": "INMET/BASES_INMET_ALERTAS_CONSULTA",
+   "tipo": "MapServer",
+   "descricao": "",
+   "tempo": null,
+   "camadas": [],
+   "erro": null
+  },
+  {
+   "servico": "PainelChuvas/MD_APAC",
+   "tipo": "ImageServer",
+   "descricao": "Serviço contendo as imagens atualizadas do painel dechuvas",
+   "extensao": {
+    "xmin": -37.7236155,
+    "ymin": -10.430171,
+    "xmax": -33.1768395,
+    "ymax": -5.934771,
+    "spatialReference": {
+     "wkid": 4326,
+     "latestWkid": 4326
+    }
+   },
+   "resolucao": [
+    0.0064220000000000015,
+    0.006422
+   ],
+   "bandas": 4,
+   "tipo_pixel": "U8",
+   "tempo": {
+    "startTimeField": "DATAHORA",
+    "endTimeField": "DATAHORA",
+    "timeExtent": [
+     1715695800000,
+     1715704800000
+    ],
+    "timeReference": null,
+    "defaultTimeInterval": 20,
+    "defaultTimeIntervalUnits": "esriTimeUnitsMinutes"
+   },
+   "capacidades": "Catalog,Mensuration,Image,Metadata",
+   "multidimensional": false,
+   "campos": [
+    "OBJECTID",
+    "Shape",
+    "Name",
+    "Category",
+    "DATAHORA",
+    "UF",
+    "MUNICIPIO",
+    "FONTE",
+    "Shape_Length",
+    "Shape_Area"
+   ],
+   "erro": null,
+   "itens_catalogo": 16,
+   "faixa_DATAHORA": {
+    "min": 1715695800000,
+    "max": 1715704800000
+   },
+   "exemplo_atributos_catalogo": [
+    {
+     "OBJECTID": 1,
+     "Name": "20240514_164000",
+     "Category": 1,
+     "DATAHORA": 1715704800000,
+     "UF": "PE",
+     "MUNICIPIO": "RECIFE",
+     "FONTE": "APAC",
+     "Shape_Length": 18.081000000000017,
+     "Shape_Area": 20.43204254000004
+    },
+    {
+     "OBJECTID": 2,
+     "Name": "20240514_163000",
+     "Category": 1,
+     "DATAHORA": 1715704200000,
+     "UF": "PE",
+     "MUNICIPIO": "RECIFE",
+     "FONTE": "APAC",
+     "Shape_Length": 18.081000000000017,
+     "Shape_Area": 20.43204254000004
+    }
+   ],
+   "keyProperties": {
+    "BandDefinitionKeyword": "NONE",
+    "_docversion_": 10,
+    "DataType": "Generic",
+    "HighCellSize": 0.006422,
+    "BandProperties": [],
+    "LowCellSize": 0.006422,
+    "MaxCellSize": 0.06422
+   }
+  }
+ ]
+}

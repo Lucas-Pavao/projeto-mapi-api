@@ -2,8 +2,9 @@ services:
   postgres:
     # Imagem fixa com TimescaleDB + PostGIS (ADR 0005): PG 16.15, TimescaleDB 2.30.2, PostGIS 3.6.4.
     # A imagem -ha guarda os dados em /home/postgres/pgdata (não em /var/lib/postgresql/data), por isso
-    # usa um volume próprio. Desde 2026-11-08 (ADR 0020) o banco se chama mapi_db, no volume postgres_mapi_data;
-    # o volume anterior (postgres_ha_data, banco tide_db) fica declarado abaixo e NÃO é apagado até nova aprovação.
+    # usa um volume próprio. Desde 2026-11-08 (ADR 0020) o banco se chama mapi_db, no volume postgres_mapi_data.
+    # O volume anterior (postgres_ha_data, banco tide_db) foi apagado em 2026-11-28 a pedido do Lucas; o conteúdo
+    # está no dump conferido ../snapshots/tide_db-2026-11-08-pre-recarga.dump (SHA-256 no .sha256 ao lado).
     image: timescale/timescaledb-ha:pg16.15-ts2.30.2
     container_name: mapi-db
     environment:
@@ -297,8 +298,6 @@ services:
 volumes:
   # Banco atual (mapi_db, ADR 0020).
   postgres_mapi_data:
-  # Banco anterior (tide_db): mantido até aprovação para apagar; nenhum serviço o monta.
-  postgres_ha_data:
   api_logs:
   prometheus_data:
   grafana_data:
