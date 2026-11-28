@@ -19,6 +19,10 @@ uso, com citação da fonte, os dados abertos da APAC. Peço três esclareciment
 2. **Fuso do campo `Data-hora`**: os horários estão na hora local de Pernambuco (UTC−3) ou em UTC?
 3. **Histórico**: há série histórica desse serviço (nível e chuva a cada 10 min) disponível para download? Se houver, peço o
    endereço; não peço produção de dado novo.
+4. **Radar** (acrescentado em 2026-11-23, onda 16, Fase 6.3): as imagens do radar da APAC publicadas no ESIG do Recife
+   (`pgdbesig_esi2_MD_APAC_v2`, ImageServer, uma imagem a cada 10 min) são figuras coloridas. Existe a tabela de cores da
+   legenda em dBZ (cor → refletividade), ou o produto em refletividade (dBZ) em formato de grade? Com ele seria possível
+   converter para mm/h pela relação de Marshall–Palmer.
 
 Os dados serão citados com a fonte na dissertação. Obrigado(a).
 
