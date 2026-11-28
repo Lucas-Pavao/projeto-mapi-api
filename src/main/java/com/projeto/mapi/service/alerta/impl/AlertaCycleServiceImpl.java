@@ -193,7 +193,8 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
                 PointBucketClient.Extras ex = new PointBucketClient.Extras(lz.map(d -> d.dias()).orElse(null),
                         lz.map(d -> d.lambdaRePorDia()).orElse(null), mare,
                         mare == null ? null : saida.getSoleiraMdtM() + props.getRefluxo().getViesMdtM() + props.getRefluxo().getDeltaM(),
-                        mare == null ? null : saida.getDiametroM());
+                        mare == null ? null : saida.getDiametroM(), lz.map(d -> d.regime()).orElse(null),
+                        lz.map(d -> d.diasEntupidaMedia()).orElse(null));
                 br = ex.empty()
                         ? bucket.evaluate(rain, bt, props.getCapacity().getTrYears(), props.getCapacity().getTeMinutes(), fq50, fq80)
                         : bucket.evaluate(rain, bt, props.getCapacity().getTrYears(), props.getCapacity().getTeMinutes(), fq50, fq80, ex);
@@ -248,6 +249,7 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
             if (br.cleaning() != null) {
                 PointBucketClient.Cleaning c = br.cleaning();
                 Map<String, Object> lzm = new LinkedHashMap<>();
+                lzm.put("regime", c.regime());
                 lzm.put("diasDesdeLimpeza", c.daysSinceCleaning());
                 lzm.put("lambdaRePorDia", c.lambdaRePerDay());
                 lzm.put("pEntupida", c.pClogged());
@@ -255,7 +257,9 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
                 lzm.put("probHcritAgora", c.probHcritNow());
                 lzm.put("probHcrit60minQ50", c.probHcrit60Q50());
                 lzm.put("probOn", limpezaProps.getProbOn());
-                lzm.put("regra", "P(entupida) = 1 - exp(-lambda_re * dias desde a última limpeza da Central 156)");
+                lzm.put("regra", "PERMANENTE".equals(c.regime())
+                        ? "limpeza desconhecida: P(entupida) = D_E / (1/lambda_re + D_E) (regime permanente; emenda 1 da 156)"
+                        : "P(entupida) = 1 - exp(-lambda_re * dias desde a última limpeza da Central 156)");
                 projection.put("limpeza", lzm);
             }
         }

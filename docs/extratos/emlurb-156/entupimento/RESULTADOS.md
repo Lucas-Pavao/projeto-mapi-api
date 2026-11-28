@@ -98,3 +98,32 @@ que o chamado mede entupimento **percebido** quando chove, não o acúmulo no se
 
 Limpeza recente → P(entupida) pequena → chance de alagar menor. Pontos sem taxa (CIn, Imbiribeira) ficam com o comportamento de hoje
 (galeria livre), nunca com um número inventado.
+
+## Emenda 1 (2026-11-22, aprovada pelo Lucas): antes e depois
+
+Regras em `docs/PRE-REGISTRO-ENTUPIMENTO-156.md` (emenda 1), escritas antes de rodar. Comando:
+`python3 -I scripts/central-156/entupimento_156.py MAPI/fontes/emlurb-156 docs/extratos/esig-drenagem/geojson projeto-mapi-ai/data/bucket10 MAPI/fontes/recife-bairros/bairros.geojson`.
+
+- **E1, coordenadas-padrão:** 109 coordenadas, com 21.948 chamados (`coordenadas_padrao.json`). Perto dos pontos (150 m):
+  155 no Derby, 0 nos outros.
+- **E2, bairro oficial:** polígonos "Bairros do Recife" (Prefeitura do Recife, dataset "Área urbana", ODbL; acesso em
+  2026-11-22; SHA-256 `2099e5d6…` em `MAPI/fontes/recife-bairros/`).
+- **Achado:** em 2024, só 805 dos chamados de drenagem têm coordenada (nos outros anos de 2015 a 2026, de 1.384 a 5.198).
+  Nesse ano o casamento por coordenada fica quase cego e vale o casamento por logradouro e bairro.
+
+| Ponto | Bairro (antes → depois) | λ_re/dia (antes → depois) | Limpezas | Última limpeza | p95 do intervalo (dias) | Limpeza no fim da base | D_E (dias) | π_E permanente |
+|---|---|---|---|---|---|---|---|---|
+| Ibura | IPSEP → IBURA | 0,02337 → 0,01038 | 53 → 19 | 2023-08-30 → 2023-08-17 | 1.648 | **conhecida** (1.037 ≤ 1.648) | 75,9 (ponto) | 0,441 |
+| Derby | BOA VISTA → DERBY | 0,00981 → 0,01068 | 35 → 40 | 2024-07-05 → 2024-08-21 | 445 | desconhecida (667 > 445) | 59,0 (ponto) | 0,387 |
+| Mascarenhas | IMBIRIBEIRA (igual) | 0,03331 (igual) | 130 | 2023-08-31 | 221 | desconhecida (1.023 > 221) | 44,2 (ponto) | 0,596 |
+| CIn | AREIAS → CIDADE UNIVERSITARIA | sem taxa | 0 | — | — | — | 185,5 (bairro) | — |
+
+Leitura:
+- **Ibura continua saturando.** Com o bairro oficial (IBURA), o casamento por logradouro e bairro perdeu os chamados que a
+  156 grava como IPSEP na Av. Recife: as limpezas caem de 53 para 19. Os intervalos entre essas 19 têm p95 de 1.648 dias. Pela
+  regra, a limpeza de 2023-08-17 ainda é "conhecida", e P(entupida) = 1 − exp(−0,01038 × 1.037) ≈ 1,0. A regra foi aplicada
+  como aprovada e não foi mudada depois de ver o resultado. Fica registrado para decisão.
+- **Derby e Mascarenhas saem da saturação:** regime permanente com π_E 0,387 e 0,596.
+- **No ar:** a carga completa da base no banco (`POST /api/admin/limpeza/ingestao?anoInicial=2012`, ADMIN) ainda não rodou.
+  Só a carga semanal (ano corrente) roda sozinha. Até a carga completa, todo ponto com taxa fica em regime permanente
+  ("nenhuma limpeza registrada").

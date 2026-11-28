@@ -42,7 +42,12 @@ public class LimpezaService {
     public record Resultado(List<Integer> anos, int lidos, int doServico, int casamentos, int gravados) {}
 
     /** Dados de limpeza de um ponto para o balde; vazio = sem dado (comportamento de sempre). */
-    public record DadosLimpeza(LocalDate ultimaLimpeza, double dias, double lambdaRePorDia) {}
+    /**
+     * Dados de limpeza do ponto para o alerta (emenda 1 da 156). {@code regime}: TEMPO_DESDE_LIMPEZA (usa {@code dias}) ou
+     * PERMANENTE (limpeza desconhecida: usa {@code diasEntupidaMedia}; {@code dias} nulo). {@code motivo} diz por quê.
+     */
+    public record DadosLimpeza(String regime, LocalDate ultimaLimpeza, Double dias, double lambdaRePorDia,
+                               Double diasEntupidaMedia, LocalDate fimCobertura, String motivo) {}
 
     private static final ZoneId RECIFE = ZoneId.of("America/Recife");
     private static final Pattern ANO = Pattern.compile("^(\\d{4})");
@@ -53,6 +58,21 @@ public class LimpezaService {
     private final ExternalRestClientFactory http;
     private final ObjectMapper mapper;
     private final Clock clock;
+    private final java.util.Set<String> coordenadasPadrao = carregarCoordenadasPadrao();
+
+    /** E1: coordenadas-padrão da 156 (geradas pelo script da emenda 1; recurso versionado). */
+    static java.util.Set<String> carregarCoordenadasPadrao() {
+        try (var in = LimpezaService.class.getResourceAsStream("/limpeza/coordenadas_padrao.json")) {
+            if (in == null) return java.util.Set.of();
+            java.util.Set<String> out = new java.util.HashSet<>();
+            for (JsonNode c : new com.fasterxml.jackson.databind.ObjectMapper().readTree(in).path("coordenadas")) {
+                out.add(Central156.chaveCoordenada(c.get(0).asDouble(), c.get(1).asDouble()));
+            }
+            return java.util.Set.copyOf(out);
+        } catch (java.io.IOException e) {
+            throw new IllegalStateException("coordenadas-padrão da 156 ilegíveis", e);
+        }
+    }
 
     @Scheduled(cron = "${mapi.limpeza.cron:0 30 4 * * MON}", zone = "America/Recife")
     public void semanal() {
@@ -90,10 +110,12 @@ public class LimpezaService {
             if (bytes == null) continue;
             List<Central156.Chamado> cs = Central156.parse(new String(bytes, StandardCharsets.UTF_8), e.getKey());
             lidos += cs.size();
+            cs.stream().map(Central156.Chamado::demandDate).filter(java.util.Objects::nonNull).max(LocalDate::compareTo)
+                    .ifPresent(max -> repo.upsertCobertura(e.getKey(), max, cs.size()));
             for (Central156.Chamado c : cs) {
                 if (!servicos.contains(c.groupCode() + "/" + c.serviceCode())) continue;
                 doServico++;
-                for (Central156.Casamento m : Central156.casar(c, refs, props.getRaioM())) {
+                for (Central156.Casamento m : Central156.casar(c, refs, props.getRaioM(), coordenadasPadrao)) {
                     casamentos++;
                     gravados += repo.upsert(c, m);
                 }
@@ -102,20 +124,43 @@ public class LimpezaService {
         return new Resultado(new ArrayList<>(porAno.keySet()), lidos, doServico, casamentos, gravados);
     }
 
-    /** Dias desde a última limpeza conhecida e a taxa do ponto; vazio se faltar um dos dois ou a taxa tiver poucas limpezas. */
+    /**
+     * Emenda 1 da 156 (E3/E4). Com taxa do ponto: a última limpeza conhecida vale se {@code fim − última ≤ N_p} e hoje ainda
+     * não passou de {@code fim + N_p} (N_p = p95 dos intervalos entre limpezas do ponto); senão, a limpeza é desconhecida e
+     * vale o regime permanente. Vazio se faltar a taxa (poucas limpezas) ou, no regime permanente, o tempo médio entupida.
+     */
     public Optional<DadosLimpeza> dados(FloodPoint p) {
         if (!props.isEnabled()) return Optional.empty();
         LimpezaProperties.Ponto cfg = props.getPontos().get(p.getSlug());
         if (cfg == null || cfg.getLambdaRePorDia() == null || cfg.getLimpezas() < props.getMinLimpezas()) return Optional.empty();
         Optional<LocalDate> ultima;
+        LocalDate fim;
         try {
             ultima = repo.ultimaLimpeza(p.getId());
+            fim = repo.fimCobertura().orElse(props.getFimCoberturaPadrao());
         } catch (Exception e) {
             return Optional.empty();
         }
-        if (ultima.isEmpty()) return Optional.empty();
-        double dias = Math.max(0, ChronoUnit.DAYS.between(ultima.get(), LocalDate.now(clock.withZone(RECIFE))));
-        return Optional.of(new DadosLimpeza(ultima.get(), dias, cfg.getLambdaRePorDia()));
+        return Optional.ofNullable(decidir(cfg, ultima.orElse(null), fim, LocalDate.now(clock.withZone(RECIFE))));
+    }
+
+    /** Regra E3/E4, pura (testável). */
+    static DadosLimpeza decidir(LimpezaProperties.Ponto cfg, LocalDate ultima, LocalDate fim, LocalDate hoje) {
+        Integer n95 = cfg.getIntervaloP95Dias();
+        String motivo;
+        if (ultima == null) motivo = "nenhuma limpeza registrada perto do ponto";
+        else if (n95 == null) motivo = "sem intervalo entre limpezas para saber se o registro está completo";
+        else if (ChronoUnit.DAYS.between(ultima, fim) > n95)
+            motivo = "última limpeza registrada (" + ultima + ") mais antiga que " + n95 + " dias antes do fim da base (" + fim + ")";
+        else if (ChronoUnit.DAYS.between(fim, hoje) > n95)
+            motivo = "a base da 156 acabou em " + fim + ", há mais de " + n95 + " dias";
+        else {
+            double dias = Math.max(0, ChronoUnit.DAYS.between(ultima, hoje));
+            return new DadosLimpeza("TEMPO_DESDE_LIMPEZA", ultima, dias, cfg.getLambdaRePorDia(), cfg.getDiasEntupidaMedia(), fim,
+                    "última limpeza registrada em " + ultima);
+        }
+        if (cfg.getDiasEntupidaMedia() == null) return null;
+        return new DadosLimpeza("PERMANENTE", ultima, null, cfg.getLambdaRePorDia(), cfg.getDiasEntupidaMedia(), fim, motivo);
     }
 
     public Map<String, Object> resumo() {

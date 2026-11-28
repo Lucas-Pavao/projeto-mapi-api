@@ -10,8 +10,8 @@ public interface PointBucketClient {
     record Projection(List<Double> hMm, Integer minutesToHcrit, double hMaxMm) {}
 
     /** Bloco "limpeza" da IA (mapi_ai/entupimento.py); nulo quando não se mandou dias e taxa. */
-    record Cleaning(double daysSinceCleaning, double lambdaRePerDay, double pClogged, double hNowCloggedMm,
-                    Double probHcritNow, Double probHcrit60Q50, Integer minutesToHcritQ50Clogged) {}
+    record Cleaning(Double daysSinceCleaning, double lambdaRePerDay, double pClogged, double hNowCloggedMm,
+                    Double probHcritNow, Double probHcrit60Q50, Integer minutesToHcritQ50Clogged, String regime) {}
 
     /** Bloco "refluxo" da IA; nulo sem maré. */
     record Backflow(double factorNow, double factorMinProjection, double tideNowNrM, double sillNrM, double diameterM) {}
@@ -25,9 +25,20 @@ public interface PointBucketClient {
 
     /** Limpeza recente e refluxo de maré; cada parte nula = desligada. tideNrM: um valor por passo da série + 6 da projeção. */
     record Extras(Double daysSinceCleaning, Double lambdaRePerDay, List<Double> tideNrM, Double outletSillNrM,
-                  Double outletDiameterM) {
+                  Double outletDiameterM, String clogRegime, Double meanCloggedDays) {
+        public Extras(Double daysSinceCleaning, Double lambdaRePerDay, List<Double> tideNrM, Double outletSillNrM,
+                      Double outletDiameterM) {
+            this(daysSinceCleaning, lambdaRePerDay, tideNrM, outletSillNrM, outletDiameterM, null, null);
+        }
+
+        /** Limpeza informada: taxa e, conforme o regime (emenda 1 da 156), os dias desde a limpeza ou o tempo médio entupida. */
+        public boolean hasCleaning() {
+            if (lambdaRePerDay == null) return false;
+            return "PERMANENTE".equals(clogRegime) ? meanCloggedDays != null : daysSinceCleaning != null;
+        }
+
         public boolean empty() {
-            return (daysSinceCleaning == null || lambdaRePerDay == null) && tideNrM == null;
+            return !hasCleaning() && tideNrM == null;
         }
     }
 

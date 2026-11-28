@@ -91,9 +91,18 @@ public final class Central156 {
      * Um chamado pode casar com mais de um ponto (devolve todos).
      */
     public static List<Casamento> casar(Chamado c, List<PontoRef> pontos, double raioM) {
+        return casar(c, pontos, raioM, java.util.Set.of());
+    }
+
+    /**
+     * Igual, ignorando no casamento por coordenada os chamados numa coordenada-padrão (emenda 1, E1): a coordenada não
+     * diz onde a boca de lobo está. Esses chamados ainda casam por logradouro e bairro.
+     */
+    public static List<Casamento> casar(Chamado c, List<PontoRef> pontos, double raioM, java.util.Set<String> coordenadasPadrao) {
         List<Casamento> out = new ArrayList<>();
+        boolean padrao = c.lat() != null && coordenadasPadrao.contains(chaveCoordenada(c.lat(), c.lon()));
         for (PontoRef p : pontos) {
-            if (c.lat() != null) {
+            if (c.lat() != null && !padrao) {
                 double d = distanciaM(p.lat(), p.lon(), c.lat(), c.lon());
                 if (d <= raioM) { out.add(new Casamento(p, "COORDENADA_150M", d)); continue; }
             }
@@ -102,6 +111,11 @@ public final class Central156 {
             }
         }
         return out;
+    }
+
+    /** Coordenada arredondada a 5 casas (~1 m), como no script da emenda 1. */
+    public static String chaveCoordenada(double lat, double lon) {
+        return String.format(java.util.Locale.ROOT, "%.5f,%.5f", lat, lon);
     }
 
     /** P(entupida | dias) = 1 - exp(-lambda · dias); vazio sem dado. */

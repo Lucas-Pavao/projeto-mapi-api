@@ -60,7 +60,7 @@ class OpenMeteoModelIntegrationTest extends AbstractApiIntegrationTest {
         Instant avail = now.minus(Duration.ofHours(1));
         when(client.runMeta("ecmwf_ifs")).thenReturn(Optional.of(new RunMeta(init, avail)));
         when(client.runMeta("ecmwf_ifs025")).thenReturn(Optional.of(new RunMeta(init, avail)));
-        when(client.runMeta("icon_global")).thenThrow(new IllegalStateException("descontinuado"));
+        when(client.runMeta("dwd_icon_global_native")).thenThrow(new IllegalStateException("fora do ar"));
         when(client.runMeta("best_match")).thenReturn(Optional.empty());
         when(client.liveRun(anyDouble(), anyDouble(), any())).thenAnswer(inv -> batch(now.minus(Duration.ofHours(2)), 72, 1.5));
 
@@ -75,7 +75,7 @@ class OpenMeteoModelIntegrationTest extends AbstractApiIntegrationTest {
         OffsetDateTime issued = jdbc.queryForObject(
                 "SELECT DISTINCT issued_before_utc FROM open_meteo_model_hour WHERE model = 'ecmwf_ifs'", OffsetDateTime.class);
         assertThat(issued.toInstant()).isEqualTo(avail);
-        assertThat(jdbc.queryForObject("SELECT count(*) FROM open_meteo_model_hour WHERE model = 'icon_global'", Integer.class)).isZero();
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM open_meteo_model_hour WHERE model = 'dwd_icon_global_native'", Integer.class)).isZero();
         assertThat(jdbc.queryForObject("SELECT count(*) FROM open_meteo_model_hour WHERE model = 'best_match' AND run_init_utc IS NULL",
                 Integer.class)).isPositive();
         assertThat(jdbc.queryForObject("SELECT status FROM ingestion_run WHERE source = 'OPEN_METEO_FORECAST' ORDER BY started_at DESC LIMIT 1",

@@ -33,6 +33,20 @@ public class LimpezaRepository {
                 c.sourceYear());
     }
 
+    /** Cobertura do ano lido (V46): maior data de demanda entre todos os chamados do arquivo, não só os casados. */
+    public void upsertCobertura(int ano, LocalDate maxDemanda, int linhas) {
+        jdbc.update("""
+                INSERT INTO drainage_cleaning_coverage (source_year, max_demand_date, rows_read) VALUES (?, ?, ?)
+                ON CONFLICT (source_year) DO UPDATE SET max_demand_date = EXCLUDED.max_demand_date,
+                    rows_read = EXCLUDED.rows_read, ingested_at = now()""", ano, Date.valueOf(maxDemanda), linhas);
+    }
+
+    /** Fim da cobertura da base (E3): a maior data de demanda vista; vazio se a base nunca foi lida. */
+    public Optional<LocalDate> fimCobertura() {
+        List<Date> d = jdbc.queryForList("SELECT max(max_demand_date) FROM drainage_cleaning_coverage", Date.class);
+        return d.isEmpty() || d.get(0) == null ? Optional.empty() : Optional.of(d.get(0).toLocalDate());
+    }
+
     /** Data da última limpeza feita (situação ATENDIDA) do ponto. */
     public Optional<LocalDate> ultimaLimpeza(long floodPointId) {
         List<Date> d = jdbc.queryForList("""
