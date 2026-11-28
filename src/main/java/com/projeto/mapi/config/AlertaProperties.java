@@ -26,6 +26,16 @@ public class AlertaProperties {
     private Capacity capacity = new Capacity();
     private Flood flood = new Flood();
     private Refluxo refluxo = new Refluxo();
+    /**
+     * Lâmina do ADR 0026 ({@code POST /v1/bucket/point10}). Desligada pelo ADR 0030 (alerta único): o ciclo grava
+     * {@code point_flood = DESLIGADO} e só mede latência. Ligar volta ao comportamento anterior (reversível).
+     */
+    private PontoBalde pontoBalde = new PontoBalde();
+
+    @Data
+    public static class PontoBalde {
+        private boolean enabled = false;
+    }
     private Latency latency = new Latency();
 
     @Data
@@ -79,10 +89,19 @@ public class AlertaProperties {
     @Data
     public static class Refluxo {
         private boolean enabled = true;
+        /**
+         * Modo do fator no alerta único (ADR 0030): OFF (não calcula), INFO (só a contribuição), NIVEL (muda o nível).
+         */
+        private String modo = "NIVEL";
         /** Desnível NR↔SGB pela RN 2603F (emenda 1): cota_NR = H + Δ. */
         private double deltaM = 0.821;
-        /** Viés do MDT em relação ao SGB somado a H (0 = central; +0,37 = cenário da mediana MDT − RN em terra). */
+        /** Viés do MDT (MDT − RN), subtraído da soleira: soleira_NR = soleira_MDT − viés + Δ. 0 = cenário central. */
         private double viesMdtM = 0.0;
+        /**
+         * Cenário de viés (só sensibilidade, ADR 0030): MDT − RN = −0,369 m, mediana em 17 RRNN em terra
+         * (docs/extratos/referencia-vertical.md:101). A soleira no NR sobe 0,369 m.
+         */
+        private Double viesMdtCenarioM = -0.369;
         private java.util.Map<String, Saida> pontos = defaults();
 
         @Data

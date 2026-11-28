@@ -55,6 +55,17 @@ public final class RainAlertRules {
         public static Bucket failed(SemDadoMotivo m) {
             return new Bucket(null, null, null, null, null, null, m, null);
         }
+
+        /** Lâmina do ADR 0026 desligada pelo ADR 0030: {@code point_flood = DESLIGADO}, sem motivo de SEM_DADO. */
+        public static Bucket retired() {
+            return new Bucket(null, null, null, null, null, RETIRED, null, null);
+        }
+
+        public boolean isRetired() {
+            return RETIRED.equals(version) && failure == null;
+        }
+
+        static final String RETIRED = "DESLIGADO_ADR0030";
     }
 
     /**
@@ -150,7 +161,9 @@ public final class RainAlertRules {
         PointFloodLevel flood;
         SemDadoMotivo floodReason = null;
         Integer floodIn = null;
-        if (terrain == TerrainStatus.SEM_TERRENO) {
+        if (b.isRetired()) {
+            flood = PointFloodLevel.DESLIGADO;
+        } else if (terrain == TerrainStatus.SEM_TERRENO) {
             flood = PointFloodLevel.SEM_DADO;
             floodReason = SemDadoMotivo.SEM_TERRENO;
         } else if (terrain == TerrainStatus.EM_REVISAO) {
@@ -205,7 +218,8 @@ public final class RainAlertRules {
             }
         }
         if (prev.flood() == null ? flood != PointFloodLevel.NAO : flood != prevFlood) {
-            TransitionKind k = flood == PointFloodLevel.SEM_DADO ? TransitionKind.SEM_DADO
+            TransitionKind k = flood == PointFloodLevel.DESLIGADO ? TransitionKind.DESLIGA
+                    : flood == PointFloodLevel.SEM_DADO ? TransitionKind.SEM_DADO
                     : flood == PointFloodLevel.PROVAVEL ? TransitionKind.LIGA
                     : prevFlood == PointFloodLevel.SEM_DADO ? TransitionKind.VOLTA_DADO : TransitionKind.DESLIGA;
             tr.add(new Transition("FLOOD", prev.flood() == null ? null : prevFlood.name(), flood.name(), k,

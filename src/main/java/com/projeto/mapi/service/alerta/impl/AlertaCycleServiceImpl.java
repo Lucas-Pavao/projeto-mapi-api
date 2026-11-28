@@ -86,9 +86,14 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
             try {
                 PointOutcome o = evaluate(cycleId, started, p, sourceStale);
                 bucketMs += o.bucketMs();
-                Instant sent = stream.publishAlertEvent("alert-state", o.state(), props.isShadow());
-                for (Object t : o.transitions()) stream.publishAlertEvent("alert-transition", t, props.isShadow());
-                if (o.flood() != null) stream.publishAlertEvent("flood-forecast", o.flood(), floodForecast.shadow());
+                // ADR 0030: o SSE do alerta mostrado (flood-forecast) é o envio medido na latência. alert-state e
+                // alert-transition só saem com a lâmina do ADR 0026 religada (nenhuma tela os lê).
+                Instant sent = null;
+                if (props.getPontoBalde().isEnabled()) {
+                    sent = stream.publishAlertEvent("alert-state", o.state(), props.isShadow());
+                    for (Object t : o.transitions()) stream.publishAlertEvent("alert-transition", t, props.isShadow());
+                }
+                if (o.flood() != null) sent = stream.publishAlertEvent("flood-forecast", o.flood(), floodForecast.shadow());
                 if (sent != null) {
                     repo.markSseSent(cycleId, p.getId(), sent);
                     lastSse = sent;
@@ -169,7 +174,9 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
         RainAlertRules.Bucket b;
         double bucketMs = 0;
         PointBucketClient.Result br = null;
-        if (ts != RainAlertRules.TerrainStatus.OK || last < 0) {
+        if (!props.getPontoBalde().isEnabled()) {
+            b = RainAlertRules.Bucket.retired();   // ADR 0030: o nível de alagamento é o do alerta único
+        } else if (ts != RainAlertRules.TerrainStatus.OK || last < 0) {
             b = RainAlertRules.Bucket.failed(SemDadoMotivo.SERIE_INCOMPLETA);
         } else {
             int start = 0;
@@ -192,7 +199,7 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
                 AlertaProperties.Refluxo.Saida saida = props.getRefluxo().getPontos().get(p.getSlug());
                 PointBucketClient.Extras ex = new PointBucketClient.Extras(lz.map(d -> d.dias()).orElse(null),
                         lz.map(d -> d.lambdaRePorDia()).orElse(null), mare,
-                        mare == null ? null : saida.getSoleiraMdtM() + props.getRefluxo().getViesMdtM() + props.getRefluxo().getDeltaM(),
+                        mare == null ? null : saida.getSoleiraMdtM() - props.getRefluxo().getViesMdtM() + props.getRefluxo().getDeltaM(),
                         mare == null ? null : saida.getDiametroM(), lz.map(d -> d.regime()).orElse(null),
                         lz.map(d -> d.diasEntupidaMedia()).orElse(null));
                 br = ex.empty()
@@ -218,6 +225,8 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
                 .findFirst().orElse(null);
         Object flood = floodForecast.enabled()
                 ? floodForecast(cycleId, now, p, slots, last, ts, t, rain60, newestBlock) : null;
+        // ADR 0030: o instante da IA na latência passa a ser a resposta do alerta mostrado (a IA respondeu = tem commit)
+        if (flood instanceof com.projeto.mapi.dto.AlagamentoPontoDTO fd && fd.codeVersion() != null) aiAt = clock.instant();
 
         State prevState = repo.state(p.getId()).orElse(null);
         RainAlertRules.Previous prev = prevState == null ? RainAlertRules.Previous.initial()
@@ -328,13 +337,44 @@ public class AlertaCycleServiceImpl implements AlertaCycleService {
             }
             String status = ts == RainAlertRules.TerrainStatus.OK ? "OK"
                     : ts == RainAlertRules.TerrainStatus.EM_REVISAO ? "EM_REVISAO" : "SEM_TERRENO";
+            Instant firstEnd = s10.isEmpty() ? null : slots.get(last - s10.size() + 1).end();
             return floodForecast.evaluate(cycleId, now, p, new FloodForecastService.Input(s10, ft, status, rain60,
                     newest == null ? null : newest.canonicalId(), newest == null ? null : newest.km(),
-                    props.getCapacity().getTrYears(), props.getCapacity().getTeMinutes()));
+                    props.getCapacity().getTrYears(), props.getCapacity().getTeMinutes(), factors(p, firstEnd, s10.size())));
         } catch (Exception e) {
             log.error("Alerta por regressão do ponto {}: {}", p.getSlug(), e.toString());
             return null;
         }
+    }
+
+    /** Passos de 10 min das próximas 6 h que levam maré ao alerta único (ADR 0030). */
+    static final int HORIZON_STEPS = 36;
+
+    /**
+     * Fatores por ponto do alerta único (ADR 0030): maré prevista no fim de cada passo da série ({@code n} passos a
+     * partir de {@code firstEnd}) e dos 36 passos seguintes, soleira, Δ e viés; dados de limpeza da Central 156.
+     */
+    FloodForecastClient.Factors factors(FloodPoint p, Instant firstEnd, int n) {
+        AlertaProperties.Refluxo rf = props.getRefluxo();
+        String rMode = rf.isEnabled() ? rf.getModo() : "OFF";
+        AlertaProperties.Refluxo.Saida saida = rf.getPontos().get(p.getSlug());
+        List<Double> mare = null;
+        if (!"OFF".equals(rMode) && saida != null && firstEnd != null && n > 0) {
+            try {
+                mare = tide.series(firstEnd, n + HORIZON_STEPS, Duration.ofMinutes(PointRain10MinComposer.STEP_MIN));
+            } catch (Exception e) {
+                log.warn("Maré do alerta único indisponível ({}): {}", p.getSlug(), e.toString());
+                mare = java.util.Collections.nCopies(n + HORIZON_STEPS, null);   // a IA devolve MARE_AUSENTE
+            }
+        }
+        String lMode = limpezaProps.isEnabled() ? limpezaProps.getModoNoAlerta() : "OFF";
+        var lz = "OFF".equals(lMode) ? java.util.Optional.<com.projeto.mapi.service.limpeza.LimpezaService.DadosLimpeza>empty()
+                : limpeza.dados(p);
+        return new FloodForecastClient.Factors(rMode, mare, saida == null ? null : saida.getSoleiraMdtM(),
+                saida == null ? null : saida.getDiametroM(), saida == null ? null : rf.getDeltaM(), rf.getViesMdtM(),
+                rf.getViesMdtCenarioM(), lMode, lz.map(d -> d.dias()).orElse(null), lz.map(d -> d.lambdaRePorDia()).orElse(null),
+                lz.map(d -> d.regime()).orElse(null), lz.map(d -> d.diasEntupidaMedia()).orElse(null),
+                limpezaProps.getFEntupida(), limpezaProps.getProbOn());
     }
 
     RainAlertRules.Params params() {

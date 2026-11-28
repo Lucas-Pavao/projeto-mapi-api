@@ -19,7 +19,17 @@ public class FloodForecastRepository {
     public record Row(UUID cycleId, long floodPointId, Instant evaluatedAt, Instant issuedAt, String level,
                       Integer worstHorizonHours, String reason, Double hNowCm, String floodVersion, String rainModelVersion,
                       String bucketVersion, String codeVersion, String payloadJson, String rainStation, Double rainStationKm,
-                      boolean shadow) {}
+                      boolean shadow, String refluxoMode, String limpezaMode, Double refluxoDeltaCm, Double limpezaPEntupida,
+                      String biasScenarioLevel) {
+        /** Sem fatores (antes do ADR 0030). */
+        public Row(UUID cycleId, long floodPointId, Instant evaluatedAt, Instant issuedAt, String level, Integer worstHorizonHours,
+                   String reason, Double hNowCm, String floodVersion, String rainModelVersion, String bucketVersion,
+                   String codeVersion, String payloadJson, String rainStation, Double rainStationKm, boolean shadow) {
+            this(cycleId, floodPointId, evaluatedAt, issuedAt, level, worstHorizonHours, reason, hNowCm, floodVersion,
+                    rainModelVersion, bucketVersion, codeVersion, payloadJson, rainStation, rainStationKm, shadow, null, null,
+                    null, null, null);
+        }
+    }
 
     /** Linha mais nova de um ponto, com o contexto que a API guardou. */
     public record Latest(long floodPointId, String slug, String name, Instant evaluatedAt, String payloadJson,
@@ -36,11 +46,12 @@ public class FloodForecastRepository {
         jdbc.update("""
                 INSERT INTO flood_forecast_point (cycle_id, flood_point_id, evaluated_at, issued_at, level, worst_horizon_hours,
                     reason, h_now_cm, flood_version, rain_model_version, bucket_version, code_version, payload, rain_station,
-                    rain_station_km, shadow)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CAST(? AS jsonb), ?, ?, ?)""",
+                    rain_station_km, shadow, refluxo_mode, limpeza_mode, refluxo_delta_cm, limpeza_p_entupida, bias_scenario_level)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CAST(? AS jsonb), ?, ?, ?, ?, ?, ?, ?, ?)""",
                 r.cycleId(), r.floodPointId(), utc(r.evaluatedAt()), utc(r.issuedAt()), r.level(), r.worstHorizonHours(),
                 r.reason(), r.hNowCm(), r.floodVersion(), r.rainModelVersion(), r.bucketVersion(), r.codeVersion(),
-                r.payloadJson(), r.rainStation(), r.rainStationKm(), r.shadow());
+                r.payloadJson(), r.rainStation(), r.rainStationKm(), r.shadow(), r.refluxoMode(), r.limpezaMode(),
+                r.refluxoDeltaCm(), r.limpezaPEntupida(), r.biasScenarioLevel());
     }
 
     /** Nome da estação canônica (V25); nulo se não houver. */

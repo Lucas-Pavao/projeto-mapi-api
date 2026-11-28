@@ -39,7 +39,9 @@ import static org.mockito.Mockito.when;
 
 /** Alerta por ponto (V34, ADR 0026): ciclo contra o banco real, estado, transições, motivos de SEM_DADO e a rota. */
 @TestPropertySource(properties = {"mapi.rain-forecast.enabled=true", "mapi.rain-forecast.open-meteo-enabled=false",
-        "mapi.alerta.flood.terrain-review=AL_REVISAO", "mapi.radar.enabled=false"})
+        "mapi.alerta.flood.terrain-review=AL_REVISAO", "mapi.radar.enabled=false",
+        // a lâmina do ADR 0026 fica testada religada (reversível); o padrão desligado (ADR 0030) tem teste próprio
+        "mapi.alerta.ponto-balde.enabled=true"})
 class AlertaIntegrationTest extends AbstractTimescaleIntegrationTest {
 
     @Autowired AlertaCycleService cycle;
@@ -176,11 +178,11 @@ class AlertaIntegrationTest extends AbstractTimescaleIntegrationTest {
         @SuppressWarnings("unchecked")
         org.mockito.ArgumentCaptor<List<Double>> serie = org.mockito.ArgumentCaptor.forClass(List.class);
         org.mockito.Mockito.verify(floodClient).forecast(anyDouble(), anyDouble(), anyList(), anyList(), serie.capture(),
-                org.mockito.ArgumentMatchers.isNull(), org.mockito.ArgumentMatchers.eq("SEM_TERRENO"), anyDouble(), anyDouble());
+                org.mockito.ArgumentMatchers.isNull(), org.mockito.ArgumentMatchers.eq("SEM_TERRENO"), anyDouble(), anyDouble(), any());
         // trecho contínuo desde a última lacuna, com pelo menos 6 h: sem nenhum null (ausente nunca vira zero nem vai ao balde)
         assertThat(serie.getValue()).hasSizeGreaterThanOrEqualTo(36).doesNotContainNull();
         org.mockito.Mockito.verify(floodClient).forecast(anyDouble(), anyDouble(), anyList(), anyList(), anyList(),
-                org.mockito.ArgumentMatchers.isNull(), org.mockito.ArgumentMatchers.eq("EM_REVISAO"), anyDouble(), anyDouble());
+                org.mockito.ArgumentMatchers.isNull(), org.mockito.ArgumentMatchers.eq("EM_REVISAO"), anyDouble(), anyDouble(), any());
         List<com.projeto.mapi.dto.AlagamentoPontoDTO> fl = alagamento.current(admin()).getBody();
         assertThat(fl).extracting(com.projeto.mapi.dto.AlagamentoPontoDTO::slug).contains("AL_OK", "AL_REVISAO");
         assertThat(fl).allSatisfy(f -> {

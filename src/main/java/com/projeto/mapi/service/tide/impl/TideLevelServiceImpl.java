@@ -41,4 +41,13 @@ public class TideLevelServiceImpl implements TideLevelService {
                 TideSource.at(rows, t, r -> r.tsUtc(), r -> r.source())));
     }
 
+    @Override
+    public List<Double> series(Instant first, int n, Duration step) {
+        if (n <= 0) return List.of();
+        Instant last = first.plus(step.multipliedBy(n - 1L));
+        List<TideInterpolation.Extreme> ex = observations.tideExtremes(first.minus(WINDOW), last.plus(WINDOW)).stream()
+                .map(e -> new TideInterpolation.Extreme(e.tsUtc(), e.level())).toList();
+        return TideInterpolation.sample(ex, first, last.plus(step), step).stream().map(TideInterpolation.Sample::v).toList();
+    }
+
 }

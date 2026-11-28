@@ -56,7 +56,7 @@ import static org.mockito.Mockito.mockingDetails;
 @TestPropertySource(properties = {"mapi.rain-forecast.enabled=true", "mapi.rain-forecast.open-meteo-enabled=false",
         "app.ai.api-url=${AI_API_URL:http://localhost:8000}",
         // a reprise confere o balde congelado (ADR 0027): sem refluxo nem limpeza, que vieram depois (onda 14)
-        "mapi.alerta.refluxo.enabled=false", "mapi.limpeza.enabled=false"})
+        "mapi.alerta.refluxo.enabled=false", "mapi.limpeza.enabled=false", "mapi.alerta.ponto-balde.enabled=true"})
 class ReprisaEventosIT extends AbstractTimescaleIntegrationTest {
 
     static final Path DATA = Path.of(System.getProperty("mapi.reprise.dir", "../projeto-mapi-ai/data/reprise"));
