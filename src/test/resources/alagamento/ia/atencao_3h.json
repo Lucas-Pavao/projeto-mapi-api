@@ -115,11 +115,11 @@
     },
     {
      "feature": "r5_15_frac_wet_60",
-     "label": "estações a 5–15 km com chuva na última hora: 100%",
+     "label": "estações a 5–15 km com chuva na última hora: todas",
      "value": 1.0,
-     "unit": "%",
+     "unit": "fração",
      "contribution_mm": 6.648,
-     "text": "estações a 5–15 km com chuva na última hora: 100% (+6,6 mm na previsão)"
+     "text": "estações a 5–15 km com chuva na última hora: todas (+6,6 mm na previsão)"
     }
    ]
   },
