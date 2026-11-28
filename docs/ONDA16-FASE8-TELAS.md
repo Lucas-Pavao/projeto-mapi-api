@@ -35,6 +35,15 @@
 - **Ausente nunca vira zero no desenho:** leque com valor ausente mostra "sem dado"; maré ausente não é desenhada.
 - **Confiabilidade:** faixa com menos de 30 instantes fica vazada e fora da linha (na chuva forte de 1 h, uma faixa tem 2).
 
+## Ao vivo (28/11, 12h48 UTC, implante api 87ad7c7, ia 24b2b07, front cbcebd7)
+
+- O tornado sai nos 3 pontos com terreno. **A capacidade não é o que mais pesa sozinha:** em CIn e Mascarenhas, área, C e
+  capacidade mexem quase igual na lâmina em volta do limiar (CIn: 56,1 × 56,0 cm), e a resposta é muito não linear (de 0 a
+  56 cm com ±20%). Em Ibura nem 300 mm em 1 h levam a lâmina a 15 cm. O texto passou a dizer quando há empate (amplitudes a
+  menos de 10% uma da outra; `heaviest` nulo e `tied` com os empatados) e quando o limiar não é alcançável (ia @ c4ad4ef,
+  96efc07; entra no próximo implante).
+- Conta de teste `claude-testes` (ADMIN), criada a pedido do Lucas em 28/11 para os testes ao vivo; senha fora do repositório.
+
 ## Contrato (campos novos, todos podem vir nulos)
 
 `explanation.tornado {deltaPct, rain1hMm, centralCm, heaviest, text, bars[{parameter, label, minus20Cm, plus20Cm, swingCm}]}`,

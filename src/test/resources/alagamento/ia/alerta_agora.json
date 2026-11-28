@@ -179,6 +179,8 @@
     }
    ],
    "heaviest": "capacidade",
+   "tied": [],
+   "reaches_threshold": true,
    "text": "com 130,1 mm em 1 h a lâmina fica em 24,0 cm; o que mais mexe nela é a capacidade da galeria (de 6,9 a 52,8 cm com ±20%)"
   },
   "sensitivity": {

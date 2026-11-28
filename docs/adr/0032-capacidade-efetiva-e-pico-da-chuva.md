@@ -50,7 +50,10 @@ Ver "Decisão", item 2: decidido por critério escrito antes.
   entra no pré-registro da validação de 2027 só como comparação (seção 5).
 - O contrato ganhou a faixa (`capacity`, `servedCapacity`) e as pontas da lâmina (`sheetQ50CmQmin`, `sheetQ95CmQmax`), e o
   pico (`peak10Q50Mm`, `peak10Q95Mm`). Modelo no ar: `flood_reg_v2` (modo sombra).
-- O tornado da Fase 8.5 confirma, nos estados de exemplo, que a capacidade é o parâmetro que mais mexe na lâmina.
+- O tornado da Fase 8.5 (±20% na chuva que leva a 15 cm) **não confirma** que a capacidade pesa sozinha: ao vivo, em
+  28/11 12h48 UTC, CIn e Mascarenhas tiveram área, C e capacidade mexendo quase igual (CIn: área 56,1 cm e capacidade
+  56,0 cm de amplitude), e a resposta é muito não linear no limiar (de 0 a 56 cm). Em Ibura nem 300 mm em 1 h chegam a
+  15 cm. A capacidade pesa tanto quanto a entrada de água (C·A), não mais.
 
 ## Condições que reabririam a decisão
 
