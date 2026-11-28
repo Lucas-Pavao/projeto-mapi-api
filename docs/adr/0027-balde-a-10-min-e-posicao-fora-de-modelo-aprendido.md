@@ -76,7 +76,10 @@ Consequência se aprovada: `mapi.alerta.flood.terrain-review` passa a ser calcul
 
 ## Emenda proposta B — capacidade da galeria pelo cadastro ESIG (2026-11-21)
 
-- Status: **proposto** (não aprovado; `mapi.alerta.capacity` não mudou)
+- Status: **substituída pelo ADR 0032** (2026-11-28): a capacidade passou a ser uma faixa por ponto, com bocas de lobo,
+  fatores DAEE/CETESB e Manning com fonte, e o ALERTA e a ATENÇÃO usam as duas pontas da faixa. O texto abaixo fica como
+  registro do que se sabia em 21/11.
+- Status original: **proposto** (não aprovado; `mapi.alerta.capacity` não mudou)
 - Base: `docs/PRE-REGISTRO-CAPACIDADE-GALERIA.md` (método aprovado antes do cálculo) e `PARAMETROS-MODELO-FISICO.md`, seção
   "Capacidade pelo cadastro ESIG".
 
