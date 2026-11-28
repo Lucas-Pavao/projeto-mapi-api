@@ -285,3 +285,17 @@ DADOS DA REDE OBSERVACIONAL DO CEMADEN/MCTIC.
   persistência na semana e no acumulado de cada trecho. `PIORA` no trecho abre o alerta de sistema `MODEL_CHECK`. Regra:
   `docs/PRE-REGISTRO-CONFERENCIA-SEMANAL-RAIN.md`.
 
+
+## Onda 16 (2026-11-22 a 28): o que mudou na coleta e nas conferências
+
+| O quê | Como entra | Onde | Observação |
+|---|---|---|---|
+| ICON no Open-Meteo | ao vivo `dwd_icon_global_native`; histórico `icon_seamless` | `application.yml` (`app.open-meteo-models.*`) | `icon_global` sai em 30/11/2026; quebra de série registrada em `source_series_break` (V43) |
+| Conferência semanal do rain_v1 | segunda 06h (Recife), contra a persistência, antes e depois de cada quebra | `rain_forecast_check` (V44); `GET /api/rain-forecast/weekly-check` | regra em `docs/PRE-REGISTRO-CONFERENCIA-SEMANAL-RAIN.md`; piora abre alerta `MODEL_CHECK` |
+| Relatório semanal do modo sombra | segunda 06h15 (Recife), por ponto: ciclos contra esperados, buracos, níveis, SEM_DADO por motivo, episódios | `shadow_weekly_report` (V49); `GET /api/alagamento/relatorio-semanal` (ADMIN) | rótulos lacrados; primeira semana medida (23/11) mostra o buraco de ~89 h da pilha parada |
+| Chuva medida acumulada por ponto | rota nova, maior valor por hora entre estações válidas (ADR 0023) | `GET /api/pontos/{slug}/chuva-medida` | card do ponto mostra 3, 6 e 24 h medidos (antes, Open-Meteo) |
+| Paridade treino × serviço do rain_v1 | estação sem leitura fica no denominador; 22 estações só ao vivo fora até o próximo treino | `mapi_ai/rain/serve.py` | teste de paridade em `tests/test_rain_paridade.py` |
+| Dados Vivos da SEDEC | **sem coletor**: os conjuntos pararam em 2021 e 2023 | `docs/ONDA16-FASE7-COLETA.md` | arquivos guardados no armazenamento lacrado |
+| Maré | tábua coberta até 31/12/2027 pela reserva harmônica | `docs/ONDA16-FASE7-COLETA.md` | maré ausente com refluxo no nível = SEM_DADO `MARE_AUSENTE` |
+| GOES RRQPE (satélite) | **sem coletor ao vivo** (produto aposentado em 02/11/2026); histórico extraído por faixa de bytes, só para o rain_v2 | `projeto-mapi-ai/mapi_ai/satelite/rrqpe.py` | ADR 0033 |
+| Radar da APAC (ESIG) | não coletado: imagens coloridas sem legenda em dBZ | `docs/extratos/esig-inventario/` | pedido 10, pergunta 4 |
